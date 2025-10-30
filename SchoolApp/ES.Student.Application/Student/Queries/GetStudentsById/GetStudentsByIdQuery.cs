@@ -1,0 +1,13 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using MediatR;
+using TN.Shared.Domain.Abstractions;
+
+namespace ES.Student.Application.Student.Queries.GetStudentsById
+{
+    public record  GetStudentsByIdQuery
+   (string id):IRequest<Result<GetStudentsByIdQueryResponse>>;
+}
