@@ -35,7 +35,8 @@ namespace TN.Shared.Domain.Entities.Account
         CalculationTypeOf calculationTypeOf,
         string? schoolId,
         string? createdBy,
-        DateTime? createdAt
+        DateTime? createdAt,
+        bool isActive
        
             ) : base(id)
         {
@@ -61,6 +62,7 @@ namespace TN.Shared.Domain.Entities.Account
             SchoolId = schoolId;
             CreatedBy = createdBy;
             CreatedAt = createdAt;
+            IsActive = isActive;
         }
         public string Name { get; set; }
         public BillSundryType BillType { get; set; }
@@ -77,7 +79,7 @@ namespace TN.Shared.Domain.Entities.Account
         public bool VendorAmountAdjusted { get; set; }
         public CalculationType CalculationType { get; set; }
         public CalculationTypeOf CalculationTypeOf { get; set; }
-
+        public bool IsActive { get; set; }
         public string? SalesAdjustedLedgerId { get; set; }
 
         public string? CustomerAdjustedLedgerId { get; set; }

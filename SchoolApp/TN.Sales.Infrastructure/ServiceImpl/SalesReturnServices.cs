@@ -142,7 +142,8 @@ namespace TN.Sales.Infrastructure.ServiceImpl
                                 0,
                                 returnedDate,
                                 schoolId,
-                                _fiscalContext.CurrentFiscalYearId
+                                _fiscalContext.CurrentFiscalYearId,
+                                true
                             )
                         };
 
@@ -156,7 +157,8 @@ namespace TN.Sales.Infrastructure.ServiceImpl
                             0,
                             returnedDate,
                             schoolId,
-                            _fiscalContext.CurrentFiscalYearId
+                            _fiscalContext.CurrentFiscalYearId,
+                            true
                         ));
                     }
 
@@ -170,7 +172,8 @@ namespace TN.Sales.Infrastructure.ServiceImpl
                             discount,
                             returnedDate,
                             schoolId,
-                            _fiscalContext.CurrentFiscalYearId
+                            _fiscalContext.CurrentFiscalYearId,
+                            true
                         ));
                     }
 
@@ -221,7 +224,8 @@ namespace TN.Sales.Infrastructure.ServiceImpl
                             credit,
                             entryDates,
                             schoolId,
-                            _fiscalContext.CurrentFiscalYearId
+                            _fiscalContext.CurrentFiscalYearId,
+                            true
                         ));
                     }
 
@@ -237,7 +241,8 @@ namespace TN.Sales.Infrastructure.ServiceImpl
                      grossReturn,
                      returnedDate,
                      schoolId,
-                     _fiscalContext.CurrentFiscalYearId
+                     _fiscalContext.CurrentFiscalYearId,
+                     true
                  ));
 
                     journalDetails.Add(new JournalEntryDetails(
@@ -248,7 +253,8 @@ namespace TN.Sales.Infrastructure.ServiceImpl
                        0,
                        returnedDate,
                        schoolId,
-                       _fiscalContext.CurrentFiscalYearId
+                       _fiscalContext.CurrentFiscalYearId,
+                       true
                    ));
 
 
@@ -275,6 +281,7 @@ namespace TN.Sales.Infrastructure.ServiceImpl
                            default,
                            salesDetails.BillNumber,
                            FyId,
+                           true,
                            journalDetails
                        );
 

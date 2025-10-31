@@ -145,7 +145,8 @@ namespace TN.Transactions.Infrastructure.ServiceImpl
                            item.amount,
                         DateTime.Now,
                         schoolId,
-                        _fiscalContext.CurrentFiscalYearId
+                        _fiscalContext.CurrentFiscalYearId,
+                        true
                        ));
                     }
                     if (addReceiptCommand.paymentId != null)
@@ -173,7 +174,8 @@ namespace TN.Transactions.Infrastructure.ServiceImpl
 
                                     DateTime.Now,
                                     schoolId,
-                                    _fiscalContext.CurrentFiscalYearId
+                                    _fiscalContext.CurrentFiscalYearId,
+                                    true
                                 ));
                                 break;
 
@@ -187,7 +189,8 @@ namespace TN.Transactions.Infrastructure.ServiceImpl
 
                                     DateTime.Now,
                                     schoolId,
-                                    _fiscalContext.CurrentFiscalYearId
+                                    _fiscalContext.CurrentFiscalYearId,
+                                    true
                                 ));
                                 break;
 
@@ -202,7 +205,8 @@ namespace TN.Transactions.Infrastructure.ServiceImpl
 
                                     DateTime.Now,
                                     schoolId,
-                                    _fiscalContext.CurrentFiscalYearId
+                                    _fiscalContext.CurrentFiscalYearId,
+                                    true
                                 ));
                                 break;
 
@@ -215,7 +219,8 @@ namespace TN.Transactions.Infrastructure.ServiceImpl
                                     0,
                                     DateTime.Now,
                                     schoolId,
-                                    _fiscalContext.CurrentFiscalYearId
+                                    _fiscalContext.CurrentFiscalYearId,
+                                    true
                                 ));
                                 break;
 
@@ -237,6 +242,7 @@ namespace TN.Transactions.Infrastructure.ServiceImpl
                             default,
                             "",
                             FyId,
+                            true,
                             journalDetails
                         );
 
@@ -448,7 +454,8 @@ namespace TN.Transactions.Infrastructure.ServiceImpl
                 0,
                 entryDate,
                 schoolId,
-                fyId
+                fyId,
+                true
             ));
 
             var journalEntry = new JournalEntry(
@@ -463,6 +470,7 @@ namespace TN.Transactions.Infrastructure.ServiceImpl
                 default,
                 "",
                 fyId,
+                true,
                 journalDetails
             );
 
@@ -888,7 +896,8 @@ namespace TN.Transactions.Infrastructure.ServiceImpl
                         item.amount,       // Credit
                         englishDate,
                         receipt.SchoolId,
-                        _fiscalContext.CurrentFiscalYearId
+                        _fiscalContext.CurrentFiscalYearId,
+                        true
                     ));
                 }
 
@@ -911,7 +920,8 @@ namespace TN.Transactions.Infrastructure.ServiceImpl
                         0,                                // Credit
                         englishDate,
                         receipt.SchoolId,
-                        _fiscalContext.CurrentFiscalYearId
+                        _fiscalContext.CurrentFiscalYearId,
+                        true
                     ));
                 }
 
@@ -927,6 +937,7 @@ namespace TN.Transactions.Infrastructure.ServiceImpl
                         default,
                         "",
                         _fiscalContext.CurrentFiscalYearId,
+                        true,
                         journalDetails
                     );
 

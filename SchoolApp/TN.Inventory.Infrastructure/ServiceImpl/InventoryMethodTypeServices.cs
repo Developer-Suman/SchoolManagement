@@ -51,7 +51,8 @@ namespace TN.Inventory.Infrastructure.ServiceImpl
                         0,    // Credit amount
                         entryDate,
                         schoolId,
-                        _fiscalContext.CurrentFiscalYearId
+                        _fiscalContext.CurrentFiscalYearId,
+                        true
                     ),
                     new JournalEntryDetails(
                         Guid.NewGuid().ToString(),
@@ -61,7 +62,8 @@ namespace TN.Inventory.Infrastructure.ServiceImpl
                         cogs, // Credit amount
                         entryDate,
                         schoolId,
-                        _fiscalContext.CurrentFiscalYearId
+                        _fiscalContext.CurrentFiscalYearId,
+                        true
                     )
                 };
 
@@ -79,7 +81,9 @@ namespace TN.Inventory.Infrastructure.ServiceImpl
                          default,
                          "",
                          FyId,
-                         journalDetails
+                         true,
+              
+                          journalDetails
                      );
 
                 if (journalDetails.Sum(x => x.DebitAmount) != journalDetails.Sum(x => x.CreditAmount))

@@ -179,7 +179,8 @@ namespace TN.Sales.Infrastructure.ServiceImpl
                                             bsResponse.CalculatedAmount,
                                             entryDate,
                                             schoolId,
-                                            FyId
+                                            FyId,
+                                            true
                                         ));
                                         billSundrySalesTotal += bsResponse.CalculatedAmount;
                                     }
@@ -195,7 +196,8 @@ namespace TN.Sales.Infrastructure.ServiceImpl
                                             0,
                                             entryDate,
                                             schoolId,
-                                            FyId
+                                            FyId,
+                                            true
                                         ));
                                         billSundryCustomerTotal += bsResponse.CalculatedAmount;
                                     }
@@ -212,7 +214,8 @@ namespace TN.Sales.Infrastructure.ServiceImpl
                             subTotal,
                             entryDate,
                             schoolId,
-                            _fiscalContext.CurrentFiscalYearId
+                            _fiscalContext.CurrentFiscalYearId,
+                            true
                         ));
 
 
@@ -226,7 +229,8 @@ namespace TN.Sales.Infrastructure.ServiceImpl
                                 vatAmount,
                                 entryDate,
                                 schoolId,
-                                _fiscalContext.CurrentFiscalYearId
+                                _fiscalContext.CurrentFiscalYearId,
+                                true
                             ));
                         }
 
@@ -240,7 +244,8 @@ namespace TN.Sales.Infrastructure.ServiceImpl
                                 0,
                                 entryDate,
                                 schoolId,
-                                _fiscalContext.CurrentFiscalYearId
+                                _fiscalContext.CurrentFiscalYearId,
+                                true
                             ));
                         }
 
@@ -287,7 +292,8 @@ namespace TN.Sales.Infrastructure.ServiceImpl
                                 0,
                                 entryDate,
                                 schoolId,
-                                _fiscalContext.CurrentFiscalYearId
+                                _fiscalContext.CurrentFiscalYearId,
+                                true
                             ));
                         }
 
@@ -310,6 +316,7 @@ namespace TN.Sales.Infrastructure.ServiceImpl
                             default,
                             request.billNumber,
                             FyId,
+                            true,
                             journalDetails
                         );
 
@@ -1924,18 +1931,18 @@ subTotalAmount,
 
                         // --- SALES SIDE ENTRIES ---
                         journalDetails.Add(new(Guid.NewGuid().ToString(), journal.Id, LedgerConstants.SalesLedgerId,
-                            0, gross, transactionDate, schoolId, fiscalId));
+                            0, gross, transactionDate, schoolId, fiscalId, true));
 
                         if (vat > 0)
                         {
                             journalDetails.Add(new(Guid.NewGuid().ToString(), journal.Id, LedgerConstants.VATLedgerId,
-                                0, vat, transactionDate, schoolId, fiscalId));
+                                0, vat, transactionDate, schoolId, fiscalId,true));
                         }
 
                         if (discount > 0)
                         {
                             journalDetails.Add(new(Guid.NewGuid().ToString(), journal.Id, LedgerConstants.DiscountLedgerId,
-                                discount, 0, transactionDate, schoolId, fiscalId));
+                                discount, 0, transactionDate, schoolId, fiscalId,true));
                         }
 
                         // --- PAYMENT / LEDGER HANDLING ---
@@ -1957,7 +1964,8 @@ subTotalAmount,
                                 credit,
                                 transactionDate,
                                 schoolId,
-                                fiscalId
+                                fiscalId,
+                                true
                             ));
                         }
 
