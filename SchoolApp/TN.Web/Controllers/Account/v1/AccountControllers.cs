@@ -98,8 +98,10 @@ namespace TN.Web.Controllers.Account.v1
     public class AccountControllers : BaseController
     {
         private readonly IMediator _mediator;
-        public AccountControllers(IMediator mediator, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager) : base(userManager, roleManager)
+        private readonly ILogger<AccountControllers> _logger;
+        public AccountControllers(IMediator mediator, ILogger<AccountControllers> logger, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager) : base(userManager, roleManager)
         {
+            _logger = logger;
             _mediator = mediator;
 
         }
@@ -109,10 +111,11 @@ namespace TN.Web.Controllers.Account.v1
 
         public async Task<IActionResult> AddBillSundry([FromBody] AddBillSundryRequest request)
         {
-            //Mapping command and request
-
+            _logger.LogInformation("Received Add Bill Sundry ");
             var command = request.ToCommand();
             var addBillSundryResult = await _mediator.Send(command);
+
+            _logger.LogInformation("Add Bill Sundry Successful");
             #region Switch Statement
             return addBillSundryResult switch
             {
