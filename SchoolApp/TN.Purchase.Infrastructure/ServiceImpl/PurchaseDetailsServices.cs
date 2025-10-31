@@ -189,7 +189,8 @@ namespace TN.Purchase.Infrastructure.ServiceImpl
                                         bsConfig.IsPurchaseAmountAdjusted ? 0 : bsResponse.CalculatedAmount,
                                         entryDate,
                                         schoolId,
-                                        FyId
+                                        FyId,
+                                        true
                                     ));
                                     billSundryDebitTotal += bsConfig.IsPurchaseAmountAdjusted ? bsResponse.CalculatedAmount : 0;
                                     billSundryCreditTotal += bsConfig.IsPurchaseAmountAdjusted ? 0 : bsResponse.CalculatedAmount;
@@ -203,7 +204,8 @@ namespace TN.Purchase.Infrastructure.ServiceImpl
                                         bsConfig.VendorAmountAdjusted ? bsResponse.CalculatedAmount : 0,
                                         entryDate,
                                         schoolId,
-                                        FyId
+                                        FyId,
+                                        true
                                     ));
                                     billSundryDebitTotal += bsConfig.VendorAmountAdjusted ? 0 : bsResponse.CalculatedAmount;
                                     billSundryCreditTotal += bsConfig.VendorAmountAdjusted ? bsResponse.CalculatedAmount : 0;
@@ -221,7 +223,8 @@ namespace TN.Purchase.Infrastructure.ServiceImpl
                             0,
                             entryDate,
                             schoolId,
-                            _fiscalContext.CurrentFiscalYearId
+                            _fiscalContext.CurrentFiscalYearId,
+                            true
                         ));
 
                         // ------------------- VAT LEDGER -------------------
@@ -235,7 +238,8 @@ namespace TN.Purchase.Infrastructure.ServiceImpl
                                 0,
                                 entryDate,
                                 schoolId,
-                                _fiscalContext.CurrentFiscalYearId
+                                _fiscalContext.CurrentFiscalYearId,
+                                true
                             ));
                         }
 
@@ -250,7 +254,8 @@ namespace TN.Purchase.Infrastructure.ServiceImpl
                                 discountAmount,
                                 entryDate,
                                 schoolId,
-                                _fiscalContext.CurrentFiscalYearId
+                                _fiscalContext.CurrentFiscalYearId,
+                                true
                             ));
                         }
 
@@ -300,7 +305,8 @@ namespace TN.Purchase.Infrastructure.ServiceImpl
                                 vendorCredit,
                                 entryDate,
                                 schoolId,
-                                _fiscalContext.CurrentFiscalYearId
+                                _fiscalContext.CurrentFiscalYearId,
+                                true
                             ));
 
                           
@@ -319,6 +325,7 @@ namespace TN.Purchase.Infrastructure.ServiceImpl
                             default,
                             billNumber,
                             FyId,
+                            true,
                             journalDetails
                         );
 
@@ -1488,7 +1495,8 @@ namespace TN.Purchase.Infrastructure.ServiceImpl
                             credit,
                             transactionDate,
                             schoolId,
-                            fiscalId
+                            fiscalId,
+                            true
                         ));
                     }
                 }
@@ -1673,7 +1681,8 @@ namespace TN.Purchase.Infrastructure.ServiceImpl
                                 grossPurchaseReturnAmount,
                                 returnedDate,
                                 schoolId,
-                                _fiscalContext.CurrentFiscalYearId
+                                _fiscalContext.CurrentFiscalYearId,
+                                true
                             )
                         };
 
@@ -1687,7 +1696,8 @@ namespace TN.Purchase.Infrastructure.ServiceImpl
                             vatAmount,
                             returnedDate,
                             schoolId,
-                            _fiscalContext.CurrentFiscalYearId
+                            _fiscalContext.CurrentFiscalYearId,
+                            true
                         ));
                     }
 
@@ -1701,7 +1711,8 @@ namespace TN.Purchase.Infrastructure.ServiceImpl
                             0,
                             returnedDate,
                             schoolId,
-                            _fiscalContext.CurrentFiscalYearId
+                            _fiscalContext.CurrentFiscalYearId,
+                            true
                         ));
                     }
 
@@ -1752,7 +1763,8 @@ namespace TN.Purchase.Infrastructure.ServiceImpl
                             credit,
                             entryDates,
                             schoolId,
-                            _fiscalContext.CurrentFiscalYearId
+                            _fiscalContext.CurrentFiscalYearId,
+                            true
                         ));
                     }
 
@@ -1780,6 +1792,7 @@ namespace TN.Purchase.Infrastructure.ServiceImpl
                            default,
                            purchaseDetails.BillNumber,
                            FyId,
+                           true,
                            journalDetails
                        );
 

@@ -82,7 +82,8 @@ namespace TN.Account.Infrastructure.ServiceImpl
                         FyId,
                         addLedgerCommand.openingBalance,
                       
-                        false
+                        false,
+                        true
 
                     );
 
@@ -106,7 +107,8 @@ namespace TN.Account.Infrastructure.ServiceImpl
                             0,
                             DateTime.Now,
                             schoolId,
-                            _fiscalContext.CurrentFiscalYearId
+                            _fiscalContext.CurrentFiscalYearId,
+                            true
                         ));
 
 
@@ -125,7 +127,8 @@ namespace TN.Account.Infrastructure.ServiceImpl
                             absAmount,
                             DateTime.Now,
                             schoolId,
-                            _fiscalContext.CurrentFiscalYearId
+                            _fiscalContext.CurrentFiscalYearId,
+                            true
                         ));
                     }
 
@@ -144,6 +147,7 @@ namespace TN.Account.Infrastructure.ServiceImpl
                          default,
                           "",
                           FyId,
+                          true,
                          journalDetails
 
                      );
@@ -180,7 +184,8 @@ namespace TN.Account.Infrastructure.ServiceImpl
                     return Result<bool>.Failure("NotFound", "Ledger Cannot be Found");
                 }
 
-                _unitOfWork.BaseRepository<Ledger>().Delete(ledger);
+                ledger.IsActive = false;
+                _unitOfWork.BaseRepository<Ledger>().Update(ledger);
                 await _unitOfWork.SaveChangesAsync();
 
 
@@ -191,9 +196,7 @@ namespace TN.Account.Infrastructure.ServiceImpl
                 throw new Exception($"An error occurred while deleting ledger having {id}", ex);
             }
 
-        }
-
-     
+        }     
 
         public async Task<Result<PagedResult<GetAllLedgerByQueryResponse>>> GetAllLedger(PaginationRequest paginationRequest, CancellationToken cancellationToken = default)
         {
@@ -203,12 +206,13 @@ namespace TN.Account.Infrastructure.ServiceImpl
                 var (ledgers, currentSchoolId, institutionId, userRole, isSuperAdmin) =
                     await _getUserScopedData.GetUserScopedData<Ledger>();
 
-           
-                var queryable = await _unitOfWork.BaseRepository<Ledger>()
-                    .FindBy(x => (x.IsSeeded.HasValue && x.IsSeeded.Value) ||
-                                 ((x.IsSeeded.HasValue && !x.IsSeeded.Value) && x.SchoolId == currentSchoolId));
 
-             
+                var queryable = await _unitOfWork.BaseRepository<Ledger>()
+                .FindBy(x => (x.IsSeeded == true) ||
+                             (x.IsSeeded == false && x.SchoolId == currentSchoolId && x.IsActive==true));
+
+
+
                 var finalQuery = queryable.AsNoTracking();
 
              
@@ -235,8 +239,6 @@ namespace TN.Account.Infrastructure.ServiceImpl
                 throw new Exception("An error occurred while fetching all ledgers", ex);
             }
         }
-
-
 
         public async Task<Result<PagedResult<GetAllPartiesByQueriesResponse>>> GetAllParties(PaginationRequest paginationRequest, CancellationToken cancellationToken = default)
         {
@@ -282,7 +284,8 @@ namespace TN.Account.Infrastructure.ServiceImpl
                 };
 
                 filteredParties = filteredParties
-                    .Where(x => allowedSubLedgerGroupIds.Contains(x.SubLedgerGroupId));
+                      .Where(x => x.IsActive == true && allowedSubLedgerGroupIds.Contains(x.SubLedgerGroupId));
+
 
                 // Paginate result
                 var pagedResult = await filteredParties
@@ -299,7 +302,6 @@ namespace TN.Account.Infrastructure.ServiceImpl
             }
         }
 
-
         public async Task<Result<GetBalanceByQueryResponse>> GetBalance(string ledgerId)
         {
             try
@@ -314,7 +316,7 @@ namespace TN.Account.Infrastructure.ServiceImpl
                 // Fetch ledger balance grouped by LedgerId
                 var balance = await _unitOfWork.BaseRepository<JournalEntryDetails>()
                     .GetConditionalFilterType(
-                        x => x.LedgerId == ledgerId && x.SchoolId == schoolId,
+                        x => x.LedgerId == ledgerId && x.SchoolId == schoolId && x.IsActive,
                         query => query
                             .GroupBy(g => g.LedgerId)
                             .Select(g => new GetBalanceByQueryResponse(
@@ -372,7 +374,6 @@ namespace TN.Account.Infrastructure.ServiceImpl
             }
             catch (Exception ex)
             {
-                // Always include the original exception for debugging
                 throw new Exception("An error occurred while getting balance.", ex);
             }
         }
@@ -387,7 +388,7 @@ namespace TN.Account.Infrastructure.ServiceImpl
 
 
                 var journalEntries = await _unitOfWork.BaseRepository<JournalEntryDetails>()
-                    .GetConditionalAsync(x => x.SchoolId == schoolId &&
+                    .GetConditionalAsync(x => x.SchoolId == schoolId && x.IsActive == true &&
                  (x.Ledger.SubLedgerGroupId == SubLedgerGroupConstants.SundryDebtor ||
                   x.Ledger.SubLedgerGroupId == SubLedgerGroupConstants.SundryCreditors) &&
                      (string.IsNullOrEmpty(ledgerId) || x.LedgerId == ledgerId));
@@ -493,7 +494,7 @@ namespace TN.Account.Infrastructure.ServiceImpl
 
                 var filterLedgers = isSuperAdmin
                     ? ledgers
-                    : ledgers.Where(x => x.SchoolId == _tokenService.SchoolId().FirstOrDefault() || x.SchoolId == "");
+                    : ledgers.Where(x =>x.IsActive == true && x.SchoolId == _tokenService.SchoolId().FirstOrDefault() || x.SchoolId == "");
 
                 // Handle Date Filters
                 DateTime startEnglishDate = filterLedgerDto.startDate == default
@@ -519,7 +520,7 @@ namespace TN.Account.Infrastructure.ServiceImpl
                 var ledgerIds = filteredResult.Select(l => l.Id).ToList();
                 var balances = await _unitOfWork.BaseRepository<JournalEntryDetails>()
                      .GetConditionalFilterType(
-                         x => ledgerIds.Contains(x.LedgerId) && (x.SchoolId == schoolId || x.SchoolId == ""),
+                         x => ledgerIds.Contains(x.LedgerId) && x.IsActive && (x.SchoolId == schoolId || x.SchoolId == ""),
                          query => query
                              .AsNoTracking() // Read-only optimization
                              .GroupBy(g => g.LedgerId)
@@ -534,7 +535,7 @@ namespace TN.Account.Infrastructure.ServiceImpl
 
                 var ledgerEntities = await _unitOfWork.BaseRepository<Ledger>()
                        .GetConditionalAsync(
-                           l => ledgerIds.Contains(l.Id) && (l.SchoolId == schoolId || l.SchoolId == ""),
+                           l => ledgerIds.Contains(l.Id) && l.IsActive==true &&(l.SchoolId == schoolId || l.SchoolId == ""),
                            query => query
                                .AsNoTracking()
                                .Include(l => l.SubLedgerGroup)
@@ -653,7 +654,7 @@ namespace TN.Account.Infrastructure.ServiceImpl
                
                 var filterLedgers = isSuperAdmin
                     ? ledgers
-                    : ledgers.Where(x => x.SchoolId == _tokenService.SchoolId().FirstOrDefault() || x.SchoolId == "");
+                    : ledgers.Where(x => x.IsActive==true && x.SchoolId == _tokenService.SchoolId().FirstOrDefault() || x.SchoolId == "");
 
                
                 DateTime startEnglishDate = filterPartiesDto.startDate == default
@@ -819,7 +820,7 @@ namespace TN.Account.Infrastructure.ServiceImpl
                 var schoolId = _tokenService.SchoolId().FirstOrDefault();
 
                 var journalEntries = await _unitOfWork.BaseRepository<JournalEntryDetails>()
-                    .GetConditionalAsync(x => x.SchoolId == schoolId);
+                    .GetConditionalAsync(x => x.SchoolId == schoolId && x.IsActive);
 
                 string subledgerGroupId = "dff66bb4-11e6-4e5f-8bb9-f00c01b90284";
                 if (!string.IsNullOrEmpty(LedgerId))
@@ -1017,7 +1018,8 @@ namespace TN.Account.Infrastructure.ServiceImpl
                             schoolId,
                             fyId,
                             openingBalance,
-                            false
+                            false,
+                            true
                         );
 
                         await _unitOfWork.BaseRepository<Ledger>().AddAsync(ledger);

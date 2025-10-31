@@ -92,6 +92,7 @@ namespace TN.Account.Infrastructure.ServiceImpl
                         default,
                         "",
                         FyId,
+                        true,
                         journalCommand.AddJournalEntryDetails?.Select(d => new JournalEntryDetails
                           (
                               Guid.NewGuid().ToString(),
@@ -101,7 +102,8 @@ namespace TN.Account.Infrastructure.ServiceImpl
                               d.creditAmount,
                               transactionDate,
                               schoolId,
-                              _fiscalContext.CurrentFiscalYearId
+                              _fiscalContext.CurrentFiscalYearId,
+                              true
 
                           )).ToList() ?? new List<JournalEntryDetails>()
                     );
@@ -144,7 +146,8 @@ namespace TN.Account.Infrastructure.ServiceImpl
                         request.creditAmount,
                         default,
                         "",
-                        _fiscalContext.CurrentFiscalYearId
+                        _fiscalContext.CurrentFiscalYearId,
+                        true
 
                     );
 
@@ -170,12 +173,14 @@ namespace TN.Account.Infrastructure.ServiceImpl
 
 
                 var journal= await _unitOfWork.BaseRepository<JournalEntry>().GetByGuIdAsync(id);
+
+                journal.IsActive = false;
                 if (journal is null)
                 {
                     return Result<bool>.Failure("NotFound", "Journal Cannot be Found");
                 }
 
-                _unitOfWork.BaseRepository<JournalEntry>().Delete(journal);
+                _unitOfWork.BaseRepository<JournalEntry>().Update(journal);
                 await _unitOfWork.SaveChangesAsync();
 
 
@@ -204,7 +209,7 @@ namespace TN.Account.Infrastructure.ServiceImpl
                 {
                     journalEntries = await _unitOfWork.BaseRepository<JournalEntry>()
                         .GetConditionalAsync(
-                            x => x.FyId == FyId,
+                            x => x.FyId == FyId && x.IsActive,
                             query => query.Include(rm => rm.JournalEntryDetails));
                 }
                 else if (!string.IsNullOrEmpty(institutionId) && string.IsNullOrEmpty(schoolId))
@@ -216,14 +221,14 @@ namespace TN.Account.Infrastructure.ServiceImpl
 
                     journalEntries = await _unitOfWork.BaseRepository<JournalEntry>()
                         .GetConditionalAsync(
-                            x => x.FyId == FyId && schoolIds.Contains(x.SchoolId),
+                            x => x.FyId == FyId && schoolIds.Contains(x.SchoolId) && x.IsActive,
                             query => query.Include(j => j.JournalEntryDetails));
                 }
                 else
                 {
                     journalEntries = await _unitOfWork.BaseRepository<JournalEntry>()
                         .GetConditionalAsync(
-                            x => x.FyId == FyId && x.SchoolId == schoolId,
+                            x => x.FyId == FyId && x.SchoolId == schoolId && x.IsActive,
                             query => query.Include(j => j.JournalEntryDetails));
                 }
 
@@ -356,7 +361,7 @@ namespace TN.Account.Infrastructure.ServiceImpl
                 {
                     entries = await _unitOfWork.BaseRepository<JournalEntry>().GetConditionalAsync(
                         x =>
-                            x.FyId == fiscalYearId &&
+                            x.FyId == fiscalYearId && x.IsActive &&
                             x.CreatedAt >= startEnglishDate &&
                             x.CreatedAt <= endEnglishDate &&
                             (string.IsNullOrEmpty(filterJournalDTOs.description) || x.Description.Contains(filterJournalDTOs.description)),
@@ -373,7 +378,7 @@ namespace TN.Account.Infrastructure.ServiceImpl
                     entries = await _unitOfWork.BaseRepository<JournalEntry>().GetConditionalAsync(
                         x =>
                             x.FyId == fiscalYearId &&
-                            schoolIds.Contains(x.SchoolId) &&
+                            schoolIds.Contains(x.SchoolId) && x.IsActive &&
                             x.CreatedAt >= startEnglishDate &&
                             x.CreatedAt <= endEnglishDate &&
                             (string.IsNullOrEmpty(filterJournalDTOs.description) || x.Description.Contains(filterJournalDTOs.description)),
@@ -384,7 +389,7 @@ namespace TN.Account.Infrastructure.ServiceImpl
                 {
                     entries = await _unitOfWork.BaseRepository<JournalEntry>().GetConditionalAsync(
                         x =>
-                            x.FyId == fiscalYearId &&
+                            x.FyId == fiscalYearId && x.IsActive &&
                             x.SchoolId == schoolId &&
                             x.CreatedAt >= startEnglishDate &&
                             x.CreatedAt <= endEnglishDate &&

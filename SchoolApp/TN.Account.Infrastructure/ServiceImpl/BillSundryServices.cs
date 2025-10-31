@@ -78,7 +78,8 @@ namespace TN.Account.Infrastructure.ServiceImpl
                         addBillSundryCommand.calculationTypeOf,
                         schoolId,
                         userId,
-                        DateTime.Now
+                        DateTime.Now,
+                        true
 
 
                     );
@@ -310,12 +311,14 @@ namespace TN.Account.Infrastructure.ServiceImpl
             try
             {
                 var billSundry = await _unitOfWork.BaseRepository<BillSundry>().GetByGuIdAsync(id);
+
+                billSundry.IsActive = false;
                 if (billSundry is null)
                 {
                     return Result<bool>.Failure("NotFound", "billSundry Cannot be Found");
                 }
 
-                _unitOfWork.BaseRepository<BillSundry>().Delete(billSundry);
+                _unitOfWork.BaseRepository<BillSundry>().Update(billSundry);
                 await _unitOfWork.SaveChangesAsync();
 
 
@@ -338,7 +341,7 @@ namespace TN.Account.Infrastructure.ServiceImpl
                 var currentSchoolId = _tokenService.SchoolId().FirstOrDefault();
                 var filterBillSundry = isSuperAdmin
                     ? sundryBill
-                    : sundryBill.Where(x =>
+                    : sundryBill.Where(x => x.IsActive &&
                         x.SchoolId == _tokenService.SchoolId().FirstOrDefault() || x.SchoolId == "");
 
 
@@ -385,7 +388,7 @@ namespace TN.Account.Infrastructure.ServiceImpl
                 }
 
                 var result = await _unitOfWork.BaseRepository<BillSundry>().GetConditionalAsync(
-                    x => x.SchoolId == currentSchoolId &&
+                    x =>x.IsActive &&x.SchoolId == currentSchoolId &&
                         (startEnglishDate == null || x.CreatedAt >= startEnglishDate) &&
                         (endEnglishDate == null || x.CreatedAt <= endEnglishDate)
                    
@@ -471,7 +474,7 @@ namespace TN.Account.Infrastructure.ServiceImpl
 
               
                 var queryable = await _unitOfWork.BaseRepository<BillSundry>()
-                    .FindBy(x => x.SchoolId == currentSchoolId);
+                    .FindBy(x => x.SchoolId == currentSchoolId && x.IsActive);
 
                 var finalQuery = queryable.AsNoTracking();
 

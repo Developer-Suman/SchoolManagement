@@ -28,6 +28,7 @@ namespace TN.Account.Domain.Entities
             DateTime modifiedAt,
             string? billNumber,
             string? fyId,
+            bool isActive,
              List<JournalEntryDetails> journalEntryDetails
             ) : base(id)
         {
@@ -41,6 +42,7 @@ namespace TN.Account.Domain.Entities
             ModifiedAt = modifiedAt;
             BillNumbers = billNumber;
             FyId = fyId;
+            IsActive = isActive;
             JournalEntryDetails= journalEntryDetails;
             PurchaseDetails = new List<PurchaseDetails>();
             SalesDetails = new List<SalesDetails>();
@@ -60,7 +62,7 @@ namespace TN.Account.Domain.Entities
         public string ModifiedBy { get;set;}
         public DateTime ModifiedAt { get;set;}
         public string? BillNumbers { get;set; }
-
+        public bool IsActive { get; set; }
         public string? FyId { get;set; }
         //Navigation Property
         public ICollection<JournalEntryDetails> JournalEntryDetails { get; set; }

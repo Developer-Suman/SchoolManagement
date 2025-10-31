@@ -193,7 +193,8 @@ namespace TN.Inventory.Infrastructure.ServiceImpl
                            0,
                            DateTime.Now,
                            schoolId,
-                           FyId
+                           FyId,
+                           true
                        ));
 
 
@@ -212,6 +213,7 @@ namespace TN.Inventory.Infrastructure.ServiceImpl
                         default,
                          "",
                          FyId,
+                         true,
                         journalDetails
 
                     );
@@ -571,7 +573,8 @@ namespace TN.Inventory.Infrastructure.ServiceImpl
                        0,
                        DateTime.Now,
                        schoolId,
-                       FyId
+                       FyId,
+                       true
                    ));
 
 
@@ -590,6 +593,7 @@ namespace TN.Inventory.Infrastructure.ServiceImpl
                     default,
                      "",
                      FyId,
+                     true,
                     journalDetails
 
                 );

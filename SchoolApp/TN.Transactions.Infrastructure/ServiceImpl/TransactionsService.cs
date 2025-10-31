@@ -115,7 +115,8 @@ namespace TN.Transactions.Infrastructure.ServiceImpl
                             creditAmount: isIncome ? item.amount : 0,
                             entryDate,
                             schoolId,
-                            _fiscalContext.CurrentFiscalYearId
+                            _fiscalContext.CurrentFiscalYearId,
+                            true
                         ));
                     }
 
@@ -145,7 +146,8 @@ namespace TN.Transactions.Infrastructure.ServiceImpl
 
                                     entryDate,
                                     schoolId,
-                                    _fiscalContext.CurrentFiscalYearId
+                                    _fiscalContext.CurrentFiscalYearId,
+                                    true
                                 ));
                                 break;
 
@@ -159,7 +161,8 @@ namespace TN.Transactions.Infrastructure.ServiceImpl
 
                                     entryDate,
                                     schoolId,
-                                    _fiscalContext.CurrentFiscalYearId
+                                    _fiscalContext.CurrentFiscalYearId,
+                                    true
                                 ));
                                 break;
 
@@ -174,7 +177,8 @@ namespace TN.Transactions.Infrastructure.ServiceImpl
 
                                     entryDate,
                                     schoolId,
-                                    _fiscalContext.CurrentFiscalYearId
+                                    _fiscalContext.CurrentFiscalYearId,
+                                    true
                                 ));
                                 break;
 
@@ -187,7 +191,8 @@ namespace TN.Transactions.Infrastructure.ServiceImpl
                                     0,
                                     entryDate,
                                     schoolId,
-                                    _fiscalContext.CurrentFiscalYearId
+                                    _fiscalContext.CurrentFiscalYearId,
+                                    true
                                 ));
                                 break;
 
@@ -210,6 +215,7 @@ namespace TN.Transactions.Infrastructure.ServiceImpl
                      default,
                      "",
                      FyId,
+                     true,
                      journalDetails
                  );
 

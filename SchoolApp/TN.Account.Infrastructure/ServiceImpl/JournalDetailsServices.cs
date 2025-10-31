@@ -62,7 +62,8 @@ namespace TN.Account.Infrastructure.ServiceImpl
                            addJournalEntryDetailsCommand.creditAmount,
                            default,
                            "",
-                           ""
+                           "",
+                           true
 
                     );
 
