@@ -67,6 +67,7 @@ using TN.Inventory.Application.Inventory.Queries.ItemsById;
 using TN.Inventory.Application.Inventory.Queries.ItemsByStockCenterId;
 using TN.Inventory.Application.Inventory.Queries.StockCenters;
 using TN.Inventory.Application.Inventory.Queries.StockCentersById;
+using TN.Inventory.Application.Inventory.Queries.StockExpiryNotification;
 using TN.Inventory.Application.Inventory.Queries.Units;
 using TN.Inventory.Application.Inventory.Queries.UnitsById;
 using TN.Shared.Domain.ExtensionMethod.Pagination;
@@ -86,6 +87,33 @@ namespace TN.Web.Controllers.Inventory.v1
             _mediator=mediator;
 
         }
+
+        #region Notification for Stock Expiry
+
+        #region StockExpiryNotification
+        [HttpGet("StockExpiryNotification")]
+        public async Task<IActionResult> StockExpiryNotification([FromQuery] PaginationRequest paginationRequest)
+        {
+            var query = new StockExpiryNotificationQuery(paginationRequest);
+            var stockExpiryResult = await _mediator.Send(query);
+            #region Switch Statement
+            return stockExpiryResult switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(stockExpiryResult.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = stockExpiryResult.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(stockExpiryResult.Errors),
+                _ => BadRequest("Invalid page and pageSize Fields")
+            };
+            #endregion
+
+        }
+        #endregion
+
+
+        #endregion
 
         #region StockTransferDetails
 

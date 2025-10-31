@@ -11,6 +11,7 @@ using TN.Inventory.Application.Inventory.Queries.FilterItemsByDate;
 using TN.Inventory.Application.Inventory.Queries.Items;
 using TN.Inventory.Application.Inventory.Queries.ItemsById;
 using TN.Inventory.Application.Inventory.Queries.ItemsByStockCenterId;
+using TN.Inventory.Application.Inventory.Queries.StockExpiryNotification;
 using TN.Shared.Domain.Abstractions;
 using TN.Shared.Domain.ExtensionMethod.Pagination;
 
@@ -18,6 +19,7 @@ namespace TN.Inventory.Application.ServiceInterface
 {
     public interface IItemsServices
     {
+        Task<Result<PagedResult<StockExpiryNotificationResponse>>> GetStockExpiryNotification(PaginationRequest paginationRequest, CancellationToken cancellationToken = default);
         Task<Result<ItemsExcelResponse>> AddItemsExcel(IFormFile formFile, CancellationToken cancellationToken = default);
         Task<Result<PagedResult<GetAllItemByQueryResponse>>> GetAllItems(PaginationRequest paginationRequest, CancellationToken cancellationToken=default);
         Task<Result<PagedResult<GetItemByStockCenterQueryResponse>>> GetItemByStockCenter(string stockCenterId,PaginationRequest paginationRequest, CancellationToken cancellationToken = default);

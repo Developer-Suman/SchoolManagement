@@ -17,12 +17,14 @@ using TN.Inventory.Application.Inventory.Queries.FilterItemsByDate;
 using TN.Inventory.Application.Inventory.Queries.Items;
 using TN.Inventory.Application.Inventory.Queries.ItemsById;
 using TN.Inventory.Application.Inventory.Queries.ItemsByStockCenterId;
+using TN.Inventory.Application.Inventory.Queries.StockExpiryNotification;
 using TN.Inventory.Application.ServiceInterface;
 using TN.Inventory.Domain.Entities;
 using TN.Purchase.Domain.Entities;
 using TN.Shared.Application.ServiceInterface;
 using TN.Shared.Domain.Abstractions;
 using TN.Shared.Domain.Entities.Account;
+using TN.Shared.Domain.Entities.Notification;
 using TN.Shared.Domain.Entities.OrganizationSetUp;
 using TN.Shared.Domain.Entities.StockCenterEntities;
 using TN.Shared.Domain.ExtensionMethod.Pagination;
@@ -997,6 +999,55 @@ namespace TN.Inventory.Infrastructure.ServiceImpl
                 throw new Exception("An error occurred while fetching all Items by Stock Center", ex);
             }
 
+        }
+
+        public async Task<Result<PagedResult<StockExpiryNotificationResponse>>> GetStockExpiryNotification(PaginationRequest paginationRequest, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                var schoolId = _tokenService.SchoolId().FirstOrDefault();
+                var institutionId = _tokenService.InstitutionId() ?? "";
+                var userRoles = _tokenService.GetRole();
+
+                var isSuperAdmin = userRoles == Role.SuperAdmin;
+
+                IQueryable<StockExpiryNotification> stockExpiry = await _unitOfWork.BaseRepository<StockExpiryNotification>().GetAllAsyncWithPagination();
+
+                var schoolIds = await _unitOfWork.BaseRepository<School>()
+                    .GetConditionalFilterType(
+                        x => x.InstitutionId == institutionId,
+                        query => query.Select(c => c.Id)
+                    );
+
+                IQueryable<StockExpiryNotification> filteredStockExpiry;
+
+                if (isSuperAdmin)
+                {
+                    filteredStockExpiry = stockExpiry;
+                }
+                else if (!string.IsNullOrEmpty(institutionId) && string.IsNullOrEmpty(schoolId))
+                {
+                    filteredStockExpiry = stockExpiry.Where(x => schoolIds.Contains(x.SchoolId));
+                }
+                else
+                {
+                    filteredStockExpiry = stockExpiry.Where(x => x.SchoolId == schoolId);
+                }
+
+                filteredStockExpiry = filteredStockExpiry.OrderBy(x => x.ExpiredDate);
+
+                var stockExpiryPagedResult = await filteredStockExpiry
+                    .AsNoTracking()
+                    .ToPagedResultAsync(paginationRequest.pageIndex, paginationRequest.pageSize, paginationRequest.IsPagination);
+
+                var allIStockExpiryResponse = _mapper.Map<PagedResult<StockExpiryNotificationResponse>>(stockExpiryPagedResult.Data);
+
+                return Result<PagedResult<StockExpiryNotificationResponse>>.Success(allIStockExpiryResponse);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while fetching all Items", ex);
+            }
         }
     }
 }
