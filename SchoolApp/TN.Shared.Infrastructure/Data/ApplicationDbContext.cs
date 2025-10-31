@@ -14,6 +14,7 @@ using TN.Shared.Domain.Entities.Account;
 using TN.Shared.Domain.Entities.Attendances;
 using TN.Shared.Domain.Entities.FeeAndAccounting;
 using TN.Shared.Domain.Entities.Inventory;
+using TN.Shared.Domain.Entities.Notification;
 using TN.Shared.Domain.Entities.OrganizationSetUp;
 using TN.Shared.Domain.Entities.Payments;
 using TN.Shared.Domain.Entities.Purchase;
@@ -68,7 +69,11 @@ namespace TN.Shared.Infrastructure.Data
 
         #endregion
 
+        #region Notification
 
+        public DbSet<StockExpiryNotification> StockExpiryNotifications { get; set; }
+
+        #endregion
 
         #region Sales and purchase quotation
         public DbSet<PurchaseQuotationDetails>  PurchaseQuotationDetails { get; set; }
