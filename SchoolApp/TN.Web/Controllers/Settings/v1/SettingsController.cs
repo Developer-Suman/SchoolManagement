@@ -70,10 +70,12 @@ namespace TN.Web.Controllers.Settings.v1
     public class SettingsController : BaseController
     {
         private readonly IMediator _mediator;
+        private readonly ILogger<SettingsController> _logger;
 
-        public SettingsController(IMediator mediator, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager) : base(userManager, roleManager)
+        public SettingsController(IMediator mediator, ILogger<SettingsController> logger,UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager) : base(userManager, roleManager)
         {
             _mediator = mediator;
+            _logger = logger;
 
         }
         #region SelectedFiscalYear

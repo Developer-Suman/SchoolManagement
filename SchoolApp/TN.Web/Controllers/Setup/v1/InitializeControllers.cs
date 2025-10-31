@@ -13,13 +13,16 @@ namespace TN.Web.Controllers.Setup.v1
     public class InitializeControllers : BaseController
     {
         private readonly IInitializeServices _initializeServices;
+        private readonly ILogger<InitializeControllers> _logger;
         public InitializeControllers(
             UserManager<ApplicationUser> userManager,
+            ILogger<InitializeControllers> logger,
             IInitializeServices initializeServices,
             RoleManager<IdentityRole> roleManager):
             
             base(userManager, roleManager)
         {
+            _logger = logger;
             _initializeServices = initializeServices;
             
         }

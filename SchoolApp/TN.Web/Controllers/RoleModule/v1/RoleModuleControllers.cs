@@ -55,10 +55,12 @@ namespace TN.Web.Controllers.RoleModule.v1
     public class RoleModuleControllers : BaseController
     {
         private readonly IMediator _mediator;
+        private readonly ILogger<RoleModuleControllers> _logger;
 
-        public RoleModuleControllers(IMediator mediator, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager) : base(userManager, roleManager)
+        public RoleModuleControllers(IMediator mediator,ILogger<RoleModuleControllers> logger, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager) : base(userManager, roleManager)
         {
             _mediator = mediator;
+            _logger = logger;
 
         }
 

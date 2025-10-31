@@ -50,9 +50,11 @@ namespace TN.Web.Controllers.Report.v1
     public class ReportController : BaseController
     {
         private readonly IMediator _mediator;
+        private readonly ILogger<ReportController> _logger;
 
-        public ReportController(IMediator mediator, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager) : base(userManager, roleManager)
+        public ReportController(IMediator mediator,ILogger<ReportController> logger ,UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager) : base(userManager, roleManager)
         {
+            _logger = logger;
             _mediator = mediator;
         }
 
