@@ -22,7 +22,8 @@ namespace TN.Account.Domain.Entities
             string schoolId,
             string? fyId,
             decimal? openingBalance,
-            bool? isSeeded
+            bool? isSeeded,
+            bool? isActive
             ) : base(id) 
         { 
 
@@ -38,7 +39,7 @@ namespace TN.Account.Domain.Entities
             SchoolId = schoolId;
             FyId= fyId;
             OpeningBalance = openingBalance;
-    
+            IsActive = isActive;
             IsSeeded = isSeeded;
             Customers = new List<Customers>();
             JournalEntryDetails = new List<JournalEntryDetails>();
@@ -62,6 +63,8 @@ namespace TN.Account.Domain.Entities
         public string? FyId { get; set; }
         public decimal? OpeningBalance { get; set; }
         public bool? IsSeeded { get; set; } = true;
+
+        public bool? IsActive { get; set; }
 
         //Navigation Properties
         public virtual SubLedgerGroup SubLedgerGroup { get; set; }

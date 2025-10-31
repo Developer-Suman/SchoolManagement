@@ -147,7 +147,8 @@ namespace TN.Transactions.Infrastructure.ServiceImpl
                                item.amount,
                             DateTime.Now,
                             schoolId,
-                            _fiscalContext.CurrentFiscalYearId
+                            _fiscalContext.CurrentFiscalYearId,
+                            true
                            ));
                         }
                         if (addIncomeCommand.paymentMethodId != null)
@@ -175,7 +176,8 @@ namespace TN.Transactions.Infrastructure.ServiceImpl
 
                                         DateTime.Now,
                                         schoolId,
-                                        _fiscalContext.CurrentFiscalYearId
+                                        _fiscalContext.CurrentFiscalYearId,
+                                        true
                                     ));
                                     break;
 
@@ -189,7 +191,8 @@ namespace TN.Transactions.Infrastructure.ServiceImpl
 
                                         DateTime.Now,
                                         schoolId,
-                                        _fiscalContext.CurrentFiscalYearId
+                                        _fiscalContext.CurrentFiscalYearId,
+                                        true
                                     ));
                                     break;
 
@@ -204,7 +207,8 @@ namespace TN.Transactions.Infrastructure.ServiceImpl
 
                                         DateTime.Now,
                                         schoolId,
-                                        _fiscalContext.CurrentFiscalYearId
+                                        _fiscalContext.CurrentFiscalYearId,
+                                        true
                                     ));
                                     break;
 
@@ -217,7 +221,9 @@ namespace TN.Transactions.Infrastructure.ServiceImpl
                                         0,
                                         DateTime.Now,
                                         schoolId,
-                                        _fiscalContext.CurrentFiscalYearId
+                                        
+                                        _fiscalContext.CurrentFiscalYearId,
+                                        true
                                     ));
                                     break;
 
@@ -239,7 +245,9 @@ namespace TN.Transactions.Infrastructure.ServiceImpl
                                 default,
                                 "",
                                 FyId,
+                                true,
                                 journalDetails
+                                
                             );
 
                         if (journalDetails.Sum(x => x.DebitAmount) != journalDetails.Sum(x => x.CreditAmount))
@@ -738,7 +746,8 @@ namespace TN.Transactions.Infrastructure.ServiceImpl
                         item.amount, // Credit
                         englishDate,
                         income.SchoolId,
-                        _fiscalContext.CurrentFiscalYearId
+                        _fiscalContext.CurrentFiscalYearId,
+                        true
                     ));
                 }
 
@@ -761,7 +770,8 @@ namespace TN.Transactions.Infrastructure.ServiceImpl
                         0, // Credit
                         englishDate,
                         income.SchoolId,
-                        _fiscalContext.CurrentFiscalYearId
+                        _fiscalContext.CurrentFiscalYearId,
+                        true
                     ));
                 }
 
@@ -780,6 +790,7 @@ namespace TN.Transactions.Infrastructure.ServiceImpl
                     default,
                     "",
                     _fiscalContext.CurrentFiscalYearId,
+                    true,
                     journalDetails
                 );
 
