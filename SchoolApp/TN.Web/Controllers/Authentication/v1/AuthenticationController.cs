@@ -54,7 +54,7 @@ using TN.Web.BaseControllers;
 
 namespace TN.Web.Controllers.Authentication.v1
 {
-    //[Authorize(AuthenticationSchemes = "Bearer")]
+    [Authorize(AuthenticationSchemes = "Bearer")]
     [Route("api/[controller]")]
     [ApiController]
     [EnableCors("AllowAllOrigins")]
@@ -63,9 +63,11 @@ namespace TN.Web.Controllers.Authentication.v1
     {
         private readonly IUserServices _accountServices;
         private readonly IMediator _mediator;
+        private readonly ILogger<AuthenticationController> _logger;
 
-        public AuthenticationController(IMediator mediator,IUserServices accountServices, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager) : base(userManager, roleManager) 
+        public AuthenticationController(IMediator mediator,ILogger<AuthenticationController> logger,IUserServices accountServices, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager) : base(userManager, roleManager) 
         {
+            _logger = logger;
             _accountServices = accountServices;
             _mediator = mediator;
         }
@@ -192,9 +194,10 @@ namespace TN.Web.Controllers.Authentication.v1
         [HttpPost("AddPermissionToRoles")]
         public async Task<IActionResult> AddPermissionToRoles([FromBody] AddPermissionToRolesRequest request)
         {
-            //Mapping command and request
+            _logger.LogInformation("Received Add Permission To Roles ");
             var command = request.ToCommand();
             var addPermissionToRoles = await _mediator.Send(command);
+            _logger.LogInformation("Add Permission Sundry Successful");
 
             #region switch
             return addPermissionToRoles switch
