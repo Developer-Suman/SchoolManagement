@@ -75,8 +75,8 @@ namespace TN.Shared.Infrastructure.DataSeed
             {
                 var billSundry = new List<BillSundry>()
                 {
-                    new BillSundry("63b9dfb3-7d15-48a0-9cad-9f3df5c56417","Discount",BillSundryType.Subtractive,null,BillSundryNature.DiscountOrIncomeCr,true,true, false,false,false,false, false,false,false,null,null,null,null,CalculationType.Percentage,CalculationTypeOf.SubTotalAmount,"","",DateTime.Now),
-                    new BillSundry("6b2bc3d5-0080-4196-88ba-5525a6f0f4c4","VAT",BillSundryType.Additive,null,BillSundryNature.TaxOrInputDr,false,false, false,true,true  ,false,   false,true, true,"5fa06b9c-ba4f-4d37-b049-a2e742bfc8d3",null,"5fa06b9c-ba4f-4d37-b049-a2e742bfc8d3",null,CalculationType.Percentage,CalculationTypeOf.TaxableAmount,"","",DateTime.Now)
+                    new BillSundry("63b9dfb3-7d15-48a0-9cad-9f3df5c56417","Discount",BillSundryType.Subtractive,null,BillSundryNature.DiscountOrIncomeCr,true,true, false,false,false,false, false,false,false,null,null,null,null,CalculationType.Percentage,CalculationTypeOf.SubTotalAmount,"","",DateTime.Now, true),
+                    new BillSundry("6b2bc3d5-0080-4196-88ba-5525a6f0f4c4","VAT",BillSundryType.Additive,null,BillSundryNature.TaxOrInputDr,false,false, false,true,true  ,false,   false,true, true,"5fa06b9c-ba4f-4d37-b049-a2e742bfc8d3",null,"5fa06b9c-ba4f-4d37-b049-a2e742bfc8d3",null,CalculationType.Percentage,CalculationTypeOf.TaxableAmount,"","",DateTime.Now,true)
 
                 };
 
