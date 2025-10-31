@@ -1,8 +1,3 @@
-builder.Services.AddStackExchangeRedisCache(options =>
-{
-    options.Configuration = builder.Configuration.GetConnectionString("Redis"); // e.g. localhost:6379
-    options.InstanceName = "ERP_"; // Optional prefix for your keys
-});
 
 using ES.Academics.Application;
 using ES.Academics.Infrastructure;
@@ -37,6 +32,7 @@ using TN.Shared.Application;
 using TN.Shared.Infrastructure;
 using TN.Shared.Infrastructure.CustomMiddleware.FiscalYearContext;
 using TN.Shared.Infrastructure.CustomMiddleware.GlobalErrorHandling;
+using TN.Shared.Infrastructure.SignalRHub;
 using TN.Transactions.Application;
 using TN.Transactions.Infrastructure;
 using TN.Web.Configs;
@@ -134,6 +130,7 @@ try
 
         }).RejectionStatusCode = 429;
     });
+    #endregion
 
 
 
@@ -229,6 +226,7 @@ try
     app.UseMiddleware<ExceptionMiddleware>();
     app.UseMiddleware<FiscalContextMiddleware>();
     app.MapControllers();
+    app.MapHub<NotificationHub>("/notificationHub");
     app.Run();
 
 }catch(Exception ex)

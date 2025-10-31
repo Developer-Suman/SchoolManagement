@@ -23,7 +23,8 @@ namespace TN.Account.Domain.Entities
             decimal creditAmount,
             DateTime transactionDate,
             string schoolId,
-            string? fiscalId
+            string? fiscalId,
+            bool isActive
             ): base(id) 
 
         {
@@ -34,6 +35,7 @@ namespace TN.Account.Domain.Entities
             TransactionDate = transactionDate;
             SchoolId = schoolId;
             FiscalId = fiscalId;
+            IsActive = isActive;
             
         }
         [Required]
@@ -52,5 +54,7 @@ namespace TN.Account.Domain.Entities
         public  JournalEntry JournalEntry { get; set; }
         public  Ledger Ledger { get; set; }
         public string? FiscalId { get; set; }
+
+        public bool IsActive { get; set; }
     }
 }
