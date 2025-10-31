@@ -1,0 +1,79 @@
+name: SSH to Windows VPS
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    
+    # Setup .NET SDK
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '8.0.x'
+    
+    - name: Display Current Directory
+      run: ls -la
+    
+    # Publish .NET Project from SchoolApp directory
+    - name: Publish .NET Project
+      working-directory: ./SchoolApp
+      run: |
+        dotnet restore
+        dotnet build -c Release
+        dotnet publish -c Release -o ../publish
+    
+    - name: Create deployment package using Zip
+      run: |
+        cd publish
+        zip -r ../deploy.zip .
+        cd ..
+        ls -lh deploy.zip
+    
+    - name: Install sshpass
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y sshpass
+    
+    - name: Test Connection
+      run: |
+        sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh \
+          -o StrictHostKeyChecking=no \
+          -o UserKnownHostsFile=/dev/null \
+          -o PubkeyAuthentication=no \
+          administrator@45.117.153.128 'echo "Connected successfully" && powershell -Command "Get-Date; hostname; whoami"'
+    
+    - name: Create Folder on Desktop
+      run: |
+        sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh \
+          -o StrictHostKeyChecking=no \
+          -o UserKnownHostsFile=/dev/null \
+          -o PubkeyAuthentication=no \
+          administrator@45.117.153.128 'powershell -Command "New-Item -Path \"C:\Users\Administrator\Desktop\suman\" -ItemType Directory -Force; Write-Host \"Folder created successfully at Desktop\suman\""'
+    
+    - name: Copy files to VPS
+      run: |
+        sshpass -p "${{ secrets.SSH_PASSWORD }}" scp \
+          -o StrictHostKeyChecking=no \
+          -o UserKnownHostsFile=/dev/null \
+          deploy.zip administrator@45.117.153.128:C:/Users/Administrator/Desktop/
+    
+    - name: Extract and Deploy
+      run: |
+        sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh \
+          -o StrictHostKeyChecking=no \
+          -o UserKnownHostsFile=/dev/null \
+          -o PubkeyAuthentication=no \
+          administrator@45.117.153.128 << 'ENDSSH'
+          echo "Extracting deployment package..."
+          powershell -Command "Expand-Archive -Path 'C:\Users\Administrator\Desktop\deploy.zip' -DestinationPath 'C:\Users\Administrator\Desktop\suman' -Force"
+          powershell -Command "Remove-Item 'C:\Users\Administrator\Desktop\deploy.zip' -Force"
+          echo "Deployment completed successfully!"
+          powershell -Command "Get-ChildItem 'C:\Users\Administrator\Desktop\suman' | Select-Object Name, Length, LastWriteTime"
