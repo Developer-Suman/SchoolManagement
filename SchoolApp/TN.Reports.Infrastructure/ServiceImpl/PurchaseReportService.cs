@@ -32,6 +32,7 @@ using TN.Shared.Domain.Abstractions;
 using TN.Shared.Domain.Entities.Payments;
 using TN.Shared.Domain.ExtensionMethod.Pagination;
 using TN.Shared.Domain.IRepository;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 using static TN.Purchase.Domain.Entities.PurchaseDetails;
 using static TN.Sales.Domain.Entities.SalesDetails;
 using static TN.Shared.Domain.Entities.Transactions.TransactionDetail;
@@ -876,6 +877,7 @@ namespace TN.Reports.Infrastructure.ServiceImpl
             }
         }
 
+
         public async Task<Result<PagedResult<GetItemwisePurchaseExpireDateResponse>>> GetItemwisePurchaseByExpireDate(PaginationRequest paginationRequest, ItemwisePurchaseExpireDateDtos itemwisePurchaseExpireDateDtos, CancellationToken cancellationToken = default)
         {
             try
@@ -886,7 +888,6 @@ namespace TN.Reports.Infrastructure.ServiceImpl
 
                 IQueryable<PurchaseDetails> filteredPurchase = purchaseQuery;
 
-                // 2. Filter by company scope if needed
                 if (!string.IsNullOrEmpty(currentSchoolId) && !isSuperAdmin)
                 {
                     filteredPurchase = filteredPurchase.Where(x => x.SchoolId == currentSchoolId);
@@ -904,23 +905,15 @@ namespace TN.Reports.Infrastructure.ServiceImpl
 
                 filteredPurchase = filteredPurchase.Where(s => s.Status != PurchaseStatus.Returned);
 
-
-                //int pageIndex = paginationRequest.pageIndex <= 0 ? 1 : paginationRequest.pageIndex;
-                //int pageSize = paginationRequest.pageSize <= 0 ? 10 : paginationRequest.pageSize;
-
-                //var totalItems = await filteredPurchase.CountAsync();
-
                 var pagedPurchases = await filteredPurchase
                     .Include(s => s.PurchaseItems)
                         .ThenInclude(pi => pi.Item)
                     .OrderByDescending(s => s.CreatedAt)
-                    //.Skip((pageIndex - 1) * pageSize)
-                    //.Take(pageSize)
                     .SelectMany(s => s.PurchaseItems.Select(pi => new GetItemwisePurchaseExpireDateResponse(
                         pi.ItemId,
                         s.Date ?? "",
                         pi.Item.ItemGroupId,
-                        pi.Item.ExpiredDate ?? "",
+                        null,
                         s.BillNumber ?? "",
                         s.ReferenceNumber ?? "",
                         s.LedgerId ?? "",

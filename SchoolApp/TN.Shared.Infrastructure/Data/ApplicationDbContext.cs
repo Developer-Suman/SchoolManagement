@@ -21,6 +21,7 @@ using TN.Shared.Domain.Entities.Sales;
 using TN.Shared.Domain.Entities.StockCenterEntities;
 using TN.Shared.Domain.Entities.Students;
 using TN.Shared.Domain.Entities.Transactions;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 using static TN.Authentication.Domain.Entities.School;
 
 
@@ -132,6 +133,9 @@ namespace TN.Shared.Infrastructure.Data
 
         #region Inventory
         public DbSet<Units> Units { get; set; }
+
+        public DbSet<BatchNumber> BatchNumbers { get; set; }
+        public DbSet<ManufactureAndExpiry> ManufactureAndExpiries { get; set; }
         public DbSet<ConversionFactor> ConversionFactors { get; set; }
 
         public DbSet<ItemGroup> ItemGroups { get; set; }
@@ -380,21 +384,6 @@ namespace TN.Shared.Infrastructure.Data
             #endregion
 
             #endregion
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
             #region Configure for Inheritance between PaymentsDetails and ChequePayments
             // Configure Table-Per-Hierarchy (TPH) inheritance
@@ -1267,6 +1256,31 @@ namespace TN.Shared.Infrastructure.Data
 
             #region Inventory
 
+            #region Items and ManufactureandExpiry (1:m)
+
+            builder.Entity<Items>()
+               .HasMany(p => p.ManufacturingAndExpiries)
+               .WithOne(p => p.Item)
+               .HasForeignKey(p => p.ItemId)
+               .OnDelete(DeleteBehavior.Restrict);
+
+            #endregion
+
+            #region Items and BatchNumbers (1:m)
+
+            builder.Entity<Items>()
+               .HasMany(p => p.BatchNumbers)
+               .WithOne(p => p.Item)
+               .HasForeignKey(p => p.ItemId)
+               .OnDelete(DeleteBehavior.Restrict);
+
+            #endregion
+
+
+
+
+
+
             #region StockTransferDetails and StockTransferItems(1:m)
 
             builder.Entity<StockTransferDetails>()
@@ -1340,7 +1354,7 @@ namespace TN.Shared.Infrastructure.Data
             #region BillNumber and School
             builder.Entity<School>()
                 .Property(c => c.BillNumberGenerationTypeForPurchase)
-                .HasConversion<string>() 
+                .HasConversion<string>()
                 .HasDefaultValue(BillNumberGenerationType.Manual);
 
             builder.Entity<School>()
@@ -1369,10 +1383,7 @@ namespace TN.Shared.Infrastructure.Data
             #region ConversionFactor and Unit (M:1)
             builder.Entity<ConversionFactor>(entity =>
             {
-                entity.HasKey(c => c.Id); // Ensure primary key is set
-
-                //entity.HasIndex(c => new { c.FromUnit, c.ToUnit })
-                //    .IsUnique(); // Prevents duplicate conversion records
+                entity.HasKey(c => c.Id); 
 
                 entity.HasOne(c => c.FromUnits)
                     .WithMany(u => u.FromConversions)
@@ -1419,9 +1430,9 @@ namespace TN.Shared.Infrastructure.Data
             builder.Entity<ItemGroup>(entity =>
             {
                 entity.HasKey(c => c.Id);
-                entity.HasMany(c=>c.Items)
-                .WithOne(c=>c.ItemGroup)
-                .HasForeignKey(c=>c.ItemGroupId)
+                entity.HasMany(c => c.Items)
+                .WithOne(c => c.ItemGroup)
+                .HasForeignKey(c => c.ItemGroupId)
                 .OnDelete(DeleteBehavior.Cascade);
             });
             #endregion
@@ -1429,7 +1440,7 @@ namespace TN.Shared.Infrastructure.Data
             #region Inventories and Items (m:1)
             builder.Entity<Inventories>()
             .HasOne(i => i.Items)
-            .WithMany(i => i.Inventories) 
+            .WithMany(i => i.Inventories)
             .HasForeignKey(i => i.ItemId)
             .OnDelete(DeleteBehavior.Cascade);
 
@@ -1483,8 +1494,6 @@ namespace TN.Shared.Infrastructure.Data
 
 
             #endregion
-
-
 
             #region PurchaseQuotation
             builder.Entity<PurchaseQuotationItems>(entity =>
