@@ -46,10 +46,12 @@ namespace TN.Web.Controllers.Sales.v1
     public class SalesControllers : BaseController
     {
         private readonly IMediator _mediator;
+        private readonly ILogger<SalesControllers> _logger;
 
-        public SalesControllers(IMediator mediator, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager) : base(userManager, roleManager)
+        public SalesControllers(IMediator mediator,ILogger<SalesControllers> logger ,UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager) : base(userManager, roleManager)
         {
             _mediator = mediator;
+            _logger = logger;
 
         }
 

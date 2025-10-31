@@ -81,10 +81,12 @@ namespace TN.Web.Controllers.Inventory.v1
     public class InventoryControllers : BaseController
     {
         private readonly IMediator _mediator;
+        private readonly ILogger<InventoryControllers> _logger;
 
-        public InventoryControllers(IMediator mediator, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager) : base(userManager, roleManager)
+        public InventoryControllers(IMediator mediator, ILogger<InventoryControllers> logger,UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager) : base(userManager, roleManager)
         {
             _mediator=mediator;
+            _logger = logger;
 
         }
 

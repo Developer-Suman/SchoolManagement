@@ -24,10 +24,12 @@ namespace TN.Web.Controllers.Payment.v1
     public class PaymentControllers : BaseController
     {
         private readonly IMediator _mediator;
+        private readonly ILogger<PaymentControllers> _logger;
 
-        public PaymentControllers(IMediator mediator, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager) : base(userManager, roleManager)
+        public PaymentControllers(IMediator mediator,ILogger<PaymentControllers> logger, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager) : base(userManager, roleManager)
         {
             _mediator = mediator;
+            _logger = logger;
         }
         #region PaymentMethod
 
