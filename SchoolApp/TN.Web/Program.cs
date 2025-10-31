@@ -64,23 +64,6 @@ builder.Services.AddCors(options =>
 ConfigurationManager configuration = builder.Configuration;
 
 
-//"message" and "Message" will both map to Message.
-builder.Services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(options =>
-{
-    options.SerializerOptions.PropertyNameCaseInsensitive = true;
-    options.SerializerOptions.IncludeFields = true;
-});
-
-builder.Services.AddControllers()
-    .AddJsonOptions(options =>
-    {
-        options.JsonSerializerOptions.PropertyNamingPolicy = null; // Use PascalCase
-    });
-
-
-
-
-
 
 builder.Services
     .AddSharedApplication()
@@ -145,14 +128,6 @@ ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 
 var app = builder.Build();
 
-// Apply migrations during application startup
-//using (var scope = app.Services.CreateScope())
-//{
-//    var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-//    context.Database.Migrate();  // Apply any pending migrations
-//}
-
-//app.UseMiddleware<ExceptionMiddleware>();
 ApplicationConfiguration.Inject(app);
 app.UseStaticFiles();
 app.UseErrorHandlingMiddleware();
@@ -163,6 +138,7 @@ app.UseCors("AllowAllOrigins");
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseHttpsRedirection();
+app.UseMiddleware<ExceptionMiddleware>();
 app.UseMiddleware<FiscalContextMiddleware>();
 app.MapControllers();
 app.Run();

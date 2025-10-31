@@ -21,7 +21,6 @@ public class Items : Entity
         string? sellingPrice,
         string? costPrice,
         string? barCodeField,
-        string? expiredDate,
         //bool status,
         decimal? openingStockQuantity,
         string? hsCode,
@@ -32,12 +31,16 @@ public class Items : Entity
         DateTime modifiedAt,
         decimal? minimumLevel,
         bool? hasSerial,
+
         string? conversionFactorId,
         bool? isItems,
         bool? isVatEnables,
         bool? isConversionFactor,
-        string? batchNumber,
-        string? stockCenterId
+        string? stockCenterId,
+        bool? hasExpiryAndManufacture,
+        bool? hasBatchNumber,
+        List<ManufactureAndExpiry>? manufactureAndExpiries,
+        List<BatchNumber>? batchNumbers
 
     ) : base(id)
     {
@@ -48,7 +51,8 @@ public class Items : Entity
         SellingPrice = sellingPrice;
         CostPrice = costPrice;
         BarCodeField = barCodeField;
-        ExpiredDate = expiredDate;
+        ManufacturingAndExpiries = manufactureAndExpiries;
+        BatchNumbers = batchNumbers;
         OpeningStockQuantity = openingStockQuantity;
 
         //if (status)
@@ -74,7 +78,8 @@ public class Items : Entity
         IsVatEnables = isVatEnables;
         IsConversionFactor = isConversionFactor;
         StockCenterId = stockCenterId;
-        BatchNumber = batchNumber;
+        HasExpiryAndManufacture = hasExpiryAndManufacture;
+        HasBatchNumber = hasBatchNumber;
         ItemInstances = new List<ItemInstance>();
         StockAdjustments = new List<StockAdjustment>();
         StockTransferItems = new List<StockTransferItems>();
@@ -89,9 +94,8 @@ public class Items : Entity
     public string? SellingPrice { get; set; }
     public string? CostPrice { get; set; }
     public string? BarCodeField { get; set; }
-    public string? ExpiredDate { get; set; }
     public decimal? OpeningStockQuantity { get; set; }
-    public string? HsCode { get;set; }
+    public string? HsCode { get; set; }
 
     public string SchoolId { get; set; }
 
@@ -100,51 +104,25 @@ public class Items : Entity
     public string ModifiedBy { get; set; }
     public DateTime ModifiedAt { get; set; }
     public decimal? MinimumLevel { get; set; }
-    public bool? HasSerial { get;set; }
+    public bool? HasSerial { get; set; }
     public string? ConversionFactorId { get; set; }
     public ConversionFactor? ConversionFactor { get; set; }
     public bool? IsItems { get; set; }
     public bool? IsConversionFactor { get; set; } = true;
 
     public bool? IsVatEnables { get; set; }
+    public bool? HasExpiryAndManufacture { get; set; }
+    public bool? HasBatchNumber { get; set; }
 
     public ICollection<Inventories> Inventories { get; set; }
     public ICollection<ItemInstance> ItemInstances { get; set; }
     public ICollection<StockAdjustment> StockAdjustments { get; set; } = new List<StockAdjustment>();
+    public ICollection<ManufactureAndExpiry>? ManufacturingAndExpiries { get; set; }
+    public ICollection<BatchNumber>? BatchNumbers { get; set; }
 
-    public string? BatchNumber { get; set; }
-
-    public string? StockCenterId { get; set; }   
+    public string? StockCenterId { get; set; }
     public StockCenter? StockCenter { get; set; }
 
     public ICollection<StockTransferItems> StockTransferItems { get; set; }
 
-    //public string? SerialNumber
-    //{
-    //    get => _serialNumber;
-    //    private set => _serialNumber = value;
-    //}
-
-    //public bool Status
-    //{
-    //    get => _status;
-    //    private set
-    //    {
-    //        _status = value;
-    //        if (_status && string.IsNullOrEmpty(_serialNumber))
-    //        {
-    //            throw new InvalidOperationException("Serial Number must be assigned when Status is true.");
-    //        }
-    //    }
-    //}
-
-    //public void UpdateStatus(bool status, ISerialNumberGenerator serialNumberGeneratorService)
-    //{
-    //    Status = status; // ✅ Uses public property to trigger logic
-
-    //    if (Status)
-    //    {
-    //        SerialNumber = serialNumberGeneratorService.GenerateSerialNumber(); // ✅ Ensures serial number is assigned
-    //    }
-    //}
 }

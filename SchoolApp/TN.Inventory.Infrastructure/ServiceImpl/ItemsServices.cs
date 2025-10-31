@@ -28,6 +28,7 @@ using TN.Shared.Domain.Entities.StockCenterEntities;
 using TN.Shared.Domain.ExtensionMethod.Pagination;
 using TN.Shared.Domain.IRepository;
 using TN.Shared.Domain.Static.Cache;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 using static TN.Inventory.Domain.Entities.Inventories;
 
 
@@ -87,7 +88,6 @@ namespace TN.Inventory.Infrastructure.ServiceImpl
                     addItemCommand.sellingPrice,
                     addItemCommand.costPrice,
                     addItemCommand.barCodeField,
-                    addItemCommand.expiredDate,
                     addItemCommand.openingStockQuantity,
                     addItemCommand.hsCode,
                     schoolId,
@@ -101,8 +101,25 @@ namespace TN.Inventory.Infrastructure.ServiceImpl
                     addItemCommand.isItems,
                     addItemCommand.isVatEnables,
                     addItemCommand.isConversionFactor,
-                    addItemCommand.batchNumber,
-                    addItemCommand.stockCenterId
+                    addItemCommand.stockCenterId,
+                    addItemCommand.hasExpiryAndManufacture,
+                    addItemCommand.hasBatchNumber,
+                    addItemCommand.manufactureAndExpiries.
+                    Select(x => new Shared.Domain.Entities.Inventory.ManufactureAndExpiry(
+                        Guid.NewGuid().ToString(),
+                        x.expiryDate,
+                        x.manufactureDate,
+                        x.totalQuantity,
+                        newId))
+                    .ToList() ?? new List<Shared.Domain.Entities.Inventory.ManufactureAndExpiry>(),
+                    addItemCommand.batchNumbers
+                    .Select(x => new Shared.Domain.Entities.Inventory.BatchNumber(
+                        Guid.NewGuid().ToString(),
+                        x.batchNumber,
+                        x.totalQuantity,
+                        newId
+                        ))
+                    .ToList() ?? new List<Shared.Domain.Entities.Inventory.BatchNumber>()
                     );
 
 
@@ -156,7 +173,7 @@ namespace TN.Inventory.Infrastructure.ServiceImpl
                         }
 
                         await _unitOfWork.BaseRepository<ItemInstance>().AddRange(itemInstances);
-                
+
 
 
                         decimal totalStockValue = Convert.ToDecimal(addItemCommand.costPrice) * addItemCommand.openingStockQuantity ?? 0;
@@ -169,7 +186,7 @@ namespace TN.Inventory.Infrastructure.ServiceImpl
                         journalDetails.Add(new JournalEntryDetails(
                            Guid.NewGuid().ToString(),
                            newJournalId,
-                           LedgerConstants.StockLedgerId,                     // Debit side
+                           LedgerConstants.StockLedgerId,                
                            totalStockValue,
                            0,
                            DateTime.Now,
@@ -177,7 +194,6 @@ namespace TN.Inventory.Infrastructure.ServiceImpl
                            FyId
                        ));
 
-          
 
                         #endregion
 
@@ -197,13 +213,8 @@ namespace TN.Inventory.Infrastructure.ServiceImpl
                         journalDetails
 
                     );
-
-
-               
                         await _unitOfWork.BaseRepository<JournalEntry>().AddAsync(journalData);
                     }
-
-
 
                     await _unitOfWork.BaseRepository<Items>().AddAsync(itemData);
 
@@ -278,7 +289,7 @@ namespace TN.Inventory.Infrastructure.ServiceImpl
 
                     decimal totalStockValue = 0m;
 
-                    for (int row = 7; row <= rowCount; row++)
+                    for (int row = 6; row <= rowCount; row++)
                     {
                         var name = worksheet.Cells[row, headerMap["name"]].Text?.Trim();
                         //var price = decimal.TryParse(worksheet.Cells[row, headerMap["price"]].Text, out var pVal) ? pVal : (decimal?)null;
@@ -311,6 +322,7 @@ namespace TN.Inventory.Infrastructure.ServiceImpl
                             {
                                 Id = itemGroupId,
                                 Name = itemGroupData,
+                                IsPrimary = true,
                                 SchoolId = schoolId,
                                 CreatedBy = userId,
                                 CreatedAt = DateTime.Now,
@@ -420,6 +432,39 @@ namespace TN.Inventory.Infrastructure.ServiceImpl
                         totalStockValue += Convert.ToDecimal(costPrice) * openingStockQuantity ?? 0;
 
                         bool hasSerial = false;
+                        bool hasManufacturingAndExpiry = false;
+                        bool hasBatchNumber = false;
+                        if (headerMap.ContainsKey("hasserial"))
+                        {
+                            string hasSerialValue = worksheet.Cells[row, headerMap["hasserial"]].Text?.Trim();
+                            hasSerial = hasSerialValue?.Equals("Yes", StringComparison.OrdinalIgnoreCase) == true
+                                || hasSerialValue?.Equals("True", StringComparison.OrdinalIgnoreCase) == true;
+                        }
+                        if (headerMap.ContainsKey("hasbatchnumber"))
+                        {
+                            string hasBatchNumberValue = worksheet.Cells[row, headerMap["hasbatchnumber"]].Text?.Trim();
+                            hasBatchNumber = hasBatchNumberValue?.Equals("Yes", StringComparison.OrdinalIgnoreCase) == true
+                                || hasBatchNumberValue?.Equals("True", StringComparison.OrdinalIgnoreCase) == true;
+                        }
+                        if (headerMap.ContainsKey("hasmanufacturingandexpiry"))
+                        {
+                            string hasManufacturingAndExpiryValue = worksheet.Cells[row, headerMap["hasmanufacturingandexpiry"]].Text?.Trim();
+                            hasManufacturingAndExpiry = hasManufacturingAndExpiryValue?.Equals("Yes", StringComparison.OrdinalIgnoreCase) == true
+                                || hasManufacturingAndExpiryValue?.Equals("True", StringComparison.OrdinalIgnoreCase) == true;
+                        }
+
+
+
+                        string manufacturingDate = "";
+
+                        if (expiredDate is not null)
+                        {
+                            manufacturingDate = worksheet.Cells[row, headerMap["manufacturingDate"]].Text?.Trim();
+
+                        }
+
+
+
 
 
 
@@ -433,7 +478,7 @@ namespace TN.Inventory.Infrastructure.ServiceImpl
                             sellingPrice,
                             costPrice,
                             barCodeField,
-                            expiredDate,
+
                             openingStockQuantity,
                             hsCode,
                             schoolId,
@@ -447,8 +492,12 @@ namespace TN.Inventory.Infrastructure.ServiceImpl
                             itemCheck,
                             vatEnabled,
                             false,
-                            batchNumber,
-                            stockCenterId
+
+                            stockCenterId,
+                            hasManufacturingAndExpiry,
+                            hasBatchNumber,
+                            null,
+                            null
 
                         );
 
@@ -523,7 +572,6 @@ namespace TN.Inventory.Infrastructure.ServiceImpl
                        FyId
                    ));
 
-       
 
                     #endregion
 
@@ -543,7 +591,7 @@ namespace TN.Inventory.Infrastructure.ServiceImpl
                     journalDetails
 
                 );
-  
+
 
                     //if (journalDetails.Sum(x => x.DebitAmount) != journalDetails.Sum(x => x.CreditAmount))
                     //{
@@ -562,7 +610,6 @@ namespace TN.Inventory.Infrastructure.ServiceImpl
                 }
                 catch (Exception ex)
                 {
-                    // No manual scope.Dispose() here – `using` handles it
                     throw new Exception($"An error occurred while adding Item: {ex.Message}", ex);
                 }
             }
@@ -589,6 +636,7 @@ namespace TN.Inventory.Infrastructure.ServiceImpl
                 throw new Exception($"An error occurred while deleting Items having {id}", ex);
             }
         }
+
         public async Task<Result<PagedResult<GetAllItemByQueryResponse>>> GetAllItems(PaginationRequest paginationRequest, CancellationToken cancellationToken = default)
         {
             try
@@ -677,6 +725,7 @@ namespace TN.Inventory.Infrastructure.ServiceImpl
             }
         }
 
+
         public async Task<Result<PagedResult<FilterItemsByDateQueryResponse>>> GetItemsFilter(PaginationRequest paginationRequest, FilterItemsDTOs filterItemsDTOs)
         {
             try
@@ -737,7 +786,7 @@ namespace TN.Inventory.Infrastructure.ServiceImpl
                          i.SellingPrice,
                          i.CostPrice,
                          i.BarCodeField,
-                         i.ExpiredDate,
+                         null,
                          i.OpeningStockQuantity,
                          i.HsCode,
                          i.HasSerial,
@@ -829,7 +878,7 @@ namespace TN.Inventory.Infrastructure.ServiceImpl
                     existingInventory.UnitId = item.UnitId;
                     existingInventory.StockCenterId = item.StockCenterId;
                     existingInventory.ItemId = item.Id;
-                   
+
 
                     _unitOfWork.BaseRepository<Inventories>().Update(existingInventory);
                 }
@@ -872,7 +921,7 @@ namespace TN.Inventory.Infrastructure.ServiceImpl
                     item.SellingPrice,
                     item.CostPrice,
                     item.BarCodeField,
-                    item.ExpiredDate,
+                    null,
                     item.OpeningStockQuantity,
                     item.HsCode,
                     item.ConversionFactorId,

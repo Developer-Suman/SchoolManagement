@@ -15,7 +15,6 @@ namespace TN.Inventory.Application.Inventory.Command.AddItems
             string? sellingPrice,
             string? costPrice,
             string? barCodeField,
-            string? expiredDate,
             decimal? openingStockQuantity,
             string? hsCode,
             decimal? minimumLevel,
@@ -24,8 +23,13 @@ namespace TN.Inventory.Application.Inventory.Command.AddItems
             bool? isItems,
             bool? isVatEnables,
             bool? isConversionFactor,
-            string? batchNumber,
+
             string? stockCenterId,
+             bool? hasExpiryAndManufacture,
+                bool? hasBatchNumber,
+              List<ExpiryAndManufactureDTOs>? manufactureAndExpiries,
+                List<BatchNumberDTOs>? batchNumbers,
+
              List<string>? serialNumbers
     );
 }
