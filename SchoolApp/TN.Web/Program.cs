@@ -1,3 +1,8 @@
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration = builder.Configuration.GetConnectionString("Redis"); // e.g. localhost:6379
+    options.InstanceName = "ERP_"; // Optional prefix for your keys
+});
 
 using ES.Academics.Application;
 using ES.Academics.Infrastructure;
@@ -132,7 +137,15 @@ try
 
 
 
+    #region RedisCache For Frequently Data
+    builder.Services.AddStackExchangeRedisCache(options =>
+    {
+        options.Configuration = builder.Configuration.GetConnectionString("Redis"); 
+        options.InstanceName = "SCH"; 
+    });
+
     #endregion
+
 
 
     builder.Services

@@ -57,9 +57,11 @@ namespace TN.Web.Controllers.Transaction.v1
     public class TransactionControllers : BaseController
     {
         private readonly IMediator _mediator;
-        public TransactionControllers(IMediator mediator, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager) : base(userManager, roleManager)
+        private readonly ILogger<TransactionControllers> _logger;
+        public TransactionControllers(IMediator mediator, ILogger<TransactionControllers> logger,UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager) : base(userManager, roleManager)
         {
             _mediator = mediator;
+            _logger = logger;
 
         }
 

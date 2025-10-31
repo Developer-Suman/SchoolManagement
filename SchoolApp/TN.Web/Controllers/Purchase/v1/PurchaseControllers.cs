@@ -49,9 +49,11 @@ namespace TN.Web.Controllers.Purchase.v1
     public class PurchaseControllers : BaseController
     {
         private readonly IMediator _mediator;
+        private readonly ILogger<PurchaseControllers> _logger;
 
-        public PurchaseControllers(IMediator mediator, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager) : base(userManager, roleManager)
+        public PurchaseControllers(IMediator mediator,ILogger<PurchaseControllers> logger, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager) : base(userManager, roleManager)
         {
+            _logger = logger;
             _mediator = mediator;
 
         }

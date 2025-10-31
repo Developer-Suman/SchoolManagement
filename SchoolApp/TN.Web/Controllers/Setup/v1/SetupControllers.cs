@@ -62,8 +62,10 @@ namespace TN.Web.Controllers.Setup.v1
     public class SetupControllers : BaseController
     {
         private readonly IMediator _mediator;
-        public SetupControllers(IMediator mediator, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager) : base(userManager, roleManager)
+        private readonly ILogger<SetupControllers> _logger;
+        public SetupControllers(IMediator mediator,ILogger<SetupControllers> logger, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager) : base(userManager, roleManager)
         {
+            _logger = logger;
             _mediator = mediator;
            
         }

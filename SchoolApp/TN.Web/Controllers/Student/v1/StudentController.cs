@@ -30,10 +30,12 @@ namespace TN.Web.Controllers.Student.v1
     { 
 
         private readonly IMediator _mediator;
+        private readonly ILogger<StudentController> _logger;
 
-        public StudentController(IMediator mediator, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager) : base(userManager, roleManager)
+        public StudentController(IMediator mediator,ILogger<StudentController> logger, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager) : base(userManager, roleManager)
         {
             _mediator = mediator;
+            _logger = logger;
         }
 
         #region Student  

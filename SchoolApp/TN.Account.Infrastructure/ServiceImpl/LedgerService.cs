@@ -44,6 +44,7 @@ namespace TN.Account.Infrastructure.ServiceImpl
         private readonly IGetUserScopedData _getUserScopedData;
         private readonly IDateConvertHelper _dateConverter;
         private readonly FiscalContext _fiscalContext;
+
         public LedgerService(IDateConvertHelper dateConverter,IGetUserScopedData getUserScopedData, FiscalContext fiscalContext, ITokenService tokenService,IUnitOfWork unitOfWork,IMemoryCacheRepository memoryCacheRepository, IMapper mapper)
         {
             _dateConverter = dateConverter;
@@ -97,11 +98,10 @@ namespace TN.Account.Infrastructure.ServiceImpl
                     #region Add Journal
                     if (openingBalance > 0)
                     {
-                        // Positive balance → Debit newId, Credit ShareCapital
                         journalDetails.Add(new JournalEntryDetails(
                             Guid.NewGuid().ToString(),
                             newJournalId,
-                            newId,                     // Debit side
+                            newId,                     
                             openingBalance,
                             0,
                             DateTime.Now,
@@ -120,7 +120,7 @@ namespace TN.Account.Infrastructure.ServiceImpl
                         journalDetails.Add(new JournalEntryDetails(
                             Guid.NewGuid().ToString(),
                             newJournalId,
-                            newId,                     // Credit side
+                            newId,                    
                             0,
                             absAmount,
                             DateTime.Now,
@@ -148,11 +148,6 @@ namespace TN.Account.Infrastructure.ServiceImpl
 
                      );
 
-
-                    //if (journalDetails.Sum(x => x.DebitAmount) != journalDetails.Sum(x => x.CreditAmount))
-                    //{
-                    //    throw new InvalidOperationException("Journal entry is unbalanced.");
-                    //}
                     await _unitOfWork.BaseRepository<JournalEntry>().AddAsync(journalData);
 
 
