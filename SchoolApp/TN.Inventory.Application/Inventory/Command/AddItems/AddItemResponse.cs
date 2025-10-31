@@ -12,17 +12,18 @@ namespace TN.Inventory.Application.Inventory.Command.AddItems
             string Price = "",
             string ItemGroupId = "",
             string UnitId = "",
-            string SellingPrice="",
-            string CostPrice="",
-            string BarCodeField="",
-            string ExpiredDate="",
+            string SellingPrice = "",
+            string CostPrice = "",
+            string BarCodeField = "",
+            string ExpiredDate = "",
             string OpeningStockQuantity = "",
-            string hsCode="",
-            string? conversionFactorId="",
+            string hsCode = "",
+            string? conversionFactorId = "",
             bool? isItems = true,
             bool? isVatEnables = true,
             bool? isConversionFactor = true,
-            string? stockCenterId="",
-             List<string>? serialNumbers=null
+            string? stockCenterId = "",
+            string? manufacturingDate = "",
+             List<string>? serialNumbers = null
         );
-    }
+}

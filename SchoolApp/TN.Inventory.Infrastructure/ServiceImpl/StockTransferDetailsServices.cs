@@ -133,7 +133,6 @@ namespace TN.Inventory.Infrastructure.ServiceImpl
                             sellingPrice: stockOutItem.SellingPrice,
                             costPrice: stockOutItem.CostPrice,
                             barCodeField: stockOutItem.BarCodeField,
-                            expiredDate: stockOutItem.ExpiredDate,
                             openingStockQuantity: request.quantity,
                             hsCode: stockOutItem.HsCode,
                             schoolId: stockOutItem.SchoolId,
@@ -147,8 +146,12 @@ namespace TN.Inventory.Infrastructure.ServiceImpl
                             isItems: stockOutItem.IsItems,
                             isVatEnables: stockOutItem.IsVatEnables,
                             isConversionFactor: stockOutItem.IsConversionFactor,
-                            batchNumber: stockOutItem.BatchNumber,
-                            stockCenterId: command.toStockCenterId
+                            stockCenterId: command.toStockCenterId,
+                            hasExpiryAndManufacture: stockOutItem.HasExpiryAndManufacture,
+                            hasBatchNumber: stockOutItem.HasBatchNumber,
+                            manufactureAndExpiries: null,
+                            batchNumbers: null
+
                         );
 
                         await _unitOfWork.BaseRepository<Items>().AddAsync(newItem);
@@ -217,12 +220,12 @@ namespace TN.Inventory.Infrastructure.ServiceImpl
 
                 // --- Map response manually ---
                 var resultDTOs = new AddStockTransferDetailsResponse(
-                  
+
                     transferDate: stockTransferDetails.TransferDate,
                     stockCenterNumber: stockTransferDetails.StockCenterNumber,
                     fromStockCenterId: stockTransferDetails.FromStockCenterId,
                     toStockCenterId: stockTransferDetails.ToStockCenterId,
-                    narration:stockTransferDetails.Narration,
+                    narration: stockTransferDetails.Narration,
                     addStockTransferItemsRequests: stockTransferDetails.StockTransferItems?
                         .Select(item => new AddStockTransferItemsRequest(
                             quantity: item.Quantity,
@@ -240,7 +243,7 @@ namespace TN.Inventory.Infrastructure.ServiceImpl
                 return Result<AddStockTransferDetailsResponse>.Failure("Error", ex.Message);
             }
         }
-        
+
 
         public async Task<Result<bool>> Delete(string id, CancellationToken cancellationToken)
         {
@@ -561,9 +564,10 @@ namespace TN.Inventory.Infrastructure.ServiceImpl
                         fromStockItem.OpeningStockQuantity += item.Quantity;
                     else
                     {
+                        string newItemId = Guid.NewGuid().ToString();
                         // If item was deleted, recreate in From Stock Center
                         await _unitOfWork.BaseRepository<Items>().AddAsync(new Items(
-                            id: Guid.NewGuid().ToString(),
+                            id: newItemId,
                             name: item.Item.Name,
                             price: item.Price,
                             itemGroupId: item.Item.ItemGroupId,
@@ -571,7 +575,6 @@ namespace TN.Inventory.Infrastructure.ServiceImpl
                             sellingPrice: item.Item.SellingPrice,
                             costPrice: item.Item.CostPrice,
                             barCodeField: item.Item.BarCodeField,
-                            expiredDate: item.Item.ExpiredDate,
                             openingStockQuantity: item.Quantity,
                             hsCode: item.Item.HsCode,
                             schoolId: schoolId,
@@ -585,8 +588,11 @@ namespace TN.Inventory.Infrastructure.ServiceImpl
                             isItems: item.Item.IsItems,
                             isVatEnables: item.Item.IsVatEnables,
                             isConversionFactor: item.Item.IsConversionFactor,
-                            batchNumber: item.Item.BatchNumber,
-                            stockCenterId: stockTransferDetails.FromStockCenterId
+                            stockCenterId: stockTransferDetails.FromStockCenterId,
+                            hasExpiryAndManufacture: item.Item.HasExpiryAndManufacture,
+                            hasBatchNumber: item.Item.HasBatchNumber,
+                            manufactureAndExpiries: item.Item.ManufacturingAndExpiries?.Select(x => new ManufactureAndExpiry(Guid.NewGuid().ToString(), x.ExpiredDate, x.ManufacturingDate, x.TotalQuantity, newItemId)).ToList(),
+                            batchNumbers: item.Item.BatchNumbers?.Select(x => new BatchNumber(Guid.NewGuid().ToString(), x.BatchNumbers, x.TotalQuantity, newItemId)).ToList()
                         ));
                     }
 
@@ -659,8 +665,9 @@ namespace TN.Inventory.Infrastructure.ServiceImpl
 
                             if (stockOutItemForCopy != null)
                             {
+                                string newItemId = Guid.NewGuid().ToString();
                                 var stockInNewItem = new Items(
-                                    id: Guid.NewGuid().ToString(),
+                                    id: newItemId,
                                     name: stockOutItemForCopy.Name,
                                     price: stockOutItemForCopy.Price,
                                     itemGroupId: stockOutItemForCopy.ItemGroupId,
@@ -668,7 +675,7 @@ namespace TN.Inventory.Infrastructure.ServiceImpl
                                     sellingPrice: stockOutItemForCopy.SellingPrice,
                                     costPrice: stockOutItemForCopy.CostPrice,
                                     barCodeField: stockOutItemForCopy.BarCodeField,
-                                    expiredDate: stockOutItemForCopy.ExpiredDate,
+
                                     openingStockQuantity: request.quantity,
                                     hsCode: stockOutItemForCopy.HsCode,
                                     schoolId: schoolId,
@@ -682,8 +689,14 @@ namespace TN.Inventory.Infrastructure.ServiceImpl
                                     isItems: stockOutItemForCopy.IsItems,
                                     isVatEnables: stockOutItemForCopy.IsVatEnables,
                                     isConversionFactor: stockOutItemForCopy.IsConversionFactor,
-                                    batchNumber: stockOutItemForCopy.BatchNumber,
-                                    stockCenterId: command.toStockCenterId
+
+                                    stockCenterId: command.toStockCenterId,
+                                    hasExpiryAndManufacture: stockOutItemForCopy.HasExpiryAndManufacture,
+                                    hasBatchNumber: stockOutItemForCopy.HasBatchNumber,
+                                                  manufactureAndExpiries: stockOutItemForCopy.ManufacturingAndExpiries?.Select(x => new ManufactureAndExpiry(Guid.NewGuid().ToString(), x.ExpiredDate, x.ManufacturingDate, x.TotalQuantity, newItemId)).ToList(),
+                            batchNumbers: stockOutItemForCopy.BatchNumbers?.Select(x => new BatchNumber(Guid.NewGuid().ToString(), x.BatchNumbers, x.TotalQuantity, newItemId)).ToList()
+
+
                                 );
 
                                 await _unitOfWork.BaseRepository<Items>().AddAsync(stockInNewItem);
