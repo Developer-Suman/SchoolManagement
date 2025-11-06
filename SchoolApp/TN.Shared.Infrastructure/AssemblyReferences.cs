@@ -13,12 +13,17 @@ using System.Threading.Tasks;
 using TN.Authentication.Domain.Entities;
 using TN.Setup.Infrastructure.ServiceImpl;
 using TN.Shared.Application.ServiceInterface;
+using TN.Shared.Application.ServiceInterface.IBackGroundService;
 using TN.Shared.Domain.Entities.OrganizationSetUp;
 using TN.Shared.Domain.ICryptography;
 using TN.Shared.Domain.IRepository;
+using TN.Shared.Infrastructure.ActivityProcessServices;
 using TN.Shared.Infrastructure.Cryptography;
 using TN.Shared.Infrastructure.Data;
+using TN.Shared.Infrastructure.Data.Interceptor;
 using TN.Shared.Infrastructure.Repository;
+using TN.Shared.Infrastructure.Repository.BackGroundServices;
+using TN.Shared.Infrastructure.Repository.BackGroundServicesHub;
 
 namespace TN.Shared.Infrastructure
 {
@@ -34,10 +39,16 @@ namespace TN.Shared.Infrastructure
             //options.UseNpgsql(configuration.GetConnectionString("connectionString")));
 
             //For MsSql Database
-            services.AddDbContext<ApplicationDbContext>(options =>
-          options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"),
-          x => x.MigrationsAssembly("TN.Shared.Infrastructure"))
-          );
+            services.AddDbContext<ApplicationDbContext>((sp, options) =>
+            {
+                var interceptor = sp.GetRequiredService<AuditInterceptor>();
+
+                options.UseSqlServer(
+                    configuration.GetConnectionString("DefaultConnection"),
+                    x => x.MigrationsAssembly("TN.Shared.Infrastructure")
+                )
+                .AddInterceptors(interceptor);
+            });
 
             services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
@@ -62,9 +73,19 @@ namespace TN.Shared.Infrastructure
             services.AddControllers();
             services.AddAuthorization();
 
+            #region Interceptor : Inteecepts the execution flow of method, request or operation, before/after its execution.
+            services.AddScoped<AuditInterceptor>();
+            #endregion
 
+            #region ActivityTracking
+            //services.AddScoped<IUserActivity, UserActivityServices>();
+            services.AddSingleton<IActivityChannel, ActivityChannel>();
+            services.AddSingleton<IStockAlertActivities, StockAlertActivity>();
+            services.AddSingleton<IAuditServices, AuditService>();
+            services.AddScoped<StockAlertActivityProcessServices>();
+            services.AddScoped<SignInManager<ApplicationUser>, LoginAttemptInterceptor>();
 
-
+            #endregion
 
 
 
@@ -88,7 +109,11 @@ namespace TN.Shared.Infrastructure
 
             #endregion
 
+            #region BackGroundServices
+            services.AddHostedService<StockExpiryAlertBackGroundServices>();
+            services.AddHostedService<AuditBackgroundService>();
 
+            #endregion
 
             return services;
 

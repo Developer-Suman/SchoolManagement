@@ -12,6 +12,7 @@ using TN.Setup.Domain.Entities;
 using TN.Shared.Domain.Entities.Academics;
 using TN.Shared.Domain.Entities.Account;
 using TN.Shared.Domain.Entities.Attendances;
+using TN.Shared.Domain.Entities.AuditLogs;
 using TN.Shared.Domain.Entities.FeeAndAccounting;
 using TN.Shared.Domain.Entities.Inventory;
 using TN.Shared.Domain.Entities.Notification;
@@ -36,7 +37,10 @@ namespace TN.Shared.Infrastructure.Data
             //AppContext.SetSwitch("Npgsql.DisableDateTimeInfinityConversions", true);
 
         }
+        #region AuditLogs
+        public DbSet<AuditLog> AuditLogs { get; set; }
 
+        #endregion
 
         #region Student
         public DbSet<StudentData> Students { get; set; }
@@ -58,7 +62,7 @@ namespace TN.Shared.Infrastructure.Data
         public DbSet<FeeStructure> FeeStructures { get; set; }
         public DbSet<FeeType> FeeTypes { get; set; }
         public DbSet<StudentFee> StudentFees { get; set; }
-        public DbSet<Payment> Payments { get; set; }
+        public DbSet<SchoolPayments> SchoolPayments { get; set; }
 
 
         #endregion

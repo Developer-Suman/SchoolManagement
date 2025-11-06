@@ -7,13 +7,13 @@ using TN.Shared.Domain.Primitive;
 
 namespace TN.Shared.Domain.Entities.FeeAndAccounting
 {
-    public class Payment : Entity
+    public class SchoolPayments : Entity
     {
-        public Payment(
+        public SchoolPayments(
             ) : base(null)
         {
         }
-        public Payment(
+        public SchoolPayments(
             string id,
             string studentfeeId,
             decimal amountPaid,
