@@ -44,7 +44,7 @@ namespace TN.Shared.Domain.Entities.FeeAndAccounting
             CreatedAt = createdAt;
             ModifiedBy = modifiedBy;
             ModifiedAt = modifiedAt;
-            Payments = new List<Payment>();
+            Payments = new List<SchoolPayments>();
 
         }
 
@@ -62,7 +62,7 @@ namespace TN.Shared.Domain.Entities.FeeAndAccounting
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public string ModifiedBy { get; set; }
         public DateTime ModifiedAt { get; set; } = DateTime.Now;
-        public ICollection<Payment> Payments { get; set; }
+        public ICollection<SchoolPayments> Payments { get; set; }
 
     }
 }

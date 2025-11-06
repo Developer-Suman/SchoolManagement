@@ -203,6 +203,9 @@ try
 
     ApplicationBuilderConfig.Inject(builder);
 
+    builder.Services.AddSignalR();
+
+
     ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 
 
