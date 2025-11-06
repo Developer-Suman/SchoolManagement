@@ -16,7 +16,7 @@
 # Configuration files containing secrets
 
 secrets.json
-
+appsettings*.json
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
@@ -490,3 +490,4 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
+appsettings*.json
