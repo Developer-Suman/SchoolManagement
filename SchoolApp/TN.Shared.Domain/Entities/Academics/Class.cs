@@ -19,6 +19,9 @@ namespace TN.Shared.Domain.Entities.Academics
         public Class(
             string id,
             string name,
+            string schoolId,
+            bool isActive,
+            bool isSeeded,
             string createdBy,
             DateTime createdAt,
             string modifiedBy,
@@ -26,10 +29,13 @@ namespace TN.Shared.Domain.Entities.Academics
             ) : base(id)
         {
             Name = name;
+            IsActive = isActive;
+            SchoolId = schoolId;
             CreatedBy = createdBy;
             CreatedAt = createdAt;
             ModifiedBy = modifiedBy;
             ModifiedAt = modifiedAt;
+            IsSeeded = isSeeded;
             Sections = new List<Section>();
             FeeStructures = new List<FeeStructure>();
             Subjects = new List<Subject>();
@@ -37,9 +43,12 @@ namespace TN.Shared.Domain.Entities.Academics
         }
 
         public string Name { get; set; }
+        public string SchoolId { get; set; }
+        public bool IsActive { get; set; }
         public string CreatedBy { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public string ModifiedBy { get; set; }
+        public bool IsSeeded { get; set; }
         public DateTime ModifiedAt { get; set; } = DateTime.Now;
         public ICollection<Section> Sections { get; set; }
         public ICollection<FeeStructure> FeeStructures { get; set; }
