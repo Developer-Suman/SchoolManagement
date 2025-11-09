@@ -23,33 +23,40 @@ namespace TN.Shared.Domain.Entities.Academics
             decimal totalMarks,
             decimal passingMarks,
             string fyId,
-            string createdBy,
             bool? isfinalExam,
+            string schoolId,
+            string createdBy,
             DateTime createdAt,
             string modifiedBy,
-            DateTime modifiedAt
+            DateTime modifiedAt,
+            bool isActive
             ) : base(id)
         {
             Name = name;
             ExamDate = examDate;
             TotalMarks = totalMarks;
             PassingMarks = passingMarks;
+            SchoolId = schoolId;
+            FyId = fyId;
             CreatedBy = createdBy;
             CreatedAt = createdAt;
             ModifiedBy = modifiedBy;
             ModifiedAt = modifiedAt;
             IsFinalExam = isfinalExam;
+            IsActive = isActive;
             ExamResults = new List<ExamResult>();
         }
 
         public string FyId { get; set; }
         public FiscalYears FiscalYears { get; set; }
         public string Name { get; set; }
+        public string SchoolId { get; set; }
         public DateTime ExamDate { get; set; }
         public decimal TotalMarks { get; set; }
         public decimal PassingMarks { get; set; }
         public string CreatedBy { get; set; }
         public bool? IsFinalExam { get; set;  }
+        public bool IsActive { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public string ModifiedBy { get; set; }
         public DateTime ModifiedAt { get; set; } = DateTime.Now;

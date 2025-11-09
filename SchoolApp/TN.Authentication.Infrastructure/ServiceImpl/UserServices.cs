@@ -206,6 +206,7 @@ namespace TN.Authentication.Infrastructure.ServiceImpl
                     {
 
                     string newId = Guid.NewGuid().ToString();
+         
 
                     var emailExists = await _authenticationServices.FindByEmailAsync(addUserCommand.Email);
                     if (emailExists is not null)
@@ -248,10 +249,10 @@ namespace TN.Authentication.Infrastructure.ServiceImpl
                         var validSchool = await _unitOfWork.BaseRepository<School>()
                             .GetAllWithIncludeAsync(c => addUserCommand.schoolIds.Contains(c.Id));
 
-                        var userSchools = validSchool.Select(user => new UserSchool
+                        var userSchools = validSchool.Select(company => new UserSchool
                         {
                             UserId = user.Id,
-                            SchoolId = user.Id
+                            SchoolId = company.Id
                         }).ToList();
 
                         user.InstitutionId = validSchool.FirstOrDefault(c => !string.IsNullOrWhiteSpace(c.InstitutionId))?.InstitutionId;
