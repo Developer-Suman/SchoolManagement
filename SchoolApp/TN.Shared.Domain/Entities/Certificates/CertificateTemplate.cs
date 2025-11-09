@@ -1,0 +1,55 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using TN.Authentication.Domain.Entities;
+using TN.Shared.Domain.Primitive;
+
+namespace TN.Shared.Domain.Entities.Certificates
+{
+    public class CertificateTemplate : Entity
+    {
+        public CertificateTemplate() : base(null)
+        {
+            
+        }
+
+        public CertificateTemplate(
+            string id,
+            string schoolId,
+            string templateName,
+            
+            string templateType,
+            string htmlTemplate,
+            bool isActive,
+            string templateVersion,
+            DateTime createdAt
+            ) : base(id)
+        {
+            SchoolId = schoolId;
+            TemplateName = templateName;
+            TemplateType = templateType;
+            HtmlTemplate = htmlTemplate;
+            IsActive = isActive;
+            CreatedAt = createdAt;
+
+            
+        }
+
+        public string SchoolId { get; set; }
+        public virtual School School { get; set; }
+        public string TemplateName { get; set; } = default!;
+        public string? TemplateType { get; set; } // e.g., Completion, Merit
+        public string HtmlTemplate { get; set; } = default!;
+        public bool IsActive { get; set; } = true;
+        public int TemplateVersion { get; set; } = 1;
+        public DateTime CreatedAt { get; set; }
+
+        public ICollection<IssuedCertificate> IssuedCertificates { get; set; }
+
+
+   
+    }
+        
+}
