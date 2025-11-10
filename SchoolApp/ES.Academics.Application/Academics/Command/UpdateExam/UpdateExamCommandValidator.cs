@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ES.Academics.Application.Academics.Command.UpdateExam
 {
-    internal class UpdateExamCommandValidator : AbstractValidator<UpdateExamCommand>
+    public class UpdateExamCommandValidator : AbstractValidator<UpdateExamCommand>
     {
         public UpdateExamCommandValidator()
         {

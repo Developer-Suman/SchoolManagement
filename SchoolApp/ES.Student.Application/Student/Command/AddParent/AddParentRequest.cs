@@ -17,11 +17,7 @@ namespace ES.Student.Application.Student.Command.AddParent
          string? email,
          string? address,
          string? occupation,
-         string? imageUrl,
-         string createdBy,
-         DateTime createdAt,
-         string modifiedBy,
-         DateTime modifiedAt
+         string? imageUrl
 
 
     );

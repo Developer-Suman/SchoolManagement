@@ -19,11 +19,8 @@ namespace ES.Student.Application.Student.Command.AddParent.ReqeustCommandMapper
                 request.email,
                 request.address,
                 request.occupation,
-                request.imageUrl,
-                request.createdBy,
-                request.createdAt,
-                request.modifiedBy,
-                request.modifiedAt
+                request.imageUrl
+
 
             );
         }

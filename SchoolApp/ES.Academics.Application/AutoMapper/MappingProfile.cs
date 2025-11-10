@@ -1,15 +1,25 @@
 ﻿using AutoMapper;
 using ES.Academics.Application.Academics.Command.AddExam;
+using ES.Academics.Application.Academics.Command.AddExamResult;
 using ES.Academics.Application.Academics.Command.AddSchoolClass;
+using ES.Academics.Application.Academics.Command.AddSubject;
 using ES.Academics.Application.Academics.Command.DeleteExam;
+using ES.Academics.Application.Academics.Command.DeleteExamResult;
 using ES.Academics.Application.Academics.Command.DeleteSchoolClass;
+using ES.Academics.Application.Academics.Command.DeleteSubject;
 using ES.Academics.Application.Academics.Command.UpdateSchoolClass;
 using ES.Academics.Application.Academics.Queries.Exam;
 using ES.Academics.Application.Academics.Queries.ExamById;
+using ES.Academics.Application.Academics.Queries.ExamResult;
+using ES.Academics.Application.Academics.Queries.ExamResultById;
 using ES.Academics.Application.Academics.Queries.FilterExam;
+using ES.Academics.Application.Academics.Queries.FilterExamResult;
 using ES.Academics.Application.Academics.Queries.FilterSchoolClass;
+using ES.Academics.Application.Academics.Queries.FilterSubject;
 using ES.Academics.Application.Academics.Queries.SchoolClass;
 using ES.Academics.Application.Academics.Queries.SchoolClassById;
+using ES.Academics.Application.Academics.Queries.Subject;
+using ES.Academics.Application.Academics.Queries.SubjectById;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -72,6 +82,49 @@ namespace ES.Academics.Application.AutoMapper
 
             CreateMap<FilterExamResponse, Exam>().ReverseMap();
             CreateMap<PagedResult<Exam>, PagedResult<FilterExamResponse>>().ReverseMap();
+            #endregion
+
+            #region ExamResult
+
+            CreateMap<ExamResult, DeleteExamResultCommand>().ReverseMap();
+
+            CreateMap<ExamResultByIdQuery, ExamResult>().ReverseMap();
+
+            CreateMap<ExamResultByIdResponse, ExamResult>().ReverseMap();
+
+            CreateMap<ExamResultResponse, ExamResult>().ReverseMap();
+            CreateMap<AddExamResultCommand, ExamResult>().ReverseMap();
+            CreateMap<AddExamResultResponse, ExamResult>().ReverseMap();
+            CreateMap<AddExamResultCommand, AddExamResultResponse>().ReverseMap();
+
+            CreateMap<PagedResult<ExamResult>, PagedResult<ExamResultResponse>>().ReverseMap();
+
+            CreateMap<FilterExamResultResponse, ExamResult>().ReverseMap();
+            CreateMap<PagedResult<ExamResult>, PagedResult<FilterExamResultResponse>>().ReverseMap();
+            #endregion
+
+            #region Subject
+
+            CreateMap<Subject, DeleteSubjectCommand>().ReverseMap();
+
+            CreateMap<SubjectByIdQuery, Subject>().ReverseMap();
+
+            CreateMap<SubjectByIdResponse, Subject>().ReverseMap();
+
+            CreateMap<Subject, AddSubjectResponse>().ReverseMap();
+
+
+
+            CreateMap<AddSubjectCommand, Subject>().ReverseMap();
+            CreateMap<AddSubjectResponse, Subject>().ReverseMap();
+            CreateMap<AddSubjectCommand, AddSubjectResponse>().ReverseMap();
+
+            CreateMap<Subject, SubjectResponse>().ReverseMap();
+
+            CreateMap<PagedResult<Subject>, PagedResult<SubjectResponse>>().ReverseMap();
+
+            CreateMap<FilterSubjectResponse, Subject>().ReverseMap();
+            CreateMap<PagedResult<Subject>, PagedResult<FilterSubjectResponse>>().ReverseMap();
             #endregion
 
         }

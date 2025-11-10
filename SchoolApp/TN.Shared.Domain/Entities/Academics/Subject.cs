@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TN.Authentication.Domain.Entities;
 using TN.Shared.Domain.Primitive;
 
 namespace TN.Shared.Domain.Entities.Academics
@@ -21,7 +22,10 @@ namespace TN.Shared.Domain.Entities.Academics
             int? creditHours,
             string? description,
             string classId,
-            string createdBy,
+        
+            string schoolId,
+            bool isActive,
+                string createdBy,
             DateTime createdAt,
             string modifiedBy,
             DateTime modifiedAt
@@ -29,6 +33,8 @@ namespace TN.Shared.Domain.Entities.Academics
         {
             Name = name;
             Code = code;
+            SchoolId = schoolId;
+            IsActive = isActive;
             CreditHours = creditHours;
             Description = description;
             ClassId = classId;
@@ -40,6 +46,8 @@ namespace TN.Shared.Domain.Entities.Academics
         }
         public string Name { get; set; }
         public string Code { get; set; }
+        public string SchoolId { get; set; }
+        public bool IsActive { get; set; }
         public string ClassId { get; set; }
         public Class Class { get; set; }
         public int? CreditHours { get; set; }

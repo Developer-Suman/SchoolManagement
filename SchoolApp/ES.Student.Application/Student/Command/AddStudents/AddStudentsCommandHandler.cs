@@ -50,7 +50,7 @@ namespace ES.Student.Application.Student.Command.AddStudents
                     return Result<AddStudentsResponse>.Failure(" ");
                 }
 
-                var studentsDisplay = _mapper.Map<AddStudentsResponse>(request);
+                var studentsDisplay = _mapper.Map<AddStudentsResponse>(addStudents.Data);
                 return Result<AddStudentsResponse>.Success(studentsDisplay);
 
 

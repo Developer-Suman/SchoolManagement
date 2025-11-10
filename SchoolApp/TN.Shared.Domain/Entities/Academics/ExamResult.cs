@@ -22,6 +22,8 @@ namespace TN.Shared.Domain.Entities.Academics
             decimal marksObtained,
             string grade,
             string remarks,
+            bool isActive,
+            string schoolId,
             string createdBy,
             DateTime createdAt,
             string modifiedBy,
@@ -33,6 +35,8 @@ namespace TN.Shared.Domain.Entities.Academics
             MarksObtained = marksObtained;
             Grade = grade;
             Remarks = remarks;
+            IsActive = isActive;
+            SchoolId = schoolId;
             CreatedBy = createdBy;
             CreatedAt = createdAt;
             ModifiedBy = modifiedBy;
@@ -48,6 +52,10 @@ namespace TN.Shared.Domain.Entities.Academics
         public string Grade { get; set; }
         public string Remarks { get; set; }
         public string CreatedBy { get; set; }
+
+        public bool IsActive { get; set; } 
+        public string SchoolId { get; set; }
+
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public string ModifiedBy { get; set; }
         public DateTime ModifiedAt { get; set; } = DateTime.Now;

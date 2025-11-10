@@ -20,6 +20,8 @@ namespace ES.Academics.Infrastructure
             #region Inject Dependencies
             services.AddScoped<ISchoolClassInterface, SchoolClassServices>();
             services.AddScoped<IExamServices, ExamServices>();
+            services.AddScoped<IExamResultServices, ExamResultServices>();
+            services.AddScoped<ISubjectServices, SubjectServices>();
             #endregion
 
             return services;
