@@ -1,7 +1,11 @@
 ﻿using ES.Academics.Application.Academics.Command.AddExam;
+using ES.Academics.Application.Academics.Command.AddExamResult;
 using ES.Academics.Application.Academics.Command.AddSchoolClass;
+using ES.Academics.Application.Academics.Command.AddSubject;
 using ES.Academics.Application.Academics.Command.UpdateExam;
+using ES.Academics.Application.Academics.Command.UpdateExamResult;
 using ES.Academics.Application.Academics.Command.UpdateSchoolClass;
+using ES.Academics.Application.Academics.Command.UpdateSubject;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -19,6 +23,11 @@ namespace ES.Academics.Application
             services.AddScoped<IValidator<UpdateSchoolClassCommand>, UpdateSchoolClassCommandValidator>();
             services.AddScoped<IValidator<AddExamCommand>, AddExamCommandValidator>();
             services.AddScoped<IValidator<UpdateExamCommand>, UpdateExamCommandValidator>();
+            services.AddScoped<IValidator<AddExamResultCommand>, AddExamResultCommandValidator>();
+            services.AddScoped<IValidator<UpdateExamResultCommand>, UpdateExamResultCommandValidator>();
+            services.AddScoped<IValidator<AddSubjectCommand>, AddSubjectCommandValidator>();
+            services.AddScoped<IValidator<UpdateSubjectCommand>, UpdateSubjectCommandValidator>();
+
 
             return services;
         }

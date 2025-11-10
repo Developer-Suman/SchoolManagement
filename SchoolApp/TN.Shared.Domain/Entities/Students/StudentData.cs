@@ -80,8 +80,8 @@ namespace TN.Shared.Domain.Entities.Students
 
         public string? ParentId { get; set; }
         public Parent? Parent { get; set; }
-        public string ClassSectionId { get; set; }
-        public ClassSection ClassSection { get; set; }
+        public string? ClassSectionId { get; set; }
+        public ClassSection? ClassSection { get; set; }
 
         public GenderStatus Gender { get; set; }
         public StudentStatus Status { get; set; }

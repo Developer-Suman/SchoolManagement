@@ -28,11 +28,13 @@ namespace TN.Shared.Domain.Entities.Certificates
             string? pdfPath,
             string? remarks,
             string status,
-            DateTime createdAt
+            DateTime createdAt,
+            DateTime yearOfCompletion
 
              ) : base(id)
         {
             TemplateId = templateId;
+            YearOfCompletion = yearOfCompletion;
             StudentId = studentId;
             SchoolId = schoolId;
             CertificateNumber = certificateNumber;
@@ -46,6 +48,7 @@ namespace TN.Shared.Domain.Entities.Certificates
 
         }
         
+        public DateTime YearOfCompletion { get;set;  }
         public string TemplateId { get; set; }
         public virtual CertificateTemplate CertificateTemplate { get; set; }
         public string StudentId { get; set; }

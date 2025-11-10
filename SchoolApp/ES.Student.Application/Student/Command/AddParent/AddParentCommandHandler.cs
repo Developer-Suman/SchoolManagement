@@ -50,7 +50,7 @@ namespace ES.Student.Application.Student.Command.AddParent
                     return Result<AddParentResponse>.Failure(" ");
                 }
 
-                var parentDisplay = _mapper.Map<AddParentResponse>(request);
+                var parentDisplay = _mapper.Map<AddParentResponse>(addParent.Data);
                 return Result<AddParentResponse>.Success(parentDisplay);
 
 

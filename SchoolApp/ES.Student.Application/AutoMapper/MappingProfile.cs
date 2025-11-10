@@ -35,6 +35,7 @@ namespace ES.Student.Application.AutoMapper
 
             #region Parent
             CreateMap<GetAllParentQueryResponse, Parent>().ReverseMap();
+            CreateMap<AddParentResponse, Parent>().ReverseMap();
             CreateMap<PagedResult<Parent>, PagedResult<GetAllParentQueryResponse>>().ReverseMap();
             CreateMap<GetParentByIdQueryResponse, Parent>().ReverseMap();
             CreateMap<AddParentResponse, Parent>().ReverseMap();

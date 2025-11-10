@@ -124,7 +124,7 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                 var (exam, currentSchoolId, institutionId, userRole, isSuperAdmin) =
                     await _getUserScopedData.GetUserScopedData<Exam>();
 
-                var finalQuery = exam.Where(x=>x.IsFinalExam == true).AsNoTracking();
+                var finalQuery = exam.Where(x=>x.IsActive == true).AsNoTracking();
 
 
                 var pagedResult = await finalQuery.ToPagedResultAsync(
