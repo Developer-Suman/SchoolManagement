@@ -13,8 +13,6 @@ namespace ES.Academics.Application.Academics.Command.UpdateExamResult
             string subjectId,
             decimal marksObtained,
             string grade,
-            string remarks,
-            bool isActive,
-            string schoolId
+            string remarks
         );
 }

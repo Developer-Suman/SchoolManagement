@@ -18,9 +18,7 @@ namespace ES.Academics.Application.Academics.Command.UpdateExamResult.RequestCom
                 request.subjectId,
                 request.marksObtained,
                 request.grade,
-                request.remarks,
-                request.isActive,
-                request.schoolId
+                request.remarks
                 );
         }
     }

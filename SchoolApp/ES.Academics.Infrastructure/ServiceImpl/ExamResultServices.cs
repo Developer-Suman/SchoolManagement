@@ -68,7 +68,7 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                         addExamResultCommand.grade,
                         addExamResultCommand.remarks,
                         true,
-                        addExamResultCommand.schoolId,
+                        schoolId,
                         userId,
                         DateTime.UtcNow,
                         "",

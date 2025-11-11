@@ -15,7 +15,6 @@ namespace ES.Academics.Application.Academics.Command.AddExamResult
             string subjectId,
             decimal marksObtained,
             string grade,
-            string remarks,
-            string schoolId
+            string remarks
         ) : IRequest<Result<AddExamResultResponse>>;
 }

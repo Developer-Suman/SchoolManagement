@@ -27,9 +27,13 @@ namespace TN.Shared.Domain.Entities.Certificates
             string? issuedBy,
             string? pdfPath,
             string? remarks,
-            string status,
+            CertificateStatus status,
+            DateTime yearOfCompletion,
+                string createdBy,
             DateTime createdAt,
-            DateTime yearOfCompletion
+            string modifiedBy,
+            DateTime modifiedAt,
+            bool isActive
 
              ) : base(id)
         {
@@ -44,10 +48,15 @@ namespace TN.Shared.Domain.Entities.Certificates
             Remarks = remarks;
             Status = status;
             CreatedAt = createdAt;
+            ModifiedAt = modifiedAt;
+            CreatedBy = createdBy;
+            ModifiedBy = modifiedBy;
+            IsActive = isActive;
 
 
         }
         
+        public bool IsActive { get; set; }
         public DateTime YearOfCompletion { get;set;  }
         public string TemplateId { get; set; }
         public virtual CertificateTemplate CertificateTemplate { get; set; }
@@ -60,7 +69,16 @@ namespace TN.Shared.Domain.Entities.Certificates
         public string? IssuedBy { get; set; }
         public string? PdfPath { get; set; }
         public string? Remarks { get; set; }
-        public string Status { get; set; } = "Active"; // Active, Revoked, Expired
+        public CertificateStatus Status { get; set; }  // Active, Revoked, Expired
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+        public string CreatedBy { get; set; }
+        public string ModifiedBy { get; set; }
+        public DateTime ModifiedAt { get; set; } = DateTime.UtcNow;
+
+        public enum CertificateStatus
+        {
+            Active = 1, Revoked = 2, Expired = 3
+        }
     }
 }
