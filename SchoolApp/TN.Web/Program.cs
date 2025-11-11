@@ -1,8 +1,10 @@
 
+using CS.Certificate.Application;
 using ES.Academics.Application;
 using ES.Academics.Infrastructure;
 using ES.Attendance.Application;
 using ES.Attendance.Infrastructure;
+using ES.Certificate.Infrastructure;
 using ES.Examination.Application;
 using ES.Examination.Infrastructure;
 using ES.Finances.Application;
@@ -143,7 +145,9 @@ try
 
     #endregion
 
-
+    builder.Services
+        .AddCertificateInfrastructure()
+        .AddCertificateApplication();
 
     builder.Services
         .AddSharedApplication()

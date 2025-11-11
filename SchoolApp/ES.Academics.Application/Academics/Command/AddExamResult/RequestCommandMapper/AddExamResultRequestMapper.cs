@@ -16,8 +16,7 @@ namespace ES.Academics.Application.Academics.Command.AddExamResult.RequestComman
                 request.subjectId,
                 request.marksObtained,
                 request.grade,
-                request.remarks,
-                request.schoolId
+                request.remarks
                 );
         }
     }

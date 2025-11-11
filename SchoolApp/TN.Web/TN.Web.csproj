@@ -30,10 +30,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\CS.Certificate.Application\ES.Certificate.Application.csproj" />
     <ProjectReference Include="..\ES.Academics.Application\ES.Academics.Application.csproj" />
     <ProjectReference Include="..\ES.Academics.Infrastructure\ES.Academics.Infrastructure.csproj" />
     <ProjectReference Include="..\ES.Attendance.Application\ES.Attendance.Application.csproj" />
     <ProjectReference Include="..\ES.Attendance.Infrastructure\ES.Attendance.Infrastructure.csproj" />
+    <ProjectReference Include="..\ES.Certificate.Application\ES.Certificate.Application.csproj" />
+    <ProjectReference Include="..\ES.Certificate.Infrastructure\ES.Certificate.Infrastructure.csproj" />
     <ProjectReference Include="..\ES.Examination.Application\ES.Examination.Application.csproj" />
     <ProjectReference Include="..\ES.Examination.Infrastructure\ES.Examination.Infrastructure.csproj" />
     <ProjectReference Include="..\ES.Finances.Infrastructure\ES.Finances.Infrastructure.csproj" />

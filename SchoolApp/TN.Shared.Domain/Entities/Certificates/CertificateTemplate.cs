@@ -19,12 +19,14 @@ namespace TN.Shared.Domain.Entities.Certificates
             string id,
             string schoolId,
             string templateName,
-            
             string templateType,
             string htmlTemplate,
             bool isActive,
             string templateVersion,
-            DateTime createdAt
+            DateTime createdAt,
+            string createdBy,
+            DateTime modifiedAt,
+            string modifiedBy
             ) : base(id)
         {
             SchoolId = schoolId;
@@ -33,9 +35,16 @@ namespace TN.Shared.Domain.Entities.Certificates
             HtmlTemplate = htmlTemplate;
             IsActive = isActive;
             CreatedAt = createdAt;
+            CreatedBy = createdBy;
+            ModifiedAt = modifiedAt;
+            ModifiedBy = modifiedBy;
 
             
         }
+        public string CreatedBy { get;set;  }
+        public DateTime ModifiedAt { get;set;  }
+
+        public string ModifiedBy { get;set; }
 
         public string SchoolId { get; set; }
         public virtual School School { get; set; }
