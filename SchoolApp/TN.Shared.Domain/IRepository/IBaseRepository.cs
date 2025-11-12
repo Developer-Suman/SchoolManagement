@@ -35,6 +35,12 @@ namespace TN.Shared.Domain.IRepository
         Task<IQueryable<TEntity>> GetAllAsyncWithPagination();
         Task<List<TEntity>> GetFilterAndOrderByAsync(Expression<Func<TEntity, bool>> predicate, Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderby = null);
 
+
+        Task<TResult?> GetSingleWithProjectionAsync<TResult>(
+      Expression<Func<TEntity, TResult>> projection,
+      Expression<Func<TEntity, bool>>? predicate = null,
+      Func<IQueryable<TEntity>, IQueryable<TEntity>>? queryModifier = null);
+
         Task<TEntity?> FirstOrDefaultAsync(Expression<Func<TEntity, bool>> predicate = null);
         Task<TEntity?> LastOrDefaultAsync(Expression<Func<TEntity, bool>> predicate = null, Expression<Func<TEntity, object>> orderBy = null);
 

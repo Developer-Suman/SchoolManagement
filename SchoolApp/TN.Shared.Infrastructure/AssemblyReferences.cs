@@ -50,6 +50,8 @@ namespace TN.Shared.Infrastructure
                 .AddInterceptors(interceptor);
             });
 
+
+
             services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();

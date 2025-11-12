@@ -17,6 +17,7 @@ using ES.Certificate.Application.Certificates.Command.UpdateIssuedCertificate.Re
 using ES.Certificate.Application.Certificates.Queries.CertificateTemplate;
 using ES.Certificate.Application.Certificates.Queries.FilterCertificateTemplate;
 using ES.Certificate.Application.Certificates.Queries.FilterIssuedCertificate;
+using ES.Certificate.Application.Certificates.Queries.GenerateCertificate;
 using ES.Certificate.Application.Certificates.Queries.IssuedCertificate;
 using ES.Certificate.Application.Certificates.Queries.IssuedCertificateById;
 using MediatR;
@@ -47,6 +48,31 @@ namespace TN.Web.Controllers.Certificate.v1
             _logger = logger;
             _mediator = mediator;
         }
+
+        #region GeneratECertificate
+
+        #region GenerateCertificateByStudent
+        [HttpGet("GenerateCertificateByStudent/{studentId}")]
+        public async Task<IActionResult> GenerateCertificateByStudent([FromRoute] string studentId)
+        {
+            var query = new GenerateCertificateQuery(studentId);
+            var generateCertificate = await _mediator.Send(query);
+            #region Switch Statement
+            return generateCertificate switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(generateCertificate.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = generateCertificate.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(generateCertificate.Errors),
+                _ => BadRequest("Invalid page and pageSize Fields")
+            };
+            #endregion
+
+        }
+        #endregion
+        #endregion
 
         #region CertificateTemplate
         #region AddCertificateTemplate

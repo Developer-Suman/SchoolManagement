@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TN.Shared.Domain.Entities.Students;
 using TN.Shared.Domain.Primitive;
 
 namespace TN.Authentication.Domain.Entities
@@ -14,10 +15,13 @@ namespace TN.Authentication.Domain.Entities
             VdcNameInEnglish = vdcNameInEnglish;
             VdcNameInNepali = vdcNameInNepali;
             DistrictId = districtId;
+            StudentData = new List<StudentData>();
         }
         public string VdcNameInEnglish { get; set; }
         public string VdcNameInNepali { get; set; }
         public int DistrictId { get; set; }
         public District? Districts { get; set; }
+
+        public ICollection<StudentData> StudentData { get; set; }
     }
 }

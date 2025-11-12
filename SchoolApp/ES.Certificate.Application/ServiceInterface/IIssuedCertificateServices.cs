@@ -1,6 +1,7 @@
 ﻿using ES.Certificate.Application.Certificates.Command.AddIssuedCertificate;
 using ES.Certificate.Application.Certificates.Command.UpdateIssuedCertificate;
 using ES.Certificate.Application.Certificates.Queries.FilterIssuedCertificate;
+using ES.Certificate.Application.Certificates.Queries.GenerateCertificate;
 using ES.Certificate.Application.Certificates.Queries.IssuedCertificate;
 using ES.Certificate.Application.Certificates.Queries.IssuedCertificateById;
 using System;
@@ -15,6 +16,8 @@ namespace ES.Certificate.Application.ServiceInterface
 {
     public interface IIssuedCertificateServices
     {
+
+        Task<Result<GenerateCertificateResponse>> GenerateCertificate(string studentId);
         Task<Result<AddIssuedCertificateResponse>> Add(AddIssuedCertificateCommand addIssuedCertificateCommand);
         Task<Result<PagedResult<IssuedCertificateResponse>>> GetAllIssuedCertificate(PaginationRequest paginationRequest, CancellationToken cancellationToken = default);
         Task<Result<IssuedCertificateByIdResponse>> GetIssuedCertificate(string issuedCertificateId, CancellationToken cancellationToken = default);

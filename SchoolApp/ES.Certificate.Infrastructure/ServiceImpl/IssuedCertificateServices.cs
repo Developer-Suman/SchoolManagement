@@ -2,9 +2,11 @@
 using ES.Certificate.Application.Certificates.Command.AddIssuedCertificate;
 using ES.Certificate.Application.Certificates.Command.UpdateIssuedCertificate;
 using ES.Certificate.Application.Certificates.Queries.FilterIssuedCertificate;
+using ES.Certificate.Application.Certificates.Queries.GenerateCertificate;
 using ES.Certificate.Application.Certificates.Queries.IssuedCertificate;
 using ES.Certificate.Application.Certificates.Queries.IssuedCertificateById;
 using ES.Certificate.Application.ServiceInterface;
+using ES.Certificate.Application.ServiceInterface.IHelperMethod;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -18,6 +20,7 @@ using TN.Shared.Domain.Abstractions;
 using TN.Shared.Domain.Entities.Academics;
 using TN.Shared.Domain.Entities.Certificates;
 using TN.Shared.Domain.Entities.OrganizationSetUp;
+using TN.Shared.Domain.Entities.Students;
 using TN.Shared.Domain.ExtensionMethod.Pagination;
 using TN.Shared.Domain.IRepository;
 
@@ -32,10 +35,12 @@ namespace ES.Certificate.Infrastructure.ServiceImpl
         private readonly IGetUserScopedData _getUserScopedData;
         private readonly IDateConvertHelper _dateConverter;
         private readonly FiscalContext _fiscalContext;
+        private readonly IHelperMethodServices _helperMethodServices;
 
-        public IssuedCertificateServices(IDateConvertHelper dateConverter, IGetUserScopedData getUserScopedData, FiscalContext fiscalContext, ITokenService tokenService, IUnitOfWork unitOfWork, IMemoryCacheRepository memoryCacheRepository, IMapper mapper)
+        public IssuedCertificateServices(IDateConvertHelper dateConverter,IHelperMethodServices helperMethodServices, IGetUserScopedData getUserScopedData, FiscalContext fiscalContext, ITokenService tokenService, IUnitOfWork unitOfWork, IMemoryCacheRepository memoryCacheRepository, IMapper mapper)
         {
             _dateConverter = dateConverter;
+            _helperMethodServices = helperMethodServices;
             _getUserScopedData = getUserScopedData;
             _tokenService = tokenService;
             _mapper = mapper;
@@ -111,6 +116,62 @@ namespace ES.Certificate.Infrastructure.ServiceImpl
             catch (Exception ex)
             {
                 throw new Exception($"An error occurred while deleting Issued Certificate having {id}", ex);
+            }
+        }
+
+        public async Task<Result<GenerateCertificateResponse>> GenerateCertificate(string studentId)
+        {
+            try
+            {
+                var studentsDetails = await _unitOfWork.BaseRepository<StudentData>()
+                   .GetConditionalAsync(
+                       x => x.Id == studentId,
+                       queryModifier: query => query
+                           .Include(s => s.ExamResults)
+                               .ThenInclude(er => er.Exam)
+                           .Include(s => s.IssuedCertificates)
+                           .Include(x=>x.Parent)
+                           .Include(x=>x.Province)
+                           .Include(x=>x.Municipality)
+                           .Include(x=>x.Vdc)
+                   );
+
+                var student = studentsDetails.FirstOrDefault();
+                if (student == null)
+                    return Result<GenerateCertificateResponse>.Failure("NotFound","Students Details not Found");
+
+                var percentage = await _helperMethodServices.CalculatePercentage(studentId);
+
+                var gpa = await _helperMethodServices.CalculateGPA(studentId);
+
+                var generateCertificate = new GenerateCertificateResponse(
+                    student.FirstName + " " + student.MiddleName + " "+ student.LastName,
+                    student.Parent.FullName,
+                    student.ProvinceId,
+                    student.DistrictId,
+                    student.municipalityId,
+                    student.vdcId,
+                    student.WardNumber,
+                    "",
+                    student.IssuedCertificates.Select(x=>x.YearOfCompletion).FirstOrDefault(),
+                    percentage.ToString(),
+                    "",
+                    student.DateOfBirth,
+                    "",
+                    student.RegistrationNumber,
+                    student.IssuedCertificates.Select(x=>x.IssuedDate).FirstOrDefault(),
+                    ""
+
+                    );
+
+                var generateCertificateResult = _mapper.Map<GenerateCertificateResponse>(generateCertificate);
+
+                return Result<GenerateCertificateResponse>.Success(generateCertificateResult);
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while fetching Issued Certificate by using Id", ex);
             }
         }
 
