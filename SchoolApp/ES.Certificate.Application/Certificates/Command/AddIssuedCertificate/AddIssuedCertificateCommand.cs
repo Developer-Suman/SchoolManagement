@@ -19,6 +19,8 @@ namespace ES.Certificate.Application.Certificates.Command.AddIssuedCertificate
             string? pdfPath,
             string? remarks,
             CertificateStatus status,
-            DateTime yearOfCompletion
+            DateTime yearOfCompletion,
+             string program,
+            string symbolNumber
         ) : IRequest<Result<AddIssuedCertificateResponse>>;
 }

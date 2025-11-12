@@ -20,6 +20,8 @@ namespace ES.Certificate.Application.Certificates.Queries.FilterIssuedCertificat
             string? remarks,
             CertificateStatus status,
             DateTime createdAt,
-            DateTime yearOfCompletion
+            DateTime yearOfCompletion,
+             string program,
+            string symbolNumber
         );
 }

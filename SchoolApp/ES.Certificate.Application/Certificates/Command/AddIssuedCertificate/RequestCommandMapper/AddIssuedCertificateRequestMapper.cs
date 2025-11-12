@@ -20,7 +20,9 @@ namespace ES.Certificate.Application.Certificates.Command.AddIssuedCertificate.R
                 addIssuedCertificateRequest.pdfPath,
                 addIssuedCertificateRequest.remarks,
                 addIssuedCertificateRequest.status,
-                addIssuedCertificateRequest.yearOfCompletion
+                addIssuedCertificateRequest.yearOfCompletion,
+                addIssuedCertificateRequest.program,
+                addIssuedCertificateRequest.symbolNumber
                 );
         }
     }

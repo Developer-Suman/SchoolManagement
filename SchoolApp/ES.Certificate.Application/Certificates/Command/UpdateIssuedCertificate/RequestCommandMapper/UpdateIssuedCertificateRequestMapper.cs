@@ -21,7 +21,9 @@ namespace ES.Certificate.Application.Certificates.Command.UpdateIssuedCertificat
                 request.pdfPath,
                 request.remarks,
                 request.status,
-                request.yearOfCompletion
+                request.yearOfCompletion,
+                request.program,
+                request.symbolNumber
                 
                 );
         }

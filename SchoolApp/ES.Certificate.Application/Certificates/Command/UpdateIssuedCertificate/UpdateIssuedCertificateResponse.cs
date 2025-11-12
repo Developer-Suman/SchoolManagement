@@ -20,6 +20,9 @@ namespace ES.Certificate.Application.Certificates.Command.UpdateIssuedCertificat
             string? remarks,
             CertificateStatus status,
             DateTime createdAt,
-            DateTime yearOfCompletion
+            DateTime yearOfCompletion,
+             string program,
+            string symbolNumber
+
         );
 }

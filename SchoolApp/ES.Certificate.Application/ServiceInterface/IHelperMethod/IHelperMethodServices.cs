@@ -10,5 +10,7 @@ namespace ES.Certificate.Application.ServiceInterface.IHelperMethod
     {
         Task<string> CalculatePercentage(string studentId);
         Task<string> CalculateGPA(string studentId);
+
+        Task<string> CalculateDivision(string studentId);
     }
 }

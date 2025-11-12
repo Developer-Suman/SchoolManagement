@@ -147,6 +147,8 @@ namespace ES.Certificate.Infrastructure.HelperMethod
             }
         }
 
+
+
         private decimal GetGradePointFromPercentage(decimal percentage)
         {
             if (percentage >= 90) return 4.0m;
@@ -157,6 +159,19 @@ namespace ES.Certificate.Infrastructure.HelperMethod
             if (percentage >= 40) return 2.0m;
             return 0.0m; // Fail
         }
+
+        private string GetDivisionFromPercentage(decimal percentage)
+        {
+            if (percentage >= 90) return "Distinction"; // 4.0 GPA
+            if (percentage >= 80) return "First Division"; // 3.6 GPA
+            if (percentage >= 70) return "Second Division"; // 3.2 GPA
+            if (percentage >= 60) return "Third Division"; // 2.8 GPA
+            if (percentage >= 50) return "Third Division"; // 2.4 GPA (or could be "Pass")
+            if (percentage >= 40) return "Pass"; // 2.0 GPA
+            return "Fail"; // 0.0 GPA
+        }
+
+
 
         public class StudentDetailsDto
         {
@@ -278,6 +293,26 @@ namespace ES.Certificate.Infrastructure.HelperMethod
                 throw new Exception("An error occurred while fetching Certificate Template by using Id", ex);
             }
 
+        }
+
+        public async Task<string> CalculateDivision(string studentId)
+        {
+
+            try
+            {
+
+                var percentageString = await CalculatePercentage(studentId);
+                var percentage = decimal.Parse(percentageString);
+                var division = GetDivisionFromPercentage(percentage);
+
+                return division;
+
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while fetching Certificate Template by using Id", ex);
+            }
         }
     }
 }

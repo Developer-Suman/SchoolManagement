@@ -19,6 +19,8 @@ namespace ES.Certificate.Application.Certificates.Command.AddIssuedCertificate
             string? remarks,
             string status,
             DateTime createdAt,
-            DateTime yearOfCompletion
+            DateTime yearOfCompletion,
+             string program,
+            string symbolNumber
         );
 }

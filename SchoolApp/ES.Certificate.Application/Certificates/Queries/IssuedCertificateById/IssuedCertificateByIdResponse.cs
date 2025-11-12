@@ -19,7 +19,9 @@ namespace ES.Certificate.Application.Certificates.Queries.IssuedCertificateById
             string? remarks,
             string status,
             DateTime createdAt,
-            DateTime yearOfCompletion
+            DateTime yearOfCompletion,
+             string program,
+            string symbolNumber
         );
 
 }
