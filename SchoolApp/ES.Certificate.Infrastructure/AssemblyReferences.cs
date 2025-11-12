@@ -1,4 +1,6 @@
 ﻿using ES.Certificate.Application.ServiceInterface;
+using ES.Certificate.Application.ServiceInterface.IHelperMethod;
+using ES.Certificate.Infrastructure.HelperMethod;
 using ES.Certificate.Infrastructure.ServiceImpl;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -20,6 +22,7 @@ namespace ES.Certificate.Infrastructure
             #region Inject Dependencies
             services.AddScoped<IIssuedCertificateServices, IssuedCertificateServices>();
             services.AddScoped<ICertificateTemplateServices, CertificateTemplateServices>();
+            services.AddScoped<IHelperMethodServices, HelperServices>();
             #endregion
 
             return services;

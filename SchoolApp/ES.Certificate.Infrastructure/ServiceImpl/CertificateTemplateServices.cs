@@ -6,6 +6,7 @@ using ES.Certificate.Application.Certificates.Queries.CertificateTemplate;
 using ES.Certificate.Application.Certificates.Queries.CertificateTemplateById;
 using ES.Certificate.Application.Certificates.Queries.FilterCertificateTemplate;
 using ES.Certificate.Application.ServiceInterface;
+using ES.Certificate.Application.ServiceInterface.IHelperMethod;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -33,9 +34,11 @@ namespace ES.Certificate.Infrastructure.ServiceImpl
         private readonly IGetUserScopedData _getUserScopedData;
         private readonly IDateConvertHelper _dateConverter;
         private readonly FiscalContext _fiscalContext;
+        private readonly IHelperMethodServices _helperMethodServices;
 
-        public CertificateTemplateServices(IDateConvertHelper dateConverter, IGetUserScopedData getUserScopedData, FiscalContext fiscalContext, ITokenService tokenService, IUnitOfWork unitOfWork, IMemoryCacheRepository memoryCacheRepository, IMapper mapper)
+        public CertificateTemplateServices(IDateConvertHelper dateConverter, IHelperMethodServices helperMethodServices,IGetUserScopedData getUserScopedData, FiscalContext fiscalContext, ITokenService tokenService, IUnitOfWork unitOfWork, IMemoryCacheRepository memoryCacheRepository, IMapper mapper)
         {
+            _helperMethodServices = helperMethodServices;   
             _dateConverter = dateConverter;
             _getUserScopedData = getUserScopedData;
             _tokenService = tokenService;
@@ -50,6 +53,10 @@ namespace ES.Certificate.Infrastructure.ServiceImpl
             {
                 try
                 {
+
+                    string studentId = "2aadc2c4-1b7f-490d-ba5d-bc8229d9aac8";
+
+                    var percentage = await _helperMethodServices.CalculatePercentage(studentId);
 
                     string newId = Guid.NewGuid().ToString();
                     var FyId = _fiscalContext.CurrentFiscalYearId;

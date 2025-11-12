@@ -7,6 +7,7 @@ using ES.Certificate.Application.Certificates.Queries.CertificateTemplate;
 using ES.Certificate.Application.Certificates.Queries.CertificateTemplateById;
 using ES.Certificate.Application.Certificates.Queries.FilterCertificateTemplate;
 using ES.Certificate.Application.Certificates.Queries.FilterIssuedCertificate;
+using ES.Certificate.Application.Certificates.Queries.GenerateCertificate;
 using ES.Certificate.Application.Certificates.Queries.IssuedCertificate;
 using ES.Certificate.Application.Certificates.Queries.IssuedCertificateById;
 using System;
@@ -42,6 +43,10 @@ namespace ES.Certificate.Application.AutoMapper
 
             CreateMap<FilterIssuedCertificateResponse, IssuedCertificate>().ReverseMap();
             CreateMap<PagedResult<IssuedCertificate>, PagedResult<FilterIssuedCertificateResponse>>().ReverseMap();
+            #endregion
+
+            #region Generate Certificate
+            //CreateMap<Generat, GenerateCertificateResponse>().ReverseMap();
             #endregion
 
             #region CertificateTemplate

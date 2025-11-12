@@ -275,6 +275,22 @@ namespace TN.Shared.Infrastructure.Data
                .OnDelete(DeleteBehavior.Restrict);
             #endregion
 
+            #region Municipality and Students(1:m)
+            builder.Entity<Municipality>()
+               .HasMany(p => p.StudentData)
+               .WithOne(p => p.Municipality)
+               .HasForeignKey(p => p.municipalityId)
+               .OnDelete(DeleteBehavior.Restrict);
+            #endregion
+
+            #region VDC and Students(1:m)
+            builder.Entity<Vdc>()
+               .HasMany(p => p.StudentData)
+               .WithOne(p => p.Vdc)
+               .HasForeignKey(p => p.vdcId)
+               .OnDelete(DeleteBehavior.Restrict);
+            #endregion
+
 
 
             #region Parents and Students(1:m)

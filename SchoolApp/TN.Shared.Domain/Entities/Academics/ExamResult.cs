@@ -34,6 +34,7 @@ namespace TN.Shared.Domain.Entities.Academics
             StudentId = studentId;
             MarksObtained = marksObtained;
             Grade = grade;
+            SubjectId = subjectId;
             Remarks = remarks;
             IsActive = isActive;
             SchoolId = schoolId;

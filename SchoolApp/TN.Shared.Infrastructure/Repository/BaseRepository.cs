@@ -109,33 +109,69 @@ namespace TN.Shared.Infrastructure.Repository
         public async Task<TEntity> GetById(int id) => await _dbSet.FindAsync(id);
 
         public async Task<IEnumerable<TEntity>> GetConditionalAsync(
-            Expression<Func<TEntity, bool>>? predicate=null, Func<IQueryable<TEntity>,
-                IQueryable<TEntity>>? queryModifier = null,
-            params Expression<Func<TEntity, object>>[] includes)
+    Expression<Func<TEntity, bool>>? predicate = null,
+    Func<IQueryable<TEntity>, IQueryable<TEntity>>? queryModifier = null,
+    params Expression<Func<TEntity, object>>[] includes)
         {
-            IQueryable<TEntity> query = _dbSet;
+            IQueryable<TEntity> query = _dbSet.AsQueryable();
 
-            // Apply filter if predicate is provided
+            // Apply filter
             if (predicate is not null)
-            {
                 query = query.Where(predicate);
-            }
 
-            // Apply eager loading
-            foreach (var include in includes)
-            {
-                query = query.Include(include);
-            }
-
-            // Apply additional query modification
+            // Apply query modifier first if it exists
             if (queryModifier is not null)
-            {
                 query = queryModifier(query);
+
+            // Apply eager loading safely
+            if (includes != null && includes.Any())
+            {
+                foreach (var include in includes)
+                {
+                    query = query.Include(include);
+                }
             }
 
-            return await query.ToListAsync();
-
+            return await query.AsNoTracking().ToListAsync();
         }
+
+
+        public async Task<TResult?> GetSingleWithProjectionAsync<TResult>(
+       Expression<Func<TEntity, TResult>> projection,
+       Expression<Func<TEntity, bool>>? predicate = null,
+       Func<IQueryable<TEntity>, IQueryable<TEntity>>? queryModifier = null)
+        {
+            if (projection == null)
+                throw new ArgumentNullException(nameof(projection));
+
+            try
+            {
+                IQueryable<TEntity> query = _dbSet.AsQueryable();
+
+                // Apply filter
+                if (predicate is not null)
+                {
+                    query = query.Where(predicate);
+                }
+
+                // Apply query modifier
+                if (queryModifier is not null)
+                {
+                    query = queryModifier(query);
+                }
+
+                // Apply projection and get first or default
+                return await query
+                    .AsNoTracking()
+                    .Select(projection)
+                    .FirstOrDefaultAsync();
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
 
         public async Task<IEnumerable<TResult>> GetConditionalFilterType<TResult>(Expression<Func<TEntity, bool>> predicate, Func<IQueryable<TEntity>, IQueryable<TResult>> queryModifier)
         {

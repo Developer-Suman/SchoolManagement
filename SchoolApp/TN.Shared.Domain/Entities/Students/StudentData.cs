@@ -95,6 +95,13 @@ namespace TN.Shared.Domain.Entities.Students
         public virtual Province Province { get; set; }
         public int DistrictId { get; set; }
         public virtual District District { get; set; }
+
+        public int? municipalityId { get; set; }
+        public virtual Municipality? Municipality { get; set; }
+
+        public int? vdcId { get; set; }
+        public virtual Vdc? Vdc { get; set; }
+
         public int WardNumber { get; set;  }
 
 
