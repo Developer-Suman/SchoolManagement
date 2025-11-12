@@ -33,7 +33,9 @@ namespace TN.Shared.Domain.Entities.Certificates
             DateTime createdAt,
             string modifiedBy,
             DateTime modifiedAt,
-            bool isActive
+            bool isActive,
+            string program,
+            string symbolNumber
 
              ) : base(id)
         {
@@ -52,6 +54,8 @@ namespace TN.Shared.Domain.Entities.Certificates
             CreatedBy = createdBy;
             ModifiedBy = modifiedBy;
             IsActive = isActive;
+            Program = program;
+            SymbolNumber = symbolNumber;
 
 
         }
@@ -75,6 +79,8 @@ namespace TN.Shared.Domain.Entities.Certificates
         public string CreatedBy { get; set; }
         public string ModifiedBy { get; set; }
         public DateTime ModifiedAt { get; set; } = DateTime.UtcNow;
+        public string Program { get; set; }
+        public string SymbolNumber { get; set; }
 
         public enum CertificateStatus
         {

@@ -76,7 +76,9 @@ namespace ES.Certificate.Infrastructure.ServiceImpl
                         DateTime.UtcNow,
                         "",
                         default,
-                        true
+                        true,
+                        addIssuedCertificateCommand.program,
+                        addIssuedCertificateCommand.symbolNumber
                     );
 
                     await _unitOfWork.BaseRepository<IssuedCertificate>().AddAsync(addIssuedCertificate);
@@ -144,6 +146,8 @@ namespace ES.Certificate.Infrastructure.ServiceImpl
 
                 var gpa = await _helperMethodServices.CalculateGPA(studentId);
 
+                var divison = await _helperMethodServices.CalculateDivision(studentId);
+
                 var generateCertificate = new GenerateCertificateResponse(
                     student.FirstName + " " + student.MiddleName + " "+ student.LastName,
                     student.Parent.FullName,
@@ -152,12 +156,12 @@ namespace ES.Certificate.Infrastructure.ServiceImpl
                     student.municipalityId,
                     student.vdcId,
                     student.WardNumber,
-                    "",
+                    student.IssuedCertificates.Select(x => x.Program).FirstOrDefault(),
                     student.IssuedCertificates.Select(x=>x.YearOfCompletion).FirstOrDefault(),
                     percentage.ToString(),
-                    "",
+                    divison.ToString(),
                     student.DateOfBirth,
-                    "",
+                    student.IssuedCertificates.Select(x => x.SymbolNumber).FirstOrDefault(),
                     student.RegistrationNumber,
                     student.IssuedCertificates.Select(x=>x.IssuedDate).FirstOrDefault(),
                     ""
@@ -258,7 +262,9 @@ namespace ES.Certificate.Infrastructure.ServiceImpl
                     i.Remarks,
                     i.Status,
                     i.CreatedAt,
-                    i.YearOfCompletion
+                    i.YearOfCompletion,
+                    i.Program,
+                    i.SymbolNumber
 
 
                 ))
@@ -357,7 +363,9 @@ namespace ES.Certificate.Infrastructure.ServiceImpl
                             issuedCertificateToBeUpdated.Remarks,
                             issuedCertificateToBeUpdated.Status,
                             issuedCertificateToBeUpdated.CreatedAt,
-                            issuedCertificateToBeUpdated.YearOfCompletion
+                            issuedCertificateToBeUpdated.YearOfCompletion,
+                            issuedCertificateToBeUpdated.Program,
+                            issuedCertificateToBeUpdated.SymbolNumber
 
 
                         );
