@@ -8,11 +8,10 @@ namespace ES.Academics.Application.Academics.Queries.FilterExamResult
 {
     public record FilterExamResultResponse
     (
+        string id,
         string? examId,
      string studentId,
-     string subjectId,
      decimal marksObtained,
-     string grade,
      string remarks,
      bool isActive,
      string schoolId,

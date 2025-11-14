@@ -8,6 +8,7 @@ namespace ES.Academics.Application.Academics.Queries.SchoolClass
 {
     public record SchoolClassQueryResponse
     (
+        string id="",
         string name=""
         
         );

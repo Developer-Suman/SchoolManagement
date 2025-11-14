@@ -8,6 +8,7 @@ namespace ES.Academics.Application.Academics.Queries.ExamResult
 {
     public record ExamResultResponse
    (
+        string id,
          string? examId,
      string studentId,
      string subjectId,

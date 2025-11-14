@@ -10,9 +10,9 @@ namespace ES.Academics.Application.Academics.Command.AddExamResult
     public class AddExamResultCommandValidator : AbstractValidator<AddExamResultCommand>
     {
         public AddExamResultCommandValidator() {
-                        RuleFor(x => x.marksObtained)
-             .GreaterThanOrEqualTo(0)
-             .WithMessage("Marks Obtained must be greater than or equal to 0.");
+            RuleFor(x => x.studentId);
+             //.GreaterThanOrEqualTo(0)
+             //.WithMessage("Marks Obtained must be greater than or equal to 0.");
 
                
         }

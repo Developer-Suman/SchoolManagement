@@ -10,20 +10,20 @@ namespace ES.Student.Application.Student.Queries.GetStudentsById
     public record  GetStudentsByIdQueryResponse
     (
 
-        string firstName,
-        string? middleName,
-        string lastName,
-        string admissionNumber,
-        GenderStatus genderStatus,
-        StudentStatus studentStatus,
-        DateTime dateOfBirth,
-        string? email,
-        string? phoneNumber,
-        string? imageUrl,
-        string? address,
-        DateTime enrollmentDate,
-        string? parentId,
-        string? classSectionId
+        string firstName="",
+        string? middleName="",
+        string lastName = "",
+        string admissionNumber = "",
+        GenderStatus genderStatus= default,
+        StudentStatus studentStatus=default,
+        DateTime dateOfBirth = default,
+        string? email = "",
+        string? phoneNumber = "",
+        string? imageUrl = "",
+        string? address = "",
+        DateTime enrollmentDate = default,
+        string? parentId = "",
+        string? classSectionId = ""
 
     );
 }

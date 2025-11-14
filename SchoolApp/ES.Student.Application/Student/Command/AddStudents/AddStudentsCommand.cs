@@ -20,14 +20,15 @@ namespace ES.Student.Application.Student.Command.AddStudents
         DateTime dateOfBirth,
         string? email,
         string? phoneNumber,
-        string? imageUrl,
         string? address,
         DateTime enrollmentDate,
         string? parentId,
         string? classSectionId,
         int? provinceId,
         int? districtId,
-        int? wardNumber
+        int? wardNumber,
+            int? vdcid,
+        int? municipalityId
 
 
         ) : IRequest<Result<AddStudentsResponse>>;

@@ -8,6 +8,7 @@ namespace ES.Academics.Application.Academics.Queries.ExamById
 {
     public record ExamByIdQueryResponse
     (
+        string id,
          string name,
          DateTime examDate,
          decimal totalMarks,

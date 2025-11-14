@@ -17,6 +17,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Transactions;
+using TN.Account.Application.Account.Command.UpdateJournalEntry;
+using TN.Account.Domain.Entities;
 using TN.Authentication.Domain.Entities;
 using TN.Shared.Application.ServiceInterface;
 using TN.Shared.Domain.Abstractions;
@@ -63,17 +65,21 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                             newId,
                         addExamResultCommand.examId,
                         addExamResultCommand.studentId,
-                        addExamResultCommand.subjectId,
-                        addExamResultCommand.marksObtained,
-                        addExamResultCommand.grade,
                         addExamResultCommand.remarks,
                         true,
                         schoolId,
                         userId,
                         DateTime.UtcNow,
                         "",
-                        default
-                        
+                        default,
+                        addExamResultCommand.marksObtained?.Select(e=> new MarksObtained(
+                            Guid.NewGuid().ToString(),
+                            
+                            e.SubjectId,
+                            e.MarksObtaineds,
+                            newId
+                        )).ToList() ?? new List<MarksObtained>()
+
                     );
 
                     await _unitOfWork.BaseRepository<ExamResult>().AddAsync(addExamResult);
@@ -192,7 +198,6 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                 var filteredResult = filterExam
                  .Where(x =>
                        (string.IsNullOrEmpty(filterExamResultDTOs.studentId) || x.StudentId == filterExamResultDTOs.studentId) &&
-                       (string.IsNullOrEmpty(filterExamResultDTOs.subjectId) || x.SubjectId == filterExamResultDTOs.subjectId) &&
                      x.CreatedAt >= startUtc &&
                          x.CreatedAt <= endUtc &&
                          x.IsActive
@@ -206,12 +211,10 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                 var responseList = filteredResult
                 .OrderByDescending(x => x.CreatedAt)
                 .Select(i => new FilterExamResultResponse(
-
+                    i.Id,
                     i.ExamId,
                     i.StudentId,
-                    i.SubjectId,
-                    i.MarksObtained,
-                    i.Grade,
+                    i.MarksOtaineds.Sum(x=>x.MarksObtaineds),
                     i.Remarks,
                     i.IsActive,
                     i.SchoolId,
@@ -276,32 +279,76 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                     {
                         return Result<UpdateExamResultResponse>.Failure("NotFound", "Please provide valid examResultId");
                     }
+                    var userId = _tokenService.GetUserId();
+                    var examResultsDetails = await _unitOfWork.BaseRepository<ExamResult>().
+                                 GetConditionalAsync(x => x.Id == examResultId,
+                                 query => query.Include(rm => rm.MarksOtaineds)
+                                 );
 
-                    var examResultToBeUpdated = await _unitOfWork.BaseRepository<ExamResult>().GetByGuIdAsync(examResultId);
-                    if (examResultToBeUpdated is null)
+                    var examResult = examResultsDetails.FirstOrDefault();
+
+                    if (examResult == null)
                     {
-                        return Result<UpdateExamResultResponse>.Failure("NotFound", "Exam are not Found");
+                        return Result<UpdateExamResultResponse>.Failure("NotFound", "ExamResult not found.");
                     }
-                    examResultToBeUpdated.CreatedAt = DateTime.UtcNow;
-                    _mapper.Map(updateExamResultCommand, examResultToBeUpdated);
+
+
+                    examResult.ModifiedBy = userId;
+                    examResult.ModifiedAt = DateTime.UtcNow;
+                    examResult.Remarks = updateExamResultCommand.remarks;
+                    examResult.ExamId = updateExamResultCommand.examId;
+                    examResult.StudentId = updateExamResultCommand.studentId;
+
+
+
+
+                    if (updateExamResultCommand.marksObtained != null && updateExamResultCommand.marksObtained.Any())
+                    {
+                        foreach (var detail in updateExamResultCommand.marksObtained)
+                        {
+                            var existingExamResult = await _unitOfWork.BaseRepository<ExamResult>().GetByGuIdAsync(detail.Id);
+
+                            if (existingExamResult != null)
+                            {
+                                _mapper.Map(detail, existingExamResult);
+                                _unitOfWork.BaseRepository<ExamResult>().Update(existingExamResult);
+                            }
+                            else
+                            {
+                                var newExamResult = _mapper.Map<ExamResult>(detail);
+                                newExamResult.Id = Guid.NewGuid().ToString();
+                                await _unitOfWork.BaseRepository<ExamResult>().AddAsync(newExamResult);
+                            }
+                        }
+
+                        await _unitOfWork.SaveChangesAsync();
+                    }
+
+                    _mapper.Map(updateExamResultCommand, examResult);
                     await _unitOfWork.SaveChangesAsync();
                     scope.Complete();
+
 
                     var resultResponse = new UpdateExamResultResponse
                         (
 
-                            examResultToBeUpdated.ExamId,
-                            examResultToBeUpdated.StudentId,
-                            examResultToBeUpdated.SubjectId,
-                            examResultToBeUpdated.MarksObtained,
-                            examResultToBeUpdated.Grade,
-                            examResultToBeUpdated.Remarks,
-                            examResultToBeUpdated.IsActive,
-                            examResultToBeUpdated.SchoolId,
-                            examResultToBeUpdated.CreatedBy,
-                            examResultToBeUpdated.CreatedAt,
-                            examResultToBeUpdated.ModifiedBy,
-                            examResultToBeUpdated.ModifiedAt
+                            examResult.ExamId,
+                            examResult.StudentId,
+
+                            examResult.Remarks,
+                            examResult.IsActive,
+                            examResult.SchoolId,
+                            examResult.CreatedBy,
+                            examResult.CreatedAt,
+                            examResult.ModifiedBy,
+                            examResult.ModifiedAt,
+                            examResult.MarksOtaineds?.Select(details=> new MarksObtained
+                            (
+                                details.Id,
+                                details.SubjectId,
+                                details.MarksObtaineds,
+                                details.ExamResultId
+                            )).ToList() ?? new List<MarksObtained>()
 
 
 

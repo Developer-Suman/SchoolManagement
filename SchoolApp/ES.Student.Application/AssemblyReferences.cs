@@ -1,5 +1,6 @@
 ﻿using ES.Student.Application.Student.Command.AddParent;
 using ES.Student.Application.Student.Command.AddStudents;
+using ES.Student.Application.Student.Command.UpdateParent;
 using ES.Student.Application.Student.Command.UpdateStudents;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
@@ -22,6 +23,7 @@ namespace ES.Student.Application
             services.AddScoped<IValidator<AddStudentsCommand>, AddStudentsCommandValidator>();
             services.AddScoped<IValidator<UpdateStudentCommand>, UpdateStudentCommandValidator>();
             services.AddScoped<IValidator<AddParentCommand>, AddParentCommandValidator>();
+            services.AddScoped<IValidator<UpdateParentCommand>, UpdateParentCommandValidator>();
             return services;
         }
     }

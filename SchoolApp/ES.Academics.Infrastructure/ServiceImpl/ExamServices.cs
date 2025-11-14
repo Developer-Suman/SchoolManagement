@@ -207,6 +207,7 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                 .OrderByDescending(x => x.CreatedAt)
                 .Select(i => new FilterExamResponse(
                 
+                    i.Id,
                     i.Name,
                     i.ExamDate,
                     i.TotalMarks,

@@ -3,22 +3,21 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TN.Shared.Domain.Entities.Academics;
 
 namespace ES.Academics.Application.Academics.Command.UpdateExamResult
 {
     public record UpdateExamResultResponse
    (
-         string? examId,
+            string? examId,
             string studentId,
-            string subjectId,
-            decimal marksObtained,
-            string grade,
             string remarks,
             bool isActive,
             string schoolId,
             string createdBy,
             DateTime createdAt,
             string modifiedBy,
-            DateTime modifiedAt
+            DateTime modifiedAt,
+            List<MarksObtained> marksObtained
         );
 }

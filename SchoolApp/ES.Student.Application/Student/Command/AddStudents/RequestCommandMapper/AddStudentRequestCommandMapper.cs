@@ -20,14 +20,15 @@ namespace ES.Student.Application.Student.Command.AddStudents.RequestCommandMappe
                 request.dateOfBirth,
                 request.email,
                 request.phoneNumber,
-                request.imageUrl,
                 request.address,
                 request.enrollmentDate,
                 request.parentId,
                 request.classSectionId,
                 request.provinceId,
                 request.districtId,
-                request.wardNumber
+                request.wardNumber,
+                request.vdcid,
+                request.municipalityId
                 );
         }
     }

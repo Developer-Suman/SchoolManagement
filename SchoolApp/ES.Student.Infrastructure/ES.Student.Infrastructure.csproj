@@ -15,6 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\ES.Certificate.Application\ES.Certificate.Application.csproj" />
     <ProjectReference Include="..\ES.Student.Application\ES.Student.Application.csproj" />
     <ProjectReference Include="..\TN.Shared.Domain\TN.Shared.Domain.csproj" />
   </ItemGroup>

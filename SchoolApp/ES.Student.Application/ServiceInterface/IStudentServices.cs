@@ -2,6 +2,8 @@
 using ES.Student.Application.Student.Command.AddStudents;
 using ES.Student.Application.Student.Command.UpdateParent;
 using ES.Student.Application.Student.Command.UpdateStudents;
+using ES.Student.Application.Student.Queries.FilterParents;
+using ES.Student.Application.Student.Queries.FilterStudents;
 using ES.Student.Application.Student.Queries.GetAllParent;
 using ES.Student.Application.Student.Queries.GetAllStudents;
 using ES.Student.Application.Student.Queries.GetParentById;
@@ -29,8 +31,12 @@ namespace ES.Student.Application.ServiceInterface
         Task<Result<PagedResult<GetAllParentQueryResponse>>> GetAllParent(PaginationRequest paginationRequest, CancellationToken cancellationToken = default);
         Task<Result<GetParentByIdQueryResponse>> GetParentById(string id, CancellationToken cancellationToken = default);
 
+        Task<Result<PagedResult<FilterParentsResponse>>> GetFilterParents(PaginationRequest paginationRequest, FilterParentsDTOs filterParentsDTOs);
+
+        Task<Result<PagedResult<FilterStudentsResponse>>> GetFilterStudent(PaginationRequest paginationRequest, FilterStudentsDTOs filterStudentsDTOs);
+
         Task<Result<bool>> DeleteParent(string id, CancellationToken cancellationToken);
-        //Task<Result<UpdateParentResponse>> UpdateParent(string id, UpdateParentCommand updateParentCommand);
+        Task<Result<UpdateParentResponse>> UpdateParent(string id, UpdateParentCommand updateParentCommand);
 
     }
 }

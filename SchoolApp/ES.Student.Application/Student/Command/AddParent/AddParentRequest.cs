@@ -16,8 +16,7 @@ namespace ES.Student.Application.Student.Command.AddParent
          string phoneNumber,
          string? email,
          string? address,
-         string? occupation,
-         string? imageUrl
+         string? occupation
 
 
     );

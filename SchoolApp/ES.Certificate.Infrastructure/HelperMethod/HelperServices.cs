@@ -62,7 +62,7 @@ namespace ES.Certificate.Infrastructure.HelperMethod
                    .Select(er => new ExamResultDto
                    {
                        Id = er.Id,
-                       MarksObtained = er.MarksObtained,
+                       MarksObtained = er.MarksOtaineds.Sum(x=>x.MarksObtaineds),
 
 
                        Exam = new ExamDto
@@ -73,12 +73,12 @@ namespace ES.Certificate.Infrastructure.HelperMethod
 
                        },
 
-                       SubjectDto = new SubjectDto
-                       {
-                           Id = er.Subject.Id,
-                           Name = er.Subject.Name,
-                           CreditHour = er.Subject.CreditHours
-                       }
+                       //SubjectDto = new SubjectDto
+                       //{
+                       //    Id = er.MarksObtained,
+                       //    Name = er.Subject.Name,
+                       //    CreditHour = er.MarksOtaineds.FirstOrDefault().Subject.CreditHour,
+                       //}
 
                    })
                    .ToList(),
@@ -162,13 +162,17 @@ namespace ES.Certificate.Infrastructure.HelperMethod
 
         private string GetDivisionFromPercentage(decimal percentage)
         {
-            if (percentage >= 90) return "Distinction"; // 4.0 GPA
-            if (percentage >= 80) return "First Division"; // 3.6 GPA
-            if (percentage >= 70) return "Second Division"; // 3.2 GPA
-            if (percentage >= 60) return "Third Division"; // 2.8 GPA
-            if (percentage >= 50) return "Third Division"; // 2.4 GPA (or could be "Pass")
-            if (percentage >= 40) return "Pass"; // 2.0 GPA
-            return "Fail"; // 0.0 GPA
+            if (percentage < 0 || percentage > 100)
+                throw new ArgumentOutOfRangeException(nameof(percentage),
+                    $"Invalid percentage value: {percentage}. Expected range 0–100.");
+
+            if (percentage >= 90) return "Distinction";
+            if (percentage >= 80) return "First Division";
+            if (percentage >= 70) return "Second Division";
+            if (percentage >= 60) return "Third Division";
+            if (percentage >= 50) return "Third Division";
+            if (percentage >= 40) return "Pass";
+            return "Fail";
         }
 
 
@@ -187,7 +191,6 @@ namespace ES.Certificate.Infrastructure.HelperMethod
         public class ExamResultDto
         {
             public string Id { get; set; }
-            public string Subject { get; set; }
 
             public decimal MarksObtained { get; set; }
 
@@ -241,8 +244,7 @@ namespace ES.Certificate.Infrastructure.HelperMethod
                            .Select(er => new ExamResultDto
                            {
                                Id = er.Id,
-                               Subject = er.SubjectId,
-                               MarksObtained = er.MarksObtained,
+                               MarksObtained = er.MarksOtaineds.Sum(x=>x.MarksObtaineds),
 
 
                                Exam = new ExamDto
@@ -300,18 +302,29 @@ namespace ES.Certificate.Infrastructure.HelperMethod
 
             try
             {
-
                 var percentageString = await CalculatePercentage(studentId);
-                var percentage = decimal.Parse(percentageString);
-                var division = GetDivisionFromPercentage(percentage);
-
-                return division;
 
 
+                // Remove % and trim spaces safely
+                var cleanPercentageString = percentageString
+                    ?.Replace("%", "")
+                    ?.Trim();
+
+
+                if (string.IsNullOrWhiteSpace(percentageString))
+                    throw new InvalidOperationException("Percentage value is empty or null.");
+
+                if (!decimal.TryParse(cleanPercentageString, out var percentage))
+                    throw new FormatException($"Invalid percentage format: '{percentageString}'");
+
+                var division =  GetDivisionFromPercentage(percentage);
+
+                return division.ToString();
             }
             catch (Exception ex)
             {
-                throw new Exception("An error occurred while fetching Certificate Template by using Id", ex);
+                // Preserve original error for clarity
+                throw new Exception($"Error while calculating division for student ID: {studentId}. Details: {ex.Message}", ex);
             }
         }
     }

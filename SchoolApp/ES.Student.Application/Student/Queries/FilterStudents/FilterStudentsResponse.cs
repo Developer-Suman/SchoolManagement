@@ -5,12 +5,13 @@ using System.Text;
 using System.Threading.Tasks;
 using TN.Shared.Domain.Entities.Students;
 
-namespace ES.Student.Application.Student.Command.AddStudents
+namespace ES.Student.Application.Student.Queries.FilterStudents
 {
-    public record AddStudentsResponse
+    public record FilterStudentsResponse
     (
-        string firstName="",
-        string? middleName="",
+        string id = "",
+         string firstName = "",
+        string? middleName = "",
         string lastName = "",
         string registrationNumber = "",
         GenderStatus genderStatus = default,
@@ -18,15 +19,10 @@ namespace ES.Student.Application.Student.Command.AddStudents
         DateTime dateOfBirth = default,
         string? email = "",
         string? phoneNumber = "",
-        string? imageUrl="",
+        string? imageUrl = "",
         string? address = "",
         DateTime enrollmentDate = default,
         string? parentId = "",
-        string? classSectionId = "",
-        int? provinceId = 0,
-        int? districtId=0,
-        int? wardNumber = 0,
-            int? vdcid=0,
-            int? municipalityId=0
-    );
+        string? classSectionId = ""
+        );
 }
