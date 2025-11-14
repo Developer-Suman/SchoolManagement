@@ -13,10 +13,8 @@ namespace ES.Academics.Application.Academics.Command.AddExamResult.RequestComman
             return new AddExamResultCommand(
                 request.examId,
                 request.studentId,
-                request.subjectId,
-                request.marksObtained,
-                request.grade,
-                request.remarks
+                request.remarks,
+                request.marksObtained
                 );
         }
     }

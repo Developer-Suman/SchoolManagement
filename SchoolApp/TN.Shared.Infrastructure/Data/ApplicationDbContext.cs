@@ -60,6 +60,7 @@ namespace TN.Shared.Infrastructure.Data
         #region Academics
         public DbSet<Class> Classes { get; set; }
         public DbSet<Section> Sections { get; set; }
+        public DbSet<MarksObtained> MarksObtaineds { get; set; }
         public DbSet<Subject> Subjects { get; set; }
         public DbSet<Exam> Exams { get; set; }
         public DbSet<ExamResult> ExamResults { get; set; }
@@ -279,7 +280,7 @@ namespace TN.Shared.Infrastructure.Data
             builder.Entity<Municipality>()
                .HasMany(p => p.StudentData)
                .WithOne(p => p.Municipality)
-               .HasForeignKey(p => p.municipalityId)
+               .HasForeignKey(p => p.MunicipalityId)
                .OnDelete(DeleteBehavior.Restrict);
             #endregion
 
@@ -287,7 +288,7 @@ namespace TN.Shared.Infrastructure.Data
             builder.Entity<Vdc>()
                .HasMany(p => p.StudentData)
                .WithOne(p => p.Vdc)
-               .HasForeignKey(p => p.vdcId)
+               .HasForeignKey(p => p.VdcId)
                .OnDelete(DeleteBehavior.Restrict);
             #endregion
 
@@ -363,11 +364,19 @@ namespace TN.Shared.Infrastructure.Data
                .OnDelete(DeleteBehavior.Restrict);
             #endregion
 
-            #region Subject and ExamResult(1:m)
+            #region Subject and MarksObtained(1:m)
             builder.Entity<Subject>()
-               .HasMany(p => p.ExamResults)
+               .HasMany(p => p.MarksObtaineds)
                .WithOne(p => p.Subject)
                .HasForeignKey(p => p.SubjectId)
+               .OnDelete(DeleteBehavior.Restrict);
+            #endregion
+
+            #region ExamResult and MarksObtained(1:m)
+            builder.Entity<ExamResult>()
+               .HasMany(p => p.MarksOtaineds)
+               .WithOne(p => p.ExamResult)
+               .HasForeignKey(p => p.ExamResultId)
                .OnDelete(DeleteBehavior.Restrict);
             #endregion
 

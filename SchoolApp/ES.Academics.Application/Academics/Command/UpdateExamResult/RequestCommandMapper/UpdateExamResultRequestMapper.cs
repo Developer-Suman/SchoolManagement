@@ -15,10 +15,9 @@ namespace ES.Academics.Application.Academics.Command.UpdateExamResult.RequestCom
                 examResultId,
                 request.examId,
                 request.studentId,
-                request.subjectId,
-                request.marksObtained,
-                request.grade,
-                request.remarks
+
+                request.remarks,
+                request.marksObtained
                 );
         }
     }

@@ -26,7 +26,7 @@ namespace ES.Student.Application.Student.Command.DeleteParent
         {
             try
             {
-                var deleteParent = await _studentServices.Delete(request.id, cancellationToken);
+                var deleteParent = await _studentServices.DeleteParent(request.id, cancellationToken);
                 if (deleteParent is null)
                 {
                     return Result<bool>.Failure("NotFound", "parent not Found");

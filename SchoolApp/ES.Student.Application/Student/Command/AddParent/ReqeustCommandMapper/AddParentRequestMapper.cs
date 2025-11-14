@@ -18,8 +18,7 @@ namespace ES.Student.Application.Student.Command.AddParent.ReqeustCommandMapper
                 request.phoneNumber,
                 request.email,
                 request.address,
-                request.occupation,
-                request.imageUrl
+                request.occupation
 
 
             );

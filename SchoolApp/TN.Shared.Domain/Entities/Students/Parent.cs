@@ -27,7 +27,9 @@ namespace TN.Shared.Domain.Entities.Students
             string createdBy,
             DateTime createdAt,
             string modifiedBy,
-            DateTime modifiedAt
+            DateTime modifiedAt,
+            string schoolId,
+            bool isActive
 
 
 
@@ -38,6 +40,8 @@ namespace TN.Shared.Domain.Entities.Students
             PhoneNumber = phoneNumber;
             Email = email;
             Address = address;
+            SchoolId = schoolId;
+            IsActive = isActive;
             Occupation = occupation;
             ImageUrl = imageUrl;
             CreatedBy = createdBy;
@@ -48,6 +52,8 @@ namespace TN.Shared.Domain.Entities.Students
 
         }
 
+        public string SchoolId { get; set; }
+        public bool IsActive { get; set; }
 
         public string FullName { get; set; }
         public ParentType ParentType { get; set; }

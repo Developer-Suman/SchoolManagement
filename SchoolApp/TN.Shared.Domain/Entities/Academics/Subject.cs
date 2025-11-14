@@ -43,6 +43,7 @@ namespace TN.Shared.Domain.Entities.Academics
             ModifiedBy = modifiedBy;
             ModifiedAt = modifiedAt;
             ExamResults = new List<ExamResult>();
+            MarksObtaineds = new List<MarksObtained>();
         }
         public string Name { get; set; }
         public string Code { get; set; }
@@ -57,6 +58,11 @@ namespace TN.Shared.Domain.Entities.Academics
         public string ModifiedBy { get; set; }
         public DateTime ModifiedAt { get; set; } = DateTime.Now;
         public ICollection<ExamResult> ExamResults
+        {
+            get; set;
+        }
+
+        public ICollection<MarksObtained>  MarksObtaineds
         {
             get; set;
         }

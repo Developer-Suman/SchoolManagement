@@ -8,7 +8,7 @@ namespace ES.Academics.Application.Academics.Queries.FilterSchoolClass
 {
     public record FilterSchoolClassQueryResponse
     (
-             string classId,
+             string id,
         string name
         );
 }

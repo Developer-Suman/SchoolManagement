@@ -42,7 +42,14 @@ namespace TN.Shared.Domain.Entities.Students
             string createdBy, 
             DateTime createdAt, 
             string modifiedBy, 
-            DateTime modifiedAt)
+
+            DateTime modifiedAt,
+            string schoolId,
+            bool isActive,
+            int? vdcid,
+            int? municipalityId
+            
+            )
             : base(id)
         {
             FirstName = firstName;
@@ -66,6 +73,10 @@ namespace TN.Shared.Domain.Entities.Students
             CreatedAt = createdAt;
             ModifiedBy = modifiedBy;
             ModifiedAt = modifiedAt;
+            SchoolId = schoolId;
+            IsActive = isActive;
+            VdcId = vdcid;
+            MunicipalityId = municipalityId;
             StudentFees = new List<StudentFee>();
             StudentAttendances = new List<StudentAttendance>();
             ExamResults = new List<ExamResult>();
@@ -73,6 +84,9 @@ namespace TN.Shared.Domain.Entities.Students
 
         }
 
+
+        public string SchoolId { get; set; }
+        public bool IsActive { get; set; }
         public string FirstName { get; set; }
         public string? MiddleName { get; set; }
         public string RegistrationNumber { get; set; }
@@ -96,10 +110,10 @@ namespace TN.Shared.Domain.Entities.Students
         public int DistrictId { get; set; }
         public virtual District District { get; set; }
 
-        public int? municipalityId { get; set; }
+        public int? MunicipalityId { get; set; }
         public virtual Municipality? Municipality { get; set; }
 
-        public int? vdcId { get; set; }
+        public int? VdcId { get; set; }
         public virtual Vdc? Vdc { get; set; }
 
         public int WardNumber { get; set;  }

@@ -8,6 +8,7 @@ namespace ES.Academics.Application.Academics.Queries.FilterExam
 {
     public record FilterExamResponse
     (
+        string id,
          string name,
             DateTime examDate,
             decimal totalMarks,

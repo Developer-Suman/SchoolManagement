@@ -5,9 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 using TN.Shared.Domain.Entities.Students;
 
-namespace ES.Student.Application.Student.Command.UpdateParent
+namespace ES.Student.Application.Student.Queries.FilterParents
 {
-    public record UpdateParentResponse
+    public record FilterParentsResponse
     (
          string id,
             string fullName,
