@@ -385,7 +385,7 @@ namespace TN.Transactions.Infrastructure.ServiceImpl
 
               
                 var allPaymentMethods = await _unitOfWork.BaseRepository<PaymentMethod>().GetAllAsync();
-                var schoolPayments = allPaymentMethods.ToList();
+                var payments = allPaymentMethods.ToList();
 
                 for (int row = 2; row <= rowCount; row++)
         {
@@ -405,7 +405,7 @@ namespace TN.Transactions.Infrastructure.ServiceImpl
                 : throw new Exception($"Invalid transaction mode at row {row}");
 
             var normalizedPayment = NormalizeName(paymentNameRaw);
-            var matchedPayment = schoolPayments.FirstOrDefault(p =>
+            var matchedPayment = payments.FirstOrDefault(p =>
                 NormalizeName(p.Name) == normalizedPayment);
 
             if (matchedPayment == null)

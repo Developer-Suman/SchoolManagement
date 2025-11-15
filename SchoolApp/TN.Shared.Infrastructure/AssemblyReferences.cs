@@ -14,6 +14,7 @@ using TN.Authentication.Domain.Entities;
 using TN.Setup.Infrastructure.ServiceImpl;
 using TN.Shared.Application.ServiceInterface;
 using TN.Shared.Application.ServiceInterface.IBackGroundService;
+using TN.Shared.Application.ServiceInterface.IHelperServices;
 using TN.Shared.Domain.Entities.OrganizationSetUp;
 using TN.Shared.Domain.ICryptography;
 using TN.Shared.Domain.IRepository;
@@ -24,6 +25,7 @@ using TN.Shared.Infrastructure.Data.Interceptor;
 using TN.Shared.Infrastructure.Repository;
 using TN.Shared.Infrastructure.Repository.BackGroundServices;
 using TN.Shared.Infrastructure.Repository.BackGroundServicesHub;
+using TN.Shared.Infrastructure.Repository.HelperServices;
 
 namespace TN.Shared.Infrastructure
 {
@@ -108,6 +110,8 @@ namespace TN.Shared.Infrastructure
             services.AddScoped<IDateConvertHelper, DateConvertHelper>();
             services.AddScoped<FiscalContext>();
             services.AddScoped<IFiscalYearService, FiscalYearServices>();
+            services.AddScoped<IHelperService, HelperService>();
+            services.AddScoped<IimageServices, ImageServices>();
 
             #endregion
 

@@ -89,6 +89,7 @@ namespace ES.Academics.Application.AutoMapper
             CreateMap<ExamResult, DeleteExamResultCommand>().ReverseMap();
 
             CreateMap<ExamResultByIdQuery, ExamResult>().ReverseMap();
+            CreateMap<MarksObtainedDTOs, MarksObtained>().ReverseMap();
 
             CreateMap<ExamResultByIdResponse, ExamResult>().ReverseMap();
 

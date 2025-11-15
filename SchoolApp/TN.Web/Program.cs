@@ -135,6 +135,11 @@ try
     #endregion
 
 
+    builder.Services.AddSwaggerGen(c =>
+    {
+        c.CustomSchemaIds(type => type.FullName?.Replace("+", "."));
+    });
+
 
     #region RedisCache For Frequently Data
     builder.Services.AddStackExchangeRedisCache(options =>

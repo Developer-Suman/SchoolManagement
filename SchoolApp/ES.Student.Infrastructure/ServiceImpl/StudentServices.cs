@@ -16,6 +16,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Transactions;
 using TN.Authentication.Domain.Entities;
 using TN.Shared.Application.ServiceInterface;
+using TN.Shared.Application.ServiceInterface.IHelperServices;
 using TN.Shared.Domain.Abstractions;
 using TN.Shared.Domain.Entities.Certificates;
 using TN.Shared.Domain.Entities.OrganizationSetUp;
@@ -34,8 +35,9 @@ namespace ES.Student.Infrastructure.ServiceImpl
         private readonly IDateConvertHelper _dateConverter;
         private readonly FiscalContext _fiscalContext;
         private readonly IHelperMethodServices _helperMethodServices;
+        private readonly IimageServices _imageServices;
 
-        public StudentServices(IUnitOfWork unitOfWork,IMapper mapper,ITokenService tokenService, IGetUserScopedData getUserScopedData,
+        public StudentServices(IimageServices _imageServices, IUnitOfWork unitOfWork,IMapper mapper,ITokenService tokenService, IGetUserScopedData getUserScopedData,
             IDateConvertHelper dateConvertHelper,FiscalContext fiscalContext, IHelperMethodServices helperMethodServices)
         {
             _getUserScopedData = getUserScopedData;
@@ -57,6 +59,14 @@ namespace ES.Student.Infrastructure.ServiceImpl
                     string newId = Guid.NewGuid().ToString();
                     var userId = _tokenService.GetUserId();
                     var schoolId = _tokenService.SchoolId().FirstOrDefault();
+
+                    string imageURL = await _imageServices.AddSingle(addStudentsCommand.StudentsImg);
+                    if (imageURL is null)
+                    {
+                        return Result<AddStudentsResponse>.Failure("Image Url are not Created");
+                    }
+
+
                     var studentsData = new StudentData
                     (
                         newId,
@@ -69,7 +79,7 @@ namespace ES.Student.Infrastructure.ServiceImpl
                         addStudentsCommand.dateOfBirth,
                         addStudentsCommand.email,
                         addStudentsCommand.phoneNumber,
-                        "ImageUrl",
+                        imageURL,
                         addStudentsCommand.address,
                         addStudentsCommand.enrollmentDate,
                         addStudentsCommand.parentId,

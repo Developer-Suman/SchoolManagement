@@ -9,15 +9,16 @@ namespace ES.Academics.Application.Academics.Command.AddExamResult
 {
     public record AddExamResultResponse
     (
-        string? examId,
-            string studentId,
-            string remarks,
-            bool isActive,
-            string schoolId,
-            string createdBy,
-            DateTime createdAt,
-            string modifiedBy,
-            DateTime modifiedAt,
-            List<MarksObtained> marksObtained
+        string? examId="",
+            string studentId="",
+            string remarks="",
+            bool isActive=true,
+            string schoolId = "",
+            string createdBy = "",
+            DateTime createdAt=default,
+            string modifiedBy = "",
+            DateTime modifiedAt=default,
+            string fyId="",
+            List<MarksObtainedDTOs> marksObtained=default
         );
 }

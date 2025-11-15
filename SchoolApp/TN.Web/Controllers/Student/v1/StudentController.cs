@@ -94,7 +94,7 @@ namespace TN.Web.Controllers.Student.v1
         #region AddStudent
         [HttpPost("AddStudents")]
 
-        public async Task<IActionResult> AddStudents([FromBody] AddStudentsRequest request)
+        public async Task<IActionResult> AddStudents([FromForm] AddStudentsRequest request)
         {
           
 
@@ -320,7 +320,8 @@ namespace TN.Web.Controllers.Student.v1
             #endregion
         }
         #endregion
+        #endregion
 
     }
+
 }
-#endregion
