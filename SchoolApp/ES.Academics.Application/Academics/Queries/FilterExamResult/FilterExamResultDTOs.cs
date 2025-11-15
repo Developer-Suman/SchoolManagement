@@ -9,7 +9,6 @@ namespace ES.Academics.Application.Academics.Queries.FilterExamResult
     public record FilterExamResultDTOs
     (
         string? studentId,
-        string? subjectId,
         string? startDate,
         string? endDate
         );

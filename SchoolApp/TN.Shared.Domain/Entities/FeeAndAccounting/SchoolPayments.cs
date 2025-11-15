@@ -18,7 +18,7 @@ namespace TN.Shared.Domain.Entities.FeeAndAccounting
             string studentfeeId,
             decimal amountPaid,
             DateTime paymentDate,
-            PaymentMethod paymentMethod,
+            PaymentMethods paymentMethod,
             string referenceNumber,
             string createdBy,
             DateTime createdAt,
@@ -43,7 +43,7 @@ namespace TN.Shared.Domain.Entities.FeeAndAccounting
 
         public decimal AmountPaid { get; set; }
         public DateTime PaymentDate { get; set; }
-        public PaymentMethod PaymentMethod { get; set; }
+        public PaymentMethods PaymentMethod { get; set; }
         public string ReferenceNumber { get; set; }
         public string CreatedBy { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.Now;
@@ -51,7 +51,7 @@ namespace TN.Shared.Domain.Entities.FeeAndAccounting
         public DateTime ModifiedAt { get; set; } = DateTime.Now;
     }
 
-    public enum PaymentMethod
+    public enum PaymentMethods
     {
         Cash,
         CreditCard,

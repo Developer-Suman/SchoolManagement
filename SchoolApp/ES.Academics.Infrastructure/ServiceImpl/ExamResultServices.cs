@@ -18,8 +18,12 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Transactions;
 using TN.Account.Application.Account.Command.UpdateJournalEntry;
+using TN.Account.Application.Account.Queries.FilterJournalByDate;
+using TN.Account.Application.Account.Queries.JournalEntry;
+using TN.Account.Application.Account.Queries.JournalEntryById;
 using TN.Account.Domain.Entities;
 using TN.Authentication.Domain.Entities;
+using TN.Authentication.Domain.Static.Roles;
 using TN.Shared.Application.ServiceInterface;
 using TN.Shared.Domain.Abstractions;
 using TN.Shared.Domain.Entities.Academics;
@@ -72,11 +76,12 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                         DateTime.UtcNow,
                         "",
                         default,
+                        _fiscalContext.CurrentFiscalYearId,
                         addExamResultCommand.marksObtained?.Select(e=> new MarksObtained(
                             Guid.NewGuid().ToString(),
                             
-                            e.SubjectId,
-                            e.MarksObtaineds,
+                            e.subjectId,
+                            e.marksObtained,
                             newId
                         )).ToList() ?? new List<MarksObtained>()
 
@@ -127,29 +132,80 @@ namespace ES.Academics.Infrastructure.ServiceImpl
             try
             {
 
-                var (examResult, currentSchoolId, institutionId, userRole, isSuperAdmin) =
-                    await _getUserScopedData.GetUserScopedData<ExamResult>();
+                var FyId = _fiscalContext.CurrentFiscalYearId;
+                var schoolId = _tokenService.SchoolId().FirstOrDefault();
+                var institutionId = _tokenService.InstitutionId() ?? string.Empty;
+                var isSuperAdmin = _tokenService.GetRole() == Role.SuperAdmin;
 
-                var finalQuery = examResult.Where(x => x.IsActive == true).AsNoTracking();
-
-
-                var pagedResult = await finalQuery.ToPagedResultAsync(
-                    paginationRequest.pageIndex,
-                    paginationRequest.pageSize,
-                    paginationRequest.IsPagination);
-
-
-                var mappedItems = _mapper.Map<List<ExamResultResponse>>(pagedResult.Data.Items);
-
-                var response = new PagedResult<ExamResultResponse>
+                IEnumerable<ExamResult> examResults;
+                if (isSuperAdmin)
                 {
-                    Items = mappedItems,
-                    TotalItems = pagedResult.Data.TotalItems,
-                    PageIndex = pagedResult.Data.PageIndex,
-                    pageSize = pagedResult.Data.pageSize
+                    examResults = await _unitOfWork.BaseRepository<ExamResult>()
+                        .GetConditionalAsync(
+                            x => x.FyId == FyId && x.IsActive,
+                            query => query.Include(rm => rm.MarksOtaineds));
+                }
+                else if (!string.IsNullOrEmpty(institutionId) && string.IsNullOrEmpty(schoolId))
+                {
+                    var schoolIds = await _unitOfWork.BaseRepository<School>()
+                        .GetConditionalFilterType(
+                            x => x.InstitutionId == institutionId,
+                            query => query.Select(c => c.Id));
+
+                    examResults = await _unitOfWork.BaseRepository<ExamResult>()
+                        .GetConditionalAsync(
+                            x => x.FyId == FyId && schoolIds.Contains(x.SchoolId) && x.IsActive,
+                            query => query.Include(j => j.MarksOtaineds));
+                }
+                else
+                {
+                    examResults = await _unitOfWork.BaseRepository<ExamResult>()
+                        .GetConditionalAsync(
+                            x => x.FyId == FyId && x.SchoolId == schoolId && x.IsActive,
+                            query => query.Include(j => j.MarksOtaineds));
+                }
+
+
+                var examResultResponse = examResults
+                       .OrderByDescending(examResult => examResult.CreatedAt) // Recent first
+                       .Select(exam => new ExamResultResponse(
+                           exam.Id,
+                           exam.ExamId,
+                           exam.StudentId,
+                           exam.Remarks,
+                           exam.IsActive,
+                           exam.SchoolId,
+                           exam.CreatedBy,
+                           exam.CreatedAt,
+                           exam.ModifiedBy,
+                           exam.ModifiedAt,
+                           exam.MarksOtaineds?.Select(detail => new MarksObtainedDTOs(
+                               detail.SubjectId,
+                               detail.MarksObtaineds
+                              
+                           )).ToList() ?? new List<MarksObtainedDTOs>()
+                       ))
+                       .ToList();
+
+                var totalItems = examResultResponse.Count;
+
+                var paginatedJournalEntries = paginationRequest != null && paginationRequest.IsPagination
+                    ? examResultResponse
+                        .Skip((paginationRequest.pageIndex - 1) * paginationRequest.pageSize)
+                        .Take(paginationRequest.pageSize)
+                        .ToList()
+                    : examResultResponse;
+
+                var pagedResult = new PagedResult<ExamResultResponse>
+                {
+                    Items = paginatedJournalEntries,
+                    TotalItems = totalItems,
+                    PageIndex = paginationRequest?.pageIndex ?? 1,
+                    pageSize = paginationRequest?.pageSize ?? totalItems
                 };
 
-                return Result<PagedResult<ExamResultResponse>>.Success(response);
+
+                return Result<PagedResult<ExamResultResponse>>.Success(pagedResult);
             }
             catch (Exception ex)
             {
@@ -161,7 +217,28 @@ namespace ES.Academics.Infrastructure.ServiceImpl
         {
             try
             {
-                var examResult = await _unitOfWork.BaseRepository<ExamResult>().GetByGuIdAsync(examResultId);
+                var examResults = await _unitOfWork.BaseRepository<ExamResult>().
+                    GetConditionalAsync(x => x.Id == examResultId,
+                    query => query.Include(rm => rm.MarksOtaineds)
+                    );
+
+                var exam = examResults.FirstOrDefault();
+                var examResult = new ExamResultByIdResponse(
+                    exam.Id,
+                    exam.ExamId,
+                    exam.StudentId,
+                    exam.Remarks,
+                    exam.IsActive,
+                    exam.SchoolId,
+                    exam.CreatedBy,
+                    exam.CreatedAt,
+                    exam.ModifiedBy,
+                    exam.ModifiedAt,
+                    exam.MarksOtaineds?.Select(detail => new MarksObtainedDTOs(
+                        detail.SubjectId,
+                        detail.MarksObtaineds
+                    )).ToList() ?? new List<MarksObtainedDTOs>()
+                );
 
                 var examResultResponse = _mapper.Map<ExamResultByIdResponse>(examResult);
 
@@ -178,50 +255,77 @@ namespace ES.Academics.Infrastructure.ServiceImpl
         {
             try
             {
-                var fyId = _fiscalContext.CurrentFiscalYearId;
-                var userId = _tokenService.GetUserId();
-
-                var (examResult, schoolId, institutionId, userRole, isSuperAdmin) = await _getUserScopedData.GetUserScopedData<ExamResult>();
-
-                var schoolIds = await _unitOfWork.BaseRepository<School>()
-                    .GetConditionalFilterType(
-                        x => x.InstitutionId == institutionId,
-                        query => query.Select(c => c.Id)
-                    );
-
-                var filterExam = isSuperAdmin
-                    ? examResult
-                    : examResult.Where(x => x.SchoolId == _tokenService.SchoolId().FirstOrDefault() || x.SchoolId == "");
-
+                var fiscalYearId = _fiscalContext.CurrentFiscalYearId;
+                var schoolId = _tokenService.SchoolId().FirstOrDefault();
+                var institutionId = _tokenService.InstitutionId() ?? string.Empty;
+                var isSuperAdmin = _tokenService.GetRole() == Role.SuperAdmin;
                 var (startUtc, endUtc) = await _dateConverter.GetDateRangeUtc(filterExamResultDTOs.startDate, filterExamResultDTOs.endDate);
 
-                var filteredResult = filterExam
-                 .Where(x =>
-                       (string.IsNullOrEmpty(filterExamResultDTOs.studentId) || x.StudentId == filterExamResultDTOs.studentId) &&
-                     x.CreatedAt >= startUtc &&
-                         x.CreatedAt <= endUtc &&
-                         x.IsActive
-                 )
-                 .OrderByDescending(x => x.CreatedAt) // newest first
-                 .ToList();
+
+                IEnumerable<ExamResult> examResults;
+
+                if (isSuperAdmin)
+                {
+                    examResults = await _unitOfWork.BaseRepository<ExamResult>().GetConditionalAsync(
+                        x =>
+                            x.FyId == fiscalYearId && x.IsActive &&
+                            x.CreatedAt >= startUtc &&
+                            x.CreatedAt <= endUtc &&
+                            (string.IsNullOrEmpty(filterExamResultDTOs.studentId) || x.StudentId.Contains(filterExamResultDTOs.studentId)),
+                        q => q.Include(x => x.MarksOtaineds)
+                    );
+                }
+                else if (!string.IsNullOrEmpty(institutionId) && string.IsNullOrEmpty(schoolId))
+                {
+                    var schoolIds = await _unitOfWork.BaseRepository<School>()
+                        .GetConditionalFilterType(
+                            x => x.InstitutionId == institutionId,
+                            q => q.Select(c => c.Id));
+
+                    examResults = await _unitOfWork.BaseRepository<ExamResult>().GetConditionalAsync(
+                        x =>
+                            x.FyId == fiscalYearId &&
+                            schoolIds.Contains(x.SchoolId) && x.IsActive &&
+                            x.CreatedAt >= startUtc &&
+                            x.CreatedAt <= endUtc &&
+                             (string.IsNullOrEmpty(filterExamResultDTOs.studentId) || x.StudentId.Contains(filterExamResultDTOs.studentId)),
+                        q => q.Include(x => x.MarksOtaineds)
+                    );
+                }
+                else
+                {
+                    examResults = await _unitOfWork.BaseRepository<ExamResult>().GetConditionalAsync(
+                        x =>
+                            x.FyId == fiscalYearId && x.IsActive &&
+                            x.SchoolId == schoolId &&
+                            x.CreatedAt >= startUtc &&
+                            x.CreatedAt <= endUtc &&
+                            (string.IsNullOrEmpty(filterExamResultDTOs.studentId) || x.StudentId.Contains(filterExamResultDTOs.studentId)),
+                        q => q.Include(x => x.MarksOtaineds)
+                    );
+                }
 
 
 
 
-                var responseList = filteredResult
+
+                var responseList = examResults
                 .OrderByDescending(x => x.CreatedAt)
-                .Select(i => new FilterExamResultResponse(
-                    i.Id,
-                    i.ExamId,
-                    i.StudentId,
-                    i.MarksOtaineds.Sum(x=>x.MarksObtaineds),
-                    i.Remarks,
-                    i.IsActive,
-                    i.SchoolId,
-                    i.CreatedBy,
-                    i.CreatedAt,
-                    i.ModifiedBy,
-                    i.ModifiedAt
+                .Select(exam => new FilterExamResultResponse(
+                    exam.Id,
+                    exam.ExamId,
+                    exam.StudentId,
+                    exam.Remarks,
+                    exam.IsActive,
+                    exam.SchoolId,
+                    exam.CreatedBy,
+                    exam.CreatedAt,
+                    exam.ModifiedBy,
+                    exam.ModifiedAt,
+                    exam.MarksOtaineds?.Select(detail => new MarksObtainedDTOs(
+                        detail.SubjectId,
+                        detail.MarksObtaineds
+                    )).ToList() ?? new List<MarksObtainedDTOs>()
 
 
                 ))
@@ -342,13 +446,11 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                             examResult.CreatedAt,
                             examResult.ModifiedBy,
                             examResult.ModifiedAt,
-                            examResult.MarksOtaineds?.Select(details=> new MarksObtained
+                            examResult.MarksOtaineds?.Select(details=> new MarksObtainedDTOs
                             (
-                                details.Id,
                                 details.SubjectId,
-                                details.MarksObtaineds,
-                                details.ExamResultId
-                            )).ToList() ?? new List<MarksObtained>()
+                                details.MarksObtaineds
+                            )).ToList() ?? new List<MarksObtainedDTOs>()
 
 
 

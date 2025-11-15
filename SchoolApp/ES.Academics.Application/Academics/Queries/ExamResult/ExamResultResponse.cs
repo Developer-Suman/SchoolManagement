@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ES.Academics.Application.Academics.Command.AddExamResult;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,15 +12,13 @@ namespace ES.Academics.Application.Academics.Queries.ExamResult
         string id,
          string? examId,
      string studentId,
-     string subjectId,
-     decimal marksObtained,
-     string grade,
      string remarks,
      bool isActive,
      string schoolId,
      string createdBy,
      DateTime createdAt,
      string modifiedBy,
-     DateTime modifiedAt
+     DateTime modifiedAt,
+     List<MarksObtainedDTOs> marksObtained
         );
 }

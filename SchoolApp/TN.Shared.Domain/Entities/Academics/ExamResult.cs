@@ -25,9 +25,11 @@ namespace TN.Shared.Domain.Entities.Academics
             DateTime createdAt,
             string modifiedBy,
             DateTime modifiedAt,
+            string fyId,
             List<MarksObtained> marksOtaineds
             ) : base(id)
         {
+            FyId = fyId;
             ExamId = examId;
             StudentId = studentId;
             Remarks = remarks;
@@ -39,6 +41,8 @@ namespace TN.Shared.Domain.Entities.Academics
             ModifiedAt = modifiedAt;
             MarksOtaineds = marksOtaineds;
         }
+
+        public string FyId { get; set; }    
         public string? ExamId { get; set; }
         public Exam? Exam { get; set; }
         public string StudentId { get; set; }

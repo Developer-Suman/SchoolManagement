@@ -14,6 +14,6 @@ namespace ES.Academics.Application.Academics.Command.AddExamResult
         string? examId,
             string studentId,
             string remarks,
-            List<MarksObtained> marksObtained
+            List<MarksObtainedDTOs> marksObtained
         ) : IRequest<Result<AddExamResultResponse>>;
 }
