@@ -4,6 +4,7 @@ using ES.Academics.Application.Academics.Command.UpdateExam;
 using ES.Academics.Application.Academics.Queries.Exam;
 using ES.Academics.Application.Academics.Queries.ExamById;
 using ES.Academics.Application.Academics.Queries.FilterExam;
+using ES.Academics.Application.Academics.Queries.MarkSheetByStudent;
 using ES.Certificate.Application.Certificates.Command.AddCertificateTemplate;
 using ES.Certificate.Application.Certificates.Command.AddCertificateTemplate.RequestCommandMapper;
 using ES.Certificate.Application.Certificates.Command.AddIssuedCertificate;
@@ -52,10 +53,10 @@ namespace TN.Web.Controllers.Certificate.v1
         #region GeneratECertificate
 
         #region GenerateCertificateByStudent
-        [HttpGet("GenerateCertificateByStudent/{studentId}")]
-        public async Task<IActionResult> GenerateCertificateByStudent([FromRoute] string studentId)
+        [HttpGet("GenerateCertificateByStudent")]
+        public async Task<IActionResult> GenerateCertificateByStudent([FromQuery] MarksSheetDTOs marksSheetDTOs)
         {
-            var query = new GenerateCertificateQuery(studentId);
+            var query = new GenerateCertificateQuery(marksSheetDTOs);
             var generateCertificate = await _mediator.Send(query);
             #region Switch Statement
             return generateCertificate switch

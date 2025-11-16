@@ -1,4 +1,5 @@
-﻿using ES.Certificate.Application.Certificates.Command.AddIssuedCertificate;
+﻿using ES.Academics.Application.Academics.Queries.MarkSheetByStudent;
+using ES.Certificate.Application.Certificates.Command.AddIssuedCertificate;
 using ES.Certificate.Application.Certificates.Command.UpdateIssuedCertificate;
 using ES.Certificate.Application.Certificates.Queries.FilterIssuedCertificate;
 using ES.Certificate.Application.Certificates.Queries.GenerateCertificate;
@@ -17,7 +18,7 @@ namespace ES.Certificate.Application.ServiceInterface
     public interface IIssuedCertificateServices
     {
 
-        Task<Result<GenerateCertificateResponse>> GenerateCertificate(string studentId);
+        Task<Result<GenerateCertificateResponse>> GenerateCertificate(MarksSheetDTOs marksSheetDTOs);
         Task<Result<AddIssuedCertificateResponse>> Add(AddIssuedCertificateCommand addIssuedCertificateCommand);
         Task<Result<PagedResult<IssuedCertificateResponse>>> GetAllIssuedCertificate(PaginationRequest paginationRequest, CancellationToken cancellationToken = default);
         Task<Result<IssuedCertificateByIdResponse>> GetIssuedCertificate(string issuedCertificateId, CancellationToken cancellationToken = default);

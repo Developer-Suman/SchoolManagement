@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using ES.Academics.Application.Academics.Queries.MarkSheetByStudent;
 using ES.Certificate.Application.Certificates.Queries.CertificateTemplateById;
 using ES.Certificate.Application.ServiceInterface.IHelperMethod;
 using Microsoft.EntityFrameworkCore;
@@ -42,7 +43,7 @@ namespace ES.Certificate.Infrastructure.HelperMethod
             _fiscalContext = fiscalContext;
         }
 
-        public async Task<string> CalculateGPA(string studentId)
+        public async Task<string> CalculateGPA(MarksSheetDTOs marksSheetDTOs)
         {
             try
             {
@@ -57,7 +58,7 @@ namespace ES.Certificate.Infrastructure.HelperMethod
                Email = s.Email,
                EnrollmentDate = s.EnrollmentDate,
                ExamResults = s.ExamResults
-                   .Where(er => er.IsActive)
+                   .Where(er => er.IsActive && er.StudentId == marksSheetDTOs.studentId && er.ExamId == marksSheetDTOs.examId)
                    .OrderByDescending(er => er.CreatedAt)
                    .Select(er => new ExamResultDto
                    {
@@ -95,7 +96,7 @@ namespace ES.Certificate.Infrastructure.HelperMethod
                    .ToList()
            },
            // Predicate
-           predicate: x => x.Id == studentId,
+           predicate: x => x.Id == marksSheetDTOs.studentId,
            queryModifier: query => query
                .Include(s => s.ExamResults.Where(er => er.IsActive))
                    .ThenInclude(er => er.Exam)
@@ -224,7 +225,7 @@ namespace ES.Certificate.Infrastructure.HelperMethod
         }
 
 
-        public async Task<string> CalculatePercentage(string studentId)
+        public async Task<string> CalculatePercentage(MarksSheetDTOs marksSheetDTOs)
         {
             try
             {
@@ -239,7 +240,7 @@ namespace ES.Certificate.Infrastructure.HelperMethod
                        Email = s.Email,
                        EnrollmentDate = s.EnrollmentDate,
                        ExamResults = s.ExamResults
-                           .Where(er => er.IsActive)
+                           .Where(er => er.IsActive && er.StudentId == marksSheetDTOs.studentId && er.ExamId == marksSheetDTOs.examId)
                            .OrderByDescending(er => er.CreatedAt)
                            .Select(er => new ExamResultDto
                            {
@@ -269,7 +270,7 @@ namespace ES.Certificate.Infrastructure.HelperMethod
                            .ToList()
                    },
                    // Predicate
-                   predicate: x => x.Id == studentId,
+                   predicate: x => x.Id == marksSheetDTOs.studentId,
                    queryModifier: query => query
                        .Include(s => s.ExamResults.Where(er => er.IsActive))
                            .ThenInclude(er => er.Exam)
@@ -297,12 +298,12 @@ namespace ES.Certificate.Infrastructure.HelperMethod
 
         }
 
-        public async Task<string> CalculateDivision(string studentId)
+        public async Task<string> CalculateDivision(MarksSheetDTOs marksSheetDTOs)
         {
 
             try
             {
-                var percentageString = await CalculatePercentage(studentId);
+                var percentageString = await CalculatePercentage(marksSheetDTOs);
 
 
                 // Remove % and trim spaces safely
@@ -324,7 +325,7 @@ namespace ES.Certificate.Infrastructure.HelperMethod
             catch (Exception ex)
             {
                 // Preserve original error for clarity
-                throw new Exception($"Error while calculating division for student ID: {studentId}. Details: {ex.Message}", ex);
+                throw new Exception($"Error while calculating division for student ID: {marksSheetDTOs.studentId}. Details: {ex.Message}", ex);
             }
         }
     }

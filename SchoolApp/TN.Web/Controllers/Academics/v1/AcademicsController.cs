@@ -25,6 +25,7 @@ using ES.Academics.Application.Academics.Queries.FilterExam;
 using ES.Academics.Application.Academics.Queries.FilterExamResult;
 using ES.Academics.Application.Academics.Queries.FilterSchoolClass;
 using ES.Academics.Application.Academics.Queries.FilterSubject;
+using ES.Academics.Application.Academics.Queries.MarkSheetByStudent;
 using ES.Academics.Application.Academics.Queries.SchoolClass;
 using ES.Academics.Application.Academics.Queries.SchoolClassById;
 using ES.Academics.Application.Academics.Queries.Subject;
@@ -58,6 +59,31 @@ namespace TN.Web.Controllers.Academics.v1
             _mediator = mediator;
 
         }
+
+        #region MarksSheet
+
+        #region MarkSheet
+        [HttpGet("MarkSheet")]
+        public async Task<IActionResult> GetMarksheet([FromQuery] MarksSheetDTOs marksSheetDTOs)
+        {
+            var query = new MarkSheetByStudentQuery(marksSheetDTOs);
+            var markSheetResultDetails = await _mediator.Send(query);
+            #region Switch Statement
+            return markSheetResultDetails switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(markSheetResultDetails.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = markSheetResultDetails.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(markSheetResultDetails.Errors),
+                _ => BadRequest("Invalid page and pageSize Fields")
+            };
+            #endregion
+
+        }
+        #endregion
+        #endregion
 
         #region Subject
         #region AddSubject

@@ -9,7 +9,9 @@ using ES.Academics.Application.Academics.Queries.ExamResult;
 using ES.Academics.Application.Academics.Queries.ExamResultById;
 using ES.Academics.Application.Academics.Queries.FilterExam;
 using ES.Academics.Application.Academics.Queries.FilterExamResult;
+using ES.Academics.Application.Academics.Queries.MarkSheetByStudent;
 using ES.Academics.Application.ServiceInterface;
+using ES.Certificate.Application.ServiceInterface.IHelperMethod;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -42,9 +44,11 @@ namespace ES.Academics.Infrastructure.ServiceImpl
         private readonly IGetUserScopedData _getUserScopedData;
         private readonly IDateConvertHelper _dateConverter;
         private readonly FiscalContext _fiscalContext;
+        private readonly IHelperMethodServices _helperMethodServices;
 
-        public ExamResultServices(IDateConvertHelper dateConverter, IGetUserScopedData getUserScopedData, FiscalContext fiscalContext, ITokenService tokenService, IUnitOfWork unitOfWork, IMemoryCacheRepository memoryCacheRepository, IMapper mapper)
+        public ExamResultServices(IDateConvertHelper dateConverter, IHelperMethodServices helperMethodServices,IGetUserScopedData getUserScopedData, FiscalContext fiscalContext, ITokenService tokenService, IUnitOfWork unitOfWork, IMemoryCacheRepository memoryCacheRepository, IMapper mapper)
         {
+            _helperMethodServices = helperMethodServices;
             _dateConverter = dateConverter;
             _getUserScopedData = getUserScopedData;
             _tokenService = tokenService;
@@ -64,6 +68,14 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                     var FyId = _fiscalContext.CurrentFiscalYearId;
                     var schoolId = _tokenService.SchoolId().FirstOrDefault() ?? "";
                     var userId = _tokenService.GetUserId();
+
+                    var checkDoubleEntryDetails = await _unitOfWork.BaseRepository<ExamResult>()
+                        .FirstOrDefaultAsync(x => x.StudentId == addExamResultCommand.studentId && x.ExamId == addExamResultCommand.examId);
+
+                    if(checkDoubleEntryDetails != null)
+                    {
+                        return Result<AddExamResultResponse>.Failure("ForbiddenAccess", "Details already in the system");
+                    }
 
                     var addExamResult = new ExamResult(
                             newId,
@@ -370,6 +382,63 @@ namespace ES.Academics.Infrastructure.ServiceImpl
             catch (Exception ex)
             {
                 throw new Exception($"An error occurred while fetching Exam Result: {ex.Message}", ex);
+            }
+        }
+
+        public async Task<Result<MarkSheetByStudentResponse>> GetMarkSheet(MarksSheetDTOs marksSheetDTOs, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                var marksSheetResult = await _unitOfWork.BaseRepository<ExamResult>().
+                    GetConditionalAsync(x => x.StudentId == marksSheetDTOs.studentId && x.ExamId == marksSheetDTOs.examId,
+                    query => query.Include(rm => rm.MarksOtaineds)
+                    );
+
+                var marksSheet = marksSheetResult.FirstOrDefault();
+
+                var percentage =await _helperMethodServices.CalculatePercentage(marksSheetDTOs);
+
+                var totalObtainedMarks = marksSheet.MarksOtaineds.Sum(x => x.MarksObtaineds);
+
+                var grade = await _helperMethodServices.CalculateGPA(marksSheetDTOs);
+
+                var division = await _helperMethodServices.CalculateDivision(marksSheetDTOs);
+
+                if (marksSheet == null)
+                {
+                    return Result<MarkSheetByStudentResponse>.Failure("NotFound", "Marksheet doesnot find from this query");
+                }
+
+                var marksSheetDetails = new MarkSheetByStudentResponse(
+                    marksSheet?.ExamId ?? string.Empty,
+                    marksSheet?.StudentId ?? string.Empty,
+                    marksSheet?.Remarks ?? string.Empty,
+                    marksSheet?.IsActive ?? false,
+                    marksSheet?.SchoolId ?? string.Empty,
+                    marksSheet?.CreatedBy ?? string.Empty,
+                    marksSheet?.CreatedAt ?? default,
+                    marksSheet?.ModifiedBy ?? string.Empty,
+                    marksSheet?.ModifiedAt ?? default,
+                    percentage,
+                    totalObtainedMarks,
+                    grade,
+                    division,
+                    marksSheet?.MarksOtaineds?
+                        .Select(detail => new MarksObtainedDTOs(
+                            detail.SubjectId,
+                            detail.MarksObtaineds
+                        )).ToList()
+                        ?? new List<MarksObtainedDTOs>()
+                );
+
+
+                var marksSheetResponse = _mapper.Map<MarkSheetByStudentResponse>(marksSheetDetails);
+
+                return Result<MarkSheetByStudentResponse>.Success(marksSheetResponse);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while getting the marksheet", ex);
             }
         }
 

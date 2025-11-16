@@ -53,11 +53,6 @@ namespace ES.Certificate.Infrastructure.ServiceImpl
             {
                 try
                 {
-
-                    string studentId = "2aadc2c4-1b7f-490d-ba5d-bc8229d9aac8";
-
-                    var percentage = await _helperMethodServices.CalculatePercentage(studentId);
-
                     string newId = Guid.NewGuid().ToString();
                     var FyId = _fiscalContext.CurrentFiscalYearId;
                     var schoolId = _tokenService.SchoolId().FirstOrDefault() ?? "";

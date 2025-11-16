@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ES.Academics.Application.Academics.Queries.MarkSheetByStudent;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,9 +9,9 @@ namespace ES.Certificate.Application.ServiceInterface.IHelperMethod
 {
     public interface IHelperMethodServices
     {
-        Task<string> CalculatePercentage(string studentId);
-        Task<string> CalculateGPA(string studentId);
+        Task<string> CalculatePercentage(MarksSheetDTOs marksSheetDTOs);
+        Task<string> CalculateGPA(MarksSheetDTOs marksSheetDTOs);
 
-        Task<string> CalculateDivision(string studentId);
+        Task<string> CalculateDivision(MarksSheetDTOs marksSheetDTOs);
     }
 }
