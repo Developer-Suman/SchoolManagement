@@ -60,11 +60,11 @@ namespace ES.Student.Infrastructure.ServiceImpl
                     var userId = _tokenService.GetUserId();
                     var schoolId = _tokenService.SchoolId().FirstOrDefault();
 
-                    string imageURL = await _imageServices.AddSingle(addStudentsCommand.StudentsImg);
-                    if (imageURL is null)
-                    {
-                        return Result<AddStudentsResponse>.Failure("Image Url are not Created");
-                    }
+                    //string imageURL = await _imageServices.AddSingle(addStudentsCommand.StudentsImg);
+                    //if (imageURL is null)
+                    //{
+                    //    return Result<AddStudentsResponse>.Failure("Image Url are not Created");
+                    //}
 
 
                     var studentsData = new StudentData
@@ -79,7 +79,7 @@ namespace ES.Student.Infrastructure.ServiceImpl
                         addStudentsCommand.dateOfBirth,
                         addStudentsCommand.email,
                         addStudentsCommand.phoneNumber,
-                        imageURL,
+                        "imageURL",
                         addStudentsCommand.address,
                         addStudentsCommand.enrollmentDate,
                         addStudentsCommand.parentId,

@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using ES.Academics.Application.Academics.Queries.MarkSheetByStudent;
 using ES.Certificate.Application.Certificates.Command.AddIssuedCertificate;
 using ES.Certificate.Application.Certificates.Command.UpdateIssuedCertificate;
 using ES.Certificate.Application.Certificates.Queries.FilterIssuedCertificate;
@@ -121,13 +122,13 @@ namespace ES.Certificate.Infrastructure.ServiceImpl
             }
         }
 
-        public async Task<Result<GenerateCertificateResponse>> GenerateCertificate(string studentId)
+        public async Task<Result<GenerateCertificateResponse>> GenerateCertificate(MarksSheetDTOs marksSheetDTOs)
         {
             try
             {
                 var studentsDetails = await _unitOfWork.BaseRepository<StudentData>()
                    .GetConditionalAsync(
-                       x => x.Id == studentId,
+                       x => x.Id == marksSheetDTOs.studentId,
                        queryModifier: query => query
                            .Include(s => s.ExamResults)
                                .ThenInclude(er => er.Exam)
@@ -142,11 +143,11 @@ namespace ES.Certificate.Infrastructure.ServiceImpl
                 if (student == null)
                     return Result<GenerateCertificateResponse>.Failure("NotFound","Students Details not Found");
 
-                var percentage = await _helperMethodServices.CalculatePercentage(studentId);
+                var percentage = await _helperMethodServices.CalculatePercentage(marksSheetDTOs);
 
-                var gpa = await _helperMethodServices.CalculateGPA(studentId);
+                var gpa = await _helperMethodServices.CalculateGPA(marksSheetDTOs);
 
-                var divison = await _helperMethodServices.CalculateDivision(studentId);
+                var divison = await _helperMethodServices.CalculateDivision(marksSheetDTOs);
 
                 var generateCertificate = new GenerateCertificateResponse(
                     student.FirstName + " " + student.MiddleName + " "+ student.LastName,

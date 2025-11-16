@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿using ES.Academics.Application.Academics.Queries.MarkSheetByStudent;
+using MediatR;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +11,6 @@ namespace ES.Certificate.Application.Certificates.Queries.GenerateCertificate
 {
     public record GenerateCertificateQuery
     (
-        string studentId
-        ): IRequest<Result<GenerateCertificateResponse>>;
+        MarksSheetDTOs MarksSheetDTOs
+        ) : IRequest<Result<GenerateCertificateResponse>>;
 }

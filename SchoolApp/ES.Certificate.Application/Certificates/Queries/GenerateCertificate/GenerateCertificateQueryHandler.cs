@@ -26,7 +26,7 @@ namespace ES.Certificate.Application.Certificates.Queries.GenerateCertificate
         {
             try
             {
-                var generateCertificate = await _issuedCertificateServices.GenerateCertificate(request.studentId);
+                var generateCertificate = await _issuedCertificateServices.GenerateCertificate(request.MarksSheetDTOs);
                 var generateCertificateResult = _mapper.Map<GenerateCertificateResponse>(generateCertificate.Data);
                 return Result<GenerateCertificateResponse>.Success(generateCertificateResult);
 

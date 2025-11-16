@@ -8,6 +8,7 @@ using ES.Academics.Application.Academics.Queries.ExamResult;
 using ES.Academics.Application.Academics.Queries.ExamResultById;
 using ES.Academics.Application.Academics.Queries.FilterExam;
 using ES.Academics.Application.Academics.Queries.FilterExamResult;
+using ES.Academics.Application.Academics.Queries.MarkSheetByStudent;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,6 +24,7 @@ namespace ES.Academics.Application.ServiceInterface
         Task<Result<AddExamResultResponse>> Add(AddExamResultCommand addExamResultCommand);
         Task<Result<PagedResult<ExamResultResponse>>> GetAllExamResult(PaginationRequest paginationRequest, CancellationToken cancellationToken = default);
         Task<Result<ExamResultByIdResponse>> GetExamResult(string examResultId, CancellationToken cancellationToken = default);
+        Task<Result<MarkSheetByStudentResponse>> GetMarkSheet(MarksSheetDTOs marksSheetDTOs, CancellationToken cancellationToken = default);
 
         Task<Result<UpdateExamResultResponse>> Update(string examResultId, UpdateExamResultCommand updateExamResultCommand);
         Task<Result<bool>> Delete(string id, CancellationToken cancellationToken);
