@@ -29,6 +29,7 @@ using ES.Academics.Application.Academics.Queries.MarkSheetByStudent;
 using ES.Academics.Application.Academics.Queries.SchoolClass;
 using ES.Academics.Application.Academics.Queries.SchoolClassById;
 using ES.Academics.Application.Academics.Queries.Subject;
+using ES.Academics.Application.Academics.Queries.SubjectByClassId;
 using ES.Academics.Application.Academics.Queries.SubjectById;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -229,6 +230,32 @@ namespace TN.Web.Controllers.Academics.v1
 
 
         #region ExamResult
+
+        #region SubjectByClassId
+        [HttpGet("SubjectByClass/{classId}")]
+        public async Task<IActionResult> GetSubjectByClass([FromRoute] string classId)
+        {
+            var query = new SubjectByClassIdQuery(classId);
+            var subjectByClass = await _mediator.Send(query);
+            #region Switch Statement
+            return subjectByClass switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(subjectByClass.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = subjectByClass.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(subjectByClass.Errors),
+                _ => BadRequest("Invalid page and pageSize Fields")
+            };
+            #endregion
+
+        }
+        #endregion
+
+
+
+
         #region AddExamResult
         [HttpPost("AddExamResult")]
 

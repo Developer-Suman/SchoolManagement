@@ -161,6 +161,9 @@ namespace ES.Certificate.Infrastructure.HelperMethod
             return 0.0m; // Fail
         }
 
+
+       
+
         private string GetDivisionFromPercentage(decimal percentage)
         {
             if (percentage < 0 || percentage > 100)

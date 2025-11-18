@@ -10,6 +10,7 @@ using ES.Academics.Application.Academics.Queries.ExamResultById;
 using ES.Academics.Application.Academics.Queries.FilterExam;
 using ES.Academics.Application.Academics.Queries.FilterExamResult;
 using ES.Academics.Application.Academics.Queries.MarkSheetByStudent;
+using ES.Academics.Application.Academics.Queries.SubjectByClassId;
 using ES.Academics.Application.ServiceInterface;
 using ES.Certificate.Application.ServiceInterface.IHelperMethod;
 using Microsoft.EntityFrameworkCore;
@@ -193,7 +194,8 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                            exam.ModifiedAt,
                            exam.MarksOtaineds?.Select(detail => new MarksObtainedDTOs(
                                detail.SubjectId,
-                               detail.MarksObtaineds
+                               detail.MarksObtaineds,
+                               ""
                               
                            )).ToList() ?? new List<MarksObtainedDTOs>()
                        ))
@@ -248,7 +250,8 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                     exam.ModifiedAt,
                     exam.MarksOtaineds?.Select(detail => new MarksObtainedDTOs(
                         detail.SubjectId,
-                        detail.MarksObtaineds
+                        detail.MarksObtaineds,
+                        ""
                     )).ToList() ?? new List<MarksObtainedDTOs>()
                 );
 
@@ -336,7 +339,8 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                     exam.ModifiedAt,
                     exam.MarksOtaineds?.Select(detail => new MarksObtainedDTOs(
                         detail.SubjectId,
-                        detail.MarksObtaineds
+                        detail.MarksObtaineds,
+                        ""
                     )).ToList() ?? new List<MarksObtainedDTOs>()
 
 
@@ -426,7 +430,9 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                     marksSheet?.MarksOtaineds?
                         .Select(detail => new MarksObtainedDTOs(
                             detail.SubjectId,
-                            detail.MarksObtaineds
+                            detail.MarksObtaineds,
+                            GetGrade((detail.MarksObtaineds / totalObtainedMarks) * 100)
+                            
                         )).ToList()
                         ?? new List<MarksObtainedDTOs>()
                 );
@@ -439,6 +445,45 @@ namespace ES.Academics.Infrastructure.ServiceImpl
             catch (Exception ex)
             {
                 throw new Exception("An error occurred while getting the marksheet", ex);
+            }
+        }
+
+        private string GetGrade(decimal percentage)
+        {
+            if (percentage >= 90) return "A+";
+            if (percentage >= 80) return "A";
+            if (percentage >= 70) return "B+";
+            if (percentage >= 60) return "B";
+            if (percentage >= 50) return "C";
+            if (percentage >= 40) return "D";
+            return "E";
+        }
+
+
+        public async Task<Result<List<SubjectByClassIdResponse>>> GetSubjectByClass(string classId, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+
+                var schoolId = _tokenService.SchoolId().FirstOrDefault() ?? "";
+
+                var allSubject = await _unitOfWork.BaseRepository<Subject>().
+                    GetConditionalAsync(x => x.ClassId == classId && x.SchoolId == schoolId
+                    );
+
+                var subjectResponse = allSubject
+                    .Select(subject => new SubjectByClassIdResponse(
+                        subject.Id,
+                        subject.Name
+                    ))
+                    .ToList();
+
+                return Result<List<SubjectByClassIdResponse>>.Success(subjectResponse);
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while fetching AllSubject Result by using ClassId", ex);
             }
         }
 
@@ -518,7 +563,8 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                             examResult.MarksOtaineds?.Select(details=> new MarksObtainedDTOs
                             (
                                 details.SubjectId,
-                                details.MarksObtaineds
+                                details.MarksObtaineds,
+                                ""
                             )).ToList() ?? new List<MarksObtainedDTOs>()
 
 
