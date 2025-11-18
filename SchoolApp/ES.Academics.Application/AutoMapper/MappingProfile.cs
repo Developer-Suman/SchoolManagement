@@ -19,6 +19,7 @@ using ES.Academics.Application.Academics.Queries.FilterSubject;
 using ES.Academics.Application.Academics.Queries.SchoolClass;
 using ES.Academics.Application.Academics.Queries.SchoolClassById;
 using ES.Academics.Application.Academics.Queries.Subject;
+using ES.Academics.Application.Academics.Queries.SubjectByClassId;
 using ES.Academics.Application.Academics.Queries.SubjectById;
 using System;
 using System.Collections.Generic;
@@ -87,6 +88,7 @@ namespace ES.Academics.Application.AutoMapper
             #region ExamResult
 
             CreateMap<ExamResult, DeleteExamResultCommand>().ReverseMap();
+            CreateMap<Subject, SubjectByClassIdResponse>().ReverseMap();
 
             CreateMap<ExamResultByIdQuery, ExamResult>().ReverseMap();
             CreateMap<MarksObtainedDTOs, MarksObtained>().ReverseMap();
