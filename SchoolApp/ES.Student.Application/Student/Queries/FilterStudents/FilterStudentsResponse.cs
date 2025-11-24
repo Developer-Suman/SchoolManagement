@@ -23,6 +23,7 @@ namespace ES.Student.Application.Student.Queries.FilterStudents
         string? address = "",
         DateTime enrollmentDate = default,
         string? parentId = "",
-        string? classSectionId = ""
+        string? classSectionId = "",
+        string? classId=""
         );
 }

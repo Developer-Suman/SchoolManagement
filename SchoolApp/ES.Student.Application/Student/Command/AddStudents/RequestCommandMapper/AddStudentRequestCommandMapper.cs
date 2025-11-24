@@ -27,9 +27,10 @@ namespace ES.Student.Application.Student.Command.AddStudents.RequestCommandMappe
                 request.provinceId,
                 request.districtId,
                 request.wardNumber,
-                request.vdcid,
+                request.vdcId,
                 request.municipalityId,
-                request.studentImg
+                request.studentImg,
+                request.classId
                 );
         }
     }

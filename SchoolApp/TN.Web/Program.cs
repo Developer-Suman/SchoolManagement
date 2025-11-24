@@ -1,4 +1,5 @@
 
+using Autofac.Core;
 using CS.Certificate.Application;
 using ES.Academics.Application;
 using ES.Academics.Infrastructure;
@@ -213,6 +214,9 @@ try
     ApplicationBuilderConfig.Inject(builder);
 
     builder.Services.AddSignalR();
+
+
+
 
 
     ExcelPackage.LicenseContext = LicenseContext.NonCommercial;

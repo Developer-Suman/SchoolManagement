@@ -94,9 +94,8 @@ namespace TN.Web.Controllers.Student.v1
         #region AddStudent
         [HttpPost("AddStudents")]
 
-        public async Task<IActionResult> AddStudents([FromBody] AddStudentsRequest request)
+        public async Task<IActionResult> AddStudents( [FromForm] AddStudentsRequest request)
         {
-          
 
             var command = request.ToCommand();
             var addStudentResult = await _mediator.Send(command);
@@ -113,6 +112,7 @@ namespace TN.Web.Controllers.Student.v1
             #endregion
         }
         #endregion
+
 
         #region AllStudents
         [HttpGet("all-Students")]

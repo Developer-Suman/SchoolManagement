@@ -30,7 +30,8 @@ namespace ES.Student.Application.Student.Command.AddStudents
         int? wardNumber,
             int? vdcid,
         int? municipalityId,
-        IFormFile? StudentsImg
+        IFormFile? StudentsImg,
+        string? classId
 
 
         ) : IRequest<Result<AddStudentsResponse>>;

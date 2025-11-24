@@ -47,8 +47,9 @@ namespace TN.Shared.Domain.Entities.Students
             string schoolId,
             bool isActive,
             int? vdcid,
-            int? municipalityId
-            
+            int? municipalityId,
+            string? classId
+
             )
             : base(id)
         {
@@ -76,6 +77,7 @@ namespace TN.Shared.Domain.Entities.Students
             SchoolId = schoolId;
             IsActive = isActive;
             VdcId = vdcid;
+            ClassId = classId;
             MunicipalityId = municipalityId;
             StudentFees = new List<StudentFee>();
             StudentAttendances = new List<StudentAttendance>();
@@ -94,6 +96,9 @@ namespace TN.Shared.Domain.Entities.Students
 
         public string? ParentId { get; set; }
         public Parent? Parent { get; set; }
+
+        public string? ClassId { get; set; }
+        public Class? Class { get; set; }
         public string? ClassSectionId { get; set; }
         public ClassSection? ClassSection { get; set; }
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TN.Shared.Domain.Entities.Certificates;
 using TN.Shared.Domain.Entities.OrganizationSetUp;
 using TN.Shared.Domain.Primitive;
 
@@ -48,7 +49,7 @@ namespace TN.Shared.Domain.Entities.Academics
         }
 
         public string FyId { get; set; }
-        public FiscalYears FiscalYears { get; set; }
+        //public FiscalYears FiscalYears { get; set; }
         public string Name { get; set; }
         public string SchoolId { get; set; }
         public DateTime ExamDate { get; set; }
@@ -61,5 +62,5 @@ namespace TN.Shared.Domain.Entities.Academics
         public string ModifiedBy { get; set; }
         public DateTime ModifiedAt { get; set; } = DateTime.Now;
         public ICollection<ExamResult> ExamResults { get; set; }
-    }
+        }
 }

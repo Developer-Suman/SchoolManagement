@@ -37,14 +37,14 @@ namespace ES.Student.Infrastructure.ServiceImpl
         private readonly IHelperMethodServices _helperMethodServices;
         private readonly IimageServices _imageServices;
 
-        public StudentServices(IimageServices _imageServices, IUnitOfWork unitOfWork,IMapper mapper,ITokenService tokenService, IGetUserScopedData getUserScopedData,
-            IDateConvertHelper dateConvertHelper,FiscalContext fiscalContext, IHelperMethodServices helperMethodServices)
+        public StudentServices( IUnitOfWork unitOfWork,IMapper mapper,ITokenService tokenService, IGetUserScopedData getUserScopedData,
+            IDateConvertHelper dateConvertHelper,FiscalContext fiscalContext, IHelperMethodServices helperMethodServices, IimageServices iimageServices)
         {
             _getUserScopedData = getUserScopedData;
             _dateConverter = dateConvertHelper;
             _fiscalContext = fiscalContext;
             _helperMethodServices = helperMethodServices;
-              
+            _imageServices = iimageServices;
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _tokenService = tokenService;
@@ -60,30 +60,84 @@ namespace ES.Student.Infrastructure.ServiceImpl
                     var userId = _tokenService.GetUserId();
                     var schoolId = _tokenService.SchoolId().FirstOrDefault();
 
-                    //string imageURL = await _imageServices.AddSingle(addStudentsCommand.StudentsImg);
-                    //if (imageURL is null)
-                    //{
-                    //    return Result<AddStudentsResponse>.Failure("Image Url are not Created");
-                    //}
+                    var nullableClassSectionId =
+                        string.IsNullOrWhiteSpace(addStudentsCommand.classSectionId)
+                            ? null
+                            : addStudentsCommand.classSectionId;
+
+                    var nullableClassId = string.IsNullOrWhiteSpace(addStudentsCommand.classId)
+                        ? null
+                        : addStudentsCommand.classId;
+
+                    var nullableMiddleName = string.IsNullOrWhiteSpace(addStudentsCommand.middleName)
+                        ? null
+                        : addStudentsCommand.middleName;
+
+                    var nullableEmail = string.IsNullOrWhiteSpace(addStudentsCommand.email)
+                       ? null
+                       : addStudentsCommand.email;
+
+                    var nullablePhoneNumber = string.IsNullOrWhiteSpace(addStudentsCommand.phoneNumber)
+                      ? null
+                      : addStudentsCommand.phoneNumber;
+
+                    var nullableAddress = string.IsNullOrWhiteSpace(addStudentsCommand.address)
+                      ? null
+                      : addStudentsCommand.address;
+
+                    var nullableParentId = string.IsNullOrWhiteSpace(addStudentsCommand.parentId)
+                      ? null
+                      : addStudentsCommand.parentId;
+
+                    var nullableProvinceId = addStudentsCommand.provinceId <= 0
+                            ? null
+                            : addStudentsCommand.provinceId;
+
+
+                    var nullableDistrictId = addStudentsCommand.districtId <=0
+                    ? null
+                    : addStudentsCommand.districtId;
+
+                    var nullableWardNumber = addStudentsCommand.wardNumber <= 0
+                    ? null
+                    : addStudentsCommand.wardNumber;
+
+                    var nullableMunicipalityId = addStudentsCommand.municipalityId <=0
+                    ? null
+                    : addStudentsCommand.municipalityId;
+
+                    var nullablevdcId = addStudentsCommand.vdcid <= 0
+                    ? null
+                    : addStudentsCommand.vdcid;
+
+
+
+
+
+                    string imageURL = await _imageServices.AddSingle(addStudentsCommand.StudentsImg);
+                    if (imageURL is null)
+                    {
+                        return Result<AddStudentsResponse>.Failure("Image Url are not Created");
+                    }
 
 
                     var studentsData = new StudentData
                     (
                         newId,
                         addStudentsCommand.firstName,
-                        addStudentsCommand.middleName,
+                        nullableMiddleName,
                         addStudentsCommand.lastName,
                         addStudentsCommand.registrationNumber,
                         addStudentsCommand.genderStatus,
                         addStudentsCommand.studentStatus,
                         addStudentsCommand.dateOfBirth,
-                        addStudentsCommand.email,
-                        addStudentsCommand.phoneNumber,
-                        "imageURL",
-                        addStudentsCommand.address,
+                        nullableEmail,
+                        nullablePhoneNumber,
+                        imageURL,
+                        nullableAddress,
                         addStudentsCommand.enrollmentDate,
-                        addStudentsCommand.parentId,
-                        addStudentsCommand.classSectionId,
+                        nullableParentId,
+                        nullableClassSectionId,
                         addStudentsCommand.provinceId ?? 0,
                         addStudentsCommand.districtId ?? 0,
                         addStudentsCommand.wardNumber ?? 0,
@@ -93,8 +147,9 @@ namespace ES.Student.Infrastructure.ServiceImpl
                         DateTime.Now,
                         schoolId,
                         true,
-                        addStudentsCommand.vdcid,
-                        addStudentsCommand.municipalityId
+                        nullablevdcId,
+                        nullableMunicipalityId,
+                        nullableClassId
 
 
 
@@ -426,7 +481,8 @@ namespace ES.Student.Infrastructure.ServiceImpl
                     i.Address,
                     i.EnrollmentDate,
                     i.ParentId,
-                    i.ClassSectionId
+                    i.ClassSectionId,
+                    i.ClassId
 
 
                 ))
