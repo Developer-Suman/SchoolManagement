@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TN.Shared.Domain.Entities.FeeAndAccounting;
+using TN.Shared.Domain.Entities.Students;
 using TN.Shared.Domain.Primitive;
 
 namespace TN.Shared.Domain.Entities.Academics
@@ -40,6 +41,7 @@ namespace TN.Shared.Domain.Entities.Academics
             FeeStructures = new List<FeeStructure>();
             Subjects = new List<Subject>();
             ClassSections = new List<ClassSection>();
+            Students = new List<StudentData>();
         }
 
         public string Name { get; set; }
@@ -54,5 +56,6 @@ namespace TN.Shared.Domain.Entities.Academics
         public ICollection<FeeStructure> FeeStructures { get; set; }
         public ICollection<Subject> Subjects { get; set; }
         public ICollection<ClassSection> ClassSections { get; set; }
+        public ICollection<StudentData> Students { get; set; }
     }
 }

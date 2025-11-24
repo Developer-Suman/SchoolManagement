@@ -66,4 +66,9 @@
     <ProjectReference Include="..\TN.Transactions.Infrastructure\TN.Transactions.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\Images\" />
+    <Folder Include="wwwroot\Files\" />
+  </ItemGroup>
+
 </Project>

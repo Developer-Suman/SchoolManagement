@@ -194,8 +194,8 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                            exam.ModifiedAt,
                            exam.MarksOtaineds?.Select(detail => new MarksObtainedDTOs(
                                detail.SubjectId,
-                               detail.MarksObtaineds,
-                               ""
+                               detail.MarksObtaineds
+                      
                               
                            )).ToList() ?? new List<MarksObtainedDTOs>()
                        ))
@@ -250,8 +250,8 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                     exam.ModifiedAt,
                     exam.MarksOtaineds?.Select(detail => new MarksObtainedDTOs(
                         detail.SubjectId,
-                        detail.MarksObtaineds,
-                        ""
+                        detail.MarksObtaineds
+                       
                     )).ToList() ?? new List<MarksObtainedDTOs>()
                 );
 
@@ -339,8 +339,8 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                     exam.ModifiedAt,
                     exam.MarksOtaineds?.Select(detail => new MarksObtainedDTOs(
                         detail.SubjectId,
-                        detail.MarksObtaineds,
-                        ""
+                        detail.MarksObtaineds
+                     
                     )).ToList() ?? new List<MarksObtainedDTOs>()
 
 
@@ -402,6 +402,14 @@ namespace ES.Academics.Infrastructure.ServiceImpl
 
                 var percentage =await _helperMethodServices.CalculatePercentage(marksSheetDTOs);
 
+                decimal percentageValue = 0;
+
+                if (!string.IsNullOrWhiteSpace(percentage))
+                {
+                    percentageValue = decimal.Parse(percentage.Replace("%", ""));
+                }
+
+
                 var totalObtainedMarks = marksSheet.MarksOtaineds.Sum(x => x.MarksObtaineds);
 
                 var grade = await _helperMethodServices.CalculateGPA(marksSheetDTOs);
@@ -414,28 +422,38 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                 }
 
                 var marksSheetDetails = new MarkSheetByStudentResponse(
-                    marksSheet?.ExamId ?? string.Empty,
-                    marksSheet?.StudentId ?? string.Empty,
-                    marksSheet?.Remarks ?? string.Empty,
-                    marksSheet?.IsActive ?? false,
-                    marksSheet?.SchoolId ?? string.Empty,
-                    marksSheet?.CreatedBy ?? string.Empty,
-                    marksSheet?.CreatedAt ?? default,
-                    marksSheet?.ModifiedBy ?? string.Empty,
-                    marksSheet?.ModifiedAt ?? default,
-                    percentage,
-                    totalObtainedMarks,
-                    grade,
-                    division,
-                    marksSheet?.MarksOtaineds?
-                        .Select(detail => new MarksObtainedDTOs(
-                            detail.SubjectId,
-                            detail.MarksObtaineds,
-                            GetGrade((detail.MarksObtaineds / totalObtainedMarks) * 100)
-                            
-                        )).ToList()
-                        ?? new List<MarksObtainedDTOs>()
-                );
+                     marksSheet?.ExamId ?? string.Empty,
+                     marksSheet?.StudentId ?? string.Empty,
+                     marksSheet?.Remarks ?? string.Empty,
+                     marksSheet?.IsActive ?? false,
+                     marksSheet?.SchoolId ?? string.Empty,
+                     marksSheet?.CreatedBy ?? string.Empty,
+                     marksSheet?.CreatedAt ?? default,
+                     marksSheet?.ModifiedBy ?? string.Empty,
+                     marksSheet?.ModifiedAt ?? default,
+                     percentage,
+                     totalObtainedMarks,
+                     GetGrade(percentageValue),
+                     GetGpa(percentageValue),
+                     division,
+                     marksSheet?.MarksOtaineds?
+                         .Select(detail =>
+                         {
+                             var subjectPercentage = totalObtainedMarks > 0
+                                 ? (detail.MarksObtaineds / totalObtainedMarks) * 100
+                                 : 0;
+
+                             return new MarksWithGrades(
+                                 detail.SubjectId ?? string.Empty,
+                                 detail.MarksObtaineds,
+                                 GetGrade(subjectPercentage),
+                                 GetGpa(subjectPercentage)
+                             );
+                         })
+                         .ToList()
+                     ?? new List<MarksWithGrades>()
+                 );
+
 
 
                 var marksSheetResponse = _mapper.Map<MarkSheetByStudentResponse>(marksSheetDetails);
@@ -458,6 +476,26 @@ namespace ES.Academics.Infrastructure.ServiceImpl
             if (percentage >= 40) return "D";
             return "E";
         }
+
+        private decimal GetGpa(decimal percentage)
+        {
+            if (percentage >= 90) return 4.0m;
+            if (percentage >= 80) return 3.6m;
+            if (percentage >= 70) return 3.2m;
+            if (percentage >= 60) return 2.8m;
+            if (percentage >= 50) return 2.4m;
+            if (percentage >= 40) return 2.0m;
+
+            return 0.8m;
+        }
+
+        private decimal Percentage(decimal obtained, decimal total)
+        {
+            if (total <= 0) return 0;
+            return (obtained / total) * 100;
+        }
+
+
 
 
         public async Task<Result<List<SubjectByClassIdResponse>>> GetSubjectByClass(string classId, CancellationToken cancellationToken = default)
@@ -563,8 +601,8 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                             examResult.MarksOtaineds?.Select(details=> new MarksObtainedDTOs
                             (
                                 details.SubjectId,
-                                details.MarksObtaineds,
-                                ""
+                                details.MarksObtaineds
+                          
                             )).ToList() ?? new List<MarksObtainedDTOs>()
 
 

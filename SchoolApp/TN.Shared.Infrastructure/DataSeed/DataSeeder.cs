@@ -6,6 +6,7 @@ using TN.Authentication.Domain.Entities;
 using TN.Authentication.Domain.Static.Roles;
 using TN.Inventory.Domain.Entities;
 using TN.Setup.Domain.Entities;
+using TN.Shared.Domain.Entities.Academics;
 using TN.Shared.Domain.Entities.Account;
 using TN.Shared.Domain.Entities.OrganizationSetUp;
 using TN.Shared.Domain.Entities.StockCenterEntities;
@@ -63,9 +64,29 @@ namespace TN.Shared.Infrastructure.DataSeed
             await SeedInstitution();
             await SeedDemoCompany();
             await SeedStockCenter();
-            await SeedBillSundry();
+            await SeedExam();
 
         }
+
+        #region Exam
+
+        private async Task SeedExam()
+        {
+            if (!await _context.Exams.AnyAsync())
+            {
+                var exams = new List<Exam>()
+                {
+                    new Exam("f47ac10b-58cc-4372-a567-0e02b2c3d479","Final Exams",DateTime.UtcNow,100,0,"",true, "","",DateTime.UtcNow,"", DateTime.UtcNow,true)
+                };
+
+                await _context.Exams.AddRangeAsync(exams);
+                await _unitOfWork.SaveChangesAsync();
+            }
+        }
+
+        #endregion
+
+
 
         #region BillSundry
 

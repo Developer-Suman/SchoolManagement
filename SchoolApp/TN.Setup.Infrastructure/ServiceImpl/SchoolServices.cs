@@ -251,7 +251,7 @@ namespace TN.Setup.Infrastructure.ServiceImpl
 
                 var school = await _unitOfWork.BaseRepository<School>().GetByGuIdAsync(schoolId);
 
-                var schoolResponse = _mapper.Map<GetSchoolByIdResponse>(schoolId);
+                var schoolResponse = _mapper.Map<GetSchoolByIdResponse>(school);
 
                 var currentFiscalYear = await _fiscalYearService.GetCurrentFiscalYearFromSettingsAsync();
                 var updatedSchoolResponse = schoolResponse with

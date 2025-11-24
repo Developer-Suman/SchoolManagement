@@ -22,6 +22,7 @@ namespace ES.Certificate.Application.Certificates.Queries.FilterIssuedCertificat
             DateTime createdAt,
             DateTime yearOfCompletion,
              string program,
-            string symbolNumber
+            string symbolNumber,
+            string examId
         );
 }

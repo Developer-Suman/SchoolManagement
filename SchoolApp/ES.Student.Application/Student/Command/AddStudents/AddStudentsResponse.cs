@@ -27,6 +27,7 @@ namespace ES.Student.Application.Student.Command.AddStudents
         int? districtId=0,
         int? wardNumber = 0,
             int? vdcid=0,
-            int? municipalityId=0
+            int? municipalityId=0,
+            string? classId = ""
     );
 }

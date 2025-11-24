@@ -40,7 +40,7 @@ namespace TN.Shared.Domain.Entities.OrganizationSetUp
         public DateTime EndDate { get; set; }
         public ICollection<SchoolSettingsFiscalYear> SchoolSettingsFiscalYears { get; set; }
         public ICollection<FeeStructure> FeeStructures { get; set; }
-        public ICollection<Exam> Exams { get; set; }
+        //public ICollection<Exam> Exams { get; set; }
         public ICollection<ClassSection> ClassSections { get; set; }
     }
 }

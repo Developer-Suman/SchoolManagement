@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TN.Authentication.Domain.Entities;
+using TN.Shared.Domain.Entities.Academics;
 using TN.Shared.Domain.Entities.Students;
 using TN.Shared.Domain.Primitive;
 
@@ -35,7 +36,8 @@ namespace TN.Shared.Domain.Entities.Certificates
             DateTime modifiedAt,
             bool isActive,
             string program,
-            string symbolNumber
+            string symbolNumber,
+            string examId
 
              ) : base(id)
         {
@@ -56,10 +58,13 @@ namespace TN.Shared.Domain.Entities.Certificates
             IsActive = isActive;
             Program = program;
             SymbolNumber = symbolNumber;
+            ExamId = examId;
 
 
         }
-        
+
+        public string ExamId { get; set; }
+
         public bool IsActive { get; set; }
         public DateTime YearOfCompletion { get;set;  }
         public string TemplateId { get; set; }

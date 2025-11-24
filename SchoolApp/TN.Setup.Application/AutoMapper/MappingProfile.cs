@@ -151,14 +151,14 @@ namespace TN.Setup.Application.AutoMapper
             CreateMap<DeleteInstitutionCommand, Institution>().ReverseMap();
             #endregion
 
-            #region Comapny
+            #region School
             CreateMap<GetAllSchoolQueryResponse, School>().ReverseMap();
             CreateMap<PagedResult<School>, PagedResult<GetAllSchoolQueryResponse>>().ReverseMap();
- 
+            CreateMap<GetSchoolByIdResponse, School>().ReverseMap();
             CreateMap<AddSchoolResponse, School>().ReverseMap();
             CreateMap<AddSchoolResponse, AddSchoolCommand>().ReverseMap();
             CreateMap<School, UpdateSchoolCommand>().ReverseMap();
-            CreateMap<GetSchoolByIdResponse, School>().ReverseMap();
+       
             CreateMap<GetSchoolByInstitutionIdResponse, School>().ReverseMap();
             CreateMap<DeleteSchoolCommand, School>().ReverseMap();
             CreateMap<UpdateBillNumberStatusForPurchaseCommand, School>().ReverseMap();

@@ -79,7 +79,9 @@ namespace ES.Certificate.Infrastructure.ServiceImpl
                         default,
                         true,
                         addIssuedCertificateCommand.program,
-                        addIssuedCertificateCommand.symbolNumber
+                        addIssuedCertificateCommand.symbolNumber,
+                        "f47ac10b-58cc-4372-a567-0e02b2c3d479"  //finalExamId
+
                     );
 
                     await _unitOfWork.BaseRepository<IssuedCertificate>().AddAsync(addIssuedCertificate);
@@ -265,7 +267,8 @@ namespace ES.Certificate.Infrastructure.ServiceImpl
                     i.CreatedAt,
                     i.YearOfCompletion,
                     i.Program,
-                    i.SymbolNumber
+                    i.SymbolNumber,
+                    i.ExamId
 
 
                 ))

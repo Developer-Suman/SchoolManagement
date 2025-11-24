@@ -23,7 +23,8 @@ namespace ES.Student.Application.Student.Queries.GetStudentsById
         string? address = "",
         DateTime enrollmentDate = default,
         string? parentId = "",
-        string? classSectionId = ""
+        string? classSectionId = "",
+        string? classId = ""
 
     );
 }

@@ -292,6 +292,14 @@ namespace TN.Shared.Infrastructure.Data
                .OnDelete(DeleteBehavior.Restrict);
             #endregion
 
+            #region Class and Students(1:m)
+            builder.Entity<Class>()
+               .HasMany(p => p.Students)
+               .WithOne(p => p.Class)
+               .HasForeignKey(p => p.ClassId)
+               .OnDelete(DeleteBehavior.Restrict);
+            #endregion
+
 
 
             #region Parents and Students(1:m)
@@ -393,11 +401,11 @@ namespace TN.Shared.Infrastructure.Data
 
 
             #region FiscalYear and Exam(1:m)
-            builder.Entity<FiscalYears>()
-               .HasMany(p => p.Exams)
-               .WithOne(p => p.FiscalYears)
-               .HasForeignKey(p => p.FyId)
-               .OnDelete(DeleteBehavior.Restrict);
+            //builder.Entity<FiscalYears>()
+            //   .HasMany(p => p.Exams)
+            //   .WithOne(p => p.FiscalYears)
+            //   .HasForeignKey(p => p.FyId)
+            //   .OnDelete(DeleteBehavior.Restrict);
             #endregion
 
 

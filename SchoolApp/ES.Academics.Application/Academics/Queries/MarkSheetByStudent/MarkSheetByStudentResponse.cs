@@ -21,8 +21,9 @@ namespace ES.Academics.Application.Academics.Queries.MarkSheetByStudent
      string percentage="",
      decimal totalObtainedMarks = 0,
      string grade="",
+     decimal GPA= 0,
      string division="",
 
-     List<MarksObtainedDTOs> marksObtained=default
+     List<MarksWithGrades> MarksWithGrades = default
         );
 }
