@@ -15,7 +15,8 @@ namespace ES.Academics.Application.Academics.Command.AddExam.RequestCommandMappe
                 request.examDate,
                 request.totalMarks,
                 request.passingMarks,
-                request.isfinalExam
+                request.isfinalExam,
+                request.classId
                 );
         }
     }

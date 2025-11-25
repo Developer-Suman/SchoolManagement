@@ -7,6 +7,7 @@ using ES.Student.Application.Student.Queries.FilterStudents;
 using ES.Student.Application.Student.Queries.GetAllParent;
 using ES.Student.Application.Student.Queries.GetAllStudents;
 using ES.Student.Application.Student.Queries.GetParentById;
+using ES.Student.Application.Student.Queries.GetStudentByClass;
 using ES.Student.Application.Student.Queries.GetStudentsById;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System;
@@ -34,6 +35,7 @@ namespace ES.Student.Application.ServiceInterface
         Task<Result<PagedResult<FilterParentsResponse>>> GetFilterParents(PaginationRequest paginationRequest, FilterParentsDTOs filterParentsDTOs);
 
         Task<Result<PagedResult<FilterStudentsResponse>>> GetFilterStudent(PaginationRequest paginationRequest, FilterStudentsDTOs filterStudentsDTOs);
+        Task<Result<PagedResult<GetStudentByClassResponse>>> GetStudent(PaginationRequest paginationRequest, string classId);
 
         Task<Result<bool>> DeleteParent(string id, CancellationToken cancellationToken);
         Task<Result<UpdateParentResponse>> UpdateParent(string id, UpdateParentCommand updateParentCommand);
