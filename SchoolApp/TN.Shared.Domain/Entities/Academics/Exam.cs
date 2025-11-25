@@ -30,9 +30,11 @@ namespace TN.Shared.Domain.Entities.Academics
             DateTime createdAt,
             string modifiedBy,
             DateTime modifiedAt,
-            bool isActive
+            bool isActive,
+            string classId
             ) : base(id)
         {
+            ClassId = classId;
             Name = name;
             ExamDate = examDate;
             TotalMarks = totalMarks;
@@ -48,6 +50,7 @@ namespace TN.Shared.Domain.Entities.Academics
             ExamResults = new List<ExamResult>();
         }
 
+        public string ClassId { get; set;  }
         public string FyId { get; set; }
         //public FiscalYears FiscalYears { get; set; }
         public string Name { get; set; }

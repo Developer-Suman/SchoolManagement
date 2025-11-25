@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TN.Shared.Domain.Entities.OrganizationSetUp;
+using TN.Shared.Domain.Entities.Staff;
 using TN.Shared.Domain.Entities.Students;
 using TN.Shared.Domain.Primitive;
 
@@ -22,7 +23,7 @@ namespace TN.Shared.Domain.Entities.Academics
             string code,
             string classId,
             string sectionId,
-            string teacherId,
+            string academicTeamId,
             string fyId,
             string createdBy,
             DateTime createdAt,
@@ -34,7 +35,7 @@ namespace TN.Shared.Domain.Entities.Academics
             Code = code;
             ClassId = classId;
             SectionId = sectionId;
-            TeacherId = teacherId;
+            AcademicTeamId = academicTeamId;
             FyId = fyId;
             CreatedBy = createdBy;
             CreatedAt = createdAt;
@@ -49,8 +50,8 @@ namespace TN.Shared.Domain.Entities.Academics
 
         public string SectionId { get; set; }
         public Section Section { get; set; }
-        public string TeacherId { get; set; }
-        public Teacher Teacher { get; set; }
+        public string AcademicTeamId { get; set; }
+        public AcademicTeam AcademicTeam { get; set; }
         public string FyId { get; set; }
         public FiscalYears FiscalYears { get; set; }
         public string CreatedBy { get; set; }

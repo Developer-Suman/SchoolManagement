@@ -73,7 +73,8 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                         DateTime.UtcNow,
                         "",
                         default,
-                        true
+                        true,
+                        addExamCommand.classId
                     );
 
                     await _unitOfWork.BaseRepository<Exam>().AddAsync(addExam);
@@ -124,7 +125,7 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                 var (exam, currentSchoolId, institutionId, userRole, isSuperAdmin) =
                     await _getUserScopedData.GetUserScopedData<Exam>();
 
-                var finalQuery = exam.Where(x=>x.IsActive == true).AsNoTracking();
+                var finalQuery = exam.Where(x=>x.IsActive == true && x.SchoolId == currentSchoolId).AsNoTracking();
 
 
                 var pagedResult = await finalQuery.ToPagedResultAsync(
@@ -212,7 +213,8 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                     i.ExamDate,
                     i.TotalMarks,
                     i.PassingMarks,
-                    i.IsFinalExam
+                    i.IsFinalExam,
+                    i.ClassId
 
 
                 ))
@@ -288,7 +290,8 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                             examToBeUpdated.ExamDate,
                             examToBeUpdated.TotalMarks,
                             examToBeUpdated.PassingMarks,
-                            examToBeUpdated.IsFinalExam
+                            examToBeUpdated.IsFinalExam,
+                            examToBeUpdated.ClassId
 
 
                         );

@@ -15,6 +15,7 @@ namespace ES.Academics.Application.Academics.Command.UpdateExam
         DateTime examDate,
         decimal totalMarks,
         decimal passingMarks,
-        bool? isfinalExam
+        bool? isfinalExam,
+        string classId
         ) : IRequest<Result<UpdateExamResponse>>;
 }

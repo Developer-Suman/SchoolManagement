@@ -40,6 +40,8 @@
     <ProjectReference Include="..\ES.Examination.Application\ES.Examination.Application.csproj" />
     <ProjectReference Include="..\ES.Examination.Infrastructure\ES.Examination.Infrastructure.csproj" />
     <ProjectReference Include="..\ES.Finances.Infrastructure\ES.Finances.Infrastructure.csproj" />
+    <ProjectReference Include="..\ES.Staff.Application\ES.Staff.Application.csproj" />
+    <ProjectReference Include="..\ES.Staff.Infrastructure\ES.Staff.Infrastructure.csproj" />
     <ProjectReference Include="..\ES.Student.Infrastructure\ES.Student.Infrastructure.csproj" />
     <ProjectReference Include="..\ES.Finances.Application\ES.Finances.Application.csproj" />
     <ProjectReference Include="..\ES.Student.Application\ES.Student.Application.csproj" />

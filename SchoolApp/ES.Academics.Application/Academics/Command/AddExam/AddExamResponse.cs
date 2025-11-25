@@ -12,6 +12,7 @@ namespace ES.Academics.Application.Academics.Command.AddExam
             DateTime examDate,
             decimal totalMarks,
             decimal passingMarks,
-            bool? isfinalExam
+            bool? isfinalExam,
+            string classId
         );
 }
