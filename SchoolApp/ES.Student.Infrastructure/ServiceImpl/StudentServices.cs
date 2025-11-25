@@ -11,6 +11,7 @@ using ES.Student.Application.Student.Queries.FilterStudents;
 using ES.Student.Application.Student.Queries.GetAllParent;
 using ES.Student.Application.Student.Queries.GetAllStudents;
 using ES.Student.Application.Student.Queries.GetParentById;
+using ES.Student.Application.Student.Queries.GetStudentByClass;
 using ES.Student.Application.Student.Queries.GetStudentsById;
 using Microsoft.EntityFrameworkCore;
 using System.Transactions;
@@ -149,7 +150,8 @@ namespace ES.Student.Infrastructure.ServiceImpl
                         true,
                         nullablevdcId,
                         nullableMunicipalityId,
-                        nullableClassId
+                        nullableClassId,
+                        ""
 
 
 
@@ -547,6 +549,41 @@ namespace ES.Student.Infrastructure.ServiceImpl
                 throw new Exception("An error occurred while fetching parent by using Id", ex);
             }
 
+        }
+
+        public async Task<Result<PagedResult<GetStudentByClassResponse>>> GetStudent(PaginationRequest paginationRequest, string classId)
+        {
+            try
+            {
+
+                var (studentsData, currentSchoolId, institutionId, userRole, isSuperAdmin) =
+                    await _getUserScopedData.GetUserScopedData<StudentData>();
+
+                var finalQuery = studentsData.Where(x => x.IsActive == true && x.ClassId == classId).AsNoTracking();
+
+
+                var pagedResult = await finalQuery.ToPagedResultAsync(
+                    paginationRequest.pageIndex,
+                    paginationRequest.pageSize,
+                    paginationRequest.IsPagination);
+
+
+                var mappedItems = _mapper.Map<List<GetStudentByClassResponse>>(pagedResult.Data.Items);
+
+                var response = new PagedResult<GetStudentByClassResponse>
+                {
+                    Items = mappedItems,
+                    TotalItems = pagedResult.Data.TotalItems,
+                    PageIndex = pagedResult.Data.PageIndex,
+                    pageSize = pagedResult.Data.pageSize
+                };
+
+                return Result<PagedResult<GetStudentByClassResponse>>.Success(response);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while fetching all Students", ex);
+            }
         }
 
         public async Task<Result<GetStudentsByIdQueryResponse>> GetStudentById(string id, CancellationToken cancellationToken = default)

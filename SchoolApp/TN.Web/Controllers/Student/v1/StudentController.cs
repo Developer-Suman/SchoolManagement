@@ -14,6 +14,7 @@ using ES.Student.Application.Student.Queries.FilterStudents;
 using ES.Student.Application.Student.Queries.GetAllParent;
 using ES.Student.Application.Student.Queries.GetAllStudents;
 using ES.Student.Application.Student.Queries.GetParentById;
+using ES.Student.Application.Student.Queries.GetStudentByClass;
 using ES.Student.Application.Student.Queries.GetStudentsById;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -113,6 +114,27 @@ namespace TN.Web.Controllers.Student.v1
         }
         #endregion
 
+        #region StudentsByClass
+        [HttpGet("GetStudentByClass/{classId}")]
+        public async Task<IActionResult> GetStudentByClass([FromQuery] string classId, [FromQuery] PaginationRequest paginationRequest)
+        {
+            var query = new GetStudentByClassQuery(paginationRequest,classId);
+            var studentResult = await _mediator.Send(query);
+            #region Switch Statement
+            return studentResult switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(studentResult.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { studentResult.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(studentResult.Errors),
+                _ => BadRequest("Invalid page and pageSize Fields")
+            };
+            #endregion
+
+        }
+        #endregion
 
         #region AllStudents
         [HttpGet("all-Students")]

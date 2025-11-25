@@ -8,6 +8,7 @@ using ES.Student.Application.Student.Queries.FilterStudents;
 using ES.Student.Application.Student.Queries.GetAllParent;
 using ES.Student.Application.Student.Queries.GetAllStudents;
 using ES.Student.Application.Student.Queries.GetParentById;
+using ES.Student.Application.Student.Queries.GetStudentByClass;
 using ES.Student.Application.Student.Queries.GetStudentsById;
 using System;
 using System.Collections.Generic;
@@ -26,6 +27,12 @@ namespace ES.Student.Application.AutoMapper
         public MappingProfile()
         {
             #region Student
+
+
+            CreateMap<GetStudentByClassResponse, StudentData>().ReverseMap();
+            CreateMap<PagedResult<StudentData>, PagedResult<GetStudentByClassResponse>>().ReverseMap();
+
+
             CreateMap<AddStudentsResponse, StudentData>().ReverseMap();
             CreateMap<AddStudentsCommand, StudentData>().ReverseMap();
 
