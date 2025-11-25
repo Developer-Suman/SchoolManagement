@@ -249,10 +249,10 @@ namespace TN.Authentication.Infrastructure.ServiceImpl
                         var validSchool = await _unitOfWork.BaseRepository<School>()
                             .GetAllWithIncludeAsync(c => addUserCommand.schoolIds.Contains(c.Id));
 
-                        var userSchools = validSchool.Select(company => new UserSchool
+                        var userSchools = validSchool.Select(school => new UserSchool
                         {
                             UserId = user.Id,
-                            SchoolId = company.Id
+                            SchoolId = school.Id
                         }).ToList();
 
                         user.InstitutionId = validSchool.FirstOrDefault(c => !string.IsNullOrWhiteSpace(c.InstitutionId))?.InstitutionId;

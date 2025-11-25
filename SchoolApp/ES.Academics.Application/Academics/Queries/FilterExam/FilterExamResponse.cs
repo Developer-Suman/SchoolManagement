@@ -13,6 +13,7 @@ namespace ES.Academics.Application.Academics.Queries.FilterExam
             DateTime examDate,
             decimal totalMarks,
             decimal passingMarks,
-            bool? isfinalExam
+            bool? isfinalExam,
+            string classId
         );
 }

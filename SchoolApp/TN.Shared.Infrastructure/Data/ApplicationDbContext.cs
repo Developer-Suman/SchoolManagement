@@ -21,6 +21,7 @@ using TN.Shared.Domain.Entities.OrganizationSetUp;
 using TN.Shared.Domain.Entities.Payments;
 using TN.Shared.Domain.Entities.Purchase;
 using TN.Shared.Domain.Entities.Sales;
+using TN.Shared.Domain.Entities.Staff;
 using TN.Shared.Domain.Entities.StockCenterEntities;
 using TN.Shared.Domain.Entities.Students;
 using TN.Shared.Domain.Entities.Transactions;
@@ -39,6 +40,11 @@ namespace TN.Shared.Infrastructure.Data
 
         }
 
+        #region Staff
+        public DbSet<AcademicTeam> AcademicTeams { get; set; }
+        public DbSet<AcademicTeamClass> AcademicTeamClass { get; set; }
+        #endregion
+
         #region Certificate
         public DbSet<CertificateTemplate> CertificateTemplates { get; set; }
         public DbSet<IssuedCertificate> issuedCertificates { get; set; }
@@ -53,7 +59,6 @@ namespace TN.Shared.Infrastructure.Data
         #region Student
         public DbSet<StudentData> Students { get; set; }
         public DbSet<Parent> Parents { get; set; }
-        public DbSet<Teacher> Teachers { get; set; }
 
         #endregion
 
@@ -215,6 +220,24 @@ namespace TN.Shared.Infrastructure.Data
         {
             base.OnModelCreating(builder);
 
+            #region Staff
+
+            #region AcademicTeam and Class(m:m)
+            builder.Entity<AcademicTeamClass>()
+             .HasKey(tc => new { tc.AcademicTeamId, tc.ClassId });
+            #endregion
+
+
+
+            #region AcademicTeam and ApplicationUser(1:1)
+            builder.Entity<AcademicTeam>()
+             .HasOne(s => s.User)
+             .WithOne(u => u.AcademicTeams)
+             .HasForeignKey<AcademicTeam>(s => s.UserId);
+            #endregion
+
+            #endregion
+
             #region Certificate
 
             #region StudentData and IssuedCertificate (1:m)
@@ -258,8 +281,17 @@ namespace TN.Shared.Infrastructure.Data
 
             #endregion
 
+        
+
 
             #region Student
+
+            #region Students and ApplicationUser(1:1)
+            builder.Entity<StudentData>()
+              .HasOne(s => s.Users)
+              .WithOne(u => u.StudentDatas)
+              .HasForeignKey<StudentData>(s => s.UserId);
+            #endregion
             #region Province and Students(1:m)
             builder.Entity<Province>()
                .HasMany(p => p.StudentData)
@@ -331,10 +363,10 @@ namespace TN.Shared.Infrastructure.Data
             #endregion
 
             #region Teacher and ClassSection(1:m)
-            builder.Entity<Teacher>()
+            builder.Entity<AcademicTeam>()
                .HasMany(p => p.ClassSection)
-               .WithOne(p => p.Teacher)
-               .HasForeignKey(p => p.TeacherId)
+               .WithOne(p => p.AcademicTeam)
+               .HasForeignKey(p => p.AcademicTeamId)
                .OnDelete(DeleteBehavior.Restrict);
             #endregion
 

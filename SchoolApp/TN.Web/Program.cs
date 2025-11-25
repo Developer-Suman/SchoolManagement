@@ -10,6 +10,8 @@ using ES.Examination.Application;
 using ES.Examination.Infrastructure;
 using ES.Finances.Application;
 using ES.Finances.Infrastructure;
+using ES.Staff.Application;
+using ES.Staff.Infrastructure;
 using ES.Student.Application;
 using ES.Student.Infrastructure;
 using Microsoft.AspNetCore.RateLimiting;
@@ -150,6 +152,10 @@ try
     });
 
     #endregion
+
+    builder.Services
+        .AddStaffInfrastructure()
+        .AddStaffApplication();
 
     builder.Services
         .AddCertificateInfrastructure()

@@ -48,7 +48,8 @@ namespace TN.Shared.Domain.Entities.Students
             bool isActive,
             int? vdcid,
             int? municipalityId,
-            string? classId
+            string? classId,
+            string? userId
 
             )
             : base(id)
@@ -87,6 +88,8 @@ namespace TN.Shared.Domain.Entities.Students
         }
 
 
+        public string UserId { get; set; }
+        public ApplicationUser Users { get; set; }
         public string SchoolId { get; set; }
         public bool IsActive { get; set; }
         public string FirstName { get; set; }

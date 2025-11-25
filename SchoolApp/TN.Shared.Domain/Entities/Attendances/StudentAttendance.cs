@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TN.Shared.Domain.Entities.Staff;
 using TN.Shared.Domain.Entities.Students;
 using TN.Shared.Domain.Primitive;
 
@@ -21,7 +22,7 @@ namespace TN.Shared.Domain.Entities.Attendances
             string studentId,
             DateTime attendanceDate,
             AttendanceStatus attendanceStatus,
-            string teacherId,
+            string academicTeamId,
             string? remarks,
             string createdBy,
             DateTime createdAt,
@@ -32,7 +33,7 @@ namespace TN.Shared.Domain.Entities.Attendances
             StudentId = studentId;
             AttendanceDate = attendanceDate;
             AttendanceStatus = attendanceStatus;
-            TeacherId = teacherId;
+            AcademicTeamId = academicTeamId;
             Remarks = remarks;
             CreatedBy = createdBy;
             CreatedAt = createdAt;
@@ -45,8 +46,8 @@ namespace TN.Shared.Domain.Entities.Attendances
         public StudentData Student { get; set; }
         public DateTime AttendanceDate { get; set; }
         public AttendanceStatus AttendanceStatus { get; set; }
-        public string TeacherId { get; set; }
-        public Teacher Teacher { get; set; }
+        public string AcademicTeamId { get; set; }
+        public AcademicTeam AcademicTeams { get; set; }
         public string? Remarks { get; set; }
         public string CreatedBy { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.Now;

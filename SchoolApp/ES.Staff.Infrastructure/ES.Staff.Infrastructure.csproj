@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MediatR" Version="13.1.0" />
+    <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="11.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ES.Staff.Application\ES.Staff.Application.csproj" />
+    <ProjectReference Include="..\TN.Shared.Application\TN.Shared.Application.csproj" />
+    <ProjectReference Include="..\TN.Shared.Domain\TN.Shared.Domain.csproj" />
+  </ItemGroup>
+
+</Project>

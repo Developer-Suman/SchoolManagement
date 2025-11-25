@@ -6,6 +6,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TN.Account.Domain.Entities;
+using TN.Shared.Domain.Entities.Staff;
+using TN.Shared.Domain.Entities.Students;
 
 namespace TN.Authentication.Domain.Entities
 {
@@ -33,5 +35,10 @@ namespace TN.Authentication.Domain.Entities
         public virtual Institution Institution { get; set; }
         public virtual ICollection<JournalEntry> JournalEntries {  get; set; } = new List<JournalEntry>();
         public virtual ICollection<UserSchool> UserSchools { get; set; } = new List<UserSchool>();
+
+        //One to One
+        // Navigation properties
+        public AcademicTeam? AcademicTeams { get; set; }
+        public StudentData? StudentDatas { get; set; }
     }
 }
