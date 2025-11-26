@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -19,6 +20,7 @@ using TN.Shared.Domain.Entities.OrganizationSetUp;
 using TN.Shared.Domain.ICryptography;
 using TN.Shared.Domain.IRepository;
 using TN.Shared.Infrastructure.ActivityProcessServices;
+using TN.Shared.Infrastructure.Authorization;
 using TN.Shared.Infrastructure.Cryptography;
 using TN.Shared.Infrastructure.Data;
 using TN.Shared.Infrastructure.Data.Interceptor;
@@ -112,6 +114,9 @@ namespace TN.Shared.Infrastructure
             services.AddScoped<IFiscalYearService, FiscalYearServices>();
             services.AddScoped<IHelperService, HelperService>();
             services.AddScoped<IimageServices, ImageServices>();
+
+            services.AddScoped<IAuthorizationHandler, TeacherClassHandler>();
+
 
             #endregion
 

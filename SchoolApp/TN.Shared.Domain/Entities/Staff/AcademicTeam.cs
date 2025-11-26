@@ -32,8 +32,9 @@ namespace TN.Shared.Domain.Entities.Staff
             IsActive = isActive;
             StudentAttendances = new List<StudentAttendance>();
             ClassSection = new List<ClassSection>();
-           
-            
+            AcademicTeamClasses = new List<AcademicTeamClass>();
+
+
         }
 
         public bool IsActive { get; set; }
@@ -45,5 +46,7 @@ namespace TN.Shared.Domain.Entities.Staff
 
         public string UserId { get; set; }
         public ApplicationUser User { get; set; }
+
+        public ICollection<AcademicTeamClass> AcademicTeamClasses { get; set; }
     }
 }

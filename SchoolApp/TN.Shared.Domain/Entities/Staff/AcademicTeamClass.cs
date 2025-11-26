@@ -29,7 +29,7 @@ namespace TN.Shared.Domain.Entities.Staff
         }
 
         public string AcademicTeamId { get; set; }
-        public ApplicationUser AcademicTeam { get; set; }
+        public AcademicTeam AcademicTeam { get; set; }
 
         public string ClassId { get; set; }
         public Class Classes { get; set; }

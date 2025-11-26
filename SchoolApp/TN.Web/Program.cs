@@ -35,6 +35,7 @@ using TN.Setup.Application;
 using TN.Setup.Infrastructure;
 using TN.Shared.Application;
 using TN.Shared.Infrastructure;
+using TN.Shared.Infrastructure.Authorization;
 using TN.Shared.Infrastructure.CustomMiddleware.FiscalYearContext;
 using TN.Shared.Infrastructure.CustomMiddleware.GlobalErrorHandling;
 using TN.Shared.Infrastructure.SignalRHub;
@@ -142,6 +143,15 @@ try
     {
         c.CustomSchemaIds(type => type.FullName?.Replace("+", "."));
     });
+
+    #region Policy
+    builder.Services.AddAuthorization(options =>
+    {
+        options.AddPolicy("TeacherCanAddExamResult", policy =>
+            policy.Requirements.Add(new TeacherClassRequirement()));
+    });
+
+    #endregion
 
 
     #region RedisCache For Frequently Data

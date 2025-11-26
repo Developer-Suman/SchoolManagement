@@ -55,9 +55,11 @@ namespace TN.Web.Controllers.Academics.v1
     public class AcademicsController : BaseController
     {
         private readonly IMediator _mediator;
-        public AcademicsController(IMediator mediator, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager) : base(userManager, roleManager)
+        private readonly IAuthorizationService _authorizationService;
+        public AcademicsController(IMediator mediator, IAuthorizationService authorizationService, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager) : base(userManager, roleManager)
         {
             _mediator = mediator;
+            _authorizationService = authorizationService;
 
         }
 
@@ -257,10 +259,23 @@ namespace TN.Web.Controllers.Academics.v1
 
 
         #region AddExamResult
+
+        //[Authorize(Policy = "TeacherCanAddExamResult")]
         [HttpPost("AddExamResult")]
 
         public async Task<IActionResult> AddExamResult([FromBody] AddExamResultRequest request)
         {
+            //var classId = "281a8d1b-7eec-4064-86f1-17a7ceb37f54";
+            //var authResult = await _authorizationService.AuthorizeAsync(
+            //        User,
+            //        classId,
+            //        "TeacherCanAddExamResult"
+            //    );
+
+            //if (!authResult.Succeeded)
+            //    return Forbid();
+
+
             //Mapping command and request
             var command = request.ToCommand();
             var addExamResultDetails = await _mediator.Send(command);
