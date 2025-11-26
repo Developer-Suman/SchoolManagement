@@ -240,6 +240,38 @@ namespace TN.Shared.Infrastructure.Data
 
             #endregion
 
+            #region Province and AcademicTeam(1:m)
+            builder.Entity<Province>()
+               .HasMany(p => p.AcademicTeams)
+               .WithOne(p => p.Province)
+               .HasForeignKey(p => p.ProvinceId)
+               .OnDelete(DeleteBehavior.Restrict);
+            #endregion
+
+            #region District and AcademicTeam(1:m)
+            builder.Entity<District>()
+               .HasMany(p => p.AcademicTeams)
+               .WithOne(p => p.District)
+               .HasForeignKey(p => p.DistrictId)
+               .OnDelete(DeleteBehavior.Restrict);
+            #endregion
+
+            #region Municipality and AcademicTeam(1:m)
+            builder.Entity<Municipality>()
+               .HasMany(p => p.AcademicTeams)
+               .WithOne(p => p.Municipality)
+               .HasForeignKey(p => p.MunicipalityId)
+               .OnDelete(DeleteBehavior.Restrict);
+            #endregion
+
+            #region VDC and AcademicTeam(1:m)
+            builder.Entity<Vdc>()
+               .HasMany(p => p.AcademicTeams)
+               .WithOne(p => p.Vdc)
+               .HasForeignKey(p => p.VdcId)
+               .OnDelete(DeleteBehavior.Restrict);
+            #endregion
+
 
 
             #region AcademicTeam and ApplicationUser(1:1)

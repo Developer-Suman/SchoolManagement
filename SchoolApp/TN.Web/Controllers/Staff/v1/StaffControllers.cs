@@ -5,6 +5,8 @@ using ES.Staff.Application.Staff.Command.AssignClassToAcademicTeam;
 using ES.Staff.Application.Staff.Command.AssignClassToAcademicTeam.RequestCommandMapper;
 using ES.Staff.Application.Staff.Command.UnAssignedClassToAcademicTeam;
 using ES.Staff.Application.Staff.Command.UnAssignedClassToAcademicTeam.RequestCommandMapper;
+using ES.Staff.Application.Staff.Queries.FilterAcademicTeam;
+using ES.Student.Application.Student.Queries.FilterStudents;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -79,9 +81,34 @@ namespace TN.Web.Controllers.Staff.v1
         #endregion
 
         #region AcademicTeam
+
+        #region FilterStudents
+        [HttpGet("FilterAcademicTeam")]
+        public async Task<IActionResult> GetFilterAcademicTeam([FromQuery] FilterAcademicTeamDTOs filterAcademicTeamDTOs, [FromQuery] PaginationRequest paginationRequest)
+        {
+            var query = new FilterAcademicTeamQuery(paginationRequest, filterAcademicTeamDTOs);
+            var filterAcademicTeamResult = await _mediator.Send(query);
+            #region Switch Statement
+            return filterAcademicTeamResult switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(filterAcademicTeamResult.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = filterAcademicTeamResult.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(filterAcademicTeamResult.Errors),
+                _ => BadRequest("Invalid page and pageSize Fields")
+            };
+            #endregion
+
+        }
+
+        #endregion
+
+
         #region AddAcademicTeam
         [HttpPost("AddAcademicTeam")]
-        public async Task<IActionResult> AddAcademicTeam([FromBody] AddAcademicTeamRequest request)
+        public async Task<IActionResult> AddAcademicTeam([FromForm] AddAcademicTeamRequest request)
         {
             //Mapping command and request
             var command = request.ToCommand();
