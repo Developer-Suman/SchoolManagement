@@ -5,14 +5,12 @@ using System.Text;
 using System.Threading.Tasks;
 using TN.Shared.Domain.Entities.Students;
 
-namespace ES.Staff.Application.Staff.Command.AddAcademicTeam
+namespace ES.Staff.Application.Staff.Queries.FilterAcademicTeam
 {
-    public record AddAcademicTeamResponse
+    public record FilterAcademicTeamResponse
     (
-         string email="",
-        string username="",
+        string id="",
         string fullName = "",
-            string? imageUrl="",
             int provinceId=0,
             int districtId=0,
             int wardNumber = 0,
@@ -20,8 +18,8 @@ namespace ES.Staff.Application.Staff.Command.AddAcademicTeam
             string? address = "",
             DateTime createdAt=default,
             string modifiedBy = "",
-
-            DateTime modifiedAt=default,
+            string imageUrl = "",
+            DateTime modifiedAt= default,
             GenderStatus gender=default,
             string schoolId = "",
             bool isActive=true,

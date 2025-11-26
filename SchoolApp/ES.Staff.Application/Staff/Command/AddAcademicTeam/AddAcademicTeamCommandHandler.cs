@@ -55,7 +55,7 @@ namespace ES.Staff.Application.Staff.Command.AddAcademicTeam
                 {
                     return Result<AddAcademicTeamResponse>.Failure("Add AcademicTeam Failed");
                 }
-                var academicTeamDisplay = _mapper.Map<AddAcademicTeamResponse>(request);
+                var academicTeamDisplay = _mapper.Map<AddAcademicTeamResponse>(academicTeam.Data);
 
                 if (academicTeamDisplay is null)
                 {

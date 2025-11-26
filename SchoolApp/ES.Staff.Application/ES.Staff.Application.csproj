@@ -18,8 +18,4 @@
     <ProjectReference Include="..\TN.Shared.Domain\TN.Shared.Domain.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Staff\Queries\" />
-  </ItemGroup>
-
 </Project>

@@ -52,7 +52,7 @@ namespace TN.Shared.Infrastructure.Repository
             }
         }
 
-        public async Task<(DateTime StartUtc, DateTime EndUtc)> GetDateRangeUtc(string startDate, string endDate)
+        public async Task<(DateTime StartUtc, DateTime EndUtc)> GetDateRangeUtc(string? startDate, string? endDate)
         {
             DateTime startDateInDateTime;
             DateTime endDateInDateTime;

@@ -14,9 +14,15 @@ namespace ES.Staff.Application.Staff.Command.AddAcademicTeam.RequestCommandMappe
                 addAcademicTeamRequest.email,
                 addAcademicTeamRequest.username,
                 addAcademicTeamRequest.password,
-                addAcademicTeamRequest.firstName,
-                addAcademicTeamRequest.lastName,
+                addAcademicTeamRequest.fullName,
+                addAcademicTeamRequest.teacherImg,
+                addAcademicTeamRequest.provinceId,
+                addAcademicTeamRequest.districtId,
+                addAcademicTeamRequest.wardNumber,
                 addAcademicTeamRequest.address,
+                addAcademicTeamRequest.gender,
+                addAcademicTeamRequest.vdcid,
+                addAcademicTeamRequest.municipalityId,
                 addAcademicTeamRequest.rolesId
                 );
         }

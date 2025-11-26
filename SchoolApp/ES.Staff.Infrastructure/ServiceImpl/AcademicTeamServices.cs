@@ -3,6 +3,7 @@ using ES.Staff.Application.ServiceInterface;
 using ES.Staff.Application.Staff.Command.AddAcademicTeam;
 using ES.Staff.Application.Staff.Command.AssignClassToAcademicTeam;
 using ES.Staff.Application.Staff.Command.UnAssignedClassToAcademicTeam;
+using ES.Staff.Application.Staff.Queries.FilterAcademicTeam;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
@@ -17,9 +18,13 @@ using TN.Authentication.Application.Authentication.Commands.AddUser;
 using TN.Authentication.Application.ServiceInterface;
 using TN.Authentication.Domain.Entities;
 using TN.Shared.Application.ServiceInterface;
+using TN.Shared.Application.ServiceInterface.IHelperServices;
 using TN.Shared.Domain.Abstractions;
 using TN.Shared.Domain.Entities.Academics;
+using TN.Shared.Domain.Entities.OrganizationSetUp;
 using TN.Shared.Domain.Entities.Staff;
+using TN.Shared.Domain.Entities.Students;
+using TN.Shared.Domain.ExtensionMethod.Pagination;
 using TN.Shared.Domain.ICryptography;
 using TN.Shared.Domain.IRepository;
 
@@ -38,6 +43,10 @@ namespace ES.Staff.Infrastructure.ServiceImpl
         private readonly ITokenService _tokenService;
         private readonly IDateConvertHelper _dateConvertHelper;
         private readonly IFiscalYearService _fiscalYearService;
+        private readonly IimageServices _imageServices;
+        private readonly IGetUserScopedData _getUserScopedData;
+        private readonly FiscalContext _fiscalContext;
+        private readonly IDateConvertHelper _dateConverter;
 
         public AcademicTeamServices(ICryptography cryptography,
             UserManager<ApplicationUser> userManager,
@@ -45,11 +54,15 @@ namespace ES.Staff.Infrastructure.ServiceImpl
             IAuthenticationServices authenticationServices,
             IConfiguration configuration,
             IUnitOfWork unitOfWork,
+            IGetUserScopedData getUserScopedData,
             IMapper mapper,
             IJwtProviders jwtProviders,
-            ITokenService tokenService,
             IDateConvertHelper dateConvertHelper,
-            IFiscalYearService fiscalYearService
+            ITokenService tokenService,
+            IFiscalYearService fiscalYearService,
+            IimageServices iimageServices,
+            FiscalContext fiscalContext
+
 
 
             )
@@ -58,6 +71,7 @@ namespace ES.Staff.Infrastructure.ServiceImpl
             _userManager = userManager;
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _dateConverter = dateConvertHelper;
             _ijwtProviders = jwtProviders;
             _configuration = configuration;
             _contextAccessor = contextAccessor;
@@ -65,6 +79,9 @@ namespace ES.Staff.Infrastructure.ServiceImpl
             _dateConvertHelper = dateConvertHelper;
             _fiscalYearService = fiscalYearService;
             _authenticationServices = authenticationServices;
+            _imageServices = iimageServices;
+            _getUserScopedData = getUserScopedData;
+            _fiscalContext = fiscalContext;
 
 
 
@@ -77,8 +94,14 @@ namespace ES.Staff.Infrastructure.ServiceImpl
                 {
 
                     string newId = Guid.NewGuid().ToString();
-
+                    var userId = _tokenService.GetUserId();
                     var schoolId = _tokenService.SchoolId().FirstOrDefault();
+
+                    string imageURL = await _imageServices.AddSingle(addAcademicTeamCommand.teacherImg);
+                    if (imageURL is null)
+                    {
+                        return Result<AddAcademicTeamResponse>.Failure("Image Url are not Created");
+                    }
 
                     var emailExists = await _authenticationServices.FindByEmailAsync(addAcademicTeamCommand.email);
                     if (emailExists is not null)
@@ -91,6 +114,14 @@ namespace ES.Staff.Infrastructure.ServiceImpl
                     {
                         return Result<AddAcademicTeamResponse>.Failure("Conflict", "User Already Exists");
                     }
+
+                    var nullableMunicipalityId = addAcademicTeamCommand.municipalityId <= 0
+                         ? null
+                         : addAcademicTeamCommand.municipalityId;
+
+                    var nullablevdcId = addAcademicTeamCommand.vdcid <= 0
+                        ? null
+                        : addAcademicTeamCommand.vdcid;
 
 
 
@@ -136,10 +167,22 @@ namespace ES.Staff.Infrastructure.ServiceImpl
                     var academicTeam = new AcademicTeam
                     {
                         Id = Guid.NewGuid().ToString(),
+                        FullName = addAcademicTeamCommand.fullName,
+                        ImageUrl = imageURL,
+                        ProvinceId= addAcademicTeamCommand.provinceId,
+                        DistrictId = addAcademicTeamCommand.districtId,
+                        WardNumber = addAcademicTeamCommand.wardNumber,
+                        CreatedBy = userId,
+                        Address = addAcademicTeamCommand.address,
+                        CreatedAt = DateTime.UtcNow,
+                        ModifiedBy = "",
+                        ModifiedAt = default,
+                        Gender = addAcademicTeamCommand.gender,
+                        SchoolId = schoolId,
                         IsActive = true,
-                        ImageUrl = "",
-                        UserId = user.Id,
-                        User = user
+                        VdcId = nullablevdcId,
+                        MunicipalityId = nullableMunicipalityId,
+                        UserId = user.Id
                     };
                     await _unitOfWork.BaseRepository<AcademicTeam>().AddAsync(academicTeam);
 
@@ -147,12 +190,25 @@ namespace ES.Staff.Infrastructure.ServiceImpl
                     scope.Complete();
 
                     var avademicTeamResponse = new AddAcademicTeamResponse
-                        (user.Email,
+                        (
+                        user.Email,
                         user.UserName,
-                        user.FirstName,
-                        user.LastName,
-                        user.Address,
-                        addAcademicTeamCommand.rolesId
+                        addAcademicTeamCommand.fullName,
+                        imageURL,
+                       addAcademicTeamCommand.provinceId,
+                        addAcademicTeamCommand.districtId,
+                        addAcademicTeamCommand.wardNumber,
+                        userId,
+                        addAcademicTeamCommand.address,
+                        DateTime.UtcNow,
+                        "",
+                        default,
+                        addAcademicTeamCommand.gender,
+                        schoolId,
+                        true,
+                        addAcademicTeamCommand.vdcid,
+                        addAcademicTeamCommand.municipalityId
+
                         );
 
                     return Result<AddAcademicTeamResponse>.Success(avademicTeamResponse);
@@ -204,6 +260,106 @@ namespace ES.Staff.Infrastructure.ServiceImpl
                     scope.Dispose();
                     throw new Exception("An error occurred while assigning class to academic");
                 }
+            }
+        }
+
+        public async Task<Result<PagedResult<FilterAcademicTeamResponse>>> GetFilterAcademicTeam(PaginationRequest paginationRequest, FilterAcademicTeamDTOs filterAcademicTeamDTOs)
+        {
+            try
+            {
+                var fyId = _fiscalContext.CurrentFiscalYearId;
+                var userId = _tokenService.GetUserId();
+
+                var (students, schoolId, institutionId, userRole, isSuperAdmin) = await _getUserScopedData.GetUserScopedData<AcademicTeam>();
+
+                var schoolIds = await _unitOfWork.BaseRepository<School>()
+                    .GetConditionalFilterType(
+                        x => x.InstitutionId == institutionId,
+                        query => query.Select(c => c.Id)
+                    );
+
+                var filterStudentsData = isSuperAdmin
+                    ? students
+                    : students.Where(x => x.SchoolId == _tokenService.SchoolId().FirstOrDefault() || x.SchoolId == "");
+
+                var (startUtc, endUtc) = await _dateConverter.GetDateRangeUtc(filterAcademicTeamDTOs.startDate, filterAcademicTeamDTOs.endDate);
+
+                var filteredResult = filterStudentsData
+                 .Where(x =>
+                       (string.IsNullOrEmpty(filterAcademicTeamDTOs.fullName) || x.FullName == filterAcademicTeamDTOs.fullName) &&
+                     x.CreatedAt >= startUtc &&
+                         x.CreatedAt <= endUtc &&
+                         x.IsActive
+                 )
+                 .OrderByDescending(x => x.CreatedAt) // newest first
+                 .ToList();
+
+
+
+
+                var responseList = filteredResult
+                .OrderByDescending(x => x.CreatedAt)
+                .Select(i => new FilterAcademicTeamResponse(
+                    i.Id,
+                    i.FullName,
+                    i.ProvinceId,
+                    i.DistrictId,
+                    i.WardNumber,
+                    i.CreatedBy,
+                    i.Address,
+                    i.CreatedAt,
+                    i.ModifiedBy,
+                    i.ImageUrl,
+                    i.ModifiedAt,
+                    i.Gender,
+                    i.SchoolId,
+                    i.IsActive,
+                    i.VdcId,
+                    i.MunicipalityId
+
+
+                ))
+                .ToList();
+
+                PagedResult<FilterAcademicTeamResponse> finalResponseList;
+
+                if (paginationRequest.IsPagination)
+                {
+
+                    int pageIndex = paginationRequest.pageIndex <= 0 ? 1 : paginationRequest.pageIndex;
+                    int pageSize = paginationRequest.pageSize <= 0 ? 10 : paginationRequest.pageSize;
+
+                    int totalItems = responseList.Count();
+
+                    var pagedItems = responseList
+                        .Skip((pageIndex - 1) * pageSize)
+                        .Take(pageSize)
+                        .ToList();
+
+                    finalResponseList = new PagedResult<FilterAcademicTeamResponse>
+                    {
+                        Items = pagedItems,
+                        TotalItems = totalItems,
+                        PageIndex = pageIndex,
+                        pageSize = pageSize
+                    };
+                }
+                else
+                {
+                    finalResponseList = new PagedResult<FilterAcademicTeamResponse>
+                    {
+                        Items = responseList.ToList(),
+                        TotalItems = responseList.Count(),
+                        PageIndex = 1,
+                        pageSize = responseList.Count()
+                    };
+                }
+                return Result<PagedResult<FilterAcademicTeamResponse>>.Success(finalResponseList);
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"An error occurred while fetching Filter Students: {ex.Message}", ex);
             }
         }
 
