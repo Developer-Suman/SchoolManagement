@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using ES.Staff.Application.ServiceInterface;
 using ES.Staff.Application.Staff.Command.AddAcademicTeam;
+using ES.Staff.Application.Staff.Command.AssignClassToAcademicTeam;
+using ES.Staff.Application.Staff.Command.UnAssignedClassToAcademicTeam;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
@@ -16,6 +18,7 @@ using TN.Authentication.Application.ServiceInterface;
 using TN.Authentication.Domain.Entities;
 using TN.Shared.Application.ServiceInterface;
 using TN.Shared.Domain.Abstractions;
+using TN.Shared.Domain.Entities.Academics;
 using TN.Shared.Domain.Entities.Staff;
 using TN.Shared.Domain.ICryptography;
 using TN.Shared.Domain.IRepository;
@@ -125,12 +128,6 @@ namespace ES.Staff.Infrastructure.ServiceImpl
                     }
 
 
-
-
-
-
-
-
                     await _unitOfWork.BaseRepository<ApplicationUser>().AddAsync(user);
 
                     var result = await _authenticationServices.CreateUserAsync(user, addAcademicTeamCommand.password);
@@ -167,6 +164,84 @@ namespace ES.Staff.Infrastructure.ServiceImpl
 
                 }
 
+            }
+        }
+
+        public async Task<Result<AssignClassResponse>> AssignClass(AssignClassCommand assignClassCommand)
+        {
+            using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            {
+                try
+                {
+                    var alreadyAssigned = await _unitOfWork.BaseRepository<AcademicTeamClass>()
+                            .AnyAsync(x => x.AcademicTeamId == assignClassCommand.AcademicTeamId && x.ClassId == assignClassCommand.ClassesId);
+
+                    if (alreadyAssigned)
+                    {
+                        return Result<AssignClassResponse>.Failure("AlreadyAssigned", "This team is already assigned to the class.");
+
+                    }
+
+                    var record = new AcademicTeamClass(Guid.NewGuid().ToString(), assignClassCommand.AcademicTeamId, assignClassCommand.ClassesId);
+                    await _unitOfWork.BaseRepository<AcademicTeamClass>().AddAsync(record);
+                    await _unitOfWork.SaveChangesAsync();
+                    scope.Complete();
+
+                    var academicTeamResponse = new AssignClassResponse
+                    (
+                        record.AcademicTeamId,
+                        record.ClassId
+        
+                    );
+
+
+                    return Result<AssignClassResponse>.Success(academicTeamResponse);
+
+
+                }
+                catch (Exception ex)
+                {
+                    scope.Dispose();
+                    throw new Exception("An error occurred while assigning class to academic");
+                }
+            }
+        }
+
+        public async Task<Result<UnAssignClassResponse>> UnAssignClass(UnAssignClassCommand unAssignClassCommand)
+        {
+            using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            {
+                try
+                {
+                    var record = await _unitOfWork.BaseRepository<AcademicTeamClass>()
+                            .FirstOrDefaultAsync(x => x.AcademicTeamId == unAssignClassCommand.AcademicTeamId && x.ClassId == unAssignClassCommand.ClassesId);
+
+                    if (record == null)
+                    {
+                        return Result<UnAssignClassResponse>.Failure("NotFound", "Team is not assigned to this class.");
+                    }
+
+                    _unitOfWork.BaseRepository<AcademicTeamClass>().Delete(record);
+                    await _unitOfWork.SaveChangesAsync();
+                    scope.Complete();
+
+                    var academicTeamResponse = new UnAssignClassResponse
+                    (
+                        record.AcademicTeamId,
+                        record.ClassId
+
+                    );
+
+
+                    return Result<UnAssignClassResponse>.Success(academicTeamResponse);
+
+
+                }
+                catch (Exception ex)
+                {
+                    scope.Dispose();
+                    throw new Exception("An error occurred while assigning class to academic");
+                }
             }
         }
     }

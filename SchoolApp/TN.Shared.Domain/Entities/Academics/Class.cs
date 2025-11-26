@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TN.Shared.Domain.Entities.FeeAndAccounting;
+using TN.Shared.Domain.Entities.Staff;
 using TN.Shared.Domain.Entities.Students;
 using TN.Shared.Domain.Primitive;
 
@@ -42,6 +43,7 @@ namespace TN.Shared.Domain.Entities.Academics
             Subjects = new List<Subject>();
             ClassSections = new List<ClassSection>();
             Students = new List<StudentData>();
+            AcademicTeamClasses = new List<AcademicTeamClass>();
         }
 
         public string Name { get; set; }
@@ -57,5 +59,6 @@ namespace TN.Shared.Domain.Entities.Academics
         public ICollection<Subject> Subjects { get; set; }
         public ICollection<ClassSection> ClassSections { get; set; }
         public ICollection<StudentData> Students { get; set; }
+        public ICollection<AcademicTeamClass> AcademicTeamClasses { get; set; }
     }
 }

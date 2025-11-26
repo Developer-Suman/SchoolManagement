@@ -1,4 +1,6 @@
 ﻿using ES.Staff.Application.Staff.Command.AddAcademicTeam;
+using ES.Staff.Application.Staff.Command.AssignClassToAcademicTeam;
+using ES.Staff.Application.Staff.Command.UnAssignedClassToAcademicTeam;
 using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,6 +21,8 @@ namespace ES.Staff.Application
 
             //Fluent Validation
             services.AddScoped<IValidator<AddAcademicTeamCommand>, AddAcademicTeamCommandValidator>();
+            services.AddScoped<IValidator<AssignClassCommand>, AssignClassCommandValidator>();
+            services.AddScoped<IValidator<UnAssignClassCommand>, UnAssignClassCommandValidator>();
             return services;
         }
     }

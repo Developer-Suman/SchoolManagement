@@ -1,11 +1,18 @@
-﻿using ES.Staff.Application.Staff.Command.AddAcademicTeam;
+﻿using ES.Academics.Application.Academics.Queries.FilterExamResult;
+using ES.Staff.Application.Staff.Command.AddAcademicTeam;
 using ES.Staff.Application.Staff.Command.AddAcademicTeam.RequestCommandMapper;
+using ES.Staff.Application.Staff.Command.AssignClassToAcademicTeam;
+using ES.Staff.Application.Staff.Command.AssignClassToAcademicTeam.RequestCommandMapper;
+using ES.Staff.Application.Staff.Command.UnAssignedClassToAcademicTeam;
+using ES.Staff.Application.Staff.Command.UnAssignedClassToAcademicTeam.RequestCommandMapper;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
 using TN.Authentication.Domain.Entities;
 using TN.Setup.Application.Setup.Command.AddInstitution;
+using TN.Shared.Domain.ExtensionMethod.Pagination;
 using TN.Web.BaseControllers;
 using TN.Web.Controllers.Setup.v1;
 
@@ -23,6 +30,53 @@ namespace TN.Web.Controllers.Staff.v1
             _mediator = mediator;
 
         }
+
+        #region AssignAndUnAssignedClass
+
+        #region UnAssignClass
+        [HttpPost("UnAssignClass")]
+        public async Task<IActionResult> UnAssignClass([FromBody] UnAssignClassRequest request)
+        {
+            var command = request.ToCommand();
+            var UnAssignClass = await _mediator.Send(command);
+            #region Switch Statement
+            return UnAssignClass switch
+            {
+                { IsSuccess: true, Data: not null } => CreatedAtAction(nameof(UnAssignClass), UnAssignClass.Data),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = UnAssignClass.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(UnAssignClass.Errors),
+                _ => BadRequest("Invalid Fields for UnAssigned to Class")
+            };
+
+            #endregion
+
+        }
+
+        #endregion
+
+
+        #region AssignClass
+        [HttpPost("AssignClass")]
+        public async Task<IActionResult> AssignClass([FromBody] AssignClassRequest request)
+        {
+            var command = request.ToCommand();
+            var assignClass = await _mediator.Send(command);
+            #region Switch Statement
+            return assignClass switch
+            {
+                { IsSuccess: true, Data: not null } => CreatedAtAction(nameof(AssignClass), assignClass.Data),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = assignClass.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(assignClass.Errors),
+                _ => BadRequest("Invalid Fields for Add AcademicTeam")
+            };
+
+            #endregion
+
+        }
+
+        #endregion
+
+        #endregion
 
         #region AcademicTeam
         #region AddAcademicTeam

@@ -223,8 +223,21 @@ namespace TN.Shared.Infrastructure.Data
             #region Staff
 
             #region AcademicTeam and Class(m:m)
+
+
             builder.Entity<AcademicTeamClass>()
              .HasKey(tc => new { tc.AcademicTeamId, tc.ClassId });
+
+            builder.Entity<AcademicTeamClass>()
+            .HasOne(atc => atc.AcademicTeam)
+            .WithMany(at => at.AcademicTeamClasses)
+            .HasForeignKey(atc => atc.AcademicTeamId);
+
+            builder.Entity<AcademicTeamClass>()
+                .HasOne(atc => atc.Classes)
+                .WithMany(c => c.AcademicTeamClasses)
+                .HasForeignKey(atc => atc.ClassId);
+
             #endregion
 
 
