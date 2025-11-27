@@ -4,20 +4,19 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TN.Shared.Domain.Entities.Staff;
-using TN.Shared.Domain.Entities.Students;
 using TN.Shared.Domain.Primitive;
 
-namespace TN.Shared.Domain.Entities.Attendances
+namespace TN.Shared.Domain.Entities.Students
 {
-    public class StudentAttendance: Entity
+    public class StudentAttendances : Entity
     {
-        public StudentAttendance(
-            ): base(null)
+        public StudentAttendances(
+            ) : base(null)
         {
-            
+
         }
 
-        public StudentAttendance(
+        public StudentAttendances(
             string id,
             string studentId,
             DateTime attendanceDate,
@@ -27,7 +26,9 @@ namespace TN.Shared.Domain.Entities.Attendances
             string createdBy,
             DateTime createdAt,
             string modifiedBy,
-            DateTime modifiedAt
+            DateTime modifiedAt,
+            string schoolId,
+            bool isActive
             ) : base(id)
         {
             StudentId = studentId;
@@ -39,8 +40,13 @@ namespace TN.Shared.Domain.Entities.Attendances
             CreatedAt = createdAt;
             ModifiedBy = modifiedBy;
             ModifiedAt = modifiedAt;
+            SchoolId = schoolId;
+            IsActive = isActive;
 
         }
+
+        public string SchoolId { get; set; }
+        public bool IsActive { get; set; }
         public string StudentId { get; set; }
 
         public StudentData Student { get; set; }

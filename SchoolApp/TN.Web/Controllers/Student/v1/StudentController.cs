@@ -1,4 +1,6 @@
 ﻿using ES.Academics.Application.Academics.Queries.FilterSubject;
+using ES.Student.Application.Student.Command.AddAttendances;
+using ES.Student.Application.Student.Command.AddAttendances.RequestCommandMapper;
 using ES.Student.Application.Student.Command.AddParent;
 using ES.Student.Application.Student.Command.AddParent.ReqeustCommandMapper;
 using ES.Student.Application.Student.Command.AddStudents;
@@ -9,6 +11,7 @@ using ES.Student.Application.Student.Command.UpdateParent;
 using ES.Student.Application.Student.Command.UpdateParent.RequestCommandMapper;
 using ES.Student.Application.Student.Command.UpdateStudents;
 using ES.Student.Application.Student.Command.UpdateStudents.RequestCommandMapper;
+using ES.Student.Application.Student.Queries.FilterAttendances;
 using ES.Student.Application.Student.Queries.FilterParents;
 using ES.Student.Application.Student.Queries.FilterStudents;
 using ES.Student.Application.Student.Queries.GetAllParent;
@@ -43,6 +46,55 @@ namespace TN.Web.Controllers.Student.v1
             _mediator = mediator;
             _logger = logger;
         }
+
+        #region Attendance
+
+        #region AddStudentAttendence
+        [HttpPost("AddStudentAttendence")]
+
+        public async Task<IActionResult> AddStudentAttendence([FromBody] AddAttendanceRequest request)
+        {
+
+            var command = request.ToCommand();
+            var addStudentAttendanceResult = await _mediator.Send(command);
+            #region Switch Statement
+            return addStudentAttendanceResult switch
+            {
+                { IsSuccess: true, Data: not null } => CreatedAtAction(nameof(AddStudentAttendence), addStudentAttendanceResult.Data),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { addStudentAttendanceResult.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(addStudentAttendanceResult.Errors),
+                _ => BadRequest("Invalid Fields for AddStudentAttendance ")
+
+            };
+
+            #endregion
+        }
+        #endregion
+
+
+        #region FilterStudentsAttendance
+        [HttpGet("FilterStudentsAttendance")]
+        public async Task<IActionResult> GetFilterStudentsAttendance([FromQuery] FilterAttendanceDTOs filterAttendanceDTOs, [FromQuery] PaginationRequest paginationRequest)
+        {
+            var query = new FilterAttendanceQuery(paginationRequest, filterAttendanceDTOs);
+            var filterAttendanceStudentResult = await _mediator.Send(query);
+            #region Switch Statement
+            return filterAttendanceStudentResult switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(filterAttendanceStudentResult.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = filterAttendanceStudentResult.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(filterAttendanceStudentResult.Errors),
+                _ => BadRequest("Invalid page and pageSize Fields")
+            };
+            #endregion
+
+        }
+
+        #endregion
+        #endregion
 
         #region Student  
 

@@ -11,7 +11,6 @@ using TN.Sales.Domain.Entities;
 using TN.Setup.Domain.Entities;
 using TN.Shared.Domain.Entities.Academics;
 using TN.Shared.Domain.Entities.Account;
-using TN.Shared.Domain.Entities.Attendances;
 using TN.Shared.Domain.Entities.AuditLogs;
 using TN.Shared.Domain.Entities.Certificates;
 using TN.Shared.Domain.Entities.FeeAndAccounting;
@@ -83,7 +82,7 @@ namespace TN.Shared.Infrastructure.Data
 
 
         #region Attandence
-        public DbSet<StudentAttendance> StudentAttendances { get; set; }
+        public DbSet<StudentAttendances> StudentAttendances { get; set; }
 
         #endregion
 
