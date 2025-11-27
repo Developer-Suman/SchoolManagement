@@ -5,7 +5,6 @@ using System.Text;
 using System.Threading.Tasks;
 using TN.Authentication.Domain.Entities;
 using TN.Shared.Domain.Entities.Academics;
-using TN.Shared.Domain.Entities.Attendances;
 using TN.Shared.Domain.Entities.Certificates;
 using TN.Shared.Domain.Entities.FeeAndAccounting;
 using TN.Shared.Domain.Primitive;
@@ -81,7 +80,7 @@ namespace TN.Shared.Domain.Entities.Students
             ClassId = classId;
             MunicipalityId = municipalityId;
             StudentFees = new List<StudentFee>();
-            StudentAttendances = new List<StudentAttendance>();
+            StudentAttendances = new List<StudentAttendances>();
             ExamResults = new List<ExamResult>();
             IssuedCertificates = new List<IssuedCertificate>();
 
@@ -134,7 +133,7 @@ namespace TN.Shared.Domain.Entities.Students
         public string ModifiedBy { get; set; }
         public DateTime ModifiedAt { get; set; } = DateTime.Now;
         public ICollection<StudentFee> StudentFees { get; set; }
-        public ICollection<StudentAttendance> StudentAttendances { get; set; }
+        public ICollection<StudentAttendances> StudentAttendances { get; set; }
         public ICollection<ExamResult> ExamResults { get; set; }
         public ICollection<IssuedCertificate> IssuedCertificates { get; set; }
 

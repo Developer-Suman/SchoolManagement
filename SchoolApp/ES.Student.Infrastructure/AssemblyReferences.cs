@@ -24,6 +24,11 @@ namespace ES.Student.Infrastructure
             .AsImplementedInterfaces()
             .WithScopedLifetime());
 
+            services.Scan(scan => scan.FromAssembliesOf(typeof(AttendanceServices))
+            .AddClasses(c => c.Where(t => t.Name.EndsWith("Services")))
+            .AsImplementedInterfaces()
+            .WithScopedLifetime());
+
             #endregion
 
             return services;

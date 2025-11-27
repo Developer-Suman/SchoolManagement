@@ -5,7 +5,6 @@ using System.Text;
 using System.Threading.Tasks;
 using TN.Authentication.Domain.Entities;
 using TN.Shared.Domain.Entities.Academics;
-using TN.Shared.Domain.Entities.Attendances;
 using TN.Shared.Domain.Entities.Students;
 using TN.Shared.Domain.Primitive;
 
@@ -60,7 +59,7 @@ namespace TN.Shared.Domain.Entities.Staff
             Gender = gender;
             FullName = fullName;
             UserId = userId;
-            StudentAttendances = new List<StudentAttendance>();
+            StudentAttendances = new List<StudentAttendances>();
             ClassSection = new List<ClassSection>();
             AcademicTeamClasses = new List<AcademicTeamClass>();
 
@@ -93,7 +92,7 @@ namespace TN.Shared.Domain.Entities.Staff
 
 
 
-        public ICollection<StudentAttendance> StudentAttendances { get; set; }
+        public ICollection<StudentAttendances> StudentAttendances { get; set; }
         public ICollection<ClassSection> ClassSection { get; set; }
 
         public string UserId { get; set; }
