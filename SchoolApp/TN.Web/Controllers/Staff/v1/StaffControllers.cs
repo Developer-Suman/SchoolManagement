@@ -5,8 +5,10 @@ using ES.Staff.Application.Staff.Command.AssignClassToAcademicTeam;
 using ES.Staff.Application.Staff.Command.AssignClassToAcademicTeam.RequestCommandMapper;
 using ES.Staff.Application.Staff.Command.UnAssignedClassToAcademicTeam;
 using ES.Staff.Application.Staff.Command.UnAssignedClassToAcademicTeam.RequestCommandMapper;
+using ES.Staff.Application.Staff.Queries.AcademicTeam;
 using ES.Staff.Application.Staff.Queries.FilterAcademicTeam;
 using ES.Student.Application.Student.Queries.FilterStudents;
+using ES.Student.Application.Student.Queries.GetAllStudents;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -81,6 +83,30 @@ namespace TN.Web.Controllers.Staff.v1
         #endregion
 
         #region AcademicTeam
+
+        #region AllAcademicTeams
+        [HttpGet("all-AcademicTeam")]
+        public async Task<IActionResult> AcademicTeams([FromQuery] PaginationRequest paginationRequest)
+        {
+            var query = new AcademicTeamQuery(paginationRequest);
+            var result = await _mediator.Send(query);
+            #region Switch Statement
+            return result switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(result.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { result.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(result.Errors),
+                _ => BadRequest("Invalid page and pageSize Fields")
+            };
+            #endregion
+
+        }
+
+
+        #endregion
 
         #region FilterStudents
         [HttpGet("FilterAcademicTeam")]

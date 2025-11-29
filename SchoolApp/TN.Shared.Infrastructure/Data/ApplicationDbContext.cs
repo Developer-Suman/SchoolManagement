@@ -62,6 +62,9 @@ namespace TN.Shared.Infrastructure.Data
         #endregion
 
         #region Academics
+        public DbSet<SeatAssignment> SeatAssignments { get; set; }
+        public DbSet<ExamSession> ExamSessions { get; set; }
+        public DbSet<ExamHall> ExamHalls { get; set; }
         public DbSet<Class> Classes { get; set; }
         public DbSet<Section> Sections { get; set; }
         public DbSet<MarksObtained> MarksObtaineds { get; set; }
@@ -398,6 +401,46 @@ namespace TN.Shared.Infrastructure.Data
             #endregion
 
             #region Academics
+
+            #region StudentData and SeatAssignments(1:m)
+            builder.Entity<StudentData>()
+               .HasMany(p => p.SeatAssignments)
+               .WithOne(p => p.StudentData)
+               .HasForeignKey(p => p.StudentId)
+               .OnDelete(DeleteBehavior.Restrict);
+            #endregion
+
+            #region ExamHall and SeatAssignments(1:m)
+            builder.Entity<ExamHall>()
+               .HasMany(p => p.SeatAssignments)
+               .WithOne(p => p.ExamHall)
+               .HasForeignKey(p => p.ExamHallId)
+               .OnDelete(DeleteBehavior.Restrict);
+            #endregion
+
+            #region ExamSession and SeatAssignments(1:m)
+            builder.Entity<ExamSession>()
+               .HasMany(p => p.SeatAssignments)
+               .WithOne(p => p.ExamSession)
+               .HasForeignKey(p => p.ExamSessionId)
+               .OnDelete(DeleteBehavior.Restrict);
+            #endregion
+
+
+
+
+
+
+
+            #region ExamSession and ExamHall(1:m)
+            builder.Entity<ExamSession>()
+               .HasMany(p => p.ExamHalls)
+               .WithOne(p => p.ExamSession)
+               .HasForeignKey(p => p.ExamSessionId)
+               .OnDelete(DeleteBehavior.Restrict);
+            #endregion
+
+
             #region FiscalYear and ClassSection(1:m)
             builder.Entity<FiscalYears>()
                .HasMany(p => p.ClassSections)

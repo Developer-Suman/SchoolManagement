@@ -18,6 +18,7 @@ namespace ES.Academics.Infrastructure
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
             #region Inject Dependencies
+            services.AddScoped<ISeatPlanningServices, SeatPlanningServices>();
             services.AddScoped<ISchoolClassInterface, SchoolClassServices>();
             services.AddScoped<IExamServices, ExamServices>();
             services.AddScoped<IExamResultServices, ExamResultServices>();

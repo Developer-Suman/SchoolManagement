@@ -11,8 +11,8 @@ namespace ES.Student.Application.Student.Command.AddStudents
     {
         public AddStudentsCommandValidator()
         {
-            RuleFor(x => x.firstName)
-               .NotEmpty().WithMessage("First name is required.");
+            //RuleFor(x => x.firstName)
+            //   .NotEmpty().WithMessage("First name is required.");
         }
     }
 }

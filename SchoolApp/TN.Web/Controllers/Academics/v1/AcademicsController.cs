@@ -4,6 +4,8 @@ using ES.Academics.Application.Academics.Command.AddExamResult;
 using ES.Academics.Application.Academics.Command.AddExamResult.RequestCommandMapper;
 using ES.Academics.Application.Academics.Command.AddSchoolClass;
 using ES.Academics.Application.Academics.Command.AddSchoolClass.RequestCommandMapper;
+using ES.Academics.Application.Academics.Command.AddSeatPlanning;
+using ES.Academics.Application.Academics.Command.AddSeatPlanning.RequestCommandMapper;
 using ES.Academics.Application.Academics.Command.AddSubject;
 using ES.Academics.Application.Academics.Command.AddSubject.RequestCommandMapper;
 using ES.Academics.Application.Academics.Command.DeleteExam;
@@ -62,6 +64,29 @@ namespace TN.Web.Controllers.Academics.v1
             _authorizationService = authorizationService;
 
         }
+
+
+        #region GenerateSeatPlanning
+        [HttpPost("GenerateSeatPlanning")]
+
+        public async Task<IActionResult> GenerateSeatPlanning([FromBody] AddSeatPlanningRequest request)
+        {
+
+            var command = request.ToCommand();
+            var generateSeatPlanning = await _mediator.Send(command);
+            #region Switch Statement
+            return generateSeatPlanning switch
+            {
+                { IsSuccess: true, Data: not null } => CreatedAtAction(nameof(GenerateSeatPlanning), generateSeatPlanning.Data),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = generateSeatPlanning.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(generateSeatPlanning.Errors),
+                _ => BadRequest("Invalid Fields ")
+
+            };
+
+            #endregion
+        }
+        #endregion
 
         #region MarksSheet
 
@@ -225,10 +250,6 @@ namespace TN.Web.Controllers.Academics.v1
         #endregion
 
         #endregion
-
-
-
-
 
 
         #region ExamResult

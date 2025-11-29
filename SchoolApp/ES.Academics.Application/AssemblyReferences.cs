@@ -1,6 +1,7 @@
 ﻿using ES.Academics.Application.Academics.Command.AddExam;
 using ES.Academics.Application.Academics.Command.AddExamResult;
 using ES.Academics.Application.Academics.Command.AddSchoolClass;
+using ES.Academics.Application.Academics.Command.AddSeatPlanning;
 using ES.Academics.Application.Academics.Command.AddSubject;
 using ES.Academics.Application.Academics.Command.UpdateExam;
 using ES.Academics.Application.Academics.Command.UpdateExamResult;
@@ -19,6 +20,7 @@ namespace ES.Academics.Application
             
             
             //Fluent Validator
+            services.AddScoped<IValidator<AddSeatPlanningCommand>, AddSeatPlanningCommandValidator>();
             services.AddScoped<IValidator<AddSchoolClassCommand>, AddSchoolClassCommandValidator>();
             services.AddScoped<IValidator<UpdateSchoolClassCommand>, UpdateSchoolClassCommandValidator>();
             services.AddScoped<IValidator<AddExamCommand>, AddExamCommandValidator>();
