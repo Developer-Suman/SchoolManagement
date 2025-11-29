@@ -3,9 +3,11 @@ using ES.Staff.Application.ServiceInterface;
 using ES.Staff.Application.Staff.Command.AddAcademicTeam;
 using ES.Staff.Application.Staff.Command.AssignClassToAcademicTeam;
 using ES.Staff.Application.Staff.Command.UnAssignedClassToAcademicTeam;
+using ES.Staff.Application.Staff.Queries.AcademicTeam;
 using ES.Staff.Application.Staff.Queries.FilterAcademicTeam;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
@@ -260,6 +262,41 @@ namespace ES.Staff.Infrastructure.ServiceImpl
                     scope.Dispose();
                     throw new Exception("An error occurred while assigning class to academic");
                 }
+            }
+        }
+
+        public async Task<Result<PagedResult<AcademicTeamResponse>>> GetAllAcademicTeams(PaginationRequest paginationRequest, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+
+                var (academicTeams, currentSchoolId, institutionId, userRole, isSuperAdmin) =
+                    await _getUserScopedData.GetUserScopedData<AcademicTeam>();
+
+                var finalQuery = academicTeams.Where(x => x.IsActive == true).AsNoTracking();
+
+
+                var pagedResult = await finalQuery.ToPagedResultAsync(
+                    paginationRequest.pageIndex,
+                    paginationRequest.pageSize,
+                    paginationRequest.IsPagination);
+
+
+                var mappedItems = _mapper.Map<List<AcademicTeamResponse>>(pagedResult.Data.Items);
+
+                var response = new PagedResult<AcademicTeamResponse>
+                {
+                    Items = mappedItems,
+                    TotalItems = pagedResult.Data.TotalItems,
+                    PageIndex = pagedResult.Data.PageIndex,
+                    pageSize = pagedResult.Data.pageSize
+                };
+
+                return Result<PagedResult<AcademicTeamResponse>>.Success(response);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while fetching all Students", ex);
             }
         }
 

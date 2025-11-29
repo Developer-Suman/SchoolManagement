@@ -12,10 +12,10 @@ namespace ES.Student.Application.Student.Command.AddStudents
 {
     public record AddStudentsCommand
     (
-        string firstName,
+        string? firstName,
         string? middleName,
-        string lastName,
-        string registrationNumber,
+        string? lastName,
+        string? registrationNumber,
         GenderStatus genderStatus,
         StudentStatus studentStatus,
         DateTime dateOfBirth,
