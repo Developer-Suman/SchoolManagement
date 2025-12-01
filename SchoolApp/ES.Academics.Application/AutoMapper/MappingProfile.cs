@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using ES.Academics.Application.Academics.Command.AddExam;
 using ES.Academics.Application.Academics.Command.AddExamResult;
+using ES.Academics.Application.Academics.Command.AddExamSession;
 using ES.Academics.Application.Academics.Command.AddSchoolClass;
 using ES.Academics.Application.Academics.Command.AddSubject;
 using ES.Academics.Application.Academics.Command.DeleteExam;
@@ -14,6 +15,7 @@ using ES.Academics.Application.Academics.Queries.ExamResult;
 using ES.Academics.Application.Academics.Queries.ExamResultById;
 using ES.Academics.Application.Academics.Queries.FilterExam;
 using ES.Academics.Application.Academics.Queries.FilterExamResult;
+using ES.Academics.Application.Academics.Queries.FilterExamSession;
 using ES.Academics.Application.Academics.Queries.FilterSchoolClass;
 using ES.Academics.Application.Academics.Queries.FilterSubject;
 using ES.Academics.Application.Academics.Queries.SchoolClass;
@@ -40,6 +42,12 @@ namespace ES.Academics.Application.AutoMapper
     {
         public MappingProfile()
         {
+
+            #region ExamSession
+            CreateMap<ExamSession, AddExamSessionResponse>().ReverseMap();
+            CreateMap<FilterExamSessionResponse, ExamSession>().ReverseMap();
+            CreateMap<PagedResult<ExamSession>, PagedResult<FilterExamSessionResponse>>().ReverseMap();
+            #endregion
 
             #region SchoolClass
 
