@@ -30,7 +30,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CS.Certificate.Application\ES.Certificate.Application.csproj" />
     <ProjectReference Include="..\ES.Academics.Application\ES.Academics.Application.csproj" />
     <ProjectReference Include="..\ES.Academics.Infrastructure\ES.Academics.Infrastructure.csproj" />
     <ProjectReference Include="..\ES.Attendance.Application\ES.Attendance.Application.csproj" />

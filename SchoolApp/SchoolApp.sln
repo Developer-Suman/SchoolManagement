@@ -54,8 +54,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TN.Authentication.Applicati
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TN.Authentication.Infrastructure", "TN.Authentication.Infrastructure\TN.Authentication.Infrastructure.csproj", "{B7D353A1-E98B-4227-86EF-E35E384D8E04}"
 EndProject
-Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{8BAF1DC5-DC46-471E-861C-D44260D22B48}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Setup", "Setup", "{7203D038-BFD5-4567-AB29-BF1F5D9D1185}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "Core", "{EB8192AF-9010-45B3-A0A7-9DB339ED97F6}"
@@ -238,10 +236,6 @@ Global
 		{B7D353A1-E98B-4227-86EF-E35E384D8E04}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B7D353A1-E98B-4227-86EF-E35E384D8E04}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B7D353A1-E98B-4227-86EF-E35E384D8E04}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8BAF1DC5-DC46-471E-861C-D44260D22B48}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8BAF1DC5-DC46-471E-861C-D44260D22B48}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8BAF1DC5-DC46-471E-861C-D44260D22B48}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8BAF1DC5-DC46-471E-861C-D44260D22B48}.Release|Any CPU.Build.0 = Release|Any CPU
 		{BCECACC0-1B3E-496F-A5AC-78FF76C53E0C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{BCECACC0-1B3E-496F-A5AC-78FF76C53E0C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BCECACC0-1B3E-496F-A5AC-78FF76C53E0C}.Release|Any CPU.ActiveCfg = Release|Any CPU

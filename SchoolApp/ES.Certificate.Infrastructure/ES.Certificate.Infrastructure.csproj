@@ -7,7 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CS.Certificate.Application\ES.Certificate.Application.csproj" />
     <ProjectReference Include="..\ES.Certificate.Application\ES.Certificate.Application.csproj" />
     <ProjectReference Include="..\TN.Shared.Domain\TN.Shared.Domain.csproj" />
     <ProjectReference Include="..\TN.Shared.Infrastructure\TN.Shared.Infrastructure.csproj" />
