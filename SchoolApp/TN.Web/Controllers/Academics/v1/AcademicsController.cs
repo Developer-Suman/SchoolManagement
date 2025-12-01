@@ -2,6 +2,8 @@
 using ES.Academics.Application.Academics.Command.AddExam.RequestCommandMapper;
 using ES.Academics.Application.Academics.Command.AddExamResult;
 using ES.Academics.Application.Academics.Command.AddExamResult.RequestCommandMapper;
+using ES.Academics.Application.Academics.Command.AddExamSession;
+using ES.Academics.Application.Academics.Command.AddExamSession.RequestCommandMapper;
 using ES.Academics.Application.Academics.Command.AddSchoolClass;
 using ES.Academics.Application.Academics.Command.AddSchoolClass.RequestCommandMapper;
 using ES.Academics.Application.Academics.Command.AddSeatPlanning;
@@ -25,6 +27,7 @@ using ES.Academics.Application.Academics.Queries.ExamResult;
 using ES.Academics.Application.Academics.Queries.ExamResultById;
 using ES.Academics.Application.Academics.Queries.FilterExam;
 using ES.Academics.Application.Academics.Queries.FilterExamResult;
+using ES.Academics.Application.Academics.Queries.FilterExamSession;
 using ES.Academics.Application.Academics.Queries.FilterSchoolClass;
 using ES.Academics.Application.Academics.Queries.FilterSubject;
 using ES.Academics.Application.Academics.Queries.MarkSheetByStudent;
@@ -64,6 +67,57 @@ namespace TN.Web.Controllers.Academics.v1
             _authorizationService = authorizationService;
 
         }
+
+        #region ExamSession
+
+        #region FilterExamSession
+        [HttpGet("FilterExamSession")]
+        public async Task<IActionResult> GetFilterExamSession([FromQuery] FilterExamSessionDTOs filterExamSessionDTOs, [FromQuery] PaginationRequest paginationRequest)
+        {
+            var query = new FilterExamSessionQuery(paginationRequest, filterExamSessionDTOs);
+            var filterExamSessionResult = await _mediator.Send(query);
+            #region Switch Statement
+            return filterExamSessionResult switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(filterExamSessionResult.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = filterExamSessionResult.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(filterExamSessionResult.Errors),
+                _ => BadRequest("Invalid page and pageSize Fields")
+            };
+            #endregion
+
+        }
+
+        #endregion
+
+
+
+
+        #region AddExamSession
+        [HttpPost("AddExamSession")]
+
+        public async Task<IActionResult> AddExamSession([FromBody] AddExamSessionRequest request)
+        {
+            //Mapping command and request
+            var command = request.ToCommand();
+            var addExamSession = await _mediator.Send(command);
+            #region Switch Statement
+            return addExamSession switch
+            {
+                { IsSuccess: true, Data: not null } => CreatedAtAction(nameof(AddExamSession), addExamSession.Data),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = addExamSession.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(addExamSession.Errors),
+                _ => BadRequest("Invalid Fields ")
+
+            };
+
+            #endregion
+        }
+        #endregion
+        #endregion
 
 
         #region GenerateSeatPlanning
