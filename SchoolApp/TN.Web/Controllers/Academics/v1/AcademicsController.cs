@@ -21,6 +21,7 @@ using ES.Academics.Application.Academics.Command.UpdateSchoolClass;
 using ES.Academics.Application.Academics.Command.UpdateSchoolClass.RequestCommandMapper;
 using ES.Academics.Application.Academics.Command.UpdateSubject;
 using ES.Academics.Application.Academics.Command.UpdateSubject.RequestCommandMapper;
+using ES.Academics.Application.Academics.Queries.ClassByExamSession;
 using ES.Academics.Application.Academics.Queries.Exam;
 using ES.Academics.Application.Academics.Queries.ExamById;
 using ES.Academics.Application.Academics.Queries.ExamResult;
@@ -68,7 +69,32 @@ namespace TN.Web.Controllers.Academics.v1
 
         }
 
+
+
         #region ExamSession
+
+        #region ClassByExamSession
+        [HttpGet("ClassByExamSession")]
+        public async Task<IActionResult> GetFilterExamSession([FromQuery] string ExamSessionId, [FromQuery] PaginationRequest paginationRequest)
+        {
+            var query = new ClassByExamSessionQuery(paginationRequest, ExamSessionId);
+            var getClassByExamSession = await _mediator.Send(query);
+            #region Switch Statement
+            return getClassByExamSession switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(getClassByExamSession.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = getClassByExamSession.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(getClassByExamSession.Errors),
+                _ => BadRequest("Invalid page and pageSize Fields")
+            };
+            #endregion
+
+        }
+
+        #endregion
 
         #region FilterExamSession
         [HttpGet("FilterExamSession")]

@@ -12,6 +12,9 @@ namespace TN.Shared.Domain.IRepository
         
         Task<TEntity> GetByGuIdAsync(string guid); 
         Task<TEntity> GetById(int id);
+        IQueryable<TEntity> GetAsQueryable();
+
+
         Task<int> CountAsync(Expression<Func<TEntity, bool>> predicate);
         Task<bool> AnyAsync(Expression<Func<TEntity, bool>> filter);
         Task<TEntity> GetSingleAsync(Expression<Func<TEntity, bool>> predicate);

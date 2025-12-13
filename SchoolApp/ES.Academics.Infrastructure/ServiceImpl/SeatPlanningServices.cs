@@ -4,10 +4,13 @@ using ES.Academics.Application.Academics.Command.AddExamResult;
 using ES.Academics.Application.Academics.Command.AddExamSession;
 using ES.Academics.Application.Academics.Command.AddSeatPlanning;
 using ES.Academics.Application.Academics.Command.AddSubject;
+using ES.Academics.Application.Academics.Queries.ClassByExamSession;
+using ES.Academics.Application.Academics.Queries.Exam;
 using ES.Academics.Application.Academics.Queries.FilterExamSession;
 using ES.Academics.Application.Academics.Queries.FilterSubject;
 using ES.Academics.Application.ServiceInterface;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Logging;
 using System;
@@ -212,6 +215,73 @@ namespace ES.Academics.Infrastructure.ServiceImpl
             {
                 scope.Dispose();
                 throw new Exception("An error occurred while generating seat planning.", ex);
+            }
+        }
+
+        public async Task<Result<PagedResult<ClassByExamSessionResponse>>> GetClassByExamSession(PaginationRequest paginationRequest, string examSessionId)
+        {
+            try
+            {
+
+                var (seatAssignments, currentSchoolId, institutionId, userRole, isSuperAdmin) =
+                    await _getUserScopedData.GetUserScopedData<SeatAssignment>();
+
+                var seatAssignmentsDetails = seatAssignments.Where(x => x.ExamSessionId == examSessionId).AsNoTracking();
+
+                if (!seatAssignmentsDetails.Any())
+                    return Result<PagedResult<ClassByExamSessionResponse>>
+                        .Failure("No classes assigned for this exam session.");
+
+                var studentIds = seatAssignmentsDetails
+                    .Select(sa => sa.StudentId)
+                    .Distinct()
+                    .ToList();
+
+                var students = await _unitOfWork
+                    .BaseRepository<StudentData>()
+                    .GetConditionalAsync(s => studentIds.Contains(s.Id));
+
+                var classIds = students
+                   .Select(s => s.ClassId)
+                   .Distinct()
+                   .ToList();
+
+                var classQuery = _unitOfWork
+                    .BaseRepository<Class>()
+                    .GetAsQueryable()
+                    .Where(c => classIds.Contains(c.Id))
+                    .AsNoTracking();
+
+
+                var finalQuery = classQuery.AsQueryable().AsNoTracking();
+
+                var pagedResult = await finalQuery.ToPagedResultAsync(
+                      paginationRequest.pageIndex,
+                      paginationRequest.pageSize,
+                      paginationRequest.IsPagination);
+
+                var mappedItems = new List<ClassByExamSessionResponse>
+                    {
+                        new ClassByExamSessionResponse(
+                            examSessionId,
+                            pagedResult.Data.Items.Select(x => x.Id).ToList()
+                        )
+                    };
+
+
+                var response = new PagedResult<ClassByExamSessionResponse>
+                {
+                    Items = mappedItems,
+                    TotalItems = pagedResult.Data.TotalItems,
+                    PageIndex = pagedResult.Data.PageIndex,
+                    pageSize = pagedResult.Data.pageSize
+                };
+
+                return Result<PagedResult<ClassByExamSessionResponse>>.Success(response);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while fetching all Class", ex);
             }
         }
 

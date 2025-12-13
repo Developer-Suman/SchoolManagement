@@ -2,6 +2,7 @@
 using ES.Academics.Application.Academics.Command.AddSchoolClass;
 using ES.Academics.Application.Academics.Command.UpdateExam;
 using ES.Academics.Application.Academics.Command.UpdateSchoolClass;
+using ES.Academics.Application.Academics.Queries.ClassByExamSession;
 using ES.Academics.Application.Academics.Queries.Exam;
 using ES.Academics.Application.Academics.Queries.ExamById;
 using ES.Academics.Application.Academics.Queries.FilterExam;
@@ -22,6 +23,7 @@ namespace ES.Academics.Application.ServiceInterface
     {
         Task<Result<AddExamResponse>> Add(AddExamCommand addExamCommand);
         Task<Result<PagedResult<ExamQueryResponse>>> GetAllExam(PaginationRequest paginationRequest, CancellationToken cancellationToken = default);
+        
         Task<Result<ExamByIdQueryResponse>> GetExam(string examId, CancellationToken cancellationToken = default);
 
         Task<Result<UpdateExamResponse>> Update(string examId, UpdateExamCommand updateExamCommand);

@@ -3,6 +3,7 @@ using ES.Academics.Application.Academics.Command.AddExam;
 using ES.Academics.Application.Academics.Command.AddSchoolClass;
 using ES.Academics.Application.Academics.Command.UpdateExam;
 using ES.Academics.Application.Academics.Command.UpdateSchoolClass;
+using ES.Academics.Application.Academics.Queries.ClassByExamSession;
 using ES.Academics.Application.Academics.Queries.Exam;
 using ES.Academics.Application.Academics.Queries.ExamById;
 using ES.Academics.Application.Academics.Queries.FilterExam;
@@ -152,6 +153,8 @@ namespace ES.Academics.Infrastructure.ServiceImpl
             }
 
         }
+
+       
 
         public async Task<Result<ExamByIdQueryResponse>> GetExam(string examId, CancellationToken cancellationToken = default)
         {

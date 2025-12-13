@@ -76,6 +76,9 @@ namespace TN.Reports.Infrastructure.ServiceImpl
                                                .ThenInclude(j => j.JournalEntryDetails)
                     );
 
+
+           
+
                 var salesStatements = salesDetails
                     .SelectMany(s => s.JournalEntry?.JournalEntryDetails?
                         .Where(jd => !excludedLedgerIds.Contains(jd.LedgerId))
@@ -92,6 +95,11 @@ namespace TN.Reports.Infrastructure.ServiceImpl
                         )) ?? Enumerable.Empty<PartyStatementQueryResponse>())
 
                     .ToList();
+
+
+
+
+
 
 
 
@@ -118,50 +126,20 @@ namespace TN.Reports.Infrastructure.ServiceImpl
                 var (ledger, scopedSchoolId, institutionId, userRole, isSuperAdmin) =
                     await _getUserScopedData.GetUserScopedData<Ledger>();
 
-             
-                DateTime? startEnglishDate = null;
-                DateTime? endEnglishDate = null;
-
-                if (!string.IsNullOrWhiteSpace(partyStatementDto.startDate))
-                {
-                    startEnglishDate = await _dateConvertHelper.ConvertToEnglish(partyStatementDto.startDate);
-                    if (startEnglishDate.Value.TimeOfDay == TimeSpan.Zero)
-                        endEnglishDate = startEnglishDate.Value.AddDays(1);
-                }
-
-                if (!string.IsNullOrWhiteSpace(partyStatementDto.endDate))
-                {
-                    endEnglishDate = await _dateConvertHelper.ConvertToEnglish(partyStatementDto.endDate);
-                    if (endEnglishDate.Value.TimeOfDay == TimeSpan.Zero)
-                        endEnglishDate = endEnglishDate.Value.AddDays(1);
-                }
-
-                if (!startEnglishDate.HasValue && !endEnglishDate.HasValue)
-                {
-                    startEnglishDate = DateTime.UtcNow.Date;
-                    endEnglishDate = startEnglishDate.Value.AddDays(1);
-                }
-                else if (startEnglishDate.HasValue && !endEnglishDate.HasValue)
-                {
-                    endEnglishDate = startEnglishDate.Value.AddDays(1);
-                }
-                else if (!startEnglishDate.HasValue && endEnglishDate.HasValue)
-                {
-                    startEnglishDate = endEnglishDate.Value.AddDays(-1);
-                }
+                var (startUtc, endUtc) = await _dateConvertHelper.GetDateRangeUtc(partyStatementDto.startDate, partyStatementDto.endDate);
 
                 var excludedLedgerIds = new[]
                 {
-            "b5e7d3c9-4a6f-4d1e-92b0-7c2f8a9d6f3b",
-            "6c2f8a7d-3b4e-41d9-91f0-a5e7b6d3c9f2"
-        };
+                    "b5e7d3c9-4a6f-4d1e-92b0-7c2f8a9d6f3b",
+                    "6c2f8a7d-3b4e-41d9-91f0-a5e7b6d3c9f2"
+                };
 
            
                 var purchaseDetails = await _unitOfWork.BaseRepository<PurchaseDetails>()
                     .GetConditionalAsync(
                         x => x.LedgerId == partyStatementDto.partyId &&
-                             (startEnglishDate == null || x.CreatedAt >= startEnglishDate) &&
-                             (endEnglishDate == null || x.CreatedAt < endEnglishDate) &&
+                             (startUtc == null || x.CreatedAt >= startUtc) &&
+                             (endUtc == null || x.CreatedAt < endUtc) &&
                              !x.IsDeleted,
                         query => query.Include(p => p.JournalEntry)
                                       .ThenInclude(j => j.JournalEntryDetails)
@@ -189,8 +167,8 @@ namespace TN.Reports.Infrastructure.ServiceImpl
                 var salesDetails = await _unitOfWork.BaseRepository<SalesDetails>()
                     .GetConditionalAsync(
                         x => x.LedgerId == partyStatementDto.partyId &&
-                             (startEnglishDate == null || x.CreatedAt >= startEnglishDate) &&
-                             (endEnglishDate == null || x.CreatedAt < endEnglishDate),
+                             (startUtc == null || x.CreatedAt >= startUtc) &&
+                             (endUtc == null || x.CreatedAt < endUtc),
                         query => query.Include(s => s.JournalEntry)
                                       .ThenInclude(j => j.JournalEntryDetails)
                     );
@@ -212,11 +190,44 @@ namespace TN.Reports.Infrastructure.ServiceImpl
                             s.Id
                         )) ?? Enumerable.Empty<GetPartyStatementFilterResponse>());
 
-            
+
+
+                var journalDetails = await _unitOfWork
+                     .BaseRepository<JournalEntry>()
+                     .GetConditionalAsync(
+                         x =>
+                             x.JournalEntryDetails.Any(jd => jd.LedgerId == partyStatementDto.partyId) &&
+                             (startUtc == null || x.CreatedAt >= startUtc) &&
+                             (endUtc == null || x.CreatedAt < endUtc),
+                         query => query.Include(s => s.JournalEntryDetails)
+                     );
+
+
+                var journalStatements = journalDetails
+                   .SelectMany(s => s.JournalEntryDetails?
+                       .Where(jd => !excludedLedgerIds.Contains(jd.LedgerId))
+                       .GroupBy(jd => jd.JournalEntryId)
+                       .Select(groupSales => new GetPartyStatementFilterResponse(
+                           groupSales.First().TransactionDate,
+                           s.BillNumbers,
+                           s.JournalEntryDetails.Select(x=>x.LedgerId).FirstOrDefault(),
+                            "",
+                            "",
+                           s.ReferenceNumber,
+                           groupSales.Sum(jd => jd.DebitAmount),
+                           groupSales.Sum(jd => jd.CreditAmount),
+                           0,
+                           s.Id
+                       )) ?? Enumerable.Empty<GetPartyStatementFilterResponse>());
+
+
+
                 var fullStatement = purchaseStatements
                     .Concat(salesStatements)
+                    .Concat(journalStatements)
                     .OrderBy(x => x.dateTime)
                     .ToList();
+
 
 
                 PagedResult<GetPartyStatementFilterResponse> finalResponseList;
@@ -227,9 +238,9 @@ namespace TN.Reports.Infrastructure.ServiceImpl
                     int pageIndex = paginationRequest.pageIndex <= 0 ? 1 : paginationRequest.pageIndex;
                     int pageSize = paginationRequest.pageSize <= 0 ? 10 : paginationRequest.pageSize;
 
-                    int totalItems = salesStatements.Count();
+                    int totalItems = fullStatement.Count();
 
-                    var pagedItems = salesStatements
+                    var pagedItems = fullStatement
                         .Skip((pageIndex - 1) * pageSize)
                         .Take(pageSize)
                         .ToList();
@@ -246,10 +257,10 @@ namespace TN.Reports.Infrastructure.ServiceImpl
                 {
                     finalResponseList = new PagedResult<GetPartyStatementFilterResponse>
                     {
-                        Items = salesStatements.ToList(),
-                        TotalItems = salesStatements.Count(),
+                        Items = fullStatement.ToList(),
+                        TotalItems = fullStatement.Count(),
                         PageIndex = 1,
-                        pageSize = salesStatements.Count()
+                        pageSize = fullStatement.Count()
                     };
                 }
 

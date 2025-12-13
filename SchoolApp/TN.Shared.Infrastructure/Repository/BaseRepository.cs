@@ -223,5 +223,10 @@ namespace TN.Shared.Infrastructure.Repository
             _dbSet.UpdateRange(entities);
             await Task.CompletedTask; // To maintain async pattern consistency
         }
+
+        public IQueryable<TEntity> GetAsQueryable()
+        {
+            return _context.Set<TEntity>().AsQueryable();
+        }
     }
 }
