@@ -6,8 +6,8 @@ using ES.Academics.Infrastructure;
 using ES.Attendance.Application;
 using ES.Attendance.Infrastructure;
 using ES.Certificate.Infrastructure;
-using ES.Examination.Application;
-using ES.Examination.Infrastructure;
+using ES.Communication.Application;
+using ES.Communication.Infrastructure;
 using ES.Finances.Application;
 using ES.Finances.Infrastructure;
 using ES.Staff.Application;
@@ -73,6 +73,7 @@ try
     #endregion
 
     ConfigurationManager configuration = builder.Configuration;
+
 
 
     #region Configure SerialLog
@@ -184,9 +185,6 @@ try
     builder.Services.AddStudentsApplication()
         .AddStudentsInfrastructure();
 
-    builder.Services.AddExaminationApplication()
-        .AddExaminationInfrastructure();
-
     builder.Services.AddFinancesApplication()
         .AddFinancesInfrastructure();
 
@@ -226,6 +224,10 @@ try
     builder.Services
         .AddPaymentApplication()
         .AddPaymentInfrastructure();
+
+    builder.Services
+        .AddCommunicationApplication()
+        .AddCommunicationInfrastructure();
 
     ApplicationBuilderConfig.Inject(builder);
 
