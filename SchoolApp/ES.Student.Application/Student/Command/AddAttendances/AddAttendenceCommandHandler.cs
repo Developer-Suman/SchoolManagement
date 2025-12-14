@@ -28,40 +28,38 @@ namespace ES.Student.Application.Student.Command.AddAttendances
 
         public async Task<Result<List<AddAttendanceResponse>>> Handle(AddAttendenceCommand request, CancellationToken cancellationToken)
         {
+            try
             {
-                try
+                var validationResult = await _validator.ValidateAsync(request, cancellationToken);
+                if (!validationResult.IsValid)
                 {
-                    var validationResult = await _validator.ValidateAsync(request, cancellationToken);
-                    if (!validationResult.IsValid)
-                    {
-                        var errors = string.Join(", ", validationResult.Errors.Select(x => x.ErrorMessage));
-                        return Result<List<AddAttendanceResponse>>.Failure(errors);
-                    }
-
-                    var addAttendance = await _attendanceServices.MarkBulkAsync(request);
-
-                    if (addAttendance.Errors.Any())
-                    {
-                        var errors = string.Join(", ", addAttendance.Errors);
-                        return Result<List<AddAttendanceResponse>>.Failure(errors);
-                    }
-
-                    if (addAttendance is null || !addAttendance.IsSuccess)
-                    {
-                        return Result<List<AddAttendanceResponse>>.Failure(" ");
-                    }
-
-                    var attendanceDisplay = _mapper.Map<List<AddAttendanceResponse>>(addAttendance.Data);
-                    return Result<List<AddAttendanceResponse>>.Success(attendanceDisplay);
-
-
+                    var errors = string.Join(", ", validationResult.Errors.Select(x => x.ErrorMessage));
+                    return Result<List<AddAttendanceResponse>>.Failure(errors);
                 }
-                catch (Exception ex)
+
+                var addAttendance = await _attendanceServices.MarkBulkAsync(request);
+
+                if (addAttendance.Errors.Any())
                 {
-                    throw new Exception("An error occurred while adding Attendences", ex);
-
-
+                    var errors = string.Join(", ", addAttendance.Errors);
+                    return Result<List<AddAttendanceResponse>>.Failure(errors);
                 }
+
+                if (addAttendance is null || !addAttendance.IsSuccess)
+                {
+                    return Result<List<AddAttendanceResponse>>.Failure(" ");
+                }
+
+                var attendanceDisplay = _mapper.Map<List<AddAttendanceResponse>>(addAttendance.Data);
+                return Result<List<AddAttendanceResponse>>.Success(attendanceDisplay);
+
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while adding Attendences", ex);
+
+
             }
         }
     }

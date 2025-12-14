@@ -24,7 +24,7 @@ namespace TN.Shared.Domain.Entities.Certificates
             bool isActive,
             string templateVersion,
             DateTime createdAt,
-            string createdBy,
+            string createdBy,   
             DateTime modifiedAt,
             string modifiedBy
             ) : base(id)

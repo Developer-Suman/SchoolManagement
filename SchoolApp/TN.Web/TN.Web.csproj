@@ -36,8 +36,8 @@
     <ProjectReference Include="..\ES.Attendance.Infrastructure\ES.Attendance.Infrastructure.csproj" />
     <ProjectReference Include="..\ES.Certificate.Application\ES.Certificate.Application.csproj" />
     <ProjectReference Include="..\ES.Certificate.Infrastructure\ES.Certificate.Infrastructure.csproj" />
-    <ProjectReference Include="..\ES.Examination.Application\ES.Examination.Application.csproj" />
-    <ProjectReference Include="..\ES.Examination.Infrastructure\ES.Examination.Infrastructure.csproj" />
+    <ProjectReference Include="..\ES.Communication.Application\ES.Communication.Application.csproj" />
+    <ProjectReference Include="..\ES.Communication.Infrastructure\ES.Communication.Infrastructure.csproj" />
     <ProjectReference Include="..\ES.Finances.Infrastructure\ES.Finances.Infrastructure.csproj" />
     <ProjectReference Include="..\ES.Staff.Application\ES.Staff.Application.csproj" />
     <ProjectReference Include="..\ES.Staff.Infrastructure\ES.Staff.Infrastructure.csproj" />

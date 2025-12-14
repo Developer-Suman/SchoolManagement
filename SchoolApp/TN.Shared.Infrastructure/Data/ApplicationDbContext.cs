@@ -13,6 +13,7 @@ using TN.Shared.Domain.Entities.Academics;
 using TN.Shared.Domain.Entities.Account;
 using TN.Shared.Domain.Entities.AuditLogs;
 using TN.Shared.Domain.Entities.Certificates;
+using TN.Shared.Domain.Entities.Communication;
 using TN.Shared.Domain.Entities.FeeAndAccounting;
 using TN.Shared.Domain.Entities.Inventory;
 using TN.Shared.Domain.Entities.Notification;
@@ -24,6 +25,7 @@ using TN.Shared.Domain.Entities.Staff;
 using TN.Shared.Domain.Entities.StockCenterEntities;
 using TN.Shared.Domain.Entities.Students;
 using TN.Shared.Domain.Entities.Transactions;
+using TN.Shared.Infrastructure.EntityConfiguration;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 using static TN.Authentication.Domain.Entities.School;
 
@@ -39,8 +41,14 @@ namespace TN.Shared.Infrastructure.Data
 
         }
 
+
+        #region Communication
+        public DbSet<Notice> Notices { get; set; }
+
+        #endregion
+
         #region Staff
-        public DbSet<AcademicTeam> AcademicTeams { get; set; }
+    public DbSet<AcademicTeam> AcademicTeams { get; set; }
         public DbSet<AcademicTeamClass> AcademicTeamClass { get; set; }
         #endregion
 
@@ -221,6 +229,13 @@ namespace TN.Shared.Infrastructure.Data
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
+
+            #region Register EntityConfiguration
+            builder.ApplyConfiguration(new NoticeConfiguration());
+
+
+            #endregion
+
 
             #region Staff
 
