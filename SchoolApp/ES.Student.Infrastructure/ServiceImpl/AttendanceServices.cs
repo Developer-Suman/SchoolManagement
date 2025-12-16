@@ -5,6 +5,7 @@ using ES.Student.Application.Student.Command.AddAttendances;
 using ES.Student.Application.Student.Command.AddStudents;
 using ES.Student.Application.Student.Queries.FilterAttendances;
 using ES.Student.Application.Student.Queries.FilterParents;
+using Microsoft.AspNetCore.Authorization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,6 +17,7 @@ using TN.Shared.Application.ServiceInterface;
 using TN.Shared.Application.ServiceInterface.IHelperServices;
 using TN.Shared.Domain.Abstractions;
 using TN.Shared.Domain.Entities.OrganizationSetUp;
+using TN.Shared.Domain.Entities.Staff;
 using TN.Shared.Domain.Entities.Students;
 using TN.Shared.Domain.ExtensionMethod.Pagination;
 using TN.Shared.Domain.IRepository;
@@ -45,6 +47,28 @@ namespace ES.Student.Infrastructure.ServiceImpl
             _mapper = mapper;
             _tokenService = tokenService;
         }
+
+
+
+
+        //Policy based Authorization
+    //    var classId = await _unitOfWork
+    //.BaseRepository<AcademicTeamClass>()
+    //.GetConditionalFilterType(
+    //    predicate: x => x.AcademicTeam.ApplicationUserId == userId,
+    //    queryModifier: q => q
+    //        .Select(x => x.ClassId)
+    //)
+    //.FirstOrDefaultAsync();
+
+    //    var authResult = await _authorizationService.AuthorizeAsync(
+    //            User,
+    //            classId,
+    //            "TeacherCanAddExamResult"
+    //        );
+
+    //        if (!authResult.Succeeded)
+    //            return Forbid();
 
         public async Task<Result<PagedResult<FilterAttendanceResponse>>> GetFilterStudentAttendance(PaginationRequest paginationRequest, FilterAttendanceDTOs filterAttendanceDTOs)
         {
@@ -150,8 +174,8 @@ namespace ES.Student.Infrastructure.ServiceImpl
                         var existing = await _unitOfWork.BaseRepository<StudentAttendances>()
                          .FirstOrDefaultAsync(x =>
                              x.StudentId == s.studentId &&
-                             x.AcademicTeamId == request.AcademicTeamId &&
-                             x.AttendanceDate.Date == request.AttendanceDate.Date
+                             x.AcademicTeamId == userId &&
+                             x.AttendanceDate.Date == DateTime.UtcNow
                          );
                         if (existing != null)
                         {
@@ -179,9 +203,9 @@ namespace ES.Student.Infrastructure.ServiceImpl
                         var attendance = new StudentAttendances(
                             id: Guid.NewGuid().ToString(),
                             studentId: s.studentId,
-                            attendanceDate: request.AttendanceDate,
+                            attendanceDate: DateTime.UtcNow,
                             attendanceStatus: s.status,
-                            academicTeamId: request.AcademicTeamId,
+                            academicTeamId: userId,
                             remarks: s.remarks,
                             createdBy: userId,
                             createdAt: DateTime.Now,

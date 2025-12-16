@@ -41,6 +41,9 @@ namespace TN.Shared.Infrastructure.CustomMiddleware.GlobalErrorHandling
             catch (NotFoundExceptions ex)
             {
                 await HandleExceptionAsync(httpContext, ex, HttpStatusCode.NotFound);
+            }catch(ForbiddenException ex)
+            {
+                await HandleExceptionAsync(httpContext, ex, HttpStatusCode.Forbidden);
             }
             catch (Exception ex)
             {

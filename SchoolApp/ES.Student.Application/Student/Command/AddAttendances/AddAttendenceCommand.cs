@@ -11,8 +11,6 @@ namespace ES.Student.Application.Student.Command.AddAttendances
 {
     public record AddAttendenceCommand
     (
-    string AcademicTeamId,
-        DateTime AttendanceDate,
         List<StudentAttendanceDto> StudentAttendances
         ) : IRequest<Result<List<AddAttendanceResponse>>>;
 }

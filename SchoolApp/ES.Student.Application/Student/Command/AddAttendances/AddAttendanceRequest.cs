@@ -9,8 +9,6 @@ namespace ES.Student.Application.Student.Command.AddAttendances
 {
     public record AddAttendanceRequest
     (
-        string AcademicTeamId,
-        DateTime AttendanceDate,
         List<StudentAttendanceDto> StudentAttendances
 
         );
