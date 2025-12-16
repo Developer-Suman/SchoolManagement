@@ -11,8 +11,8 @@ namespace ES.Student.Application.Student.Command.AddAttendances
     {
         public AddAttendenceCommandValidator()
         {
-            RuleFor(x => x.AcademicTeamId)
-              .NotEmpty().WithMessage("fullName is required.");
+            //RuleFor(x => x.AcademicTeamId)
+            //  .NotEmpty().WithMessage("fullName is required.");
         }
     }
 }

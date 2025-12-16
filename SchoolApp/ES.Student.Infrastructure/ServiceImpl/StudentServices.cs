@@ -12,15 +12,21 @@ using ES.Student.Application.Student.Queries.GetAllParent;
 using ES.Student.Application.Student.Queries.GetAllStudents;
 using ES.Student.Application.Student.Queries.GetParentById;
 using ES.Student.Application.Student.Queries.GetStudentByClass;
+using ES.Student.Application.Student.Queries.GetStudentForAttendance;
 using ES.Student.Application.Student.Queries.GetStudentsById;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using SendGrid.Helpers.Errors.Model;
 using System.Transactions;
 using TN.Authentication.Domain.Entities;
 using TN.Shared.Application.ServiceInterface;
 using TN.Shared.Application.ServiceInterface.IHelperServices;
 using TN.Shared.Domain.Abstractions;
 using TN.Shared.Domain.Entities.Certificates;
+using TN.Shared.Domain.Entities.Communication;
 using TN.Shared.Domain.Entities.OrganizationSetUp;
+using TN.Shared.Domain.Entities.Staff;
 using TN.Shared.Domain.Entities.Students;
 using TN.Shared.Domain.ExtensionMethod.Pagination;
 using TN.Shared.Domain.IRepository;
@@ -37,10 +43,13 @@ namespace ES.Student.Infrastructure.ServiceImpl
         private readonly FiscalContext _fiscalContext;
         private readonly IHelperMethodServices _helperMethodServices;
         private readonly IimageServices _imageServices;
+        private readonly IAuthorizationService _authorizationService;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public StudentServices( IUnitOfWork unitOfWork,IMapper mapper,ITokenService tokenService, IGetUserScopedData getUserScopedData,
+        public StudentServices(IHttpContextAccessor httpContextAccessor, IAuthorizationService authorizationService,IUnitOfWork unitOfWork,IMapper mapper,ITokenService tokenService, IGetUserScopedData getUserScopedData,
             IDateConvertHelper dateConvertHelper,FiscalContext fiscalContext, IHelperMethodServices helperMethodServices, IimageServices iimageServices)
         {
+            _authorizationService = authorizationService;
             _getUserScopedData = getUserScopedData;
             _dateConverter = dateConvertHelper;
             _fiscalContext = fiscalContext;
@@ -49,6 +58,7 @@ namespace ES.Student.Infrastructure.ServiceImpl
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _tokenService = tokenService;
+            _httpContextAccessor = httpContextAccessor;
         }
         public async Task<Result<AddStudentsResponse>> Add(AddStudentsCommand addStudentsCommand)
         {
@@ -602,6 +612,56 @@ namespace ES.Student.Infrastructure.ServiceImpl
             {
                 throw new Exception("An error occurred while fetching Student by using Id", ex);
             }
+        }
+
+        public async Task<Result<List<StudentForAttendanceResponse>>> GetStudentForAttendance()
+        {
+                var userId = _tokenService.GetUserId();
+
+                var classId = (await _unitOfWork
+                    .BaseRepository<AcademicTeamClass>()
+                    .GetConditionalFilterType(
+                        x => x.AcademicTeam.UserId == userId,
+                        q => q.Select(x => x.ClassId)
+                    ))
+                    .FirstOrDefault();
+
+                if (string.IsNullOrEmpty(classId))
+                    throw new ForbiddenException("Teacher are unassigned");
+
+                var User = _httpContextAccessor.HttpContext?.User;
+
+                var authResult = await _authorizationService.AuthorizeAsync(
+                    User,
+                    classId,
+                    "TeacherCanAddExamResult"
+                );
+
+                if (!authResult.Succeeded)
+                throw new ForbiddenException("Teacher are unassigned");
+
+
+
+            var students = await _unitOfWork
+                    .BaseRepository<StudentData>()
+                    .GetConditionalFilterType(
+                        predicate: x => x.IsActive && x.ClassId == classId,
+                        queryModifier: q => q
+                            .OrderByDescending(x => x.CreatedAt)
+                            .Select(x => new StudentForAttendanceResponse(
+                                x.Id,
+                                string.Join(" ",
+                                    x.FirstName,
+                                    x.MiddleName,
+                                    x.LastName
+                                )
+                            ))
+                    );
+
+
+
+                return Result<List<StudentForAttendanceResponse>>.Success(students.ToList());
+   
         }
 
         public async Task<Result<UpdateStudentResponse>> Update(string id, UpdateStudentCommand updateStudentCommand)

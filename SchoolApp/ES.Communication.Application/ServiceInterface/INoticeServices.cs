@@ -3,6 +3,7 @@ using ES.Communication.Application.Communication.Command.PublishNotice;
 using ES.Communication.Application.Communication.Command.UnPublishNotice;
 using ES.Communication.Application.Communication.Queries.FilterNotice;
 using ES.Communication.Application.Communication.Queries.NoticeById;
+using ES.Communication.Application.Communication.Queries.NoticeDisplay;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,6 +18,7 @@ namespace ES.Communication.Application.ServiceInterface
     public interface INoticeServices
     {
         Task<Result<AddNoticeResponse>> Add(AddNoticeCommand addNoticeCommand);
+        Task<Result<List<NoticeDisplayResponse>>> GetNoticeDisplay();
         Task<Result<PublishNoticeResponse>> PublishNotice(string noticeId);
         Task<Result<UnPublishNoticeResponse>> UnPublishNoticeAsync(string noticeId);
         Task<Result<NoticeByIdResponse>> GetNotice(string id, CancellationToken cancellationToken = default);

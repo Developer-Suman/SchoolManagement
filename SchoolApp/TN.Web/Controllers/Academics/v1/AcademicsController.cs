@@ -366,15 +366,7 @@ namespace TN.Web.Controllers.Academics.v1
 
         public async Task<IActionResult> AddExamResult([FromBody] AddExamResultRequest request)
         {
-            //var classId = "281a8d1b-7eec-4064-86f1-17a7ceb37f54";
-            //var authResult = await _authorizationService.AuthorizeAsync(
-            //        User,
-            //        classId,
-            //        "TeacherCanAddExamResult"
-            //    );
-
-            //if (!authResult.Succeeded)
-            //    return Forbid();
+      
 
 
             //Mapping command and request

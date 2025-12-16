@@ -6,6 +6,7 @@ using ES.Communication.Application.Communication.Command.PublishNotice;
 using ES.Communication.Application.Communication.Command.UnPublishNotice;
 using ES.Communication.Application.Communication.Queries.FilterNotice;
 using ES.Communication.Application.Communication.Queries.NoticeById;
+using ES.Communication.Application.Communication.Queries.NoticeDisplay;
 using ES.Communication.Application.ServiceInterface;
 using System;
 using System.Collections.Generic;
@@ -203,6 +204,39 @@ namespace ES.Communication.Infrastructure.ServiceImpl
             catch (Exception ex)
             {
                 throw new Exception("An error occurred while fetching Notice by using Id", ex);
+            }
+        }
+
+        public async Task<Result<List<NoticeDisplayResponse>>> GetNoticeDisplay()
+        {
+            try
+            {
+                var notices = await _unitOfWork
+                    .BaseRepository<Notice>()
+                    .GetConditionalFilterType(
+                        predicate: x => x.IsActive && x.IsPublished,
+                        queryModifier: q => q
+                            .OrderByDescending(x => x.CreatedAt)
+                            .Take(10)
+                            .Select(x => new NoticeDisplayResponse
+                            (x.Title,
+                            x.ContentHtml,
+                            x.ShortDescription,
+                            x.CreatedAt ?? default,
+                            x.CreatedBy,
+                            x.ModifiedAt ?? default,
+                            x.ModifiedBy,
+                            x.SchoolId
+
+                                )));
+                    
+
+                return Result<List<NoticeDisplayResponse>>.Success(notices.ToList());
+
+            }
+            catch(Exception ex)
+            {
+                throw new Exception("An error occurred while fetching Notice Display", ex);
             }
         }
 

@@ -11,8 +11,7 @@ namespace ES.Student.Application.Student.Command.AddAttendances.RequestCommandMa
         public static AddAttendenceCommand ToCommand(this AddAttendanceRequest request)
         {
             return new AddAttendenceCommand(
-                request.AcademicTeamId,
-                request.AttendanceDate,
+         
                 request.StudentAttendances
                 );
         }

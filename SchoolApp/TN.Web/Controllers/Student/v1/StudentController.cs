@@ -1,4 +1,5 @@
 ﻿using ES.Academics.Application.Academics.Queries.FilterSubject;
+using ES.Communication.Application.Communication.Queries.NoticeDisplay;
 using ES.Student.Application.Student.Command.AddAttendances;
 using ES.Student.Application.Student.Command.AddAttendances.RequestCommandMapper;
 using ES.Student.Application.Student.Command.AddParent;
@@ -18,6 +19,7 @@ using ES.Student.Application.Student.Queries.GetAllParent;
 using ES.Student.Application.Student.Queries.GetAllStudents;
 using ES.Student.Application.Student.Queries.GetParentById;
 using ES.Student.Application.Student.Queries.GetStudentByClass;
+using ES.Student.Application.Student.Queries.GetStudentForAttendance;
 using ES.Student.Application.Student.Queries.GetStudentsById;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -97,6 +99,30 @@ namespace TN.Web.Controllers.Student.v1
         #endregion
 
         #region Student  
+
+        #region StudentsForAttendance
+        [HttpGet("StudentsForAttendance")]
+        public async Task<IActionResult> StudentsForAttendance()
+        {
+            var query = new StudentForAttendanceQuery();
+            var displayStudents = await _mediator.Send(query);
+            #region Switch Statement
+            return displayStudents switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(displayStudents.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = displayStudents.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(displayStudents.Errors),
+                _ => BadRequest("Invalid page and pageSize Fields")
+            };
+            #endregion
+
+        }
+
+        #endregion
+
 
         #region FilterStudents
         [HttpGet("FilterStudents")]

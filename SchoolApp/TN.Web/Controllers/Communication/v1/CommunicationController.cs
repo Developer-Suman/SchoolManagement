@@ -9,6 +9,7 @@ using ES.Communication.Application.Communication.Command.UnPublishNotice;
 using ES.Communication.Application.Communication.Command.UnPublishNotice.RequestCommandMapper;
 using ES.Communication.Application.Communication.Queries.FilterNotice;
 using ES.Communication.Application.Communication.Queries.NoticeById;
+using ES.Communication.Application.Communication.Queries.NoticeDisplay;
 using ES.Staff.Application.Staff.Command.AssignClassToAcademicTeam;
 using ES.Staff.Application.Staff.Command.UnAssignedClassToAcademicTeam;
 using MediatR;
@@ -40,6 +41,30 @@ namespace TN.Web.Controllers.Communication.v1
         }
 
         #region Notice
+
+        #region DisplayNotice
+        [HttpGet("DisplayNotice")]
+        public async Task<IActionResult> DisplayNotice()
+        {
+            var query = new NoticeDisplayQuery();
+            var displayNotice = await _mediator.Send(query);
+            #region Switch Statement
+            return displayNotice switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(displayNotice.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = displayNotice.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(displayNotice.Errors),
+                _ => BadRequest("Invalid page and pageSize Fields")
+            };
+            #endregion
+
+        }
+
+        #endregion
+
 
         #region PublishNotice
         [HttpPost("PublishNotice")]
