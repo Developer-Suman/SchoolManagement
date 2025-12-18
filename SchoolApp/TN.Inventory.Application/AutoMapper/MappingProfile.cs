@@ -18,6 +18,9 @@ using TN.Inventory.Application.Inventory.Command.DeleteConversionFactor;
 using TN.Inventory.Application.Inventory.Command.DeleteItem;
 using TN.Inventory.Application.Inventory.Command.DeleteItemGroup;
 using TN.Inventory.Application.Inventory.Command.DeleteUnits;
+using TN.Inventory.Application.Inventory.Command.SchoolAssets.Contributors;
+using TN.Inventory.Application.Inventory.Command.SchoolAssets.SchoolItemHistory;
+using TN.Inventory.Application.Inventory.Command.SchoolAssets.SchoolItems;
 using TN.Inventory.Application.Inventory.Command.UpdateConversionFactor;
 using TN.Inventory.Application.Inventory.Command.UpdateItem;
 using TN.Inventory.Application.Inventory.Command.UpdateItemGroup;
@@ -38,13 +41,19 @@ using TN.Inventory.Application.Inventory.Queries.ItemGroup;
 using TN.Inventory.Application.Inventory.Queries.ItemGroupById;
 using TN.Inventory.Application.Inventory.Queries.Items;
 using TN.Inventory.Application.Inventory.Queries.ItemsById;
+using TN.Inventory.Application.Inventory.Queries.SchoolAssets.FilterContributors;
+using TN.Inventory.Application.Inventory.Queries.SchoolAssets.FilterSchoolItems;
+using TN.Inventory.Application.Inventory.Queries.SchoolAssets.FilterSchoolItemsHistory;
+using TN.Inventory.Application.Inventory.Queries.SchoolAssets.SchoolItems;
 using TN.Inventory.Application.Inventory.Queries.StockCenters;
 using TN.Inventory.Application.Inventory.Queries.StockCentersById;
 using TN.Inventory.Application.Inventory.Queries.Units;
 using TN.Inventory.Application.Inventory.Queries.UnitsById;
 using TN.Inventory.Domain.Entities;
 using TN.Shared.Domain.Entities.Inventory;
+using TN.Shared.Domain.Entities.SchoolItems;
 using TN.Shared.Domain.Entities.StockCenterEntities;
+using TN.Shared.Domain.Entities.Students;
 using TN.Shared.Domain.ExtensionMethod.Pagination;
 
 namespace TN.Inventory.Application.AutoMapper
@@ -53,6 +62,34 @@ namespace TN.Inventory.Application.AutoMapper
     {
         public MappingProfile()
         {
+
+            #region SchoolItemsHistory
+            CreateMap<AddSchoolItemHistoryResponse, SchoolItemsHistory>().ReverseMap();
+            CreateMap<FilterSchoolItemsHistoryResponse, SchoolItemsHistory>().ReverseMap();
+            CreateMap<PagedResult<SchoolItemsHistory>, PagedResult<FilterSchoolItemsHistoryResponse>>().ReverseMap();
+
+            #endregion
+
+
+            #region Contributors
+            CreateMap<AddContributorsResponse, Contributor>().ReverseMap();
+            CreateMap<FilterContributorsResponse, Contributor>().ReverseMap();
+            CreateMap<PagedResult<Contributor>, PagedResult<FilterContributorsResponse>>().ReverseMap();
+
+            #endregion
+
+
+            #region SchoolItems
+
+            CreateMap<SchoolItemsResponse, SchoolItem>().ReverseMap();
+            CreateMap<PagedResult<SchoolItem>, PagedResult<SchoolItemsResponse>>().ReverseMap();
+
+
+            CreateMap<AddSchoolItemsResponse, SchoolItem>().ReverseMap();
+            CreateMap<FilterSchoolItemsQueryResponse, SchoolItem>().ReverseMap();
+            CreateMap<PagedResult<SchoolItem>, PagedResult<FilterSchoolItemsQueryResponse>>().ReverseMap();
+
+            #endregion
             #region Units
             CreateMap<GetAllUnitsByQueryResponse, Units>().ReverseMap();
             CreateMap<PagedResult<Units>, PagedResult<GetAllUnitsByQueryResponse>>().ReverseMap();

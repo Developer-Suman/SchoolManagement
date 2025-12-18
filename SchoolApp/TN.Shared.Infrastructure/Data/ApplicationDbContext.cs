@@ -21,6 +21,7 @@ using TN.Shared.Domain.Entities.OrganizationSetUp;
 using TN.Shared.Domain.Entities.Payments;
 using TN.Shared.Domain.Entities.Purchase;
 using TN.Shared.Domain.Entities.Sales;
+using TN.Shared.Domain.Entities.SchoolItems;
 using TN.Shared.Domain.Entities.Staff;
 using TN.Shared.Domain.Entities.StockCenterEntities;
 using TN.Shared.Domain.Entities.Students;
@@ -41,6 +42,12 @@ namespace TN.Shared.Infrastructure.Data
 
         }
 
+
+        #region SchoolItem
+        public DbSet<Contributor> Contributors { get; set; }
+        public DbSet<SchoolItem> SchoolItems { get; set; }
+        public DbSet<SchoolItemsHistory> SchoolItemsHistories { get; set; }
+        #endregion
 
         #region Communication
         public DbSet<Notice> Notices { get; set; }
@@ -230,11 +237,39 @@ namespace TN.Shared.Infrastructure.Data
         {
             base.OnModelCreating(builder);
 
+
+
+
             #region Register EntityConfiguration
             builder.ApplyConfiguration(new NoticeConfiguration());
 
 
             #endregion
+
+            #region Miscellaneous
+
+            #region SchoolItem and Contributor (m:1)
+            builder.Entity<SchoolItem>()
+                .HasOne(c => c.Contributor)
+                .WithMany(a => a.SchoolItems)
+                .HasForeignKey(c => c.ContributorId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            #endregion
+
+            #region SchoolItem and SchoolItemsHistory (1:m)
+            builder.Entity<SchoolItem>()
+                .HasMany(c => c.SchoolItemsHistories)
+                .WithOne(a => a.SchoolItem)
+                .HasForeignKey(c => c.SchoolItemId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            #endregion
+
+
+            #endregion
+
+
 
 
             #region Staff

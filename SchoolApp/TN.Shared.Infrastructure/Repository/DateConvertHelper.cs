@@ -54,28 +54,32 @@ namespace TN.Shared.Infrastructure.Repository
 
         public async Task<(DateTime StartUtc, DateTime EndUtc)> GetDateRangeUtc(string? startDate, string? endDate)
         {
-            DateTime startDateInDateTime;
-            DateTime endDateInDateTime;
+            TimeZoneInfo nepalTz =
+        TimeZoneInfo.FindSystemTimeZoneById("Nepal Standard Time");
 
-            startDateInDateTime = string.IsNullOrWhiteSpace(startDate)
+            // --- START DATE ---
+            DateTime startLocal = string.IsNullOrWhiteSpace(startDate)
                 ? DateTime.Today
                 : await ConvertFullBsDateToEnglish(startDate);
 
-            endDateInDateTime = string.IsNullOrWhiteSpace(endDate)
+            startLocal = DateTime.SpecifyKind(startLocal, DateTimeKind.Unspecified);
+
+            DateTime startUtc =
+                TimeZoneInfo.ConvertTimeToUtc(startLocal, nepalTz);
+
+            // --- END DATE ---
+            DateTime endLocal = string.IsNullOrWhiteSpace(endDate)
                 ? DateTime.Today
                 : await ConvertFullBsDateToEnglish(endDate);
 
+            endLocal = endLocal.Date
+                .AddDays(1)
+                .AddTicks(-1); // end of same day
 
-            startDateInDateTime = startDateInDateTime.Date.AddHours(0).AddMinutes(0).AddSeconds(0);
+            endLocal = DateTime.SpecifyKind(endLocal, DateTimeKind.Unspecified);
 
-            TimeZoneInfo nepalTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Nepal Standard Time");
-
-            DateTime startNepal = TimeZoneInfo.ConvertTime(startDateInDateTime, nepalTimeZone);
-            DateTime startUtc = TimeZoneInfo.ConvertTimeToUtc(startNepal, nepalTimeZone);
-
-            DateTime endNepal = TimeZoneInfo.ConvertTime(endDateInDateTime, nepalTimeZone);
-            endNepal = endNepal.Date.AddDays(2).AddTicks(-1);
-            DateTime endUtc = TimeZoneInfo.ConvertTimeToUtc(endNepal, nepalTimeZone);
+            DateTime endUtc =
+                TimeZoneInfo.ConvertTimeToUtc(endLocal, nepalTz);
 
             return (startUtc, endUtc);
         }
@@ -83,20 +87,20 @@ namespace TN.Shared.Infrastructure.Repository
         private async Task<DateTime> ConvertFullBsDateToEnglish(string bsDateTime)
         {
             string[] parts = bsDateTime.Split(' ');
+
             string bsDatePart = parts[0];
-            string bsTimePart = parts.Length > 1 ? bsDateTime.Substring(bsDatePart.Length).Trim() : "12:00:00 AM";
+            string bsTimePart = parts.Length > 1
+                ? string.Join(" ", parts.Skip(1))
+                : "12:00:00 AM";
+
             DateTime englishDate = await ConvertToEnglish(bsDatePart);
 
             if (DateTime.TryParse(bsTimePart, out DateTime timePart))
             {
                 englishDate = englishDate.Date
-                              .AddHours(timePart.Hour)
-                              .AddMinutes(timePart.Minute)
-                              .AddSeconds(timePart.Second);
-            }
-            else
-            {
-                englishDate = englishDate.Date.AddHours(0).AddMinutes(0).AddSeconds(0);
+                    .AddHours(timePart.Hour)
+                    .AddMinutes(timePart.Minute)
+                    .AddSeconds(timePart.Second);
             }
 
             return englishDate;

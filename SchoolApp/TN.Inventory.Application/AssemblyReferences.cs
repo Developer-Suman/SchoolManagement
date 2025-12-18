@@ -14,6 +14,9 @@ using TN.Inventory.Application.Inventory.Command.AddStockCenter;
 using TN.Inventory.Application.Inventory.Command.AddStockTransferDetails;
 using TN.Inventory.Application.Inventory.Command.AddUnits;
 using TN.Inventory.Application.Inventory.Command.ImportExcelForItems;
+using TN.Inventory.Application.Inventory.Command.SchoolAssets.Contributors;
+using TN.Inventory.Application.Inventory.Command.SchoolAssets.SchoolItemHistory;
+using TN.Inventory.Application.Inventory.Command.SchoolAssets.SchoolItems;
 using TN.Inventory.Application.Inventory.Command.UpdateConversionFactor;
 using TN.Inventory.Application.Inventory.Command.UpdateItem;
 using TN.Inventory.Application.Inventory.Command.UpdateItemGroup;
@@ -46,6 +49,9 @@ namespace TN.Inventory.Application
             services.AddScoped<IValidator<AddStockAdjustmentCommand>, AddStockAdjustmentCommandValidator>();
             services.AddScoped<IValidator<AddStockTransferCommand>, AddStockTransferCommandValidator>();
             services.AddScoped<IValidator<UpdateStockTransferDetailsCommand>, UpdateStockTransferDetailsCommandValidator>();
+            services.AddScoped<IValidator<AddSchoolItemsCommand>, AddSchoolItemsCommandValidators>();
+            services.AddScoped<IValidator<AddContributorsCommand>, AddContributorsCommandValidators>();
+            services.AddScoped<IValidator<AddSchoolItemHistoryCommand>, AddSchoolItemsHistoryCommandValidator>();
       
             return services;
         }

@@ -30,7 +30,7 @@ namespace ES.Academics.Application.Academics.Queries.FilterSchoolClass
             try
             {
 
-                var result = await _schoolClassInterface.GetFilterSchool(request.PaginationRequest, request.FilterSchoolClassDTOs);
+                var result = await _schoolClassInterface.GetFilterSchoolClass(request.PaginationRequest, request.FilterSchoolClassDTOs);
 
                 var schoolClassResult = _mapper.Map<PagedResult<FilterSchoolClassQueryResponse>>(result.Data);
 
