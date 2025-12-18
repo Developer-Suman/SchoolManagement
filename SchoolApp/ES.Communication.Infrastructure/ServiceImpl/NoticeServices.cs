@@ -74,7 +74,7 @@ namespace ES.Communication.Infrastructure.ServiceImpl
                         default,
                         "",
                          schoolId ?? "",
-                         false
+                         true
 
                     );
 
@@ -103,6 +103,8 @@ namespace ES.Communication.Infrastructure.ServiceImpl
                 var userId = _tokenService.GetUserId();
 
                 var (notice, schoolId, institutionId, userRole, isSuperAdmin) = await _getUserScopedData.GetUserScopedData<Notice>();
+
+              
 
                 var schoolIds = await _unitOfWork.BaseRepository<School>()
                     .GetConditionalFilterType(

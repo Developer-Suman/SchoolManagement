@@ -25,6 +25,6 @@ namespace ES.Academics.Application.ServiceInterface
 
         Task<Result<UpdateSchoolClassResponse>> Update(string classId, UpdateSchoolClassCommand updateSchoolClassCommand);
         Task<Result<bool>> Delete(string id, CancellationToken cancellationToken);
-        Task<Result<PagedResult<FilterSchoolClassQueryResponse>>> GetFilterSchool(PaginationRequest paginationRequest, FilterSchoolClassDTOs filterSchoolClassDTOs);
+        Task<Result<PagedResult<FilterSchoolClassQueryResponse>>> GetFilterSchoolClass(PaginationRequest paginationRequest, FilterSchoolClassDTOs filterSchoolClassDTOs);
     }
 }

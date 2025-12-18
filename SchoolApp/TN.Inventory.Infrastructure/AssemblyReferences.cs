@@ -25,6 +25,7 @@ namespace TN.Inventory.Infrastructure
             services.AddScoped<IInventoryMethodType, InventoryMethodTypeServices>();
             services.AddScoped<IStockCenterService, StockCenterService>();
             services.AddScoped<IStockTransferDetailsServices, StockTransferDetailsServices>();
+            services.AddScoped<ISchoolAssetsServices, SchoolAssetsServices>();
             #endregion
 
             return services;

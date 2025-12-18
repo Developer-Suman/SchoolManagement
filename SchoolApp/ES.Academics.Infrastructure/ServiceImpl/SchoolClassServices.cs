@@ -118,7 +118,7 @@ namespace ES.Academics.Infrastructure.ServiceImpl
             }
         }
 
-        public async Task<Result<PagedResult<FilterSchoolClassQueryResponse>>> GetFilterSchool(PaginationRequest paginationRequest, FilterSchoolClassDTOs filterSchoolClassDTOs)
+        public async Task<Result<PagedResult<FilterSchoolClassQueryResponse>>> GetFilterSchoolClass(PaginationRequest paginationRequest, FilterSchoolClassDTOs filterSchoolClassDTOs)
         {
             try
             {
@@ -148,10 +148,6 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                      )
                      .OrderByDescending(x => x.CreatedAt)
                      .ToList();
-
-
-
-
 
                 var responseList = filteredResult
                 .OrderByDescending(x => x.CreatedAt)
