@@ -28,7 +28,10 @@ namespace TN.Shared.Domain.Entities.Academics
                 string createdBy,
             DateTime createdAt,
             string modifiedBy,
-            DateTime modifiedAt
+            DateTime modifiedAt,
+            int fullMarks,
+            int passmarks,
+            string examId
             ) : base(id)
         {
             Name = name;
@@ -42,9 +45,17 @@ namespace TN.Shared.Domain.Entities.Academics
             CreatedAt = createdAt;
             ModifiedBy = modifiedBy;
             ModifiedAt = modifiedAt;
+            FullMarks = fullMarks;
+            PassMarks = passmarks;
+            ExamId = examId;
             ExamResults = new List<ExamResult>();
             MarksObtaineds = new List<MarksObtained>();
         }
+
+        public int FullMarks { get; set; }
+        public int PassMarks { get; set; }
+        public string ExamId { get; set; }
+        public virtual Exam Exam { get; set; }
         public string Name { get; set; }
         public string Code { get; set; }
         public string SchoolId { get; set; }

@@ -16,7 +16,10 @@ namespace ES.Academics.Application.Academics.Command.AddSubject.RequestCommandMa
                 request.code,
                 request.creditHours,
                 request.description,
-                request.classId
+                request.classId,
+                request.examId,
+                request.fullMarks,
+                request.passMarks
                 );
         }
     }

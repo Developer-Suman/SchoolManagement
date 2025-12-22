@@ -36,7 +36,8 @@ namespace ES.Student.Application.AutoMapper
             #endregion
             #region Student
 
-
+            //CreateMap<StudentData, GetStudentsByIdQueryResponse>()
+            //.ForMember(dest => dest.studentImg, opt => opt.MapFrom(src => src.ImageUrl));
             CreateMap<GetStudentByClassResponse, StudentData>().ReverseMap();
             CreateMap<PagedResult<StudentData>, PagedResult<GetStudentByClassResponse>>().ReverseMap();
 

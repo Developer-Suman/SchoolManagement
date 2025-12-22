@@ -76,7 +76,7 @@ namespace TN.Shared.Infrastructure.DataSeed
             {
                 var exams = new List<Exam>()
                 {
-                    new Exam("f47ac10b-58cc-4372-a567-0e02b2c3d479","Final Exams",DateTime.UtcNow,100,0,"",true, "","",DateTime.UtcNow,"", DateTime.UtcNow,true,"")
+                    new Exam("f47ac10b-58cc-4372-a567-0e02b2c3d479","Final Exams",DateTime.UtcNow,"",true, "","",DateTime.UtcNow,"", DateTime.UtcNow,true,"")
                 };
 
                 await _context.Exams.AddRangeAsync(exams);

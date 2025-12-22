@@ -248,6 +248,15 @@ namespace TN.Shared.Infrastructure.Data
 
             #region Miscellaneous
 
+            #region SchoolItem and FiscalYear (m:1)
+            builder.Entity<SchoolItem>()
+                .HasOne(c => c.FiscalYear)
+                .WithMany(a => a.SchoolItems)
+                .HasForeignKey(c => c.FiscalYearId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            #endregion
+
             #region SchoolItem and Contributor (m:1)
             builder.Entity<SchoolItem>()
                 .HasOne(c => c.Contributor)
@@ -478,7 +487,13 @@ namespace TN.Shared.Infrastructure.Data
 
 
 
-
+            #region Exam and Subject(1:m)
+            builder.Entity<Exam>()
+               .HasMany(p => p.Subjects)
+               .WithOne(p => p.Exam)
+               .HasForeignKey(p => p.ExamId)
+               .OnDelete(DeleteBehavior.Restrict);
+            #endregion
 
 
 

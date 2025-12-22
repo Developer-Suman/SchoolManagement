@@ -11,6 +11,7 @@ using TN.Inventory.Application.Inventory.Queries.FilterItemsByDate;
 using TN.Inventory.Application.Inventory.Queries.SchoolAssets.FilterContributors;
 using TN.Inventory.Application.Inventory.Queries.SchoolAssets.FilterSchoolItems;
 using TN.Inventory.Application.Inventory.Queries.SchoolAssets.FilterSchoolItemsHistory;
+using TN.Inventory.Application.Inventory.Queries.SchoolAssets.SchoolAssetsReport;
 using TN.Inventory.Application.Inventory.Queries.SchoolAssets.SchoolItems;
 using TN.Shared.Domain.Abstractions;
 using TN.Shared.Domain.ExtensionMethod.Pagination;
@@ -24,6 +25,7 @@ namespace TN.Inventory.Application.ServiceInterface
         Task<Result<AddSchoolItemHistoryResponse>> AddSchoolItemHistory(AddSchoolItemHistoryCommand addSchoolItemHistoryCommand);
         Task<Result<PagedResult<SchoolItemsResponse>>> getAllSchoolItems(PaginationRequest paginationRequest);
         Task<Result<PagedResult<FilterSchoolItemsQueryResponse>>> FilterSchoolItems(PaginationRequest paginationRequest, FilterSchoolItemsDTOs filterSchoolItemsDTOs);
+        Task<Result<PagedResult<SchoolAssetsReportResponse>>> SchoolAssetsReport(PaginationRequest paginationRequest, SchoolAssetsReportDTOs schoolAssetsReportDTOs);
         Task<Result<PagedResult<FilterContributorsResponse>>> FilterContributors(PaginationRequest paginationRequest, FilterContributorsDTOs filterContributorsDTOs);
         Task<Result<PagedResult<FilterSchoolItemsHistoryResponse>>> FilterSchoolItemsHistory(PaginationRequest paginationRequest, FilterSchoolItemsHistoryDTOs filterSchoolItemsHistoryDTOs);
     }

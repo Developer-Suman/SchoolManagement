@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TN.Shared.Domain.Entities.OrganizationSetUp;
 using TN.Shared.Domain.Primitive;
 using static TN.Shared.Domain.Enum.SchoolItemEnum;
 
@@ -27,6 +28,7 @@ namespace TN.Shared.Domain.Entities.SchoolItems
             decimal? quantity,
             UnitType? unitType,
             string schoolId,
+            string fiscalYearId,
             bool isActive,
             string createdBy,
             DateTime createdAt,
@@ -47,6 +49,7 @@ namespace TN.Shared.Domain.Entities.SchoolItems
             UnitType = unitType;
             IsActive = isActive;
             SchoolId = schoolId;
+            FiscalYearId = fiscalYearId;
             CreatedBy = createdBy;
             CreatedAt = createdAt;
             ModifiedBy = modifiedBy;
@@ -66,10 +69,12 @@ namespace TN.Shared.Domain.Entities.SchoolItems
         public string ContributorId { get;set; }
         public Contributor Contributor { get; set; }
         public ItemStatus ItemStatus { get; set; }
-            public ItemCondition ItemCondition { get; set; }
+        public ItemCondition ItemCondition { get; set; }
         public DateTime ReceivedDate { get; set; }
-            public decimal? EstimatedValue { get; set; }
+        public decimal? EstimatedValue { get; set; }
         public string SchoolId { get; set; }
+        public string? FiscalYearId { get; set; }
+        public FiscalYears FiscalYear { get; set; } = default!;
         public bool IsActive { get; set; }
         public string CreatedBy { get; set; }
         public DateTime CreatedAt { get; set; }

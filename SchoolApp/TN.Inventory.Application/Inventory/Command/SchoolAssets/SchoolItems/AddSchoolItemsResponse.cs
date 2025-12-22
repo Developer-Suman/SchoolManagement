@@ -18,6 +18,7 @@ namespace TN.Inventory.Application.Inventory.Command.SchoolAssets.SchoolItems
             decimal? estimatedValue,
             bool isActive,
               decimal? quantity,
-            UnitType? unitType
+            UnitType? unitType,
+            string fiscalYearId
         );
 }

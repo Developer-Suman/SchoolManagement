@@ -21,8 +21,6 @@ namespace TN.Shared.Domain.Entities.Academics
             string id,
             string name,
             DateTime examDate,
-            decimal totalMarks,
-            decimal passingMarks,
             string fyId,
             bool? isfinalExam,
             string schoolId,
@@ -37,8 +35,7 @@ namespace TN.Shared.Domain.Entities.Academics
             ClassId = classId;
             Name = name;
             ExamDate = examDate;
-            TotalMarks = totalMarks;
-            PassingMarks = passingMarks;
+            Subjects =new List<Subject>();
             SchoolId = schoolId;
             FyId = fyId;
             CreatedBy = createdBy;
@@ -50,6 +47,8 @@ namespace TN.Shared.Domain.Entities.Academics
             ExamResults = new List<ExamResult>();
         }
 
+
+        public virtual ICollection<Subject> Subjects { get; set; }  
         public string ClassId { get; set;  }
         public string FyId { get; set; }
         //public FiscalYears FiscalYears { get; set; }
@@ -57,7 +56,7 @@ namespace TN.Shared.Domain.Entities.Academics
         public string SchoolId { get; set; }
         public DateTime ExamDate { get; set; }
         public decimal TotalMarks { get; set; }
-        public decimal PassingMarks { get; set; }
+        
         public string CreatedBy { get; set; }
         public bool? IsFinalExam { get; set;  }
         public bool IsActive { get; set; }
@@ -65,5 +64,13 @@ namespace TN.Shared.Domain.Entities.Academics
         public string ModifiedBy { get; set; }
         public DateTime ModifiedAt { get; set; } = DateTime.Now;
         public ICollection<ExamResult> ExamResults { get; set; }
+
+        public void UpdateTotalMarks()
+        {
+            if (Subjects != null && Subjects.Any())
+            {
+                TotalMarks = Subjects.Sum(s => s.FullMarks);
+            }
         }
+    }
 }

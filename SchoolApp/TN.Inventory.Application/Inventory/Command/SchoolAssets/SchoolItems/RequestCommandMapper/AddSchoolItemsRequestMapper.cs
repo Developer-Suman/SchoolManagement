@@ -19,7 +19,8 @@ namespace TN.Inventory.Application.Inventory.Command.SchoolAssets.SchoolItems.Re
                 addSchoolItemsRequest.receivedDate,
                 addSchoolItemsRequest.estimatedValue,
                 addSchoolItemsRequest.quantity,
-                addSchoolItemsRequest.unitType
+                addSchoolItemsRequest.unitType,
+                addSchoolItemsRequest.fiscalYearId
             );
         }
     }

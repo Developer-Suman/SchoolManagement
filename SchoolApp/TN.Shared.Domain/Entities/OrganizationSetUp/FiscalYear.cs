@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using TN.Authentication.Domain.Entities;
 using TN.Shared.Domain.Entities.Academics;
 using TN.Shared.Domain.Entities.FeeAndAccounting;
+using TN.Shared.Domain.Entities.SchoolItems;
 using TN.Shared.Domain.Primitive;
 
 namespace TN.Shared.Domain.Entities.OrganizationSetUp
@@ -32,6 +33,7 @@ namespace TN.Shared.Domain.Entities.OrganizationSetUp
             SchoolSettingsFiscalYears = new List<SchoolSettingsFiscalYear>();
             FeeStructures = new List<FeeStructure>();
             ClassSections = new List<ClassSection>();
+            SchoolItems = new List<SchoolItem>();
 
         }
 
@@ -42,5 +44,6 @@ namespace TN.Shared.Domain.Entities.OrganizationSetUp
         public ICollection<FeeStructure> FeeStructures { get; set; }
         //public ICollection<Exam> Exams { get; set; }
         public ICollection<ClassSection> ClassSections { get; set; }
-    }
+        public ICollection<SchoolItem> SchoolItems { get; set; }
+        }
 }

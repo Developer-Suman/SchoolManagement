@@ -16,6 +16,7 @@ using TN.Inventory.Application.Inventory.Command.SchoolAssets.SchoolItems.Reques
 using TN.Inventory.Application.Inventory.Queries.SchoolAssets.FilterContributors;
 using TN.Inventory.Application.Inventory.Queries.SchoolAssets.FilterSchoolItems;
 using TN.Inventory.Application.Inventory.Queries.SchoolAssets.FilterSchoolItemsHistory;
+using TN.Inventory.Application.Inventory.Queries.SchoolAssets.SchoolAssetsReport;
 using TN.Inventory.Application.Inventory.Queries.SchoolAssets.SchoolItems;
 using TN.Sales.Application.Sales.Command.AddSalesDetails;
 using TN.Sales.Application.Sales.Command.AddSalesItems;
@@ -39,6 +40,32 @@ namespace TN.Web.Controllers.SchoolAssets.v1
             _logger = logger;
 
         }
+
+
+        #region SchoolAssetsReport
+        [HttpGet("SchoolAssetsReport")]
+        public async Task<IActionResult> SchoolAssetsReport([FromQuery] SchoolAssetsReportDTOs schoolAssetsReportDTOs, [FromQuery] PaginationRequest paginationRequest)
+        {
+            var query = new SchoolAssetsReportQuery(paginationRequest, schoolAssetsReportDTOs);
+            var result = await _mediator.Send(query);
+            #region Switch Statement
+            return result switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(result.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = result.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(result.Errors),
+                _ => BadRequest("Invalid page and pageSize Fields")
+            };
+            #endregion
+
+        }
+
+        #endregion
+
+
 
         #region SchoolItemshistory
 
@@ -69,16 +96,16 @@ namespace TN.Web.Controllers.SchoolAssets.v1
 
 
         #region AddFilterItemHistory
-        [HttpPost("AddFilterItemHistory")]
+        [HttpPost("AddSchoolItemHistory")]
 
-        public async Task<IActionResult> AddFilterItemHistory([FromBody] AddSchoolItemHistoryRequest request)
+        public async Task<IActionResult> AddSchoolItemHistory([FromBody] AddSchoolItemHistoryRequest request)
         {
             var command = request.ToCommand();
             var result = await _mediator.Send(command);
             #region Switch Statement
             return result switch
             {
-                { IsSuccess: true, Data: not null } => CreatedAtAction(nameof(AddFilterItemHistory), result.Data),
+                { IsSuccess: true, Data: not null } => CreatedAtAction(nameof(AddSchoolItemHistory), result.Data),
                 { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { result.Message }),
                 { IsSuccess: false, Errors: not null } => HandleFailureResult(result.Errors),
                 _ => BadRequest("Invalid Fields for Add SchoolItemHistory ")

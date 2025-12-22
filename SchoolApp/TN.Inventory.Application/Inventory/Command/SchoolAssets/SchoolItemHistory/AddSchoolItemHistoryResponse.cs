@@ -14,8 +14,6 @@ namespace TN.Inventory.Application.Inventory.Command.SchoolAssets.SchoolItemHist
             ItemStatus previousStatus,
             ItemStatus currentStatus,
             string? remarks,
-            DateTime actionDate,
-            string actionBy,
             string schoolId,
             bool isActive,
             string createdBy,

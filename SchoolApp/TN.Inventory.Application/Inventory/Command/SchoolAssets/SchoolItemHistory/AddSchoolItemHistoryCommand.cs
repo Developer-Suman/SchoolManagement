@@ -14,9 +14,7 @@ namespace TN.Inventory.Application.Inventory.Command.SchoolAssets.SchoolItemHist
         string schoolItemId,
             ItemStatus previousStatus,
             ItemStatus currentStatus,
-            string? remarks,
-            DateTime actionDate,
-            string actionBy
+            string? remarks
         ): IRequest<Result<AddSchoolItemHistoryResponse>>;
 
 }
