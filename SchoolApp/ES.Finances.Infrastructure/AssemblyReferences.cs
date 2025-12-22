@@ -1,4 +1,5 @@
-﻿using ES.Finances.Infrastructure.ServiceImpl;
+﻿using ES.Finances.Application.ServiceInterface;
+using ES.Finances.Infrastructure.ServiceImpl;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace ES.Finances.Infrastructure
@@ -10,9 +11,12 @@ namespace ES.Finances.Infrastructure
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
             #region Inject Dependencies
-            //Using Scrutor external package for automatically inject into DI Container
+            services.AddScoped<IFeeTypeServices, FeeTypeServices>();
+            services.AddScoped<IFeeStructureServices, FeeStructureServices>();
+            services.AddScoped<IStudentFeeServices, StudentFeeServices>();
+            services.AddScoped<IPaymentRecordsServices, PaymentsRecordsServices>();
 
-            services.Scan(scan => scan.FromAssembliesOf(typeof(FinanceServices))
+            services.Scan(scan => scan.FromAssembliesOf(typeof(FeeTypeServices))
             .AddClasses(c => c.Where(t => t.Name.EndsWith("Services")))
             .AsImplementedInterfaces()
             .WithScopedLifetime());

@@ -7,7 +7,7 @@ using TN.Shared.Domain.Entities.Academics;
 using TN.Shared.Domain.Entities.OrganizationSetUp;
 using TN.Shared.Domain.Primitive;
 
-namespace TN.Shared.Domain.Entities.FeeAndAccounting
+namespace TN.Shared.Domain.Entities.Finance
 {
     public class FeeStructure : Entity
     {
@@ -22,6 +22,8 @@ namespace TN.Shared.Domain.Entities.FeeAndAccounting
             string classId,
             string fyId,
             string feeTypeId,
+            bool isActive,
+            string schoolId,
             string createdBy,
             DateTime createdAt,
             string modifiedBy,
@@ -30,14 +32,19 @@ namespace TN.Shared.Domain.Entities.FeeAndAccounting
         {
             Amount = amount;
             ClassId = classId;
+
             FyId = fyId;
             FeeTypeId = feeTypeId;
+            IsActive = isActive;
+            SchoolId = schoolId;
             CreatedBy = createdBy;
             CreatedAt = createdAt;
             ModifiedBy = modifiedBy;
             ModifiedAt = modifiedAt;
             StudentFees = new List<StudentFee>();
         }
+        public bool IsActive { get; set; }
+        public string SchoolId { get;set;  }
         public decimal Amount { get; set; }
         public string ClassId { get; set; }
         public Class Class { get; set; }

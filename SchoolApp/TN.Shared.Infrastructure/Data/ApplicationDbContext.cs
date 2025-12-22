@@ -14,7 +14,7 @@ using TN.Shared.Domain.Entities.Account;
 using TN.Shared.Domain.Entities.AuditLogs;
 using TN.Shared.Domain.Entities.Certificates;
 using TN.Shared.Domain.Entities.Communication;
-using TN.Shared.Domain.Entities.FeeAndAccounting;
+using TN.Shared.Domain.Entities.Finance;
 using TN.Shared.Domain.Entities.Inventory;
 using TN.Shared.Domain.Entities.Notification;
 using TN.Shared.Domain.Entities.OrganizationSetUp;
@@ -93,7 +93,7 @@ namespace TN.Shared.Infrastructure.Data
         public DbSet<FeeStructure> FeeStructures { get; set; }
         public DbSet<FeeType> FeeTypes { get; set; }
         public DbSet<StudentFee> StudentFees { get; set; }
-        public DbSet<SchoolPayments> SchoolPayments { get; set; }
+        public DbSet<PaymentsRecords> PaymentsRecords { get; set; }
 
 
         #endregion
@@ -277,9 +277,6 @@ namespace TN.Shared.Infrastructure.Data
 
 
             #endregion
-
-
-
 
             #region Staff
 

@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TN.Shared.Domain.Primitive;
 
-namespace TN.Shared.Domain.Entities.FeeAndAccounting
+namespace TN.Shared.Domain.Entities.Finance
 {
     public class FeeType : Entity
     {
@@ -17,7 +17,9 @@ namespace TN.Shared.Domain.Entities.FeeAndAccounting
         public FeeType(
             string id,
             string name,
-            string description,
+            string? description,
+            bool isActive,
+            string schoolId,
             string createdBy,
             DateTime createdAt,
             string modifiedBy,
@@ -25,6 +27,8 @@ namespace TN.Shared.Domain.Entities.FeeAndAccounting
             ) : base(id)
         {
             Name = name;
+            IsActive = isActive;
+            SchoolId = schoolId;
             Description = description;
             CreatedBy = createdBy;
             CreatedAt = createdAt;
@@ -32,8 +36,10 @@ namespace TN.Shared.Domain.Entities.FeeAndAccounting
             ModifiedAt = modifiedAt;
             FeeStructures = new List<FeeStructure>();
         }
+        public string SchoolId { get; set; }
+        public bool IsActive { get; set; }
         public string Name { get; set; }
-        public string Description { get; set; }
+        public string? Description { get; set; }
         public string CreatedBy { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public string ModifiedBy { get; set; }

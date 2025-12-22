@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TN.Shared.Domain.Entities.FeeAndAccounting;
+﻿
+using TN.Shared.Domain.Entities.Finance;
 using TN.Shared.Domain.Entities.Staff;
 using TN.Shared.Domain.Entities.Students;
 using TN.Shared.Domain.Primitive;
