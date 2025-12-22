@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using TN.Shared.Domain.Entities.Students;
 using TN.Shared.Domain.Primitive;
 
-namespace TN.Shared.Domain.Entities.FeeAndAccounting
+namespace TN.Shared.Domain.Entities.Finance
 {
     public class StudentFee : Entity
     {
@@ -24,8 +24,9 @@ namespace TN.Shared.Domain.Entities.FeeAndAccounting
             decimal discount,
             decimal totalAmount,
             decimal paidAmount,
-            decimal dueAmount,
-            DateTime lastPaymentDate,
+            DateTime dueDate,
+            bool isActive,
+            string schoolid,
             string createdBy,
             DateTime createdAt,
             string modifiedBy,
@@ -34,20 +35,22 @@ namespace TN.Shared.Domain.Entities.FeeAndAccounting
         {
             StudentId = studentId;
             FeeStructureId = feeStructureId;
-           
+            IsActive = isActive;
+            SchoolId = schoolid;
             Discount = discount;
             TotalAmount = totalAmount;
             PaidAmount = paidAmount;
-            DueAmount = dueAmount;
-            LastPaymentDate = lastPaymentDate;
+            DueDate = dueDate;
             CreatedBy = createdBy;
             CreatedAt = createdAt;
             ModifiedBy = modifiedBy;
             ModifiedAt = modifiedAt;
-            Payments = new List<SchoolPayments>();
+            Payments = new List<PaymentsRecords>();
 
         }
 
+        public bool IsActive { get; set; }
+        public string SchoolId { get; set; }
         public string StudentId { get; set; }
         public StudentData Student { get; set; }
         public string FeeStructureId { get; set; }
@@ -56,13 +59,14 @@ namespace TN.Shared.Domain.Entities.FeeAndAccounting
         public decimal Discount { get; set; }
         public decimal TotalAmount { get; set; }
         public decimal PaidAmount { get; set; }
-        public decimal DueAmount { get; set; }
-        public DateTime LastPaymentDate { get; set; }
+        // ✅ Computed property
+        public decimal DueAmount => TotalAmount - PaidAmount;
+        public DateTime DueDate { get; set; }
         public string CreatedBy { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public string ModifiedBy { get; set; }
         public DateTime ModifiedAt { get; set; } = DateTime.Now;
-        public ICollection<SchoolPayments> Payments { get; set; }
+        public ICollection<PaymentsRecords> Payments { get; set; }
 
     }
 }

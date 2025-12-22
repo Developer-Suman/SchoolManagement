@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TN.Authentication.Domain.Entities;
+﻿
 using TN.Shared.Domain.Entities.Academics;
-using TN.Shared.Domain.Entities.FeeAndAccounting;
+using TN.Shared.Domain.Entities.Finance;
 using TN.Shared.Domain.Entities.SchoolItems;
 using TN.Shared.Domain.Primitive;
 

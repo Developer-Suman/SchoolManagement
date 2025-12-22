@@ -5,21 +5,23 @@ using System.Text;
 using System.Threading.Tasks;
 using TN.Shared.Domain.Primitive;
 
-namespace TN.Shared.Domain.Entities.FeeAndAccounting
+namespace TN.Shared.Domain.Entities.Finance
 {
-    public class SchoolPayments : Entity
+    public class PaymentsRecords : Entity
     {
-        public SchoolPayments(
+        public PaymentsRecords(
             ) : base(null)
         {
         }
-        public SchoolPayments(
+        public PaymentsRecords(
             string id,
             string studentfeeId,
             decimal amountPaid,
             DateTime paymentDate,
             PaymentMethods paymentMethod,
-            string referenceNumber,
+            string reference,
+            bool isActive,
+            string schoolId,
             string createdBy,
             DateTime createdAt,
             string modifiedBy,
@@ -31,20 +33,24 @@ namespace TN.Shared.Domain.Entities.FeeAndAccounting
             AmountPaid = amountPaid;
             PaymentDate = paymentDate;
             PaymentMethod = paymentMethod;
-            ReferenceNumber = referenceNumber;
+            Reference = reference;
+            IsActive = isActive;
+            Schoolid = schoolId;
             CreatedBy = createdBy;
             CreatedAt = createdAt;
             ModifiedBy = modifiedBy;
             ModifiedAt = modifiedAt;
         }
 
+        public bool IsActive { get; set; }
+        public string Schoolid { get; set; }
         public string StudentfeeId { get; set; }
         public StudentFee StudentFee { get; set; }
 
         public decimal AmountPaid { get; set; }
         public DateTime PaymentDate { get; set; }
         public PaymentMethods PaymentMethod { get; set; }
-        public string ReferenceNumber { get; set; }
+        public string Reference { get; set; }
         public string CreatedBy { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public string ModifiedBy { get; set; }
