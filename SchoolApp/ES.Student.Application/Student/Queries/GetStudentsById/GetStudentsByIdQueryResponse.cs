@@ -11,20 +11,32 @@ namespace ES.Student.Application.Student.Queries.GetStudentsById
     (
 
         string firstName="",
-        string? middleName="",
-        string lastName = "",
-        string admissionNumber = "",
-        GenderStatus genderStatus= default,
-        StudentStatus studentStatus=default,
-        DateTime dateOfBirth = default,
-        string? email = "",
-        string? phoneNumber = "",
-        string? imageUrl = "",
-        string? address = "",
-        DateTime enrollmentDate = default,
-        string? parentId = "",
-        string? classSectionId = "",
-        string? classId = ""
+            string? middleName="",
+            string lastName="",
+            string registrationNumber="",
+            GenderStatus gender=default,
+            StudentStatus status=default,
+            DateTime dateOfBirth=default,
+            string? email="",
+            string? phoneNumber="",
+            string? studentImg= "",
+            string? address="",
+            DateTime enrollmentDate=default,
+            string? parentId="",
+            string? classSectionId="",
+            int provinceId=0,
+            int districtId=0,
+            int wardNumber=0,
+            string createdBy="",
+            DateTime createdAt=default,
+            string modifiedBy="",
+
+            DateTime modifiedAt=default,
+            string schoolId="",
+            bool isActive=false,
+            int? vdcid=0,
+            int? municipalityId=0,
+            string? classId=""
 
     );
 }

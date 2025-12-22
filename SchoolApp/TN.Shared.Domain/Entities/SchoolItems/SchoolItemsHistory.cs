@@ -23,8 +23,6 @@ namespace TN.Shared.Domain.Entities.SchoolItems
             ItemStatus previousStatus,
             ItemStatus currentStatus,
             string? remarks,
-            DateTime actionDate,
-            string actionBy,
             string schoolId,
             bool isActive,
             string createdBy,
@@ -40,8 +38,7 @@ namespace TN.Shared.Domain.Entities.SchoolItems
             PreviousStatus = previousStatus;
             CurrentStatus = currentStatus;
             Remarks = remarks;
-            ActionDate = actionDate;
-            ActionBy = actionBy;
+            SchoolId = schoolId;
             IsActive = isActive;
             CreatedBy = createdBy;
             CreatedAt = createdAt;
@@ -56,8 +53,6 @@ namespace TN.Shared.Domain.Entities.SchoolItems
         public ItemStatus PreviousStatus { get; set; }
         public ItemStatus CurrentStatus { get; set; }
         public string? Remarks { get; set; }
-        public DateTime ActionDate { get; set; }
-        public string ActionBy { get; set; }
         public string SchoolId { get; set; }
         public bool IsActive { get; set; }
         public string CreatedBy { get; set; }

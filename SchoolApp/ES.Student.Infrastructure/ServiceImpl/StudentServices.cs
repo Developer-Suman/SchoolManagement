@@ -283,7 +283,7 @@ namespace ES.Student.Infrastructure.ServiceImpl
                 var (parents, currentSchoolId, institutionId, userRole, isSuperAdmin) =
                     await _getUserScopedData.GetUserScopedData<Parent>();
 
-                var finalQuery = parents.Where(x => x.IsActive == true).AsNoTracking();
+                var finalQuery = parents.Where(x => x.IsActive == true && x.SchoolId == currentSchoolId).AsNoTracking();
 
 
                 var pagedResult = await finalQuery.ToPagedResultAsync(
@@ -318,7 +318,7 @@ namespace ES.Student.Infrastructure.ServiceImpl
                 var (studentsData, currentSchoolId, institutionId, userRole, isSuperAdmin) =
                     await _getUserScopedData.GetUserScopedData<StudentData>();
 
-                var finalQuery = studentsData.Where(x => x.IsActive == true).AsNoTracking();
+                var finalQuery = studentsData.Where(x => x.IsActive == true && x.SchoolId == currentSchoolId).AsNoTracking();
 
 
                 var pagedResult = await finalQuery.ToPagedResultAsync(
@@ -371,7 +371,7 @@ namespace ES.Student.Infrastructure.ServiceImpl
                        (string.IsNullOrEmpty(filterParentsDTOs.firstName) || x.FullName == filterParentsDTOs.firstName) &&
                      x.CreatedAt >= startUtc &&
                          x.CreatedAt <= endUtc &&
-                         x.IsActive
+                         x.IsActive == true
                  )
                  .OrderByDescending(x => x.CreatedAt) // newest first
                  .ToList();
@@ -603,7 +603,12 @@ namespace ES.Student.Infrastructure.ServiceImpl
 
                 var student = await _unitOfWork.BaseRepository<StudentData>().GetByGuIdAsync(id);
 
-                var studentResponse = _mapper.Map<GetStudentsByIdQueryResponse>(student);
+                var intialResponse = _mapper.Map<GetStudentsByIdQueryResponse>(student);
+
+                var studentResponse = intialResponse with
+                {
+                    studentImg = student.ImageUrl
+                };
 
                 return Result<GetStudentsByIdQueryResponse>.Success(studentResponse);
 

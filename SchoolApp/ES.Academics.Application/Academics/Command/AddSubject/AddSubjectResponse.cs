@@ -19,7 +19,10 @@ namespace ES.Academics.Application.Academics.Command.AddSubject
                 string createdBy,
             DateTime createdAt,
             string modifiedBy,
-            DateTime modifiedAt
+            DateTime modifiedAt,
+                string examId,
+            int fullMarks,
+            int passMarks
         );
     
 }

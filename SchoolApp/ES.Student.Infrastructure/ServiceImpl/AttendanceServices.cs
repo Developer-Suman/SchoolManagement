@@ -200,12 +200,15 @@ namespace ES.Student.Infrastructure.ServiceImpl
                             continue;
                         }
 
+                        var academicTeamid = await _unitOfWork.BaseRepository<AcademicTeam>()
+                            .FirstOrDefaultAsync(x => x.UserId == userId);
+                               
                         var attendance = new StudentAttendances(
                             id: Guid.NewGuid().ToString(),
                             studentId: s.studentId,
                             attendanceDate: DateTime.UtcNow,
                             attendanceStatus: s.status,
-                            academicTeamId: userId,
+                            academicTeamId: academicTeamid.Id,
                             remarks: s.remarks,
                             createdBy: userId,
                             createdAt: DateTime.Now,

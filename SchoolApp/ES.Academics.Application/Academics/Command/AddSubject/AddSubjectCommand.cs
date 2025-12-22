@@ -14,6 +14,9 @@ namespace ES.Academics.Application.Academics.Command.AddSubject
             string code,
             int? creditHours,
             string? description,
-            string classId
+            string classId,
+                string examId,
+            int fullMarks,
+            int passMarks
         ) : IRequest<Result<AddSubjectResponse>>;
 }

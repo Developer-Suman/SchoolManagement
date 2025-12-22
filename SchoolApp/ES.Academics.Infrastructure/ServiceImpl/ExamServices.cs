@@ -65,8 +65,6 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                             newId,
                         addExamCommand.name,
                         addExamCommand.examDate,
-                        addExamCommand.totalMarks,
-                        addExamCommand.passingMarks,
                         FyId,
                         addExamCommand.isfinalExam,
                         schoolId ?? "",
@@ -77,6 +75,8 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                         true,
                         addExamCommand.classId
                     );
+
+                    addExam.UpdateTotalMarks();
 
                     await _unitOfWork.BaseRepository<Exam>().AddAsync(addExam);
                     await _unitOfWork.SaveChangesAsync();
@@ -215,7 +215,7 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                     i.Name,
                     i.ExamDate,
                     i.TotalMarks,
-                    i.PassingMarks,
+         
                     i.IsFinalExam,
                     i.ClassId
 
@@ -291,8 +291,7 @@ namespace ES.Academics.Infrastructure.ServiceImpl
 
                             examToBeUpdated.Name,
                             examToBeUpdated.ExamDate,
-                            examToBeUpdated.TotalMarks,
-                            examToBeUpdated.PassingMarks,
+                    
                             examToBeUpdated.IsFinalExam,
                             examToBeUpdated.ClassId
 

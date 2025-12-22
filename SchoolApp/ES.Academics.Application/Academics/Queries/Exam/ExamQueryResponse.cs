@@ -9,11 +9,10 @@ namespace ES.Academics.Application.Academics.Queries.Exam
     public record ExamQueryResponse
     (
         string id,
-         string name,
-         DateTime examDate,
-         decimal totalMarks,
-         decimal passingMarks,
-         bool? isfinalExam,
-         string classId
+                 string name,
+            DateTime examDate,
+            decimal totalMarks,
+            bool? isfinalExam,
+            string classId
         );
 }

@@ -55,6 +55,9 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                 try
                 {
 
+                    var exam = await _unitOfWork.BaseRepository<Exam>().GetByGuIdAsync(addSubjectCommand.examId);
+                    if (exam == null) return Result<AddSubjectResponse>.Failure("The specified Exam does not exist.");
+
                     string newId = Guid.NewGuid().ToString();
                     var FyId = _fiscalContext.CurrentFiscalYearId;
                     var schoolId = _tokenService.SchoolId().FirstOrDefault() ?? "";
@@ -73,10 +76,25 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                         userId,
                         DateTime.UtcNow,
                         "",
-                        default
+                        default,
+                        addSubjectCommand.fullMarks,
+                        addSubjectCommand.passMarks,
+                        addSubjectCommand.examId
                     );
 
                     await _unitOfWork.BaseRepository<Subject>().AddAsync(addSubject);
+
+                    //Update the TotalMarks on the Parent Exam, sum existing and new one
+
+                    var allSubjectsForThisExam = await _unitOfWork.BaseRepository<Subject>()
+                    .GetConditionalAsync(x => x.ExamId == addSubjectCommand.examId);
+
+                    exam.TotalMarks = allSubjectsForThisExam.Sum(s => s.FullMarks) + addSubject.FullMarks;
+
+                     _unitOfWork.BaseRepository<Exam>().Update(exam);
+
+
+
                     await _unitOfWork.SaveChangesAsync();
                     scope.Complete();
 

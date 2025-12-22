@@ -24,8 +24,11 @@ namespace TN.Shared.Domain.IRepository
             params Expression<Func<TEntity, object>>[] includes
             );
 
+        public IQueryable<TEntity> GetAllWithIncludeQueryable(
+    Expression<Func<TEntity, bool>> predicate = null,
+    params Expression<Func<TEntity, object>>[] includes);
 
-        
+
 
         Task<IEnumerable<TResult>> GetConditionalFilterType<TResult>(
         Expression<Func<TEntity, bool>> predicate,

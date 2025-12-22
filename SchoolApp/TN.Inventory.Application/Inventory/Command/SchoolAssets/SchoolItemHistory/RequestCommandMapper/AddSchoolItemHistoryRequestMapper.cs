@@ -14,9 +14,7 @@ namespace TN.Inventory.Application.Inventory.Command.SchoolAssets.SchoolItemHist
                 request.schoolItemId,
                 request.previousStatus,
                 request.currentStatus,
-                request.remarks,
-                request.actionDate,
-                request.actionBy
+                request.remarks
                 );
         }
     }

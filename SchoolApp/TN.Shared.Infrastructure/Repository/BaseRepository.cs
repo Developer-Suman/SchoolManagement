@@ -228,5 +228,21 @@ namespace TN.Shared.Infrastructure.Repository
         {
             return _context.Set<TEntity>().AsQueryable();
         }
+
+        public IQueryable<TEntity> GetAllWithIncludeQueryable(Expression<Func<TEntity, bool>> predicate = null, params Expression<Func<TEntity, object>>[] includes)
+        {
+            IQueryable<TEntity> query = _dbSet;
+
+            // Apply optional filter if provided
+            if (predicate != null)
+                query = query.Where(predicate);
+
+            // Apply each include for navigation properties
+            foreach (var include in includes)
+                query = query.Include(include);
+
+            // Return the query without executing it yet (deferred execution)
+            return query;
+        }
     }
 }

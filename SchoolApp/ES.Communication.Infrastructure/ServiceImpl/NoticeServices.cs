@@ -213,10 +213,12 @@ namespace ES.Communication.Infrastructure.ServiceImpl
         {
             try
             {
+
+                var schoolId = _tokenService.SchoolId().FirstOrDefault();
                 var notices = await _unitOfWork
                     .BaseRepository<Notice>()
                     .GetConditionalFilterType(
-                        predicate: x => x.IsActive && x.IsPublished,
+                        predicate: x => x.IsActive && x.IsPublished && x.SchoolId == schoolId,
                         queryModifier: q => q
                             .OrderByDescending(x => x.CreatedAt)
                             .Take(10)

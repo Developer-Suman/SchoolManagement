@@ -18,6 +18,7 @@ namespace TN.Inventory.Application.Inventory.Command.SchoolAssets.SchoolItems
             DateTime receivedDate,
             decimal? estimatedValue,
               decimal? quantity,
-            UnitType? unitType
+            UnitType? unitType,
+            string fiscalYearId
         ) : IRequest<Result<AddSchoolItemsResponse>>;
 }

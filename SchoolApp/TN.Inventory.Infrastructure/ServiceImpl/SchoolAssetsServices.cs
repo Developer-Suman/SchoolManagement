@@ -15,9 +15,11 @@ using TN.Inventory.Application.Inventory.Command.SchoolAssets.SchoolItems;
 using TN.Inventory.Application.Inventory.Queries.SchoolAssets.FilterContributors;
 using TN.Inventory.Application.Inventory.Queries.SchoolAssets.FilterSchoolItems;
 using TN.Inventory.Application.Inventory.Queries.SchoolAssets.FilterSchoolItemsHistory;
+using TN.Inventory.Application.Inventory.Queries.SchoolAssets.SchoolAssetsReport;
 using TN.Inventory.Application.Inventory.Queries.SchoolAssets.SchoolItems;
 using TN.Inventory.Application.ServiceInterface;
 using TN.Inventory.Domain.Entities;
+using TN.Purchase.Domain.Entities;
 using TN.Shared.Application.ServiceInterface;
 using TN.Shared.Domain.Abstractions;
 using TN.Shared.Domain.Entities.OrganizationSetUp;
@@ -113,8 +115,6 @@ namespace TN.Inventory.Infrastructure.ServiceImpl
                             addSchoolItemHistoryCommand.previousStatus,
                             addSchoolItemHistoryCommand.currentStatus,
                             addSchoolItemHistoryCommand.remarks,
-                            addSchoolItemHistoryCommand.actionDate,
-                            addSchoolItemHistoryCommand.actionBy,
                             schoolId,
                             true,
                             userId,
@@ -163,6 +163,7 @@ namespace TN.Inventory.Infrastructure.ServiceImpl
                             addSchoolItemsCommand.quantity,
                             addSchoolItemsCommand.unitType,
                             schoolId,
+                            addSchoolItemsCommand.fiscalYearId,
                             true,
                             userId,
                             DateTime.UtcNow,
@@ -425,8 +426,6 @@ namespace TN.Inventory.Infrastructure.ServiceImpl
                     i.PreviousStatus,
                     i.CurrentStatus,
                     i.Remarks,
-                    i.ActionDate,
-                    i.ActionBy,
                     i.SchoolId,
                     i.IsActive,
                     i.CreatedBy,
@@ -513,6 +512,85 @@ namespace TN.Inventory.Infrastructure.ServiceImpl
             catch (Exception ex)
             {
                 throw new Exception("An error occurred while fetching all SchoolItems", ex);
+            }
+        }
+
+        public async Task<Result<PagedResult<SchoolAssetsReportResponse>>> SchoolAssetsReport(PaginationRequest paginationRequest, SchoolAssetsReportDTOs schoolAssetsReportDTOs)
+        {
+            try
+            {
+                var fyId = _fiscalContext.CurrentFiscalYearId;
+                var userId = _tokenService.GetUserId();
+
+                var (_, schoolId, institutionId, userRole, isSuperAdmin) =
+                    await _getUserScopedData.GetUserScopedData<SchoolItem>();
+
+                var currentSchoolId = _tokenService.SchoolId().FirstOrDefault();
+
+                var schoolIds = await _unitOfWork.BaseRepository<School>()
+                    .GetConditionalFilterType(
+                        x => x.InstitutionId == institutionId,
+                        query => query.Select(c => c.Id)
+                    );
+
+                var responseList = await _unitOfWork.BaseRepository<SchoolItem>()
+                    .GetAllWithIncludeQueryable(
+                        x => schoolIds.Contains(x.SchoolId) && x.FiscalYearId == schoolAssetsReportDTOs.fiscalYearId,
+                        x => x.Contributor,
+                        x => x.FiscalYear
+                    )
+                    .Select(x => new SchoolAssetsReportResponse
+                    (
+                        x.Contributor.Name,
+                         x.FiscalYear.FyName,
+                         x.EstimatedValue,
+                        x.Quantity,
+                        x.Name
+                    ))
+                    .AsNoTracking()     
+                    .ToListAsync();       
+
+
+
+                PagedResult<SchoolAssetsReportResponse> finalResponseList;
+
+                if (paginationRequest.IsPagination)
+                {
+
+                    int pageIndex = paginationRequest.pageIndex <= 0 ? 1 : paginationRequest.pageIndex;
+                    int pageSize = paginationRequest.pageSize <= 0 ? 10 : paginationRequest.pageSize;
+
+                    int totalItems = responseList.Count();
+
+                    var pagedItems = responseList
+                        .Skip((pageIndex - 1) * pageSize)
+                        .Take(pageSize)
+                        .ToList();
+
+                    finalResponseList = new PagedResult<SchoolAssetsReportResponse>
+                    {
+                        Items = pagedItems,
+                        TotalItems = totalItems,
+                        PageIndex = pageIndex,
+                        pageSize = pageSize
+                    };
+                }
+                else
+                {
+                    finalResponseList = new PagedResult<SchoolAssetsReportResponse>
+                    {
+                        Items = responseList.ToList(),
+                        TotalItems = responseList.Count(),
+                        PageIndex = 1,
+                        pageSize = responseList.Count()
+                    };
+                }
+                return Result<PagedResult<SchoolAssetsReportResponse>>.Success(finalResponseList);
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"An error occurred while fetching SchoolItems Reports: {ex.Message}", ex);
             }
         }
     }

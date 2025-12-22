@@ -13,8 +13,6 @@ namespace ES.Academics.Application.Academics.Command.AddExam.RequestCommandMappe
             return new AddExamCommand(
                 request.name,
                 request.examDate,
-                request.totalMarks,
-                request.passingMarks,
                 request.isfinalExam,
                 request.classId
                 );

@@ -63,6 +63,11 @@ namespace TN.Inventory.Application.AutoMapper
         public MappingProfile()
         {
 
+            #region SchoolAssetsReport'
+            //CreateMap<FilterSchoolItemsHistoryResponse, SchoolItemsHistory>().ReverseMap();
+            //CreateMap<PagedResult<SchoolItemsHistory>, PagedResult<FilterSchoolItemsHistoryResponse>>().ReverseMap();
+            #endregion
+
             #region SchoolItemsHistory
             CreateMap<AddSchoolItemHistoryResponse, SchoolItemsHistory>().ReverseMap();
             CreateMap<FilterSchoolItemsHistoryResponse, SchoolItemsHistory>().ReverseMap();
