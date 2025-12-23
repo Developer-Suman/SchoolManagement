@@ -17,6 +17,7 @@ using TN.Shared.Domain.Entities.Finance;
 using TN.Shared.Domain.Entities.OrganizationSetUp;
 using TN.Shared.Domain.ExtensionMethod.Pagination;
 using TN.Shared.Domain.IRepository;
+using static TN.Shared.Domain.Entities.Finance.StudentFee;
 
 namespace ES.Finances.Infrastructure.ServiceImpl
 {
@@ -51,6 +52,24 @@ namespace ES.Finances.Infrastructure.ServiceImpl
                     var FyId = _fiscalContext.CurrentFiscalYearId;
                     var schoolId = _tokenService.SchoolId().FirstOrDefault() ?? "";
                     var userId = _tokenService.GetUserId();
+
+                    var fee = await _unitOfWork.BaseRepository<StudentFee>().FirstOrDefaultAsync(x=>x.Id == addPaymentsRecordsCommand.studentfeeId);
+
+                    if (fee is null)
+                    {
+                        return Result<AddpaymentsRecordsResponse>.Failure("NotFound", "There is no any fee");
+                    }
+
+                    fee.PaidAmount += addPaymentsRecordsCommand.amountPaid;
+
+                    if (fee.PaidAmount >= fee.TotalAmount)
+                    {
+                        fee.IsPaidStatus = PaidStatus.Paid;
+                    }
+                    else if (fee.PaidAmount > 0 && fee.PaidAmount < fee.TotalAmount)
+                    {
+                        fee.IsPaidStatus = PaidStatus.partiallyPaid;
+                    }
 
                     var add = new PaymentsRecords(
                             newId,

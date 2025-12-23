@@ -27,6 +27,7 @@ namespace TN.Shared.Domain.Entities.Finance
             DateTime dueDate,
             bool isActive,
             string schoolid,
+            PaidStatus isPaidStatus,
             string createdBy,
             DateTime createdAt,
             string modifiedBy,
@@ -35,6 +36,7 @@ namespace TN.Shared.Domain.Entities.Finance
         {
             StudentId = studentId;
             FeeStructureId = feeStructureId;
+            IsPaidStatus = isPaidStatus;
             IsActive = isActive;
             SchoolId = schoolid;
             Discount = discount;
@@ -49,6 +51,7 @@ namespace TN.Shared.Domain.Entities.Finance
 
         }
 
+        public PaidStatus IsPaidStatus { get; set; }
         public bool IsActive { get; set; }
         public string SchoolId { get; set; }
         public string StudentId { get; set; }
@@ -67,6 +70,15 @@ namespace TN.Shared.Domain.Entities.Finance
         public string ModifiedBy { get; set; }
         public DateTime ModifiedAt { get; set; } = DateTime.Now;
         public ICollection<PaymentsRecords> Payments { get; set; }
+
+        public enum PaidStatus
+        {
+            Pending = 0,
+            partiallyPaid=1,
+            Paid = 2,
+            Overdue = 3
+
+        }
 
     }
 }

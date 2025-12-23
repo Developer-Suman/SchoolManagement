@@ -521,11 +521,7 @@ namespace TN.Inventory.Infrastructure.ServiceImpl
             {
                 var fyId = _fiscalContext.CurrentFiscalYearId;
                 var userId = _tokenService.GetUserId();
-
-                var (_, schoolId, institutionId, userRole, isSuperAdmin) =
-                    await _getUserScopedData.GetUserScopedData<SchoolItem>();
-
-                var currentSchoolId = _tokenService.SchoolId().FirstOrDefault();
+                string institutionId = _tokenService.InstitutionId();
 
                 var schoolIds = await _unitOfWork.BaseRepository<School>()
                     .GetConditionalFilterType(
