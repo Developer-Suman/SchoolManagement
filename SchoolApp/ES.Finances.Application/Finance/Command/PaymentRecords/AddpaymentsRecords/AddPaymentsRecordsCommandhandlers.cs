@@ -16,17 +16,49 @@ namespace ES.Finances.Application.Finance.Command.PaymentRecords.AddpaymentsReco
     {
         private readonly IValidator<AddPaymentsRecordsCommand> _validator;
         private readonly IMapper _mapper;
-        private readonly IFeeTypeServices _feeServices;
+        private readonly IPaymentRecordsServices _paymentRecordsServices;
 
-        public AddPaymentsRecordsCommandhandlers(IValidator<AddPaymentsRecordsCommand> validator, IMapper mapper, IFeeTypeServices feeServices)
+        public AddPaymentsRecordsCommandhandlers(IValidator<AddPaymentsRecordsCommand> validator, IMapper mapper, IPaymentRecordsServices paymentRecordsServices)
         {
             _validator = validator;
             _mapper = mapper;
-            _feeServices = feeServices;
+            _paymentRecordsServices = paymentRecordsServices;
         }
-        public Task<Result<AddpaymentsRecordsResponse>> Handle(AddPaymentsRecordsCommand request, CancellationToken cancellationToken)
+        public async Task<Result<AddpaymentsRecordsResponse>> Handle(AddPaymentsRecordsCommand request, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var validationResult = await _validator.ValidateAsync(request, cancellationToken);
+                if (!validationResult.IsValid)
+                {
+                    var errors = string.Join(", ", validationResult.Errors.Select(x => x.ErrorMessage));
+                    return Result<AddpaymentsRecordsResponse>.Failure(errors);
+                }
+
+                var add = await _paymentRecordsServices.Add(request);
+
+                if (add.Errors.Any())
+                {
+                    var errors = string.Join(", ", add.Errors);
+                    return Result<AddpaymentsRecordsResponse>.Failure(errors);
+                }
+
+                if (add is null || !add.IsSuccess)
+                {
+                    return Result<AddpaymentsRecordsResponse>.Failure(" ");
+                }
+
+                var addDisplay = _mapper.Map<AddpaymentsRecordsResponse>(add.Data);
+                return Result<AddpaymentsRecordsResponse>.Success(addDisplay);
+
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while adding", ex);
+
+
+            }
         }
     }
 }

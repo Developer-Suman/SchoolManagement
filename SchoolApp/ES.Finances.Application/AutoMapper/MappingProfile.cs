@@ -2,9 +2,14 @@
 using ES.Finances.Application.Finance.Command.Fee.AddFeeStructure;
 using ES.Finances.Application.Finance.Command.Fee.AddFeeType;
 using ES.Finances.Application.Finance.Command.Fee.AddStudentFee;
+using ES.Finances.Application.Finance.Command.PaymentRecords.AddpaymentsRecords;
+using ES.Finances.Application.Finance.Queries.Fee.FeeStructure;
+using ES.Finances.Application.Finance.Queries.Fee.Feetype;
 using ES.Finances.Application.Finance.Queries.Fee.FilterFeeStructure;
 using ES.Finances.Application.Finance.Queries.Fee.FilterFeetype;
 using ES.Finances.Application.Finance.Queries.Fee.FilterStudentFee;
+using ES.Finances.Application.Finance.Queries.Fee.StudentFee;
+using ES.Finances.Application.Finance.Queries.Fee.StudentFeeSummary;
 using TN.Shared.Domain.Entities.Academics;
 using TN.Shared.Domain.Entities.Finance;
 using TN.Shared.Domain.ExtensionMethod.Pagination;
@@ -15,22 +20,38 @@ namespace ES.Finances.Application.AutoMapper
     {
         public MappingProfile()
         {
+
+            #region StudentFeeSummary
+            CreateMap<StudentFeeSummaryResponse, StudentFee>().ReverseMap();
+            CreateMap<PagedResult<StudentFee>, PagedResult<StudentFeeSummaryResponse>>().ReverseMap();
+            #endregion
+
+            #region PaymentRecords
+
+             CreateMap<AddpaymentsRecordsResponse, PaymentsRecords>().ReverseMap();
+            #endregion
             #region Feetype
             CreateMap<FeeType, AddFeeTypeResponse>().ReverseMap();
             CreateMap<FilterFeeTypeResponse, FeeType>().ReverseMap();
             CreateMap<PagedResult<FeeType>, PagedResult<FilterFeeTypeResponse>>().ReverseMap();
+            CreateMap<FeeTypeResponse, FeeType>().ReverseMap();
+            CreateMap<PagedResult<FeeType>, PagedResult<FeeTypeResponse>>().ReverseMap();
             #endregion
 
             #region FeeStructure
             CreateMap<FeeStructure, AddFeeStructureResponse>().ReverseMap();
             CreateMap<FilterFeeStructureResponse, FeeStructure>().ReverseMap();
             CreateMap<PagedResult<FeeStructure>, PagedResult<FilterFeeStructureResponse>>().ReverseMap();
+            CreateMap<FeeStructureResponse, FeeStructure>().ReverseMap();
+            CreateMap<PagedResult<FeeStructure>, PagedResult<FeeStructureResponse>>().ReverseMap();
             #endregion
 
             #region StudentFee
             CreateMap<StudentFee, AddStudentFeeResponse>().ReverseMap();
             CreateMap<FilterStudentFeeResponse, StudentFee>().ReverseMap();
             CreateMap<PagedResult<StudentFee>, PagedResult<FilterStudentFeeResponse>>().ReverseMap();
+            CreateMap<StudentFeeResponse, StudentFee>().ReverseMap();
+            CreateMap<PagedResult<StudentFee>, PagedResult<StudentFeeResponse>>().ReverseMap();
             #endregion
 
         }

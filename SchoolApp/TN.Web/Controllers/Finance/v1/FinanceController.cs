@@ -6,9 +6,14 @@ using ES.Finances.Application.Finance.Command.Fee.AddStudentFee;
 using ES.Finances.Application.Finance.Command.Fee.AddStudentFee.RequestCommandMapper;
 using ES.Finances.Application.Finance.Command.PaymentRecords.AddpaymentsRecords;
 using ES.Finances.Application.Finance.Command.PaymentRecords.AddpaymentsRecords.RequestCommandMapper;
+using ES.Finances.Application.Finance.Queries.Fee.FeeStructure;
+using ES.Finances.Application.Finance.Queries.Fee.Feetype;
 using ES.Finances.Application.Finance.Queries.Fee.FilterFeeStructure;
 using ES.Finances.Application.Finance.Queries.Fee.FilterStudentFee;
+using ES.Finances.Application.Finance.Queries.Fee.StudentFee;
+using ES.Finances.Application.Finance.Queries.Fee.StudentFeeSummary;
 using ES.Finances.Application.Finance.Queries.PaymentsRecords.FilterpaymentsRecords;
+using ES.Student.Application.Student.Queries.GetAllStudents;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
@@ -39,6 +44,34 @@ namespace TN.Web.Controllers.Finance.v1
             _logger = logger;
             _mediator = mediator;
         }
+
+
+
+        #region StudentFeeSummary
+        #region StudentFeeSummary
+        [HttpGet("StudentFeeSummary")]
+        public async Task<IActionResult> StudentFeeSummary([FromQuery] StudentFeeSummaryDTOs studentFeeSummaryDTOs, [FromQuery] PaginationRequest paginationRequest)
+        {
+            var query = new StudentFeeSummaryQuery(paginationRequest, studentFeeSummaryDTOs);
+            var result = await _mediator.Send(query);
+            #region Switch Statement
+            return result switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(result.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = result.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(result.Errors),
+                _ => BadRequest("Invalid page and pageSize Fields")
+            };
+            #endregion
+
+        }
+
+        #endregion
+
+        #endregion
         #region Payments Records
 
 
@@ -92,7 +125,29 @@ namespace TN.Web.Controllers.Finance.v1
         #endregion
 
         #region StudentFee
+        #region StudentFee
+        [HttpGet("StudentFee")]
+        public async Task<IActionResult> StudentFee([FromQuery] PaginationRequest paginationRequest)
+        {
+            var query = new StudentFeeQuery(paginationRequest);
+            var result = await _mediator.Send(query);
+            #region Switch Statement
+            return result switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(result.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { result.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(result.Errors),
+                _ => BadRequest("Invalid page and pageSize Fields")
+            };
+            #endregion
 
+        }
+
+
+        #endregion
 
         #region FilterStudentFee
         [HttpGet("FilterStudentFee")]
@@ -144,7 +199,29 @@ namespace TN.Web.Controllers.Finance.v1
         #endregion
 
         #region FeeStructure
+        #region FeeStructure
+        [HttpGet("FeeStructure")]
+        public async Task<IActionResult> FeeStructure([FromQuery] PaginationRequest paginationRequest)
+        {
+            var query = new FeeStructureQuery(paginationRequest);
+            var result = await _mediator.Send(query);
+            #region Switch Statement
+            return result switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(result.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { result.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(result.Errors),
+                _ => BadRequest("Invalid page and pageSize Fields")
+            };
+            #endregion
 
+        }
+
+
+        #endregion
 
         #region FilterFeeStructure
         [HttpGet("FilterFeeStructure")]
@@ -196,7 +273,29 @@ namespace TN.Web.Controllers.Finance.v1
         #endregion
 
         #region Feetype
+        #region Feetype
+        [HttpGet("Feetype")]
+        public async Task<IActionResult> Feetype([FromQuery] PaginationRequest paginationRequest)
+        {
+            var query = new FeeTypeQuery(paginationRequest);
+            var result = await _mediator.Send(query);
+            #region Switch Statement
+            return result switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(result.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { result.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(result.Errors),
+                _ => BadRequest("Invalid page and pageSize Fields")
+            };
+            #endregion
 
+        }
+
+
+        #endregion
 
         #region FilterFeetype
         [HttpGet("FilterFeetype")]

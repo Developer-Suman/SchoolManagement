@@ -62,6 +62,7 @@ namespace ES.Finances.Infrastructure.ServiceImpl
 
                     fee.PaidAmount += addPaymentsRecordsCommand.amountPaid;
 
+
                     if (fee.PaidAmount >= fee.TotalAmount)
                     {
                         fee.IsPaidStatus = PaidStatus.Paid;
@@ -74,7 +75,7 @@ namespace ES.Finances.Infrastructure.ServiceImpl
                     var add = new PaymentsRecords(
                             newId,
                         addPaymentsRecordsCommand.studentfeeId,
-                        addPaymentsRecordsCommand.amountPaid,
+                        fee.PaidAmount,
                         addPaymentsRecordsCommand.paymentDate,
                         addPaymentsRecordsCommand.paymentMethod,
                         addPaymentsRecordsCommand.reference,

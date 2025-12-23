@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
 using ES.Finances.Application.Finance.Command.Fee.AddFeeType;
+using ES.Finances.Application.Finance.Queries.Fee.Feetype;
 using ES.Finances.Application.Finance.Queries.Fee.FilterFeetype;
 using ES.Finances.Application.ServiceInterface;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,6 +16,7 @@ using TN.Shared.Domain.Abstractions;
 using TN.Shared.Domain.Entities.Academics;
 using TN.Shared.Domain.Entities.Finance;
 using TN.Shared.Domain.Entities.OrganizationSetUp;
+using TN.Shared.Domain.Entities.Students;
 using TN.Shared.Domain.ExtensionMethod.Pagination;
 using TN.Shared.Domain.IRepository;
 
@@ -81,6 +84,40 @@ namespace ES.Finances.Infrastructure.ServiceImpl
             }
         }
 
+        public async Task<Result<PagedResult<FeeTypeResponse>>> FeeType(PaginationRequest paginationRequest, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+
+                var (feeType, currentSchoolId, institutionId, userRole, isSuperAdmin) =
+                    await _getUserScopedData.GetUserScopedData<FeeType>();
+
+                var finalQuery = feeType.Where(x => x.IsActive == true && x.SchoolId == currentSchoolId).AsNoTracking();
+
+
+                var pagedResult = await finalQuery.ToPagedResultAsync(
+                    paginationRequest.pageIndex,
+                    paginationRequest.pageSize,
+                    paginationRequest.IsPagination);
+
+
+                var mappedItems = _mapper.Map<List<FeeTypeResponse>>(pagedResult.Data.Items);
+
+                var response = new PagedResult<FeeTypeResponse>
+                {
+                    Items = mappedItems,
+                    TotalItems = pagedResult.Data.TotalItems,
+                    PageIndex = pagedResult.Data.PageIndex,
+                    pageSize = pagedResult.Data.pageSize
+                };
+
+                return Result<PagedResult<FeeTypeResponse>>.Success(response);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while fetching", ex);
+            }
+        }
 
         public async Task<Result<PagedResult<FilterFeeTypeResponse>>> Filter(PaginationRequest paginationRequest, FilterFeeTypeDTOs filterFeeTypeDTOs)
         {
@@ -108,7 +145,7 @@ namespace ES.Finances.Infrastructure.ServiceImpl
                        (string.IsNullOrEmpty(filterFeeTypeDTOs.name) || x.Name == filterFeeTypeDTOs.name) &&
                      x.CreatedAt >= startUtc &&
                          x.CreatedAt <= endUtc &&
-                         x.IsActive
+                         x.IsActive == true
                  )
                  .OrderByDescending(x => x.CreatedAt) // newest first
                  .ToList();
