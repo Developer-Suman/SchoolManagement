@@ -1,6 +1,8 @@
 ﻿using NV.Payment.Domain.Entities;
 using TN.Shared.Domain.Entities.Account;
+using TN.Shared.Domain.Entities.Finance;
 using TN.Shared.Domain.Entities.Payments;
+using TN.Shared.Domain.Entities.Students;
 using TN.Shared.Domain.Entities.Transactions;
 using TN.Shared.Domain.Primitive;
 
@@ -23,7 +25,9 @@ namespace TN.Account.Domain.Entities
             string? fyId,
             decimal? openingBalance,
             bool? isSeeded,
-            bool? isActive
+            bool? isActive,
+            string? studentId,
+            string? feeTypeid
             ) : base(id) 
         { 
 
@@ -41,6 +45,8 @@ namespace TN.Account.Domain.Entities
             OpeningBalance = openingBalance;
             IsActive = isActive;
             IsSeeded = isSeeded;
+            StudentId = studentId;
+            FeeTypeid = feeTypeid;
             Customers = new List<Customers>();
             JournalEntryDetails = new List<JournalEntryDetails>();
             Payments = new List<Payments>();
@@ -66,17 +72,22 @@ namespace TN.Account.Domain.Entities
 
         public bool? IsActive { get; set; }
 
+        public string? StudentId { get; set; }
+        public StudentData? StudentData { get; set; }
+        public string? FeeTypeid { get; set; }
+        public FeeType? FeeType { get; set; }
+
         //Navigation Properties
-        public virtual SubLedgerGroup SubLedgerGroup { get; set; }
+        public SubLedgerGroup SubLedgerGroup { get; set; }
         public ICollection<Customers> Customers { get; set; }
-        public virtual ICollection<JournalEntryDetails> JournalEntryDetails { get; set; }
+        public ICollection<JournalEntryDetails> JournalEntryDetails { get; set; }
 
-        public virtual ICollection<Payments> Payments { get; set; }
+        public ICollection<Payments> Payments { get; set; }
 
-        public virtual ICollection<TransactionItems> TransactionItems { get; set; }
+        public ICollection<TransactionItems> TransactionItems { get; set; }
 
-        public virtual ICollection<OpeningBalance> OpeningBalances { get; set; }
-        public virtual ICollection<ClosingBalance> ClosingBalances { get; set; }
+        public ICollection<OpeningBalance> OpeningBalances { get; set; }
+        public ICollection<ClosingBalance> ClosingBalances { get; set; }
 
 
   

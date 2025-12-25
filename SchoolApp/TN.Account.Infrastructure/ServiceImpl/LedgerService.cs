@@ -83,7 +83,9 @@ namespace TN.Account.Infrastructure.ServiceImpl
                         addLedgerCommand.openingBalance,
                       
                         false,
-                        true
+                        true,
+                        addLedgerCommand.studentId,
+                        addLedgerCommand.feeTypeid
 
                     );
 
@@ -1019,7 +1021,9 @@ namespace TN.Account.Infrastructure.ServiceImpl
                             fyId,
                             openingBalance,
                             false,
-                            true
+                            true,
+                            "",
+                            ""
                         );
 
                         await _unitOfWork.BaseRepository<Ledger>().AddAsync(ledger);

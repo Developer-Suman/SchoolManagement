@@ -602,7 +602,26 @@ namespace TN.Shared.Infrastructure.Data
 
             #endregion
 
+
+
             #region FeeAndAccounting
+
+            #region FeeType and Ledger(1:1)
+            builder.Entity<FeeType>()
+                .HasOne(f => f.Ledger)
+                .WithOne(x=>x.FeeType)
+                .HasForeignKey<Ledger>(l => l.FeeTypeid)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            #endregion
+
+            #region Student and Ledger(1:1)
+            builder.Entity<StudentData>()
+                .HasOne(s => s.Ledger)
+                .WithOne(l => l.StudentData)
+                .HasForeignKey<Ledger>(l => l.StudentId) 
+                .OnDelete(DeleteBehavior.Restrict);
+            #endregion
 
             #region Class and FeeStructure(1:m)
             builder.Entity<Class>()

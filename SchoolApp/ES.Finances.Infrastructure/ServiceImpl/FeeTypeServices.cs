@@ -1,15 +1,20 @@
 ﻿using AutoMapper;
 using ES.Finances.Application.Finance.Command.Fee.AddFeeType;
+using ES.Finances.Application.Finance.Command.Fee.AssignMonthlyFee;
 using ES.Finances.Application.Finance.Queries.Fee.Feetype;
 using ES.Finances.Application.Finance.Queries.Fee.FilterFeetype;
 using ES.Finances.Application.ServiceInterface;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Transactions;
+using TN.Account.Application.Account.Command.AddLedger;
+using TN.Account.Application.ServiceInterface;
+using TN.Account.Domain.Entities;
 using TN.Authentication.Domain.Entities;
 using TN.Shared.Application.ServiceInterface;
 using TN.Shared.Domain.Abstractions;
@@ -19,6 +24,7 @@ using TN.Shared.Domain.Entities.OrganizationSetUp;
 using TN.Shared.Domain.Entities.Students;
 using TN.Shared.Domain.ExtensionMethod.Pagination;
 using TN.Shared.Domain.IRepository;
+using TN.Shared.Domain.Static.Cache;
 
 namespace ES.Finances.Infrastructure.ServiceImpl
 {
@@ -32,8 +38,9 @@ namespace ES.Finances.Infrastructure.ServiceImpl
         private readonly IGetUserScopedData _getUserScopedData;
         private readonly IDateConvertHelper _dateConverter;
         private readonly FiscalContext _fiscalContext;
+        private readonly ILedgerService _ledgerService;
 
-        public FeeTypeServices(IDateConvertHelper dateConverter, IGetUserScopedData getUserScopedData, FiscalContext fiscalContext, ITokenService tokenService, IUnitOfWork unitOfWork, IMemoryCacheRepository memoryCacheRepository, IMapper mapper)
+        public FeeTypeServices(ILedgerService ledgerService, IDateConvertHelper dateConverter, IGetUserScopedData getUserScopedData, FiscalContext fiscalContext, ITokenService tokenService, IUnitOfWork unitOfWork, IMemoryCacheRepository memoryCacheRepository, IMapper mapper)
         {
             _dateConverter = dateConverter;
             _getUserScopedData = getUserScopedData;
@@ -41,6 +48,7 @@ namespace ES.Finances.Infrastructure.ServiceImpl
             _mapper = mapper;
             _unitOfWork = unitOfWork;
             _memoryCacheRepository = memoryCacheRepository;
+            _ledgerService = ledgerService;
             _fiscalContext = fiscalContext;
         }
         public async Task<Result<AddFeeTypeResponse>> Add(AddFeeTypeCommand addFeeTypeCommand)
@@ -55,6 +63,16 @@ namespace ES.Finances.Infrastructure.ServiceImpl
                     var schoolId = _tokenService.SchoolId().FirstOrDefault() ?? "";
                     var userId = _tokenService.GetUserId();
 
+
+                    var existingFeetype = await _unitOfWork.BaseRepository<FeeType>()
+                        .FirstOrDefaultAsync(l => l.NameOfMonths == addFeeTypeCommand.nameOfMonths && l.FyId == FyId);
+
+                    if (existingFeetype is not null)
+                    {
+                        return Result<AddFeeTypeResponse>.Failure("Conflict","Fee Type already exists");
+                    }
+
+
                     var add = new FeeType(
                             newId,
                         addFeeTypeCommand.name,
@@ -64,10 +82,34 @@ namespace ES.Finances.Infrastructure.ServiceImpl
                         userId,
                         DateTime.UtcNow,
                         "",
-                        default
+                        default,
+                        FyId,
+                        addFeeTypeCommand.nameOfMonths
+
                     );
 
                     await _unitOfWork.BaseRepository<FeeType>().AddAsync(add);
+
+
+
+                    var addFeeTypeLedger = new AddLedgerCommand(
+                         addFeeTypeCommand.name,
+                         false,
+                         "",
+                         "",
+                         "",
+                         "",
+                         "",
+                         LedgerConstants.DirectIncome,
+                         0,
+                         null,
+                         newId
+                         );
+
+                    await _ledgerService.Add(addFeeTypeLedger);
+
+
+
                     await _unitOfWork.SaveChangesAsync();
                     scope.Complete();
 
