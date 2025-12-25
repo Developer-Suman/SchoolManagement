@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ES.Finances.Application\ES.Finances.Application.csproj" />
+    <ProjectReference Include="..\TN.Account.Application\TN.Account.Application.csproj" />
     <ProjectReference Include="..\TN.Shared.Application\TN.Shared.Application.csproj" />
     <ProjectReference Include="..\TN.Shared.Domain\TN.Shared.Domain.csproj" />
   </ItemGroup>

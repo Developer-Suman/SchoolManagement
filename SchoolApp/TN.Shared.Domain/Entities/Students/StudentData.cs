@@ -1,4 +1,5 @@
 ﻿
+using TN.Account.Domain.Entities;
 using TN.Authentication.Domain.Entities;
 using TN.Shared.Domain.Entities.Academics;
 using TN.Shared.Domain.Entities.Certificates;
@@ -110,20 +111,19 @@ namespace TN.Shared.Domain.Entities.Students
         public string? Address { get; set; }
 
         public int ProvinceId { get; set; }
-        public virtual Province Province { get; set; }
+        public Province Province { get; set; }
         public int DistrictId { get; set; }
-        public virtual District District { get; set; }
+        public District District { get; set; }
 
         public int? MunicipalityId { get; set; }
-        public virtual Municipality? Municipality { get; set; }
+        public Municipality? Municipality { get; set; }
 
         public int? VdcId { get; set; }
-        public virtual Vdc? Vdc { get; set; }
-
+        public Vdc? Vdc { get; set; }
         public int WardNumber { get; set;  }
 
 
-
+        public Ledger? Ledger { get; set; }
         public DateTime EnrollmentDate { get; set; }
         public string CreatedBy { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.Now;

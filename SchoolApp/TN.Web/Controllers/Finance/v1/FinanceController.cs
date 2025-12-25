@@ -1,9 +1,13 @@
-﻿using ES.Finances.Application.Finance.Command.Fee.AddFeeStructure;
+﻿using ES.Communication.Application.Communication.Command.PublishNotice;
+using ES.Communication.Application.Communication.Command.PublishNotice.RequestCommandMapper;
+using ES.Finances.Application.Finance.Command.Fee.AddFeeStructure;
 using ES.Finances.Application.Finance.Command.Fee.AddFeeStructure.RequestCommandMapper;
 using ES.Finances.Application.Finance.Command.Fee.AddFeeType;
 using ES.Finances.Application.Finance.Command.Fee.AddFeeType.RequestCommandMapper;
 using ES.Finances.Application.Finance.Command.Fee.AddStudentFee;
 using ES.Finances.Application.Finance.Command.Fee.AddStudentFee.RequestCommandMapper;
+using ES.Finances.Application.Finance.Command.Fee.AssignMonthlyFee;
+using ES.Finances.Application.Finance.Command.Fee.AssignMonthlyFee.RequestCommandMapper;
 using ES.Finances.Application.Finance.Command.PaymentRecords.AddpaymentsRecords;
 using ES.Finances.Application.Finance.Command.PaymentRecords.AddpaymentsRecords.RequestCommandMapper;
 using ES.Finances.Application.Finance.Queries.Fee.FeeStructure;
@@ -125,6 +129,31 @@ namespace TN.Web.Controllers.Finance.v1
         #endregion
 
         #region StudentFee
+
+
+        #region AssignFee
+        [HttpPost("AssignFee")]
+        public async Task<IActionResult> AssignFee([FromBody] AssignMonthlyFeeRequest request)
+        {
+            var command = request.ToCommand();
+            var assign = await _mediator.Send(command);
+            #region Switch Statement
+            return assign switch
+            {
+                { IsSuccess: true, Data: not null } => CreatedAtAction(nameof(AssignFee), assign.Data),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = assign.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(assign.Errors),
+                _ => BadRequest("Invalid Fields for assign")
+            };
+
+            #endregion
+
+        }
+
+        #endregion
+
+
+
         #region StudentFee
         [HttpGet("StudentFee")]
         public async Task<IActionResult> StudentFee([FromQuery] PaginationRequest paginationRequest)

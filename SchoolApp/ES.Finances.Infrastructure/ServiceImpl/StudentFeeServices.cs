@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using ES.Finances.Application.Finance.Command.Fee.AddFeeStructure;
 using ES.Finances.Application.Finance.Command.Fee.AddStudentFee;
+using ES.Finances.Application.Finance.Command.Fee.AssignMonthlyFee;
 using ES.Finances.Application.Finance.Queries.Fee.Feetype;
 using ES.Finances.Application.Finance.Queries.Fee.FilterFeetype;
 using ES.Finances.Application.Finance.Queries.Fee.FilterStudentFee;
@@ -14,14 +15,21 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Transactions;
+using TN.Account.Application.Account.Command.AddJournalEntry;
+using TN.Account.Application.Account.Command.AddJournalEntryDetails;
+using TN.Account.Application.Account.Command.AddLedger;
+using TN.Account.Application.ServiceInterface;
+using TN.Account.Domain.Entities;
 using TN.Authentication.Domain.Entities;
 using TN.Shared.Application.ServiceInterface;
 using TN.Shared.Domain.Abstractions;
 using TN.Shared.Domain.Entities.Finance;
 using TN.Shared.Domain.Entities.OrganizationSetUp;
 using TN.Shared.Domain.Entities.SchoolItems;
+using TN.Shared.Domain.Entities.Students;
 using TN.Shared.Domain.ExtensionMethod.Pagination;
 using TN.Shared.Domain.IRepository;
+using TN.Shared.Domain.Static.Cache;
 using static TN.Shared.Domain.Entities.Finance.StudentFee;
 
 namespace ES.Finances.Infrastructure.ServiceImpl
@@ -35,8 +43,10 @@ namespace ES.Finances.Infrastructure.ServiceImpl
         private readonly IGetUserScopedData _getUserScopedData;
         private readonly IDateConvertHelper _dateConverter;
         private readonly FiscalContext _fiscalContext;
+        private readonly ILedgerService _ledgerService;
+        private readonly IJournalServices _journalServices;
 
-        public StudentFeeServices(IDateConvertHelper dateConverter, IGetUserScopedData getUserScopedData, FiscalContext fiscalContext, ITokenService tokenService, IUnitOfWork unitOfWork, IMemoryCacheRepository memoryCacheRepository, IMapper mapper)
+        public StudentFeeServices(ILedgerService  ledgerService,IJournalServices journalServices,IDateConvertHelper dateConverter, IGetUserScopedData getUserScopedData, FiscalContext fiscalContext, ITokenService tokenService, IUnitOfWork unitOfWork, IMemoryCacheRepository memoryCacheRepository, IMapper mapper)
         {
             _dateConverter = dateConverter;
             _getUserScopedData = getUserScopedData;
@@ -45,6 +55,8 @@ namespace ES.Finances.Infrastructure.ServiceImpl
             _unitOfWork = unitOfWork;
             _memoryCacheRepository = memoryCacheRepository;
             _fiscalContext = fiscalContext;
+            _ledgerService = ledgerService;
+            _journalServices = journalServices;
         }
         public async Task<Result<AddStudentFeeResponse>> Add(AddStudentFeeCommand addStudentFeeCommand)
         {
@@ -89,6 +101,134 @@ namespace ES.Finances.Infrastructure.ServiceImpl
                     throw new Exception("An error occurred while adding", ex);
 
                 }
+            }
+        }
+
+        public async Task<Result<AssignMonthlyFeeResponse>> AssignMonthlyFee(AssignMonthlyFeeCommand assignMonthlyFeeCommand)
+        {
+            try
+            {
+                try
+                {
+
+
+                    string newId = Guid.NewGuid().ToString();
+                    var FyId = _fiscalContext.CurrentFiscalYearId;
+                    var schoolId = _tokenService.SchoolId().FirstOrDefault() ?? "";
+                    var userId = _tokenService.GetUserId();
+
+
+                    var feeStructure = await _unitOfWork.BaseRepository<FeeStructure>()
+                        .FirstOrDefaultAsync(x =>
+                            x.FeeTypeId == assignMonthlyFeeCommand.feeTypeId &&
+                            x.ClassId == assignMonthlyFeeCommand.classId &&
+                            x.IsActive);
+
+                    if (feeStructure == null)
+                        throw new Exception("Fee structure not defined for this class.");
+
+                    var students = (await _unitOfWork.BaseRepository<StudentData>()
+                          .FindBy(x =>
+                              x.ClassId == assignMonthlyFeeCommand.classId &&
+                              x.IsActive))
+                          .ToList();
+
+                    if (!students.Any())
+                        return Result<AssignMonthlyFeeResponse>.Failure(
+                            "No active students found for this class.");
+
+
+
+                    var studentIds = students.Select(s => s.Id).ToList();
+
+                    var feeTypeLedger = await _unitOfWork.BaseRepository<Ledger>()
+                       .FirstOrDefaultAsync(l =>
+                           l.FeeTypeid == assignMonthlyFeeCommand.feeTypeId);
+
+                    var existingStudentLedgers = await _unitOfWork.BaseRepository<Ledger>()
+                        .FindBy(l => studentIds.Contains(l.StudentId));
+
+                    if (existingStudentLedgers.Any())
+                    {
+                        return Result<AssignMonthlyFeeResponse>.Failure(
+                            "Monthly fee has already been assigned for this class.");
+                    }
+
+
+                    var ledgerLookup = existingStudentLedgers
+                        .ToDictionary(l => l.StudentId);
+
+                    foreach (var student in students)
+                    {
+                        if (ledgerLookup.ContainsKey(student.Id))
+                            continue;
+
+                        var ledger = new Ledger
+                            (
+                            Guid.NewGuid().ToString(),
+                            $"{student.FirstName} {student.LastName}"+ "A/C",
+                            DateTime.UtcNow,
+                            false,
+                            student.Address,
+                            "",
+                            student.PhoneNumber,
+                            "",
+                            "",
+                            LedgerConstants.AccountsReceivable,
+                            schoolId,
+                            FyId,
+                            0,
+                            false,
+                            true,
+                            student.Id,
+                            null
+
+                            );
+
+                        await _unitOfWork.BaseRepository<Ledger>().AddAsync(ledger);
+        
+
+                        ledgerLookup.Add(student.Id, ledger);
+
+                        var addJournal = new AddJournalEntryCommand(
+                            $"Opening balance for {student.FirstName} {student.LastName}",
+                            DateTime.UtcNow.ToString(),
+                            "Being opening balance entry",
+                            new List<AddJournalEntryDetailsRequest>
+                            {
+                                new AddJournalEntryDetailsRequest(
+                                    ledger.Id,
+                                    feeStructure.Amount,
+                                    0
+                                ),
+                                new AddJournalEntryDetailsRequest(
+                                    feeTypeLedger.Id,
+                                    0,
+                                    feeStructure.Amount
+                                )
+                                        }
+                                    );
+
+                                    await _journalServices.Add(addJournal);
+                                }
+
+                    await _unitOfWork.SaveChangesAsync();
+
+                    var response = new AssignMonthlyFeeResponse(
+                        assignMonthlyFeeCommand.classId,
+                        assignMonthlyFeeCommand.feeTypeId);
+
+                    return Result<AssignMonthlyFeeResponse>.Success(response);
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception("An error occurred while assigning monthly fee.", ex);
+                }
+
+            }
+            catch(Exception ex)
+            {
+                throw new Exception("An error occurred while assigning monthly fee", ex);
             }
         }
 

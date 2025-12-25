@@ -10,6 +10,8 @@ using ES.Finances.Application.Finance.Queries.Fee.FilterFeetype;
 using ES.Finances.Application.Finance.Queries.Fee.FilterStudentFee;
 using ES.Finances.Application.Finance.Queries.Fee.StudentFee;
 using ES.Finances.Application.Finance.Queries.Fee.StudentFeeSummary;
+using TN.Account.Application.Account.Command.AddLedger;
+using TN.Account.Domain.Entities;
 using TN.Shared.Domain.Entities.Academics;
 using TN.Shared.Domain.Entities.Finance;
 using TN.Shared.Domain.ExtensionMethod.Pagination;
@@ -22,13 +24,17 @@ namespace ES.Finances.Application.AutoMapper
         {
 
             #region StudentFeeSummary
+ 
+            #endregion
+
+            #region AssignMonthlyFee
             CreateMap<StudentFeeSummaryResponse, StudentFee>().ReverseMap();
-            CreateMap<PagedResult<StudentFee>, PagedResult<StudentFeeSummaryResponse>>().ReverseMap();
+            CreateMap<Ledger,AddLedgerResponse>();
             #endregion
 
             #region PaymentRecords
 
-             CreateMap<AddpaymentsRecordsResponse, PaymentsRecords>().ReverseMap();
+            CreateMap<AddpaymentsRecordsResponse, PaymentsRecords>().ReverseMap();
             #endregion
             #region Feetype
             CreateMap<FeeType, AddFeeTypeResponse>().ReverseMap();

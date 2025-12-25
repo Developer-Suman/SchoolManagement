@@ -17,5 +17,7 @@ namespace TN.Shared.Domain.Static.Cache
         public const string CostOfGoodSoldLedgerId = "c5bb7f79-0af7-4c11-9bfa-2a746ec8a99d";
         public const string BankLedgerId = "c04fe4fb-f761-4d55-b9bf-8e57cecbea18";
         public const string ShareCapitalAccount = "b3f8d2a1-9c4e-4e1b-8f32-7a2d5c9f0e6b";
+        public const string AccountsReceivable = "47e7b39f-2f5b-439c-8512-a567c9c0d21a";
+        public const string DirectIncome = "4f82937b-91d4-4a52-9b2d-f7e9c8a41031";
     }
 }

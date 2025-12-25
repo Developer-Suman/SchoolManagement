@@ -1996,6 +1996,7 @@ namespace TN.Shared.Infrastructure.DataSeed
                 new SubLedgerGroup("1f91a98b-9d6e-4a59-ade1-ef145ae08f5e", "Stock-In-Hand", "a1d2f3b4-c5e6-7890-a123-b456c789d012", "", "", default, "", default, true),
                 new SubLedgerGroup("21955bd7-6827-4b0b-b3e1-967099b54f6a", "Inventory", "a1d2f3b4-c5e6-7890-a123-b456c789d012", "", "", default, "", default, true),
                 new SubLedgerGroup("dff66bb4-11e6-4e5f-8bb9-f00c01b90284", "Sundry Debtors", "a1d2f3b4-c5e6-7890-a123-b456c789d012", "", "", default, "", default, true),
+                new SubLedgerGroup("47e7b39f-2f5b-439c-8512-a567c9c0d21a", "Accounts Receivable", "a1d2f3b4-c5e6-7890-a123-b456c789d012", "", "", default, "", default, true),
                 new SubLedgerGroup("78cbf013-2532-4427-8b87-fbd32e2aef1d", "Fixed Assets A/C", "d4b5c6f7-a890-1234-d567-e890f123g456", "", "", default, "", default, true),
 
 
@@ -2003,6 +2004,7 @@ namespace TN.Shared.Infrastructure.DataSeed
                 new SubLedgerGroup("f5c2cba4-e4c7-496a-9f07-f2060c426e06", "Sundry Creditors","e5c6d7f8-a901-2345-e678-f901g234h567","","",default,"",default, true),
                 new SubLedgerGroup("e84cfc6a-2289-4b4a-9ec3-88dc7f0bdf34", "Duties & Taxes","e5c6d7f8-a901-2345-e678-f901g234h567","","",default,"",default, true),
                 new SubLedgerGroup("623c3133-f4c7-41e5-a9c1-382c749d3a8a", "Sales Account","x4r5s6t7-a890-1234-x567-y890z123a456","","",default,"",default, true),
+                new SubLedgerGroup("4f82937b-91d4-4a52-9b2d-f7e9c8a41031", "Direct Income","x4r5s6t7-a890-1234-x567-y890z123a456","","",default,"",default, true),
                 new SubLedgerGroup("8a6d5de6-5607-497e-8d7c-90d7494d7aa7", "Purchase Account","f6d7e8b9-a012-3456-f789-g012h345i678","","",default,"",default, true),
                 new SubLedgerGroup("0423b6c3-51fa-44c4-bd9a-28fa9697ff55", "Cost Of Goods Sold(Cogs) A/c","f6d7e8b9-a012-3456-f789-g012h345i678","","",default,"",default, true),
                 new SubLedgerGroup("34a841a6-339c-47d2-95d9-f3c9cb66c55a", "Salary Expenses","g7e8f9c0-a123-4567-g890-h123i456j789","","",default,"",default, true),
@@ -2238,21 +2240,21 @@ namespace TN.Shared.Infrastructure.DataSeed
 
                 
                 // Additional Ledgers
-                new Ledger("e375cf83-149f-44ae-8f00-69019f9f61bb", "Debit Card A/C", DateTime.Now, true, "", "", "", "", "", "7a9a6c6f-3b4a-4e58-b13c-c61e7bba9d72", "", "",0,true,true),
-                new Ledger("c04fe4fb-f761-4d55-b9bf-8e57cecbea18", "Cheque Collection A/C", DateTime.Now, true, "", "", "", "", "", "7a9a6c6f-3b4a-4e58-b13c-c61e7bba9d72", "", "",0,true,true),
-                new Ledger("7966736d-649d-4c63-ada8-3089a2bdf8c6", "Stock In Hand A/C", DateTime.Now, true, "", "", "", "", "", "1f91a98b-9d6e-4a59-ade1-ef145ae08f5e", "", "",0,true,true),
-                new Ledger("204b702f-12b5-43f8-a8eb-b3cb6e4ca60a", "RoundOff A/C", DateTime.Now, true, "", "", "", "", "", "e84cfc6a-2289-4b4a-9ec3-88dc7f0bdf34", "", "",0,true,true),
-                new Ledger("5fa06b9c-ba4f-4d37-b049-a2e742bfc8d3", "VAT A/C", DateTime.Now, true, "", "", "", "", "", "e84cfc6a-2289-4b4a-9ec3-88dc7f0bdf34", "", "", 0, true,true),
-                new Ledger("da288c41-f087-41b4-b9ee-ebd2098ca4a9", "TDS A/C", DateTime.Now, true, "", "", "", "", "", "e84cfc6a-2289-4b4a-9ec3-88dc7f0bdf34", "", "", 0, true,true),
-                new Ledger("5ed3243e-f7f1-4d91-b39f-24da38d65c0b", "Salary TDS A/C", DateTime.Now, true, "", "", "", "", "", "e84cfc6a-2289-4b4a-9ec3-88dc7f0bdf34", "", "", 0, true,true),
-                new Ledger("d119a2de-3406-4368-8eb7-68602e3d864b", "Sales A/C", DateTime.Now, true, "", "", "", "", "", "623c3133-f4c7-41e5-a9c1-382c749d3a8a", "", "", 0, true,true),
-                new Ledger("2a4222cc-cab5-4c66-98f1-7fd36c933208", "Discount A/C", DateTime.Now, true, "", "", "", "", "", "623c3133-f4c7-41e5-a9c1-382c749d3a8a", "", "", 0, true,true),
-                new Ledger("b11ac192-4fe6-425f-9398-caec0e1ca9aa", "Sales Return A/C", DateTime.Now, true, "", "", "", "", "", "623c3133-f4c7-41e5-a9c1-382c749d3a8a", "", "", 0, true,true),
-                new Ledger("f3bbb573-d6de-4245-a7e2-05c279207355", "Purchase A/C", DateTime.Now, true, "", "", "", "", "", "8a6d5de6-5607-497e-8d7c-90d7494d7aa7", "", "",0,true,true),
-                new Ledger("c5bb7f79-0af7-4c11-9bfa-2a746ec8a99d", "COGS A/C", DateTime.Now, true, "", "", "", "", "", "0423b6c3-51fa-44c4-bd9a-28fa9697ff55", "", "", 0, true,true),
-                new Ledger("2a1828f8-0210-4839-986b-2410d2207aad", "PurchaseReturn A/C", DateTime.Now, true, "", "", "", "", "", "8a6d5de6-5607-497e-8d7c-90d7494d7aa7", "", "", 0, true,true),
-                new Ledger("f3e7a50f-ec7d-4b8c-b05e-46b7cbcfb4e1", "Cash A/C", DateTime.Now, true, "", "", "", "", "", "3d5c1e24-d0ae-4f74-9c88-bf9f4b5c4d0b", "", "", 0, true,true),
-                new Ledger("b3f8d2a1-9c4e-4e1b-8f32-7a2d5c9f0e6b", "Share Capital A/C", DateTime.Now, true, "", "", "", "", "", "d4e7f9b2-1c3a-4f6d-9b8e-2a7c5d1f0e9a", "", "", 0, true,true),
+                new Ledger("e375cf83-149f-44ae-8f00-69019f9f61bb", "Debit Card A/C", DateTime.Now, true, "", "", "", "", "", "7a9a6c6f-3b4a-4e58-b13c-c61e7bba9d72", "", "",0,true,true,"",""),
+                new Ledger("c04fe4fb-f761-4d55-b9bf-8e57cecbea18", "Cheque Collection A/C", DateTime.Now, true, "", "", "", "", "", "7a9a6c6f-3b4a-4e58-b13c-c61e7bba9d72", "", "",0,true,true,"",""),
+                new Ledger("7966736d-649d-4c63-ada8-3089a2bdf8c6", "Stock In Hand A/C", DateTime.Now, true, "", "", "", "", "", "1f91a98b-9d6e-4a59-ade1-ef145ae08f5e", "", "",0,true,true,"",""),
+                new Ledger("204b702f-12b5-43f8-a8eb-b3cb6e4ca60a", "RoundOff A/C", DateTime.Now, true, "", "", "", "", "", "e84cfc6a-2289-4b4a-9ec3-88dc7f0bdf34", "", "",0,true,true,"",""),
+                new Ledger("5fa06b9c-ba4f-4d37-b049-a2e742bfc8d3", "VAT A/C", DateTime.Now, true, "", "", "", "", "", "e84cfc6a-2289-4b4a-9ec3-88dc7f0bdf34", "", "", 0, true,true,"",""),
+                new Ledger("da288c41-f087-41b4-b9ee-ebd2098ca4a9", "TDS A/C", DateTime.Now, true, "", "", "", "", "", "e84cfc6a-2289-4b4a-9ec3-88dc7f0bdf34", "", "", 0, true,true,"",""),
+                new Ledger("5ed3243e-f7f1-4d91-b39f-24da38d65c0b", "Salary TDS A/C", DateTime.Now, true, "", "", "", "", "", "e84cfc6a-2289-4b4a-9ec3-88dc7f0bdf34", "", "", 0, true,true,"",""),
+                new Ledger("d119a2de-3406-4368-8eb7-68602e3d864b", "Sales A/C", DateTime.Now, true, "", "", "", "", "", "623c3133-f4c7-41e5-a9c1-382c749d3a8a", "", "", 0, true,true,"",""),
+                new Ledger("2a4222cc-cab5-4c66-98f1-7fd36c933208", "Discount A/C", DateTime.Now, true, "", "", "", "", "", "623c3133-f4c7-41e5-a9c1-382c749d3a8a", "", "", 0, true,true,"",""),
+                new Ledger("b11ac192-4fe6-425f-9398-caec0e1ca9aa", "Sales Return A/C", DateTime.Now, true, "", "", "", "", "", "623c3133-f4c7-41e5-a9c1-382c749d3a8a", "", "", 0, true,true,"",""),
+                new Ledger("f3bbb573-d6de-4245-a7e2-05c279207355", "Purchase A/C", DateTime.Now, true, "", "", "", "", "", "8a6d5de6-5607-497e-8d7c-90d7494d7aa7", "", "",0,true,true,"",""),
+                new Ledger("c5bb7f79-0af7-4c11-9bfa-2a746ec8a99d", "COGS A/C", DateTime.Now, true, "", "", "", "", "", "0423b6c3-51fa-44c4-bd9a-28fa9697ff55", "", "", 0, true,true,"",""),
+                new Ledger("2a1828f8-0210-4839-986b-2410d2207aad", "PurchaseReturn A/C", DateTime.Now, true, "", "", "", "", "", "8a6d5de6-5607-497e-8d7c-90d7494d7aa7", "", "", 0, true,true,"",""),
+                new Ledger("f3e7a50f-ec7d-4b8c-b05e-46b7cbcfb4e1", "Cash A/C", DateTime.Now, true, "", "", "", "", "", "3d5c1e24-d0ae-4f74-9c88-bf9f4b5c4d0b", "", "", 0, true,true,"",""),
+                new Ledger("b3f8d2a1-9c4e-4e1b-8f32-7a2d5c9f0e6b", "Share Capital A/C", DateTime.Now, true, "", "", "", "", "", "d4e7f9b2-1c3a-4f6d-9b8e-2a7c5d1f0e9a", "", "", 0, true,true,"",""),
 
                 };
             if (!await _context.Ledgers.AnyAsync())

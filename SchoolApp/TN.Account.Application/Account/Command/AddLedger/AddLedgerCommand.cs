@@ -20,7 +20,9 @@ namespace TN.Account.Application.Account.Command.AddLedger
             string? maxCreditPeriod,
             string? maxDuePeriod,
             string subledgerGroupId,
-            decimal? openingBalance
-  
+            decimal? openingBalance,
+            string? studentId,
+            string? feeTypeid
+
         ) : IRequest<Result<AddLedgerResponse>>;
 }

@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TN.Account.Domain.Entities;
 using TN.Shared.Domain.Primitive;
+using static TN.Shared.Domain.Enum.HelperEnum;
 
 namespace TN.Shared.Domain.Entities.Finance
 {
@@ -23,7 +25,9 @@ namespace TN.Shared.Domain.Entities.Finance
             string createdBy,
             DateTime createdAt,
             string modifiedBy,
-            DateTime modifiedAt
+            DateTime modifiedAt,
+            string? fyId,
+            NameOfMonths? nameOfMonths
             ) : base(id)
         {
             Name = name;
@@ -34,8 +38,15 @@ namespace TN.Shared.Domain.Entities.Finance
             CreatedAt = createdAt;
             ModifiedBy = modifiedBy;
             ModifiedAt = modifiedAt;
+            FyId = fyId;
+            NameOfMonths = nameOfMonths;
             FeeStructures = new List<FeeStructure>();
         }
+
+        public NameOfMonths? NameOfMonths { get; set; }
+        public string? FyId { get; set; }
+        public Ledger? Ledger { get; set; }
+
         public string SchoolId { get; set; }
         public bool IsActive { get; set; }
         public string Name { get; set; }
