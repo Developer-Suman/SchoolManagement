@@ -10,6 +10,7 @@ using ES.Finances.Application.Finance.Queries.Fee.FilterFeeStructure;
 using ES.Finances.Application.Finance.Queries.Fee.FilterFeetype;
 using ES.Finances.Application.Finance.Queries.Fee.FilterStudentFee;
 using ES.Finances.Application.Finance.Queries.Fee.StudentFee;
+using ES.Finances.Application.Finance.Queries.Fee.StudentFeeById;
 using ES.Finances.Application.Finance.Queries.Fee.StudentFeeSummary;
 using TN.Account.Application.Account.Command.AddLedger;
 using TN.Account.Domain.Entities;
@@ -56,6 +57,7 @@ namespace ES.Finances.Application.AutoMapper
 
             #region StudentFee
             CreateMap<StudentFee, AddStudentFeeResponse>().ReverseMap();
+            CreateMap<StudentFee, StudentFeeByIdResponse>().ReverseMap();
             CreateMap<FilterStudentFeeResponse, StudentFee>().ReverseMap();
             CreateMap<PagedResult<StudentFee>, PagedResult<FilterStudentFeeResponse>>().ReverseMap();
             CreateMap<StudentFeeResponse, StudentFee>().ReverseMap();

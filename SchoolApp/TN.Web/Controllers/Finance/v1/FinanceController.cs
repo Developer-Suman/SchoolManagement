@@ -17,6 +17,7 @@ using ES.Finances.Application.Finance.Queries.Fee.Feetype;
 using ES.Finances.Application.Finance.Queries.Fee.FilterFeeStructure;
 using ES.Finances.Application.Finance.Queries.Fee.FilterStudentFee;
 using ES.Finances.Application.Finance.Queries.Fee.StudentFee;
+using ES.Finances.Application.Finance.Queries.Fee.StudentFeeById;
 using ES.Finances.Application.Finance.Queries.Fee.StudentFeeSummary;
 using ES.Finances.Application.Finance.Queries.PaymentsRecords.FilterpaymentsRecords;
 using ES.Student.Application.Student.Queries.GetAllStudents;
@@ -230,6 +231,28 @@ namespace TN.Web.Controllers.Finance.v1
         #endregion
 
         #region FeeStructure
+
+        #region StudentFeeById
+        [HttpGet("StudentFee/{StudentFeeById}")]
+        public async Task<IActionResult> GetStudentFeeById([FromRoute] string StudentFeeById)
+        {
+            var query = new StudentFeeByIdQuery(StudentFeeById);
+            var StudentFeeByIdResponse = await _mediator.Send(query);
+            #region Switch Statement
+            return StudentFeeByIdResponse switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(StudentFeeByIdResponse.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = StudentFeeByIdResponse.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(StudentFeeByIdResponse.Errors),
+                _ => BadRequest("Invalid page and pageSize Fields")
+            };
+            #endregion
+
+        }
+        #endregion
 
         #region FeeStructureById
         [HttpGet("FeeStructure/{FeeStructureById}")]

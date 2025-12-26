@@ -6,6 +6,7 @@ using ES.Finances.Application.Finance.Queries.Fee.Feetype;
 using ES.Finances.Application.Finance.Queries.Fee.FilterFeetype;
 using ES.Finances.Application.Finance.Queries.Fee.FilterStudentFee;
 using ES.Finances.Application.Finance.Queries.Fee.StudentFee;
+using ES.Finances.Application.Finance.Queries.Fee.StudentFeeById;
 using ES.Finances.Application.Finance.Queries.Fee.StudentFeeSummary;
 using ES.Finances.Application.ServiceInterface;
 using Microsoft.EntityFrameworkCore;
@@ -23,6 +24,7 @@ using TN.Account.Domain.Entities;
 using TN.Authentication.Domain.Entities;
 using TN.Shared.Application.ServiceInterface;
 using TN.Shared.Domain.Abstractions;
+using TN.Shared.Domain.Entities.Communication;
 using TN.Shared.Domain.Entities.Finance;
 using TN.Shared.Domain.Entities.OrganizationSetUp;
 using TN.Shared.Domain.Entities.SchoolItems;
@@ -328,6 +330,24 @@ namespace ES.Finances.Infrastructure.ServiceImpl
             catch (Exception ex)
             {
                 throw new Exception($"An error occurred while fetching result: {ex.Message}", ex);
+            }
+        }
+
+        public async Task<Result<StudentFeeByIdResponse>> GetStudentFee(string id, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+
+                var studentFee = await _unitOfWork.BaseRepository<Notice>().GetByGuIdAsync(id);
+
+                var studentFeeResponse = _mapper.Map<StudentFeeByIdResponse>(studentFee);
+
+                return Result<StudentFeeByIdResponse>.Success(studentFeeResponse);
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while fetching Notice by using Id", ex);
             }
         }
 
