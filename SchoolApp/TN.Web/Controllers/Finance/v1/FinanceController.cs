@@ -1,5 +1,6 @@
 ﻿using ES.Communication.Application.Communication.Command.PublishNotice;
 using ES.Communication.Application.Communication.Command.PublishNotice.RequestCommandMapper;
+using ES.Communication.Application.Communication.Queries.NoticeById;
 using ES.Finances.Application.Finance.Command.Fee.AddFeeStructure;
 using ES.Finances.Application.Finance.Command.Fee.AddFeeStructure.RequestCommandMapper;
 using ES.Finances.Application.Finance.Command.Fee.AddFeeType;
@@ -11,6 +12,7 @@ using ES.Finances.Application.Finance.Command.Fee.AssignMonthlyFee.RequestComman
 using ES.Finances.Application.Finance.Command.PaymentRecords.AddpaymentsRecords;
 using ES.Finances.Application.Finance.Command.PaymentRecords.AddpaymentsRecords.RequestCommandMapper;
 using ES.Finances.Application.Finance.Queries.Fee.FeeStructure;
+using ES.Finances.Application.Finance.Queries.Fee.FeeStructureById;
 using ES.Finances.Application.Finance.Queries.Fee.Feetype;
 using ES.Finances.Application.Finance.Queries.Fee.FilterFeeStructure;
 using ES.Finances.Application.Finance.Queries.Fee.FilterStudentFee;
@@ -228,6 +230,30 @@ namespace TN.Web.Controllers.Finance.v1
         #endregion
 
         #region FeeStructure
+
+        #region FeeStructureById
+        [HttpGet("FeeStructure/{FeeStructureById}")]
+        public async Task<IActionResult> GetFeeStructureById([FromRoute] string FeeStructureById)
+        {
+            var query = new FeeStructureByIdQuery(FeeStructureById);
+            var FeeStructureByIdResponse = await _mediator.Send(query);
+            #region Switch Statement
+            return FeeStructureByIdResponse switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(FeeStructureByIdResponse.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = FeeStructureByIdResponse.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(FeeStructureByIdResponse.Errors),
+                _ => BadRequest("Invalid page and pageSize Fields")
+            };
+            #endregion
+
+        }
+        #endregion
+
+
         #region FeeStructure
         [HttpGet("FeeStructure")]
         public async Task<IActionResult> FeeStructure([FromQuery] PaginationRequest paginationRequest)
@@ -296,14 +322,14 @@ namespace TN.Web.Controllers.Finance.v1
 
             #endregion
         }
-        #endregion
+            #endregion
 
 
-        #endregion
+            #endregion
 
-        #region Feetype
-        #region Feetype
-        [HttpGet("Feetype")]
+            #region Feetype
+            #region Feetype
+            [HttpGet("Feetype")]
         public async Task<IActionResult> Feetype([FromQuery] PaginationRequest paginationRequest)
         {
             var query = new FeeTypeQuery(paginationRequest);
