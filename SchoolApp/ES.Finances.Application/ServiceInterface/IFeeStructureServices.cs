@@ -3,6 +3,7 @@ using ES.Finances.Application.Finance.Queries.Fee.FeeStructure;
 using ES.Finances.Application.Finance.Queries.Fee.FeeStructureById;
 using ES.Finances.Application.Finance.Queries.Fee.FilterFeeStructure;
 using ES.Finances.Application.Finance.Queries.Fee.FilterFeetype;
+using ES.Finances.Application.Finance.Queries.Fee.StudentFeeById;
 using System;
 using System.Collections.Generic;
 using System.Linq;

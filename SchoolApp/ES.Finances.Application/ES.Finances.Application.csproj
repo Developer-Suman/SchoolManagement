@@ -7,6 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Finance\Queries\Fee\NewFolder1\**" />
+    <EmbeddedResource Remove="Finance\Queries\Fee\NewFolder1\**" />
+    <None Remove="Finance\Queries\Fee\NewFolder1\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\TN.Account.Application\TN.Account.Application.csproj" />
     <ProjectReference Include="..\TN.Shared.Domain\TN.Shared.Domain.csproj" />
   </ItemGroup>
