@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using ES.Finances.Application.Finance.Command.Fee.AddFeeStructure;
 using ES.Finances.Application.Finance.Queries.Fee.FeeStructure;
+using ES.Finances.Application.Finance.Queries.Fee.FeeStructureById;
 using ES.Finances.Application.Finance.Queries.Fee.FilterFeeStructure;
 using ES.Finances.Application.Finance.Queries.Fee.FilterFeetype;
 using ES.Finances.Application.ServiceInterface;
@@ -14,6 +15,7 @@ using System.Transactions;
 using TN.Authentication.Domain.Entities;
 using TN.Shared.Application.ServiceInterface;
 using TN.Shared.Domain.Abstractions;
+using TN.Shared.Domain.Entities.Communication;
 using TN.Shared.Domain.Entities.Finance;
 using TN.Shared.Domain.Entities.OrganizationSetUp;
 using TN.Shared.Domain.Entities.Students;
@@ -213,6 +215,24 @@ namespace ES.Finances.Infrastructure.ServiceImpl
             catch (Exception ex)
             {
                 throw new Exception($"An error occurred while fetching result: {ex.Message}", ex);
+            }
+        }
+
+        public async Task<Result<FeeStructureByIdResponse>> GetFeeStructure(string id, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+
+                var feeStructure = await _unitOfWork.BaseRepository<FeeStructure>().GetByGuIdAsync(id);
+
+                var feeStructureResponse = _mapper.Map<FeeStructureByIdResponse>(feeStructure);
+
+                return Result<FeeStructureByIdResponse>.Success(feeStructureResponse);
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while fetching Notice by using Id", ex);
             }
         }
     }
