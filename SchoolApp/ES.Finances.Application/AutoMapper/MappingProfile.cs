@@ -12,6 +12,7 @@ using ES.Finances.Application.Finance.Queries.Fee.FilterStudentFee;
 using ES.Finances.Application.Finance.Queries.Fee.StudentFee;
 using ES.Finances.Application.Finance.Queries.Fee.StudentFeeById;
 using ES.Finances.Application.Finance.Queries.Fee.StudentFeeSummary;
+using ES.Finances.Application.Finance.Queries.PaymentsRecords.PaymentsRecordsById;
 using TN.Account.Application.Account.Command.AddLedger;
 using TN.Account.Domain.Entities;
 using TN.Shared.Domain.Entities.Academics;
@@ -37,6 +38,7 @@ namespace ES.Finances.Application.AutoMapper
             #region PaymentRecords
 
             CreateMap<AddpaymentsRecordsResponse, PaymentsRecords>().ReverseMap();
+            CreateMap<PaymentsRecordsByIdResponse, PaymentsRecords>().ReverseMap();
             #endregion
             #region Feetype
             CreateMap<FeeType, AddFeeTypeResponse>().ReverseMap();
