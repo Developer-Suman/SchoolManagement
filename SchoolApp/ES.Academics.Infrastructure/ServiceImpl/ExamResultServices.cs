@@ -512,7 +512,8 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                 var subjectResponse = allSubject
                     .Select(subject => new SubjectByClassIdResponse(
                         subject.Id,
-                        subject.Name
+                        subject.Name,
+                        subject.FullMarks
                     ))
                     .ToList();
 

@@ -14,6 +14,7 @@ using ES.Finances.Application.Finance.Command.PaymentRecords.AddpaymentsRecords.
 using ES.Finances.Application.Finance.Queries.Fee.FeeStructure;
 using ES.Finances.Application.Finance.Queries.Fee.FeeStructureById;
 using ES.Finances.Application.Finance.Queries.Fee.Feetype;
+using ES.Finances.Application.Finance.Queries.Fee.FeetypeById;
 using ES.Finances.Application.Finance.Queries.Fee.FilterFeeStructure;
 using ES.Finances.Application.Finance.Queries.Fee.FilterStudentFee;
 using ES.Finances.Application.Finance.Queries.Fee.StudentFee;
@@ -168,6 +169,29 @@ namespace TN.Web.Controllers.Finance.v1
                 }),
                 { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = StudentFeeByIdResponse.Message }),
                 { IsSuccess: false, Errors: not null } => HandleFailureResult(StudentFeeByIdResponse.Errors),
+                _ => BadRequest("Invalid page and pageSize Fields")
+            };
+            #endregion
+
+        }
+        #endregion
+
+
+        #region FeeTypeByid
+        [HttpGet("FeeType/{FeetypeId}")]
+        public async Task<IActionResult> GetFeetypeById([FromRoute] string FeetypeId)
+        {
+            var query = new FeeTypeByIdQuery(FeetypeId);
+            var response = await _mediator.Send(query);
+            #region Switch Statement
+            return response switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(response.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = response.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(response.Errors),
                 _ => BadRequest("Invalid page and pageSize Fields")
             };
             #endregion
