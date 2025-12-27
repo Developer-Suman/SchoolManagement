@@ -3,6 +3,7 @@ using ES.Finances.Application.Finance.Command.Fee.AddFeeType;
 using ES.Finances.Application.Finance.Command.PaymentRecords.AddpaymentsRecords;
 using ES.Finances.Application.Finance.Queries.Fee.FilterFeetype;
 using ES.Finances.Application.Finance.Queries.PaymentsRecords.FilterpaymentsRecords;
+using ES.Finances.Application.Finance.Queries.PaymentsRecords.PaymentsRecordsById;
 using ES.Finances.Application.ServiceInterface;
 using System;
 using System.Collections.Generic;
@@ -13,6 +14,7 @@ using System.Transactions;
 using TN.Authentication.Domain.Entities;
 using TN.Shared.Application.ServiceInterface;
 using TN.Shared.Domain.Abstractions;
+using TN.Shared.Domain.Entities.Communication;
 using TN.Shared.Domain.Entities.Finance;
 using TN.Shared.Domain.Entities.OrganizationSetUp;
 using TN.Shared.Domain.ExtensionMethod.Pagination;
@@ -198,6 +200,24 @@ namespace ES.Finances.Infrastructure.ServiceImpl
             catch (Exception ex)
             {
                 throw new Exception($"An error occurred while fetching result: {ex.Message}", ex);
+            }
+        }
+
+        public async Task<Result<PaymentsRecordsByIdResponse>> GetPaymentsRecords(string id, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+
+                var paymentsrecords = await _unitOfWork.BaseRepository<PaymentsRecords>().GetByGuIdAsync(id);
+
+                var paymentsrecordsResponse = _mapper.Map<PaymentsRecordsByIdResponse>(paymentsrecords);
+
+                return Result<PaymentsRecordsByIdResponse>.Success(paymentsrecordsResponse);
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while fetching Notice by using Id", ex);
             }
         }
     }

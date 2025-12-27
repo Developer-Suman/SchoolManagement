@@ -1,5 +1,6 @@
 ﻿using ES.Finances.Application.Finance.Command.PaymentRecords.AddpaymentsRecords;
 using ES.Finances.Application.Finance.Queries.PaymentsRecords.FilterpaymentsRecords;
+using ES.Finances.Application.Finance.Queries.PaymentsRecords.PaymentsRecordsById;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,5 +16,6 @@ namespace ES.Finances.Application.ServiceInterface
         Task<Result<AddpaymentsRecordsResponse>> Add(AddPaymentsRecordsCommand addPaymentsRecordsCommand);
         //Task<Result<PagedResult<ExamResultResponse>>> GetAllExamResult(PaginationRequest paginationRequest, CancellationToken cancellationToken = default);
         Task<Result<PagedResult<FilterPaymentsRecordsResponse>>> Filter(PaginationRequest paginationRequest, FilterPaymentsRecordsDTOs filterPaymentsRecordsDTOs);
+        Task<Result<PaymentsRecordsByIdResponse>> GetPaymentsRecords(string id, CancellationToken cancellationToken = default);
     }
 }
