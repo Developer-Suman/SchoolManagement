@@ -4,6 +4,7 @@ using ES.Staff.Application.Staff.Command.AddAcademicTeam;
 using ES.Staff.Application.Staff.Command.AssignClassToAcademicTeam;
 using ES.Staff.Application.Staff.Command.UnAssignedClassToAcademicTeam;
 using ES.Staff.Application.Staff.Queries.AcademicTeam;
+using ES.Staff.Application.Staff.Queries.AcademicTeamById;
 using ES.Staff.Application.Staff.Queries.FilterAcademicTeam;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -23,6 +24,7 @@ using TN.Shared.Application.ServiceInterface;
 using TN.Shared.Application.ServiceInterface.IHelperServices;
 using TN.Shared.Domain.Abstractions;
 using TN.Shared.Domain.Entities.Academics;
+using TN.Shared.Domain.Entities.Finance;
 using TN.Shared.Domain.Entities.OrganizationSetUp;
 using TN.Shared.Domain.Entities.Staff;
 using TN.Shared.Domain.Entities.Students;
@@ -262,6 +264,24 @@ namespace ES.Staff.Infrastructure.ServiceImpl
                     scope.Dispose();
                     throw new Exception("An error occurred while assigning class to academic");
                 }
+            }
+        }
+
+        public async Task<Result<AcademicTeamByIdResponse>> GetacademicTeam(string id, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+
+                var academicTeam = await _unitOfWork.BaseRepository<AcademicTeam>().GetByGuIdAsync(id);
+
+                var academicTeamResponse = _mapper.Map<AcademicTeamByIdResponse>(academicTeam);
+
+                return Result<AcademicTeamByIdResponse>.Success(academicTeamResponse);
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while fetching Notice by using Id", ex);
             }
         }
 

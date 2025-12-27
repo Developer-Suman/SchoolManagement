@@ -2,6 +2,7 @@
 using ES.Staff.Application.Staff.Command.AssignClassToAcademicTeam;
 using ES.Staff.Application.Staff.Command.UnAssignedClassToAcademicTeam;
 using ES.Staff.Application.Staff.Queries.AcademicTeam;
+using ES.Staff.Application.Staff.Queries.AcademicTeamById;
 using ES.Staff.Application.Staff.Queries.FilterAcademicTeam;
 using System;
 using System.Collections.Generic;
@@ -18,6 +19,7 @@ namespace ES.Staff.Application.ServiceInterface
         Task<Result<AddAcademicTeamResponse>> AddAcademicTeam(AddAcademicTeamCommand addAcademicTeamCommand);
         Task<Result<AssignClassResponse>> AssignClass(AssignClassCommand assignClassCommand);
         Task<Result<UnAssignClassResponse>> UnAssignClass(UnAssignClassCommand unAssignClassCommand);
+        Task<Result<AcademicTeamByIdResponse>> GetacademicTeam(string id, CancellationToken cancellationToken = default);
         Task<Result<PagedResult<AcademicTeamResponse>>> GetAllAcademicTeams(PaginationRequest paginationRequest, CancellationToken cancellationToken = default);
         Task<Result<PagedResult<FilterAcademicTeamResponse>>> GetFilterAcademicTeam(PaginationRequest paginationRequest, FilterAcademicTeamDTOs filterAcademicTeamDTOs);
     }

@@ -3,6 +3,7 @@ using ES.Staff.Application.Staff.Command.AddAcademicTeam;
 using ES.Staff.Application.Staff.Command.AssignClassToAcademicTeam;
 using ES.Staff.Application.Staff.Command.UnAssignedClassToAcademicTeam;
 using ES.Staff.Application.Staff.Queries.AcademicTeam;
+using ES.Staff.Application.Staff.Queries.AcademicTeamById;
 using ES.Staff.Application.Staff.Queries.FilterAcademicTeam;
 using System;
 using System.Collections.Generic;
@@ -28,6 +29,7 @@ namespace ES.Staff.Application.AutoMapper
             #region AcademicTeam
 
             CreateMap<AcademicTeamResponse, AcademicTeam>().ReverseMap();
+            CreateMap<AcademicTeamByIdResponse, AcademicTeam>().ReverseMap();
             CreateMap<PagedResult<AcademicTeam>, PagedResult<AcademicTeamResponse>>().ReverseMap();
 
             CreateMap<AddAcademicTeamResponse, AddAcademicTeamCommand>().ReverseMap();

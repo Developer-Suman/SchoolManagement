@@ -1,4 +1,5 @@
 ﻿using ES.Academics.Application.Academics.Queries.FilterExamResult;
+using ES.Finances.Application.Finance.Queries.Fee.FeeStructureById;
 using ES.Staff.Application.Staff.Command.AddAcademicTeam;
 using ES.Staff.Application.Staff.Command.AddAcademicTeam.RequestCommandMapper;
 using ES.Staff.Application.Staff.Command.AssignClassToAcademicTeam;
@@ -6,6 +7,7 @@ using ES.Staff.Application.Staff.Command.AssignClassToAcademicTeam.RequestComman
 using ES.Staff.Application.Staff.Command.UnAssignedClassToAcademicTeam;
 using ES.Staff.Application.Staff.Command.UnAssignedClassToAcademicTeam.RequestCommandMapper;
 using ES.Staff.Application.Staff.Queries.AcademicTeam;
+using ES.Staff.Application.Staff.Queries.AcademicTeamById;
 using ES.Staff.Application.Staff.Queries.FilterAcademicTeam;
 using ES.Student.Application.Student.Queries.FilterStudents;
 using ES.Student.Application.Student.Queries.GetAllStudents;
@@ -83,6 +85,27 @@ namespace TN.Web.Controllers.Staff.v1
         #endregion
 
         #region AcademicTeam
+        #region AcademicTeamById
+        [HttpGet("AcademicTeam/{AcademicTeamById}")]
+        public async Task<IActionResult> GetAcademicTeamById([FromRoute] string AcademicTeamById)
+        {
+            var query = new AcademicTeamByIdQuery(AcademicTeamById);
+            var AcademicTeamByIdResponse = await _mediator.Send(query);
+            #region Switch Statement
+            return AcademicTeamByIdResponse switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(AcademicTeamByIdResponse.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = AcademicTeamByIdResponse.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(AcademicTeamByIdResponse.Errors),
+                _ => BadRequest("Invalid page and pageSize Fields")
+            };
+            #endregion
+
+        }
+        #endregion
 
         #region AllAcademicTeams
         [HttpGet("all-AcademicTeam")]
