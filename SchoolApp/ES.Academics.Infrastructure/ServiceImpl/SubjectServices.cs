@@ -214,6 +214,7 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                     i.ClassId,
                     i.SchoolId,
                     i.IsActive,
+                    i.FullMarks,
                     i.CreatedBy,
                     i.CreatedAt,
                     i.ModifiedBy,

@@ -12,6 +12,7 @@ using TN.Inventory.Application.Inventory.Command.AddUnits;
 using TN.Inventory.Application.Inventory.Command.SchoolAssets.Contributors;
 using TN.Inventory.Application.Inventory.Command.SchoolAssets.SchoolItemHistory;
 using TN.Inventory.Application.Inventory.Command.SchoolAssets.SchoolItems;
+using TN.Inventory.Application.Inventory.Queries.SchoolAssets.Contributors;
 using TN.Inventory.Application.Inventory.Queries.SchoolAssets.FilterContributors;
 using TN.Inventory.Application.Inventory.Queries.SchoolAssets.FilterSchoolItems;
 using TN.Inventory.Application.Inventory.Queries.SchoolAssets.FilterSchoolItemsHistory;
@@ -477,6 +478,41 @@ namespace TN.Inventory.Infrastructure.ServiceImpl
             catch (Exception ex)
             {
                 throw new Exception($"An error occurred while fetching Parents: {ex.Message}", ex);
+            }
+        }
+
+        public async Task<Result<PagedResult<ContributorsResponse>>> getAllContributors(PaginationRequest paginationRequest)
+        {
+            try
+            {
+
+                var (contributors, currentSchoolId, institutionId, userRole, isSuperAdmin) =
+                    await _getUserScopedData.GetUserScopedData<Contributor>();
+
+                var finalQuery = contributors.Where(x => x.IsActive == true).AsNoTracking();
+
+
+                var pagedResult = await finalQuery.ToPagedResultAsync(
+                    paginationRequest.pageIndex,
+                    paginationRequest.pageSize,
+                    paginationRequest.IsPagination);
+
+
+                var mappedItems = _mapper.Map<List<ContributorsResponse>>(pagedResult.Data.Items);
+
+                var response = new PagedResult<ContributorsResponse>
+                {
+                    Items = mappedItems,
+                    TotalItems = pagedResult.Data.TotalItems,
+                    PageIndex = pagedResult.Data.PageIndex,
+                    pageSize = pagedResult.Data.pageSize
+                };
+
+                return Result<PagedResult<ContributorsResponse>>.Success(response);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while fetching", ex);
             }
         }
 

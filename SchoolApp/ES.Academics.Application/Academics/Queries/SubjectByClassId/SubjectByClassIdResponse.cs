@@ -9,6 +9,7 @@ namespace ES.Academics.Application.Academics.Queries.SubjectByClassId
     public record SubjectByClassIdResponse
    (
         string id,
-        string subjectName
+        string subjectName,
+        int fullMarks
         );
 }

@@ -41,6 +41,7 @@ using TN.Inventory.Application.Inventory.Queries.ItemGroup;
 using TN.Inventory.Application.Inventory.Queries.ItemGroupById;
 using TN.Inventory.Application.Inventory.Queries.Items;
 using TN.Inventory.Application.Inventory.Queries.ItemsById;
+using TN.Inventory.Application.Inventory.Queries.SchoolAssets.Contributors;
 using TN.Inventory.Application.Inventory.Queries.SchoolAssets.FilterContributors;
 using TN.Inventory.Application.Inventory.Queries.SchoolAssets.FilterSchoolItems;
 using TN.Inventory.Application.Inventory.Queries.SchoolAssets.FilterSchoolItemsHistory;
@@ -77,6 +78,10 @@ namespace TN.Inventory.Application.AutoMapper
 
 
             #region Contributors
+            CreateMap<ContributorsResponse, Contributor>().ReverseMap();
+            CreateMap<PagedResult<Contributor>, PagedResult<ContributorsResponse>>().ReverseMap();
+
+
             CreateMap<AddContributorsResponse, Contributor>().ReverseMap();
             CreateMap<FilterContributorsResponse, Contributor>().ReverseMap();
             CreateMap<PagedResult<Contributor>, PagedResult<FilterContributorsResponse>>().ReverseMap();

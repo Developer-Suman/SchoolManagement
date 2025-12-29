@@ -3,6 +3,7 @@ using ES.Finances.Application.Finance.Command.Fee.AddFeeType;
 using ES.Finances.Application.Finance.Command.Fee.AssignMonthlyFee;
 using ES.Finances.Application.Finance.Command.Fee.UpdateFeeType;
 using ES.Finances.Application.Finance.Queries.Fee.Feetype;
+using ES.Finances.Application.Finance.Queries.Fee.FeetypeById;
 using ES.Finances.Application.Finance.Queries.Fee.FilterFeetype;
 using ES.Finances.Application.ServiceInterface;
 using Microsoft.EntityFrameworkCore;
@@ -20,6 +21,7 @@ using TN.Authentication.Domain.Entities;
 using TN.Shared.Application.ServiceInterface;
 using TN.Shared.Domain.Abstractions;
 using TN.Shared.Domain.Entities.Academics;
+using TN.Shared.Domain.Entities.Communication;
 using TN.Shared.Domain.Entities.Finance;
 using TN.Shared.Domain.Entities.OrganizationSetUp;
 using TN.Shared.Domain.Entities.Students;
@@ -205,6 +207,7 @@ namespace ES.Finances.Infrastructure.ServiceImpl
                     i.Description,
                     i.IsActive,
                     i.SchoolId,
+                    i.NameOfMonths,
                     i.CreatedBy,
                     i.CreatedAt,
                     i.ModifiedBy,
@@ -256,6 +259,23 @@ namespace ES.Finances.Infrastructure.ServiceImpl
             }
         }
 
+        public async Task<Result<FeetypeByidResponse>> GetFeetype(string id, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+
+                var feetype = await _unitOfWork.BaseRepository<FeeType>().GetByGuIdAsync(id);
+
+                var feeTypeResponseResponse = _mapper.Map<FeetypeByidResponse>(feetype);
+
+                return Result<FeetypeByidResponse>.Success(feeTypeResponseResponse);
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while fetching by using Id", ex);
+            }
+         }
         public async Task<Result<UpdateFeeTypeResponse>> Update(string feeTypeId, UpdateFeeTypeCommand updateFeeTypeCommand)
         {
             using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))

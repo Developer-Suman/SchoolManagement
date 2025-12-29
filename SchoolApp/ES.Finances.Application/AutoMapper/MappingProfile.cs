@@ -2,11 +2,14 @@
 using ES.Finances.Application.Finance.Command.Fee.AddFeeStructure;
 using ES.Finances.Application.Finance.Command.Fee.AddFeeType;
 using ES.Finances.Application.Finance.Command.Fee.AddStudentFee;
+using ES.Finances.Application.Finance.Command.Fee.UpdateFeeStructure;
+
 using ES.Finances.Application.Finance.Command.Fee.UpdateFeeType;
 using ES.Finances.Application.Finance.Command.PaymentRecords.AddpaymentsRecords;
 using ES.Finances.Application.Finance.Queries.Fee.FeeStructure;
 using ES.Finances.Application.Finance.Queries.Fee.FeeStructureById;
 using ES.Finances.Application.Finance.Queries.Fee.Feetype;
+using ES.Finances.Application.Finance.Queries.Fee.FeetypeById;
 using ES.Finances.Application.Finance.Queries.Fee.FilterFeeStructure;
 using ES.Finances.Application.Finance.Queries.Fee.FilterFeetype;
 using ES.Finances.Application.Finance.Queries.Fee.FilterStudentFee;
@@ -42,6 +45,7 @@ namespace ES.Finances.Application.AutoMapper
             CreateMap<PaymentsRecordsByIdResponse, PaymentsRecords>().ReverseMap();
             #endregion
             #region Feetype
+            CreateMap<FeeType, FeetypeByidResponse>().ReverseMap();
             CreateMap<FeeType, UpdateFeeTypeCommand>().ReverseMap();
             CreateMap<FeeType, AddFeeTypeResponse>().ReverseMap();
             CreateMap<FilterFeeTypeResponse, FeeType>().ReverseMap();
@@ -51,6 +55,8 @@ namespace ES.Finances.Application.AutoMapper
             #endregion
 
             #region FeeStructure
+            CreateMap<FeeStructure, UpdateFeeStructureCommand>().ReverseMap();
+
             CreateMap<FeeStructure, FeeStructureByIdResponse>().ReverseMap();
             CreateMap<FeeStructure, AddFeeStructureResponse>().ReverseMap();
             CreateMap<FilterFeeStructureResponse, FeeStructure>().ReverseMap();

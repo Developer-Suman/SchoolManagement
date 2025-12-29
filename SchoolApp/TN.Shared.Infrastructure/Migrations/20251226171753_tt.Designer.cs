@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TN.Shared.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using TN.Shared.Infrastructure.Data;
 namespace TN.Shared.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251226171753_tt")]
+    partial class tt
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -2137,121 +2140,6 @@ namespace TN.Shared.Infrastructure.Migrations
                     b.HasIndex("ModulesId");
 
                     b.ToTable("SubModules");
-                });
-
-            modelBuilder.Entity("TN.Shared.Domain.Entities.Academics.Assignment", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("AcademicTeamId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("DueDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime?>("ModifiedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("ModifiedBy")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("SchoolId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AcademicTeamId");
-
-                    b.ToTable("Assignments");
-                });
-
-            modelBuilder.Entity("TN.Shared.Domain.Entities.Academics.AssignmentClassSection", b =>
-                {
-                    b.Property<string>("AssignmentId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("ClassSectionId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("AssignmentId", "ClassSectionId");
-
-                    b.HasIndex("ClassSectionId");
-
-                    b.ToTable("AssignmentClassSections");
-                });
-
-            modelBuilder.Entity("TN.Shared.Domain.Entities.Academics.AssignmentStudent", b =>
-                {
-                    b.Property<string>("AssignmentId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("StudentId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsSubmitted")
-                        .HasColumnType("bit");
-
-                    b.Property<decimal?>("Marks")
-                        .HasPrecision(18, 4)
-                        .HasColumnType("decimal(18,4)");
-
-                    b.Property<DateTime?>("ModifiedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("ModifiedBy")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("SchoolId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("SubmittedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("AssignmentId", "StudentId");
-
-                    b.HasIndex("StudentId");
-
-                    b.ToTable("AssignmentStudents");
                 });
 
             modelBuilder.Entity("TN.Shared.Domain.Entities.Academics.Class", b =>
@@ -5197,55 +5085,6 @@ namespace TN.Shared.Infrastructure.Migrations
                     b.Navigation("Modules");
                 });
 
-            modelBuilder.Entity("TN.Shared.Domain.Entities.Academics.Assignment", b =>
-                {
-                    b.HasOne("TN.Shared.Domain.Entities.Staff.AcademicTeam", "AcademicTeam")
-                        .WithMany()
-                        .HasForeignKey("AcademicTeamId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("AcademicTeam");
-                });
-
-            modelBuilder.Entity("TN.Shared.Domain.Entities.Academics.AssignmentClassSection", b =>
-                {
-                    b.HasOne("TN.Shared.Domain.Entities.Academics.Assignment", "Assignment")
-                        .WithMany("AssignmentClasses")
-                        .HasForeignKey("AssignmentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("TN.Shared.Domain.Entities.Academics.ClassSection", "ClassSection")
-                        .WithMany("AssignmentClassSections")
-                        .HasForeignKey("ClassSectionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Assignment");
-
-                    b.Navigation("ClassSection");
-                });
-
-            modelBuilder.Entity("TN.Shared.Domain.Entities.Academics.AssignmentStudent", b =>
-                {
-                    b.HasOne("TN.Shared.Domain.Entities.Academics.Assignment", "Assignment")
-                        .WithMany("AssignmentStudents")
-                        .HasForeignKey("AssignmentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("TN.Shared.Domain.Entities.Students.StudentData", "Student")
-                        .WithMany("AssignmentStudents")
-                        .HasForeignKey("StudentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Assignment");
-
-                    b.Navigation("Student");
-                });
-
             modelBuilder.Entity("TN.Shared.Domain.Entities.Academics.ClassSection", b =>
                 {
                     b.HasOne("TN.Shared.Domain.Entities.Staff.AcademicTeam", "AcademicTeam")
@@ -6119,13 +5958,6 @@ namespace TN.Shared.Infrastructure.Migrations
                     b.Navigation("RoleSubModules");
                 });
 
-            modelBuilder.Entity("TN.Shared.Domain.Entities.Academics.Assignment", b =>
-                {
-                    b.Navigation("AssignmentClasses");
-
-                    b.Navigation("AssignmentStudents");
-                });
-
             modelBuilder.Entity("TN.Shared.Domain.Entities.Academics.Class", b =>
                 {
                     b.Navigation("AcademicTeamClasses");
@@ -6143,8 +5975,6 @@ namespace TN.Shared.Infrastructure.Migrations
 
             modelBuilder.Entity("TN.Shared.Domain.Entities.Academics.ClassSection", b =>
                 {
-                    b.Navigation("AssignmentClassSections");
-
                     b.Navigation("Students");
                 });
 
@@ -6303,8 +6133,6 @@ namespace TN.Shared.Infrastructure.Migrations
 
             modelBuilder.Entity("TN.Shared.Domain.Entities.Students.StudentData", b =>
                 {
-                    b.Navigation("AssignmentStudents");
-
                     b.Navigation("ExamResults");
 
                     b.Navigation("IssuedCertificates");

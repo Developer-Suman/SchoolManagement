@@ -5,19 +5,20 @@ using System.Text;
 using System.Threading.Tasks;
 using static TN.Shared.Domain.Enum.HelperEnum;
 
-namespace ES.Finances.Application.Finance.Queries.Fee.FilterFeetype
+namespace ES.Finances.Application.Finance.Queries.Fee.FeetypeById
 {
-    public record FilterFeeTypeResponse
-    (
+    public record FeetypeByidResponse
+   (
         string id,
             string name,
             string? description,
             bool isActive,
             string schoolId,
-             NameOfMonths? nameOfMonths,
             string createdBy,
             DateTime createdAt,
             string modifiedBy,
-            DateTime modifiedAt
+            DateTime modifiedAt,
+            string? fyId,
+            NameOfMonths? nameOfMonths
         );
 }

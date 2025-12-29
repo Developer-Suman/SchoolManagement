@@ -13,6 +13,7 @@ using TN.Inventory.Application.Inventory.Command.SchoolAssets.SchoolItemHistory;
 using TN.Inventory.Application.Inventory.Command.SchoolAssets.SchoolItemHistory.RequestCommandMapper;
 using TN.Inventory.Application.Inventory.Command.SchoolAssets.SchoolItems;
 using TN.Inventory.Application.Inventory.Command.SchoolAssets.SchoolItems.RequestCommandMapper;
+using TN.Inventory.Application.Inventory.Queries.SchoolAssets.Contributors;
 using TN.Inventory.Application.Inventory.Queries.SchoolAssets.FilterContributors;
 using TN.Inventory.Application.Inventory.Queries.SchoolAssets.FilterSchoolItems;
 using TN.Inventory.Application.Inventory.Queries.SchoolAssets.FilterSchoolItemsHistory;
@@ -120,6 +121,31 @@ namespace TN.Web.Controllers.SchoolAssets.v1
         #endregion
 
         #region Contributors
+
+
+        #region AllContributors
+        [HttpGet("all-Contributors")]
+        public async Task<IActionResult> AllContributors([FromQuery] PaginationRequest paginationRequest)
+        {
+            var query = new ContributorsQuery(paginationRequest);
+            var result = await _mediator.Send(query);
+            #region Switch Statement
+            return result switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(result.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { result.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(result.Errors),
+                _ => BadRequest("Invalid page and pageSize Fields")
+            };
+            #endregion
+
+        }
+
+
+        #endregion
 
 
         #region FilterContributors

@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using ES.Finances.Application.Finance.Command.Fee.AddFeeStructure;
+using ES.Finances.Application.Finance.Command.Fee.UpdateFeeStructure;
 using ES.Finances.Application.Finance.Queries.Fee.FeeStructure;
 using ES.Finances.Application.Finance.Queries.Fee.FeeStructureById;
 using ES.Finances.Application.Finance.Queries.Fee.FilterFeeStructure;
@@ -15,6 +16,7 @@ using System.Transactions;
 using TN.Authentication.Domain.Entities;
 using TN.Shared.Application.ServiceInterface;
 using TN.Shared.Domain.Abstractions;
+using TN.Shared.Domain.Entities.Academics;
 using TN.Shared.Domain.Entities.Communication;
 using TN.Shared.Domain.Entities.Finance;
 using TN.Shared.Domain.Entities.OrganizationSetUp;
@@ -233,6 +235,53 @@ namespace ES.Finances.Infrastructure.ServiceImpl
             catch (Exception ex)
             {
                 throw new Exception("An error occurred while fetching Notice by using Id", ex);
+            }
+        }
+
+        public async Task<Result<UpdateFeeStructureResponse>> Update(string feeStructureId, UpdateFeeStructureCommand updateFeeStructureCommand)
+        {
+            using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            {
+                try
+                {
+                    if (feeStructureId == null)
+                    {
+                        return Result<UpdateFeeStructureResponse>.Failure("NotFound", "Please provide valid feeStrcturId");
+                    }
+
+                    var feeStrctureToBeUpdated = await _unitOfWork.BaseRepository<FeeStructure>().GetByGuIdAsync(feeStructureId);
+                    if (feeStrctureToBeUpdated is null)
+                    {
+                        return Result<UpdateFeeStructureResponse>.Failure("NotFound", "FeeStructure are not Found");
+                    }
+                    feeStrctureToBeUpdated.ModifiedAt = DateTime.UtcNow;
+                    _mapper.Map(updateFeeStructureCommand, feeStrctureToBeUpdated);
+                    await _unitOfWork.SaveChangesAsync();
+                    scope.Complete();
+
+                    var resultResponse = new UpdateFeeStructureResponse
+                        (
+                        feeStructureId,
+                        feeStrctureToBeUpdated.Amount,
+                        feeStrctureToBeUpdated.ClassId,
+                        feeStrctureToBeUpdated.FyId,
+                        feeStrctureToBeUpdated.FeeTypeId,
+                        feeStrctureToBeUpdated.IsActive,
+                        feeStrctureToBeUpdated.SchoolId,
+                        feeStrctureToBeUpdated.CreatedBy,
+                        feeStrctureToBeUpdated.CreatedAt,
+                        feeStrctureToBeUpdated.ModifiedBy,
+                        feeStrctureToBeUpdated.ModifiedAt
+
+                        );
+
+                    return Result<UpdateFeeStructureResponse>.Success(resultResponse);
+
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception("An error occurred while updating", ex);
+                }
             }
         }
     }

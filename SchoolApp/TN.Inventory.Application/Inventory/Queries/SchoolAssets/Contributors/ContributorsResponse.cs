@@ -4,23 +4,21 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ES.Academics.Application.Academics.Queries.FilterSubject
+namespace TN.Inventory.Application.Inventory.Queries.SchoolAssets.Contributors
 {
-    public record FilterSubjectResponse
+    public record ContributorsResponse
     (
-        string id,
+          string id,
             string name,
-            string code,
-            int? creditHours,
-            string? description,
-            string classId,
-
+            string? organization,
+            string? contactNumber,
+            string? email,
             string schoolId,
             bool isActive,
-            int fullMarks,
-                string createdBy,
+            string createdBy,
             DateTime createdAt,
             string modifiedBy,
+
             DateTime modifiedAt
         );
 }

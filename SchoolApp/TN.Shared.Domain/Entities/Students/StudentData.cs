@@ -81,6 +81,7 @@ namespace TN.Shared.Domain.Entities.Students
             ExamResults = new List<ExamResult>();
             IssuedCertificates = new List<IssuedCertificate>();
             SeatAssignments = new List<SeatAssignment>();
+            AssignmentStudents= new List<AssignmentStudent>();
 
         }
 
@@ -134,6 +135,7 @@ namespace TN.Shared.Domain.Entities.Students
         public ICollection<ExamResult> ExamResults { get; set; }
         public ICollection<IssuedCertificate> IssuedCertificates { get; set; }
         public ICollection<SeatAssignment> SeatAssignments { get; set; }
+        public ICollection<AssignmentStudent> AssignmentStudents { get; set; }
 
     }
 

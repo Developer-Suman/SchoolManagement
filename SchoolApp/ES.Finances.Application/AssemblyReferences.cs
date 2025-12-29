@@ -2,6 +2,8 @@
 using ES.Finances.Application.Finance.Command.Fee.AddFeeType;
 using ES.Finances.Application.Finance.Command.Fee.AddStudentFee;
 using ES.Finances.Application.Finance.Command.Fee.AssignMonthlyFee;
+using ES.Finances.Application.Finance.Command.Fee.UpdateFeeStructure;
+
 using ES.Finances.Application.Finance.Command.Fee.UpdateFeeType;
 using ES.Finances.Application.Finance.Command.PaymentRecords.AddpaymentsRecords;
 using FluentValidation;
@@ -17,6 +19,7 @@ namespace ES.Finances.Application
             services.AddMediatR(x => x.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
 
             services.AddScoped<IValidator<AddFeeTypeCommand>, AddFeetypeCommandValidator>();
+            services.AddScoped<IValidator<UpdateFeeStructureCommand>, UpdateFeeStructureCommandValidator>();
             services.AddScoped<IValidator<UpdateFeeTypeCommand>, UpdateFeeTypeCommandValidator>();
             services.AddScoped<IValidator<AddFeeStructureCommand>, AddFeeStructureCommandValidator>();
             services.AddScoped<IValidator<AddStudentFeeCommand>, AddStudentFeeCommandValidator>();

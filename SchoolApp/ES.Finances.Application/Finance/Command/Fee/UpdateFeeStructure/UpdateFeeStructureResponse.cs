@@ -3,18 +3,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static TN.Shared.Domain.Enum.HelperEnum;
 
-namespace ES.Finances.Application.Finance.Queries.Fee.FilterFeetype
+namespace ES.Finances.Application.Finance.Command.Fee.UpdateFeeStructure
 {
-    public record FilterFeeTypeResponse
+    public record UpdateFeeStructureResponse
     (
         string id,
-            string name,
-            string? description,
+            decimal amount,
+            string classId,
+            string fyId,
+            string feeTypeId,
             bool isActive,
             string schoolId,
-             NameOfMonths? nameOfMonths,
             string createdBy,
             DateTime createdAt,
             string modifiedBy,
