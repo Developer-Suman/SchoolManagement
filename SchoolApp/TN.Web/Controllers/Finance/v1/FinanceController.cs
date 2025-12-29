@@ -1,4 +1,5 @@
-﻿using ES.Communication.Application.Communication.Command.PublishNotice;
+﻿using ES.Academics.Application.Academics.Command.UpdateExam;
+using ES.Communication.Application.Communication.Command.PublishNotice;
 using ES.Communication.Application.Communication.Command.PublishNotice.RequestCommandMapper;
 using ES.Communication.Application.Communication.Queries.NoticeById;
 using ES.Finances.Application.Finance.Command.Fee.AddFeeStructure;
@@ -9,6 +10,8 @@ using ES.Finances.Application.Finance.Command.Fee.AddStudentFee;
 using ES.Finances.Application.Finance.Command.Fee.AddStudentFee.RequestCommandMapper;
 using ES.Finances.Application.Finance.Command.Fee.AssignMonthlyFee;
 using ES.Finances.Application.Finance.Command.Fee.AssignMonthlyFee.RequestCommandMapper;
+using ES.Finances.Application.Finance.Command.Fee.UpdateFeeType;
+using ES.Finances.Application.Finance.Command.Fee.UpdateFeeType.RequestMapper;
 using ES.Finances.Application.Finance.Command.PaymentRecords.AddpaymentsRecords;
 using ES.Finances.Application.Finance.Command.PaymentRecords.AddpaymentsRecords.RequestCommandMapper;
 using ES.Finances.Application.Finance.Queries.Fee.FeeStructure;
@@ -395,7 +398,29 @@ namespace TN.Web.Controllers.Finance.v1
 
 
         #endregion
+        #region UpdateFeeType
+        [HttpPatch("UpdateFeeType/{Id}")]
 
+        public async Task<IActionResult> UpdateFeeType([FromRoute] string Id, [FromBody] UpdateFeeTypeRequest request)
+        {
+            //Mapping command and request
+            var command = request.ToCommand(Id);
+            var update = await _mediator.Send(command);
+            #region Switch Statement
+            return update switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(update.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = update.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(update.Errors),
+                _ => BadRequest("Invalid Fields for Update")
+            };
+
+            #endregion
+        }
+        #endregion  
         #region FilterFeetype
         [HttpGet("FilterFeetype")]
         public async Task<IActionResult> FilterFeetype([FromQuery] FilterFeeStructureDTOs filterFeeStructureDTOs, [FromQuery] PaginationRequest paginationRequest)
