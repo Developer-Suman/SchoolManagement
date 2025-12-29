@@ -1,4 +1,6 @@
-﻿using ES.Communication.Application.Communication.Command.PublishNotice;
+﻿using ES.Academics.Application.Academics.Command.UpdateExam;
+using ES.Academics.Application.Academics.Command.UpdateExam.RequestCommandMapper;
+using ES.Communication.Application.Communication.Command.PublishNotice;
 using ES.Communication.Application.Communication.Command.PublishNotice.RequestCommandMapper;
 using ES.Communication.Application.Communication.Queries.NoticeById;
 using ES.Finances.Application.Finance.Command.Fee.AddFeeStructure;
@@ -9,6 +11,8 @@ using ES.Finances.Application.Finance.Command.Fee.AddStudentFee;
 using ES.Finances.Application.Finance.Command.Fee.AddStudentFee.RequestCommandMapper;
 using ES.Finances.Application.Finance.Command.Fee.AssignMonthlyFee;
 using ES.Finances.Application.Finance.Command.Fee.AssignMonthlyFee.RequestCommandMapper;
+using ES.Finances.Application.Finance.Command.Fee.UpdateFeeStructure;
+using ES.Finances.Application.Finance.Command.Fee.UpdateFeeStructure.RequestCommandMapper;
 using ES.Finances.Application.Finance.Command.PaymentRecords.AddpaymentsRecords;
 using ES.Finances.Application.Finance.Command.PaymentRecords.AddpaymentsRecords.RequestCommandMapper;
 using ES.Finances.Application.Finance.Queries.Fee.FeeStructure;
@@ -16,6 +20,7 @@ using ES.Finances.Application.Finance.Queries.Fee.FeeStructureById;
 using ES.Finances.Application.Finance.Queries.Fee.Feetype;
 using ES.Finances.Application.Finance.Queries.Fee.FeetypeById;
 using ES.Finances.Application.Finance.Queries.Fee.FilterFeeStructure;
+using ES.Finances.Application.Finance.Queries.Fee.FilterFeetype;
 using ES.Finances.Application.Finance.Queries.Fee.FilterStudentFee;
 using ES.Finances.Application.Finance.Queries.Fee.StudentFee;
 using ES.Finances.Application.Finance.Queries.Fee.StudentFeeById;
@@ -53,8 +58,6 @@ namespace TN.Web.Controllers.Finance.v1
             _logger = logger;
             _mediator = mediator;
         }
-
-
 
         #region StudentFeeSummary
         #region StudentFeeSummary
@@ -299,6 +302,30 @@ namespace TN.Web.Controllers.Finance.v1
 
         #region FeeStructure
 
+        #region UpdateFeeStructure
+        [HttpPatch("UpdateFeeStructure/{Id}")]
+
+        public async Task<IActionResult> UpdateFeeStructure([FromRoute] string Id, [FromBody] UpdateFeeStructureRequest request)
+        {
+            //Mapping command and request
+            var command = request.ToCommand(Id);
+            var update = await _mediator.Send(command);
+            #region Switch Statement
+            return update switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(update.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = update.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(update.Errors),
+                _ => BadRequest("Invalid Fields for Update")
+            };
+
+            #endregion
+        }
+        #endregion
+
         #region FeeStructureById
         [HttpGet("FeeStructure/{FeeStructureById}")]
         public async Task<IActionResult> GetFeeStructureById([FromRoute] string FeeStructureById)
@@ -422,9 +449,9 @@ namespace TN.Web.Controllers.Finance.v1
 
         #region FilterFeetype
         [HttpGet("FilterFeetype")]
-        public async Task<IActionResult> FilterFeetype([FromQuery] FilterFeeStructureDTOs filterFeeStructureDTOs, [FromQuery] PaginationRequest paginationRequest)
+        public async Task<IActionResult> FilterFeetype([FromQuery] FilterFeeTypeDTOs filterFeeTypeDTOs, [FromQuery] PaginationRequest paginationRequest)
         {
-            var query = new FilterFeeStructureQuery(paginationRequest, filterFeeStructureDTOs);
+            var query = new FilterFeeTypeQuery(paginationRequest, filterFeeTypeDTOs);
             var result = await _mediator.Send(query);
             #region Switch Statement
             return result switch

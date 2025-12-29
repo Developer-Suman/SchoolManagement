@@ -55,7 +55,7 @@ namespace TN.Shared.Infrastructure.Data
         #endregion
 
         #region Staff
-    public DbSet<AcademicTeam> AcademicTeams { get; set; }
+        public DbSet<AcademicTeam> AcademicTeams { get; set; }
         public DbSet<AcademicTeamClass> AcademicTeamClass { get; set; }
         #endregion
 
@@ -77,6 +77,10 @@ namespace TN.Shared.Infrastructure.Data
         #endregion
 
         #region Academics
+
+        public DbSet<Assignment> Assignments { get; set; }
+        public DbSet<AssignmentStudent> AssignmentStudents { get; set; }
+        public DbSet<AssignmentClassSection> AssignmentClassSections { get; set; }
         public DbSet<SeatAssignment> SeatAssignments { get; set; }
         public DbSet<ExamSession> ExamSessions { get; set; }
         public DbSet<ExamHall> ExamHalls { get; set; }
@@ -457,6 +461,46 @@ namespace TN.Shared.Infrastructure.Data
             #endregion
 
             #region Academics
+
+            #region Assignments and Students(m:m)
+
+
+            builder.Entity<AssignmentStudent>()
+             .HasKey(tc => new { tc.AssignmentId, tc.StudentId });
+
+            builder.Entity<AssignmentStudent>()
+            .HasOne(atc => atc.Assignment)
+            .WithMany(at => at.AssignmentStudents)
+            .HasForeignKey(atc => atc.AssignmentId);
+
+            builder.Entity<AssignmentStudent>()
+                .HasOne(atc => atc.Student)
+                .WithMany(c => c.AssignmentStudents)
+                .HasForeignKey(atc => atc.StudentId);
+
+            #endregion
+
+
+
+            #region Assignments and ClassSection(m:m)
+
+
+            builder.Entity<AssignmentClassSection>()
+             .HasKey(tc => new { tc.AssignmentId, tc.ClassSectionId });
+
+            builder.Entity<AssignmentClassSection>()
+            .HasOne(atc => atc.Assignment)
+            .WithMany(at => at.AssignmentClasses)
+            .HasForeignKey(atc => atc.AssignmentId);
+
+            builder.Entity<AssignmentClassSection>()
+                .HasOne(atc => atc.ClassSection)
+                .WithMany(c => c.AssignmentClassSections)
+                .HasForeignKey(atc => atc.ClassSectionId);
+
+            #endregion
+
+
 
             #region StudentData and SeatAssignments(1:m)
             builder.Entity<StudentData>()

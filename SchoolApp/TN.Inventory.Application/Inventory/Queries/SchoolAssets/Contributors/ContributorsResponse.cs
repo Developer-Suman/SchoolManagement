@@ -3,21 +3,22 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static TN.Shared.Domain.Enum.HelperEnum;
 
-namespace ES.Finances.Application.Finance.Queries.Fee.FilterFeetype
+namespace TN.Inventory.Application.Inventory.Queries.SchoolAssets.Contributors
 {
-    public record FilterFeeTypeResponse
+    public record ContributorsResponse
     (
-        string id,
+          string id,
             string name,
-            string? description,
-            bool isActive,
+            string? organization,
+            string? contactNumber,
+            string? email,
             string schoolId,
-             NameOfMonths? nameOfMonths,
+            bool isActive,
             string createdBy,
             DateTime createdAt,
             string modifiedBy,
+
             DateTime modifiedAt
         );
 }

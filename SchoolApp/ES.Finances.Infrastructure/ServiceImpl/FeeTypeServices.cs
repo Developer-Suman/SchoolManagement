@@ -206,6 +206,7 @@ namespace ES.Finances.Infrastructure.ServiceImpl
                     i.Description,
                     i.IsActive,
                     i.SchoolId,
+                    i.NameOfMonths,
                     i.CreatedBy,
                     i.CreatedAt,
                     i.ModifiedBy,

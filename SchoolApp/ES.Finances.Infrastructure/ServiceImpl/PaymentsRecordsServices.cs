@@ -217,7 +217,7 @@ namespace ES.Finances.Infrastructure.ServiceImpl
             }
             catch (Exception ex)
             {
-                throw new Exception("An error occurred while fetching Notice by using Id", ex);
+                throw new Exception("An error occurred while fetching", ex);
             }
         }
     }

@@ -42,6 +42,7 @@ namespace TN.Shared.Domain.Entities.Academics
             ModifiedBy = modifiedBy;
             ModifiedAt = modifiedAt;
             Students = new List<StudentData>();
+            AssignmentClassSections = new List<AssignmentClassSection>();
         }
         public string Name { get; set; }
         public string Code { get; set; }
@@ -60,6 +61,7 @@ namespace TN.Shared.Domain.Entities.Academics
         public DateTime ModifiedAt { get; set; } = DateTime.Now;
 
         public ICollection<StudentData> Students { get; set; }
+        public ICollection<AssignmentClassSection> AssignmentClassSections { get; set; }
 
     }
 }
