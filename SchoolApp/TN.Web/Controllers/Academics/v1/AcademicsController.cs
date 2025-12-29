@@ -1,4 +1,6 @@
-﻿using ES.Academics.Application.Academics.Command.AddExam;
+﻿using ES.Academics.Application.Academics.Command.AddAssignmentStudents;
+using ES.Academics.Application.Academics.Command.AddAssignmentStudents.RequestCommandMapper;
+using ES.Academics.Application.Academics.Command.AddExam;
 using ES.Academics.Application.Academics.Command.AddExam.RequestCommandMapper;
 using ES.Academics.Application.Academics.Command.AddExamResult;
 using ES.Academics.Application.Academics.Command.AddExamResult.RequestCommandMapper;
@@ -69,7 +71,30 @@ namespace TN.Web.Controllers.Academics.v1
 
         }
 
+        #region Assignments
+        #region AddAssignmentStudents
+        [HttpPost("AddAssignmentStudents")]
 
+        public async Task<IActionResult> AddAssignmentStudents([FromBody] AddAssignmentStudentsRequest request)
+        {
+            //Mapping command and request
+            var command = request.ToCommand();
+            var add = await _mediator.Send(command);
+            #region Switch Statement
+            return add switch
+            {
+                { IsSuccess: true, Data: not null } => CreatedAtAction(nameof(AddAssignmentStudents), add.Data),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = add.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(add.Errors),
+                _ => BadRequest("Invalid Fields ")
+
+            };
+
+            #endregion
+        }
+        #endregion
+
+        #endregion
 
         #region ExamSession
 
