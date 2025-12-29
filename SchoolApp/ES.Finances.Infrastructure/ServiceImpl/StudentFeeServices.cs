@@ -2,6 +2,7 @@
 using ES.Finances.Application.Finance.Command.Fee.AddFeeStructure;
 using ES.Finances.Application.Finance.Command.Fee.AddStudentFee;
 using ES.Finances.Application.Finance.Command.Fee.AssignMonthlyFee;
+using ES.Finances.Application.Finance.Command.Fee.UpdateStudentFee;
 using ES.Finances.Application.Finance.Queries.Fee.Feetype;
 using ES.Finances.Application.Finance.Queries.Fee.FilterFeetype;
 using ES.Finances.Application.Finance.Queries.Fee.FilterStudentFee;
@@ -457,6 +458,54 @@ namespace ES.Finances.Infrastructure.ServiceImpl
             catch (Exception ex)
             {
                 throw new Exception("An error occurred while fetching", ex);
+            }
+        }
+
+        public async Task<Result<UpdateStudentFeeResponse>> Update(string studentFeeId, UpdateStudentFeeCommand updateStudentFeeCommand)
+        {
+            using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            {
+                try
+                {
+                    if (studentFeeId == null)
+                    {
+                        return Result<UpdateStudentFeeResponse>.Failure("NotFound", "Please provide valid studentFeeId");
+                    }
+
+                    var studentFeeToBeUpdated = await _unitOfWork.BaseRepository<StudentFee>().GetByGuIdAsync(studentFeeId);
+                    if (studentFeeToBeUpdated is null)
+                    {
+                        return Result<UpdateStudentFeeResponse>.Failure("NotFound", "StudentFee not Found");
+                    }
+                    studentFeeToBeUpdated.ModifiedAt = DateTime.UtcNow;
+                    _mapper.Map(updateStudentFeeCommand, studentFeeToBeUpdated);
+                    await _unitOfWork.SaveChangesAsync();
+                    scope.Complete();
+
+                    var resultResponse = new UpdateStudentFeeResponse
+                        (
+                            studentFeeId,
+                            studentFeeToBeUpdated.StudentId,
+                            studentFeeToBeUpdated.FeeStructureId,
+                            studentFeeToBeUpdated.Discount,
+                            studentFeeToBeUpdated.TotalAmount,
+                            studentFeeToBeUpdated.PaidAmount,
+                            studentFeeToBeUpdated.DueDate,
+                            studentFeeToBeUpdated.IsActive,
+                            studentFeeToBeUpdated.SchoolId,
+                            studentFeeToBeUpdated.CreatedBy,
+                            studentFeeToBeUpdated.CreatedAt,
+                            studentFeeToBeUpdated.ModifiedBy,
+                            studentFeeToBeUpdated.ModifiedAt
+                        );
+
+                    return Result<UpdateStudentFeeResponse>.Success(resultResponse);
+
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception("An error occurred while updating StuentFee", ex);
+                }
             }
         }
     }
