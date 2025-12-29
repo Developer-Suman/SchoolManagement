@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using ES.Finances.Application.Finance.Command.Fee.AddFeeType;
 using ES.Finances.Application.Finance.Command.Fee.AssignMonthlyFee;
+using ES.Finances.Application.Finance.Command.Fee.UpdateFeeType;
 using ES.Finances.Application.Finance.Queries.Fee.Feetype;
 using ES.Finances.Application.Finance.Queries.Fee.FeetypeById;
 using ES.Finances.Application.Finance.Queries.Fee.FilterFeetype;
@@ -273,6 +274,47 @@ namespace ES.Finances.Infrastructure.ServiceImpl
             catch (Exception ex)
             {
                 throw new Exception("An error occurred while fetching by using Id", ex);
+            }
+         }
+        public async Task<Result<UpdateFeeTypeResponse>> Update(string feeTypeId, UpdateFeeTypeCommand updateFeeTypeCommand)
+        {
+            using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            {
+                try
+                {
+                    if (feeTypeId == null)
+                    {
+                        return Result<UpdateFeeTypeResponse>.Failure("NotFound", "Please provide valid feeTypeId");
+                    }
+
+                    var feeTypeToBeUpdated = await _unitOfWork.BaseRepository<FeeType>().GetByGuIdAsync(feeTypeId);
+                    if (feeTypeToBeUpdated is null)
+                    {
+                        return Result<UpdateFeeTypeResponse>.Failure("NotFound", "FeeType not Found");
+                    }
+                    feeTypeToBeUpdated.ModifiedAt = DateTime.UtcNow;
+                    _mapper.Map(updateFeeTypeCommand, feeTypeToBeUpdated);
+                    await _unitOfWork.SaveChangesAsync();
+                    scope.Complete();
+
+                    var resultResponse = new UpdateFeeTypeResponse
+                        (
+                            feeTypeId,
+                            feeTypeToBeUpdated.Name,
+                            feeTypeToBeUpdated.Description,
+                            feeTypeToBeUpdated.CreatedBy,
+                            feeTypeToBeUpdated.CreatedAt,
+                            feeTypeToBeUpdated.ModifiedBy,
+                            feeTypeToBeUpdated.ModifiedAt
+                        );
+
+                    return Result<UpdateFeeTypeResponse>.Success(resultResponse);
+
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception("An error occurred while updating feeType", ex);
+                }
             }
         }
     }
