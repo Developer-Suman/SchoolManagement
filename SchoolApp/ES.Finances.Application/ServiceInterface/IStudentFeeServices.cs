@@ -1,6 +1,8 @@
 ﻿using ES.Finances.Application.Finance.Command.Fee.AddFeeStructure;
 using ES.Finances.Application.Finance.Command.Fee.AddStudentFee;
 using ES.Finances.Application.Finance.Command.Fee.AssignMonthlyFee;
+using ES.Finances.Application.Finance.Command.Fee.UpdateFeeType;
+using ES.Finances.Application.Finance.Command.Fee.UpdateStudentFee;
 using ES.Finances.Application.Finance.Queries.Fee.FilterFeeStructure;
 using ES.Finances.Application.Finance.Queries.Fee.FilterStudentFee;
 using ES.Finances.Application.Finance.Queries.Fee.StudentFee;
@@ -24,5 +26,6 @@ namespace ES.Finances.Application.ServiceInterface
         Task<Result<PagedResult<FilterStudentFeeResponse>>> Filter(PaginationRequest paginationRequest, FilterStudentFeeDTOs filterStudentFeeDTOs);
         Task<Result<StudentFeeByIdResponse>> GetStudentFee(string id, CancellationToken cancellationToken = default);
         Task<Result<PagedResult<StudentFeeSummaryResponse>>> GetStudentFeeSummary(PaginationRequest paginationRequest, StudentFeeSummaryDTOs studentFeeSummaryDTOs);
+        Task<Result<UpdateStudentFeeResponse>> Update(string studentFeeId, UpdateStudentFeeCommand updateStudentFeeCommand);
     }
 }

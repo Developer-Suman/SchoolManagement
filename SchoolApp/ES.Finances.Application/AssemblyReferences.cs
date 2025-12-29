@@ -3,6 +3,7 @@ using ES.Finances.Application.Finance.Command.Fee.AddFeeType;
 using ES.Finances.Application.Finance.Command.Fee.AddStudentFee;
 using ES.Finances.Application.Finance.Command.Fee.AssignMonthlyFee;
 using ES.Finances.Application.Finance.Command.Fee.UpdateFeeType;
+using ES.Finances.Application.Finance.Command.Fee.UpdateStudentFee;
 using ES.Finances.Application.Finance.Command.PaymentRecords.AddpaymentsRecords;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
@@ -18,6 +19,7 @@ namespace ES.Finances.Application
 
             services.AddScoped<IValidator<AddFeeTypeCommand>, AddFeetypeCommandValidator>();
             services.AddScoped<IValidator<UpdateFeeTypeCommand>, UpdateFeeTypeCommandValidator>();
+            services.AddScoped<IValidator<UpdateStudentFeeCommand>, UpdateStudentFeeCommandValidator>();
             services.AddScoped<IValidator<AddFeeStructureCommand>, AddFeeStructureCommandValidator>();
             services.AddScoped<IValidator<AddStudentFeeCommand>, AddStudentFeeCommandValidator>();
             services.AddScoped<IValidator<AddPaymentsRecordsCommand>, AddPaymentsRecordsCommandValidators>();
