@@ -5,11 +5,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ES.Academics.Application.Academics.Command.AddAssignmentStudents
+namespace ES.Academics.Application.Academics.Command.SubmitAssignments
 {
-    public record AddAssignmentStudentsRequest
+    public record SubmitAssignmentsRequest
     (
          string assignmentId,
-         List<string> studentIds
+            string submissionText,
+            IFormFile? submissionFile
         );
 }

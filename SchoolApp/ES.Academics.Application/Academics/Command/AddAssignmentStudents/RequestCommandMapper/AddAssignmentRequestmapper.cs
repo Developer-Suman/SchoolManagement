@@ -12,10 +12,7 @@ namespace ES.Academics.Application.Academics.Command.AddAssignmentStudents.Reque
         {
             return new AddAssignmentStudentsCommand(
                 request.assignmentId,
-                request.studentId,
-                request.isSubmitted,
-                request.submittedAt,
-                request.marks
+                request.studentIds
                 );
         }
     }

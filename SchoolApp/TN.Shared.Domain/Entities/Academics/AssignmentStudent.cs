@@ -18,7 +18,10 @@ namespace TN.Shared.Domain.Entities.Academics
             string studentId,
             bool isSubmitted,
             DateTime? submittedAt,
+            string? submissionText,
+            string? submissionFileUrl,
             decimal? marks,
+            string? teacherRemarks,
              bool isActive,
             string schoolId,
             string createdBy,
@@ -32,6 +35,9 @@ namespace TN.Shared.Domain.Entities.Academics
             IsSubmitted = isSubmitted;
             SubmittedAt = submittedAt;
             Marks = marks;
+            SubmissionText = submissionText;
+            SubmissionFileUrl = submissionFileUrl;
+            TeacherRemarks = teacherRemarks;
             IsActive = isActive;
             SchoolId = schoolId;
             CreatedBy = createdBy;
@@ -41,6 +47,9 @@ namespace TN.Shared.Domain.Entities.Academics
 
         }
 
+        public string? SubmissionText { get; set; }
+        public string? SubmissionFileUrl { get; set; }
+        public string? TeacherRemarks { get; set; }
         public string AssignmentId { get; set; }
         public Assignment Assignment { get; set; }
 

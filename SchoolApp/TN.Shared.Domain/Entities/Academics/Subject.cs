@@ -50,6 +50,7 @@ namespace TN.Shared.Domain.Entities.Academics
             ExamId = examId;
             ExamResults = new List<ExamResult>();
             MarksObtaineds = new List<MarksObtained>();
+            Assignments= new List<Assignment>();
         }
 
         public int FullMarks { get; set; }
@@ -68,6 +69,10 @@ namespace TN.Shared.Domain.Entities.Academics
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public string ModifiedBy { get; set; }
         public DateTime ModifiedAt { get; set; } = DateTime.Now;
+        public ICollection<Assignment> Assignments
+        {
+            get; set;
+        }
         public ICollection<ExamResult> ExamResults
         {
             get; set;

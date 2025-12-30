@@ -9,6 +9,8 @@ using ES.Academics.Application.Academics.Command.DeleteExam;
 using ES.Academics.Application.Academics.Command.DeleteExamResult;
 using ES.Academics.Application.Academics.Command.DeleteSchoolClass;
 using ES.Academics.Application.Academics.Command.DeleteSubject;
+using ES.Academics.Application.Academics.Command.EvaluteAssignments;
+using ES.Academics.Application.Academics.Command.SubmitAssignments;
 using ES.Academics.Application.Academics.Command.UpdateSchoolClass;
 using ES.Academics.Application.Academics.Queries.ClassByExamSession;
 using ES.Academics.Application.Academics.Queries.Exam;
@@ -20,6 +22,7 @@ using ES.Academics.Application.Academics.Queries.FilterExamResult;
 using ES.Academics.Application.Academics.Queries.FilterExamSession;
 using ES.Academics.Application.Academics.Queries.FilterSchoolClass;
 using ES.Academics.Application.Academics.Queries.FilterSubject;
+using ES.Academics.Application.Academics.Queries.GetAssignments;
 using ES.Academics.Application.Academics.Queries.SchoolClass;
 using ES.Academics.Application.Academics.Queries.SchoolClassById;
 using ES.Academics.Application.Academics.Queries.Subject;
@@ -48,7 +51,14 @@ namespace ES.Academics.Application.AutoMapper
 
 
             #region Assignment
+
+            CreateMap<GetAssignmentsResponse, Assignment>().ReverseMap();
+            CreateMap<PagedResult<Assignment>, PagedResult<GetAssignmentsResponse>>().ReverseMap();
+
+
             CreateMap<AssignmentStudent, AddAssignmentStudentsResponse>().ReverseMap();
+            CreateMap<AssignmentStudent, EvaluteAssignmentsResponse>().ReverseMap();
+            CreateMap<SubmitAssignmentsResponse, AssignmentStudent>().ReverseMap();
             #endregion
             #region ExamSession
             CreateMap<ExamSession, AddExamSessionResponse>().ReverseMap();
