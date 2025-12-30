@@ -78,6 +78,7 @@ namespace TN.Shared.Infrastructure.Data
 
         #region Academics
 
+        public DbSet<TeacherAttendance> TeacherAttendances { get; set; }
         public DbSet<Assignment> Assignments { get; set; }
         public DbSet<AssignmentStudent> AssignmentStudents { get; set; }
         public DbSet<AssignmentClassSection> AssignmentClassSections { get; set; }

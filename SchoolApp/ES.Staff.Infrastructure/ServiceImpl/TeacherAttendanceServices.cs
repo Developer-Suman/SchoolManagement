@@ -18,6 +18,7 @@ using TN.Shared.Application.ServiceInterface.IHelperServices;
 using TN.Shared.Domain.Abstractions;
 using TN.Shared.Domain.Entities.Academics;
 using TN.Shared.Domain.Entities.OrganizationSetUp;
+using TN.Shared.Domain.Entities.Staff;
 using TN.Shared.Domain.ICryptography;
 using TN.Shared.Domain.IRepository;
 
@@ -40,8 +41,10 @@ namespace ES.Staff.Infrastructure.ServiceImpl
         private readonly FiscalContext _fiscalContext;
         private readonly IDateConvertHelper _dateConverter;
         private readonly IGenerateQRCodeServices _generateQRCodeServices;
+        private readonly IAuthenticationServices _authenticationServices;
 
         public TeacherAttendanceServices(
+            IAuthenticationServices authenticationServices,
             ICryptography cryptography,
             IGenerateQRCodeServices generateQRCodeServices,
             UserManager<ApplicationUser> userManager,
@@ -88,17 +91,40 @@ namespace ES.Staff.Infrastructure.ServiceImpl
                 {
 
                     string newId = Guid.NewGuid().ToString();
+                    string uniqueId = Guid.NewGuid().ToString();
                     var FyId = _fiscalContext.CurrentFiscalYearId;
                     var schoolId = _tokenService.SchoolId().FirstOrDefault() ?? "";
                     var userId = _tokenService.GetUserId();
 
-                    var token = "HhghbbbKJHHKKHJjjkkjdskjdDKLJDK5456da65sd65asd65cxa151as6cascasc";
+                    var roleQueryable = await _unitOfWork.BaseRepository<IdentityRole>().GetAllAsyncWithPagination();
+
+                    var roles = roleQueryable
+                        .Select(r => r.Id)
+                        .ToList();
+
+
+                    var token = _ijwtProviders.GenerateTokenForAttendance(uniqueId, roles);
                     var qrCodeLink = await _generateQRCodeServices.GenerateSvgAsync(token);
 
+                    var teacherAttendance = new TeacherAttendance(
+                           newId,
+                           uniqueId,
+                       DateTime.UtcNow,
+                       false,
+                       qrCodeLink,
+                       ""
+                   );
+
+                    await _unitOfWork.BaseRepository<TeacherAttendance>().AddAsync(teacherAttendance);
+                    await _unitOfWork.SaveChangesAsync();
+                    scope.Complete();
+
+
+                    
 
                     var resultDTOs = new TeacherAttendanceQRResponse
                         (
-                        "4234dasdadasd",
+                        newId,
                         token,
                         qrCodeLink
                         );
