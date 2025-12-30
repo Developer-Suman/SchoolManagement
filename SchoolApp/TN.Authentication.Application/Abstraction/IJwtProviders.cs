@@ -14,5 +14,7 @@ namespace TN.Authentication.Application.Abstraction
 
         string GenerateRefreshToken();
         ClaimsPrincipal GetPrincipalFromExpiredToken(string token);
+
+        string GenerateTokenForAttendance(string uniqueId, IList<string> roles);
     }
 }

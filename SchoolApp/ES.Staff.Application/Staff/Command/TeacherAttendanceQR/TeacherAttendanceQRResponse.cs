@@ -8,9 +8,9 @@ namespace ES.Staff.Application.Staff.Command.TeacherAttendanceQR
 {
     public record TeacherAttendanceQRResponse
     (
-        string id,
-        string token,
-        string qrCodeImageUrl
+        string id="",
+        string token="",
+        string qrCodeImageUrl=""
 
         );
 }

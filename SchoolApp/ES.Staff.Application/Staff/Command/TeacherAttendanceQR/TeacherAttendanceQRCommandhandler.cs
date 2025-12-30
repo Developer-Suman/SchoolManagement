@@ -53,7 +53,7 @@ namespace ES.Staff.Application.Staff.Command.TeacherAttendanceQR
                 {
                     return Result<TeacherAttendanceQRResponse>.Failure("Add AssignClass Failed");
                 }
-                var teacherAttendenceQRDisplay = _mapper.Map<TeacherAttendanceQRResponse>(request);
+                var teacherAttendenceQRDisplay = _mapper.Map<TeacherAttendanceQRResponse>(teacherAttendenceQR.Data);
 
                 if (teacherAttendenceQRDisplay is null)
                 {
