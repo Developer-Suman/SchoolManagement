@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using ES.Academics.Application.Academics.Command.AddAssignments;
 using ES.Academics.Application.Academics.Command.AddAssignmentStudents;
 using ES.Academics.Application.Academics.Command.AddExam;
 using ES.Academics.Application.Academics.Command.AddExamResult;
@@ -49,7 +50,10 @@ namespace ES.Academics.Application.AutoMapper
         {
             CreateMap<PagedResult<Class>, PagedResult<ClassByExamSessionResponse>>().ReverseMap();
 
+            #region Assignments
+            CreateMap<Assignment, AddAssignmentsResponse>().ReverseMap();
 
+            #endregion
             #region Assignment
 
             CreateMap<GetAssignmentsResponse, Assignment>().ReverseMap();
