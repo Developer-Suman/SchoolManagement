@@ -1,6 +1,6 @@
 
 ﻿using ES.Academics.Application.Academics.Command.AddAssignmentToClassSection;
-
+using ES.Academics.Application.Academics.Command.AddAssignments;
 ﻿using ES.Academics.Application.Academics.Command.AddAssignmentStudents;
 using ES.Academics.Application.Academics.Command.AddExam;
 using ES.Academics.Application.Academics.Command.AddExamResult;
@@ -14,6 +14,7 @@ using ES.Academics.Application.Academics.Command.UpdateSchoolClass;
 using ES.Academics.Application.Academics.Command.UpdateSubject;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
+
 
 namespace ES.Academics.Application
 {
@@ -36,8 +37,8 @@ namespace ES.Academics.Application
             services.AddScoped<IValidator<AddSubjectCommand>, AddSubjectCommandValidator>();
             services.AddScoped<IValidator<UpdateSubjectCommand>, UpdateSubjectCommandValidator>();
             services.AddScoped<IValidator<AddAssignmentToClassSectionCommand>, AddAssignmentToClassSectionCommandValidator>();
-
             services.AddScoped<IValidator<AddAssignmentStudentsCommand>, AddAssignmentStudentsCommandValidator>();
+            services.AddScoped<IValidator<AddAssignmentsCommand>, AddAssignmentsCommandValidator>();
 
 
 
