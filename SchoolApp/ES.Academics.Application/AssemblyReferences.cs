@@ -1,3 +1,6 @@
+
+﻿using ES.Academics.Application.Academics.Command.AddAssignmentToClassSection;
+
 ﻿using ES.Academics.Application.Academics.Command.AddAssignmentStudents;
 using ES.Academics.Application.Academics.Command.AddExam;
 using ES.Academics.Application.Academics.Command.AddExamResult;
@@ -32,7 +35,10 @@ namespace ES.Academics.Application
             services.AddScoped<IValidator<UpdateExamResultCommand>, UpdateExamResultCommandValidator>();
             services.AddScoped<IValidator<AddSubjectCommand>, AddSubjectCommandValidator>();
             services.AddScoped<IValidator<UpdateSubjectCommand>, UpdateSubjectCommandValidator>();
+            services.AddScoped<IValidator<AddAssignmentToClassSectionCommand>, AddAssignmentToClassSectionCommandValidator>();
+
             services.AddScoped<IValidator<AddAssignmentStudentsCommand>, AddAssignmentStudentsCommandValidator>();
+
 
 
             return services;
