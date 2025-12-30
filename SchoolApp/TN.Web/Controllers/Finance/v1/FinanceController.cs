@@ -17,6 +17,8 @@ using ES.Finances.Application.Finance.Command.Fee.UpdateFeeStructure.RequestComm
 
 using ES.Finances.Application.Finance.Command.Fee.UpdateFeeType;
 using ES.Finances.Application.Finance.Command.Fee.UpdateFeeType.RequestMapper;
+using ES.Finances.Application.Finance.Command.Fee.UpdateStudentFee;
+using ES.Finances.Application.Finance.Command.Fee.UpdateStudentFee.RequestMapper;
 using ES.Finances.Application.Finance.Command.PaymentRecords.AddpaymentsRecords;
 using ES.Finances.Application.Finance.Command.PaymentRecords.AddpaymentsRecords.RequestCommandMapper;
 using ES.Finances.Application.Finance.Queries.Fee.FeeStructure;
@@ -161,6 +163,32 @@ namespace TN.Web.Controllers.Finance.v1
         #endregion
 
         #region StudentFee
+        #region UpdateStudentFee
+        [HttpPatch("UpdateStudentFee/{Id}")]
+
+        public async Task<IActionResult> UpdateStudentFee([FromRoute] string Id, [FromBody] UpdateStudentFeeRequest request)
+        {
+            //Mapping command and request
+            var command = request.ToCommand(Id);
+            var update = await _mediator.Send(command);
+            #region Switch Statement
+            return update switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(update.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = update.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(update.Errors),
+                _ => BadRequest("Invalid Fields for Update")
+            };
+
+            #endregion
+        }
+        #endregion  
+
+
+
         #region StudentFeeById
         [HttpGet("StudentFee/{StudentFeeById}")]
         public async Task<IActionResult> GetStudentFeeById([FromRoute] string StudentFeeById)

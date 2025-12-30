@@ -59,5 +59,6 @@ namespace TN.Shared.Domain.Entities.Finance
         {
             get; set;
         }
+        public string StudentId { get; set; }
     }
 }
