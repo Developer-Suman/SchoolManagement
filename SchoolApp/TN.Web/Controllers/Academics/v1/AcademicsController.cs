@@ -15,6 +15,10 @@ using ES.Academics.Application.Academics.Command.AddSubject.RequestCommandMapper
 using ES.Academics.Application.Academics.Command.DeleteExam;
 using ES.Academics.Application.Academics.Command.DeleteSchoolClass;
 using ES.Academics.Application.Academics.Command.DeleteSubject;
+using ES.Academics.Application.Academics.Command.EvaluteAssignments;
+using ES.Academics.Application.Academics.Command.EvaluteAssignments.RequestCommandMapper;
+using ES.Academics.Application.Academics.Command.SubmitAssignments;
+using ES.Academics.Application.Academics.Command.SubmitAssignments.RequestCommandMapper;
 using ES.Academics.Application.Academics.Command.UpdateExam;
 using ES.Academics.Application.Academics.Command.UpdateExam.RequestCommandMapper;
 using ES.Academics.Application.Academics.Command.UpdateExamResult;
@@ -72,6 +76,54 @@ namespace TN.Web.Controllers.Academics.v1
         }
 
         #region Assignments
+
+        #region SubmitAssignments
+        [HttpPost("SubmitAssignments")]
+
+        public async Task<IActionResult> SubmitAssignments([FromBody] SubmitAssignmentsRequest request)
+        {
+            //Mapping command and request
+            var command = request.ToCommand();
+            var submit = await _mediator.Send(command);
+            #region Switch Statement
+            return submit switch
+            {
+                { IsSuccess: true, Data: not null } => CreatedAtAction(nameof(SubmitAssignments), submit.Data),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = submit.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(submit.Errors),
+                _ => BadRequest("Invalid Fields ")
+
+            };
+
+            #endregion
+        }
+        #endregion
+
+
+
+        #region EvaluteAssignments
+        [HttpPost("EvaluteAssignments")]
+
+        public async Task<IActionResult> EvaluteAssignments([FromBody] EvaluteAssignmentsRequest request)
+        {
+            //Mapping command and request
+            var command = request.ToCommand();
+            var evalute = await _mediator.Send(command);
+            #region Switch Statement
+            return evalute switch
+            {
+                { IsSuccess: true, Data: not null } => CreatedAtAction(nameof(EvaluteAssignments), evalute.Data),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = evalute.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(evalute.Errors),
+                _ => BadRequest("Invalid Fields ")
+
+            };
+
+            #endregion
+        }
+        #endregion
+
+
         #region AddAssignmentStudents
         [HttpPost("AddAssignmentStudents")]
 

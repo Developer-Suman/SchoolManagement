@@ -243,6 +243,8 @@ namespace TN.Shared.Infrastructure.Data
 
 
 
+          
+
 
             #region Register EntityConfiguration
             builder.ApplyConfiguration(new NoticeConfiguration());
@@ -461,6 +463,21 @@ namespace TN.Shared.Infrastructure.Data
             #endregion
 
             #region Academics
+
+
+            #region Assignment and Subject(1:m)
+            builder.Entity<Assignment>(entity =>
+            {
+                entity.HasOne(a => a.Subject)
+                      .WithMany(s => s.Assignments)
+                      .HasForeignKey(a => a.SubjectId)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            #endregion
+
+
+
 
             #region Assignments and Students(m:m)
 

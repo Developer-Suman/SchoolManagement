@@ -124,6 +124,7 @@ namespace TN.Shared.Domain.Entities.Students
         public int WardNumber { get; set;  }
 
 
+
         public Ledger? Ledger { get; set; }
         public DateTime EnrollmentDate { get; set; }
         public string CreatedBy { get; set; }

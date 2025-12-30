@@ -7,11 +7,12 @@ using System.Text;
 using System.Threading.Tasks;
 using TN.Shared.Domain.Abstractions;
 
-namespace ES.Academics.Application.Academics.Command.AddAssignmentStudents
+namespace ES.Academics.Application.Academics.Command.SubmitAssignments
 {
-    public record AddAssignmentStudentsCommand
+    public record SubmitAssignmentsCommand
     (
          string assignmentId,
-         List<string> studentIds
-        ) : IRequest<Result<AddAssignmentStudentsResponse>>;
+            string submissionText,
+            IFormFile? submissionFile
+        ) : IRequest<Result<SubmitAssignmentsResponse>>;
 }
