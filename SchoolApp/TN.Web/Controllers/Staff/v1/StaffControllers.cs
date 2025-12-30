@@ -4,6 +4,8 @@ using ES.Staff.Application.Staff.Command.AddAcademicTeam;
 using ES.Staff.Application.Staff.Command.AddAcademicTeam.RequestCommandMapper;
 using ES.Staff.Application.Staff.Command.AssignClassToAcademicTeam;
 using ES.Staff.Application.Staff.Command.AssignClassToAcademicTeam.RequestCommandMapper;
+using ES.Staff.Application.Staff.Command.TeacherAttendanceQR;
+using ES.Staff.Application.Staff.Command.TeacherAttendanceQR.RequestCommandMapper;
 using ES.Staff.Application.Staff.Command.UnAssignedClassToAcademicTeam;
 using ES.Staff.Application.Staff.Command.UnAssignedClassToAcademicTeam.RequestCommandMapper;
 using ES.Staff.Application.Staff.Queries.AcademicTeam;
@@ -36,6 +38,29 @@ namespace TN.Web.Controllers.Staff.v1
             _mediator = mediator;
 
         }
+
+        #region TeacherAttendance
+        #region AddTeacherQR
+        [HttpPost("AddTeacherQR")]
+        public async Task<IActionResult> AddTeacherQR([FromForm] TeacherAttendanceQRRequest request)
+        {
+            //Mapping command and request
+            var command = request.ToCommand();
+            var teacherQR = await _mediator.Send(command);
+            #region Switch Statement
+            return teacherQR switch
+            {
+                { IsSuccess: true, Data: not null } => CreatedAtAction(nameof(AddTeacherQR), teacherQR.Data),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = teacherQR.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(teacherQR.Errors),
+                _ => BadRequest("Invalid Fields for Add AddTeacherQR")
+            };
+
+            #endregion
+        }
+        #endregion
+
+        #endregion
 
         #region AssignAndUnAssignedClass
 

@@ -114,6 +114,7 @@ namespace TN.Shared.Infrastructure
             services.AddScoped<IFiscalYearService, FiscalYearServices>();
             services.AddScoped<IHelperService, HelperService>();
             services.AddScoped<IimageServices, ImageServices>();
+            services.AddScoped<IGenerateQRCodeServices, GenerateQRCodeServices>();
 
             services.AddScoped<IAuthorizationHandler, TeacherClassHandler>();
 

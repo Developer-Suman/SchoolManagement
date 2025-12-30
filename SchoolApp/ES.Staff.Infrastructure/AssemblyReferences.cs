@@ -18,6 +18,7 @@ namespace ES.Staff.Infrastructure
             #endregion
             #region Inject Dependencies
             services.AddScoped<IAcademicTeamServices, AcademicTeamServices>();
+            services.AddScoped<ITeacherAttendanceServices, TeacherAttendanceServices>();
             #endregion
             return services;
         }
