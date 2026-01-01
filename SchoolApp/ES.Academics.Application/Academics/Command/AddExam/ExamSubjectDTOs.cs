@@ -6,11 +6,10 @@ using System.Threading.Tasks;
 
 namespace ES.Academics.Application.Academics.Command.AddExam
 {
-    public record AddExamResponse
+    public record ExamSubjectDTOs
     (
-        string name,
-            DateTime examDate,
-            bool? isfinalExam,
-            string classId
+            string subjectId,
+            int passMarks,
+            int fullMarks
         );
 }

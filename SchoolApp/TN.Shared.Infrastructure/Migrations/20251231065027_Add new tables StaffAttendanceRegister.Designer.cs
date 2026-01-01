@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TN.Shared.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using TN.Shared.Infrastructure.Data;
 namespace TN.Shared.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251231065027_Add new tables StaffAttendanceRegister")]
+    partial class AddnewtablesStaffAttendanceRegister
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -2535,30 +2538,6 @@ namespace TN.Shared.Infrastructure.Migrations
                     b.ToTable("ExamSessions");
                 });
 
-            modelBuilder.Entity("TN.Shared.Domain.Entities.Academics.ExamSubject", b =>
-                {
-                    b.Property<string>("ExamId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("SubjectId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("FullMarks")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("PassMarks")
-                        .HasColumnType("int");
-
-                    b.HasKey("ExamId", "SubjectId");
-
-                    b.HasIndex("SubjectId");
-
-                    b.ToTable("ExamSubjects");
-                });
-
             modelBuilder.Entity("TN.Shared.Domain.Entities.Academics.MarksObtained", b =>
                 {
                     b.Property<string>("Id")
@@ -2676,6 +2655,13 @@ namespace TN.Shared.Infrastructure.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("ExamId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("FullMarks")
+                        .HasColumnType("int");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
@@ -2690,6 +2676,9 @@ namespace TN.Shared.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("PassMarks")
+                        .HasColumnType("int");
+
                     b.Property<string>("SchoolId")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -2697,6 +2686,8 @@ namespace TN.Shared.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ClassId");
+
+                    b.HasIndex("ExamId");
 
                     b.ToTable("Subjects");
                 });
@@ -5410,25 +5401,6 @@ namespace TN.Shared.Infrastructure.Migrations
                     b.Navigation("Student");
                 });
 
-            modelBuilder.Entity("TN.Shared.Domain.Entities.Academics.ExamSubject", b =>
-                {
-                    b.HasOne("TN.Shared.Domain.Entities.Academics.Exam", "Exam")
-                        .WithMany("ExamSubjects")
-                        .HasForeignKey("ExamId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("TN.Shared.Domain.Entities.Academics.Subject", "Subject")
-                        .WithMany("ExamSubjects")
-                        .HasForeignKey("SubjectId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Exam");
-
-                    b.Navigation("Subject");
-                });
-
             modelBuilder.Entity("TN.Shared.Domain.Entities.Academics.MarksObtained", b =>
                 {
                     b.HasOne("TN.Shared.Domain.Entities.Academics.ExamResult", "ExamResult")
@@ -5494,7 +5466,15 @@ namespace TN.Shared.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("TN.Shared.Domain.Entities.Academics.Exam", "Exam")
+                        .WithMany("Subjects")
+                        .HasForeignKey("ExamId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.Navigation("Class");
+
+                    b.Navigation("Exam");
                 });
 
             modelBuilder.Entity("TN.Shared.Domain.Entities.Account.ClosingBalance", b =>
@@ -6259,7 +6239,7 @@ namespace TN.Shared.Infrastructure.Migrations
                 {
                     b.Navigation("ExamResults");
 
-                    b.Navigation("ExamSubjects");
+                    b.Navigation("Subjects");
                 });
 
             modelBuilder.Entity("TN.Shared.Domain.Entities.Academics.ExamHall", b =>
@@ -6289,8 +6269,6 @@ namespace TN.Shared.Infrastructure.Migrations
                     b.Navigation("Assignments");
 
                     b.Navigation("ExamResults");
-
-                    b.Navigation("ExamSubjects");
 
                     b.Navigation("MarksObtaineds");
                 });

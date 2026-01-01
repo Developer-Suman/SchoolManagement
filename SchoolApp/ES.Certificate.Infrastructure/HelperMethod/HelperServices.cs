@@ -70,7 +70,7 @@ namespace ES.Certificate.Infrastructure.HelperMethod
                        {
                            Id = er.Exam.Id,
                            Name = er.Exam.Name,
-                           TotalMarks = er.Exam.TotalMarks,
+                           TotalMarks = er.Exam.ExamSubjects.Sum(x=>x.FullMarks),
 
                        },
 
@@ -255,7 +255,7 @@ namespace ES.Certificate.Infrastructure.HelperMethod
                                {
                                    Id = er.Exam.Id,
                                    Name = er.Exam.Name,
-                                   TotalMarks = er.Exam.TotalMarks,
+                                   TotalMarks = er.Exam.ExamSubjects.Sum(x=>x.FullMarks),
              
                                }
                            })

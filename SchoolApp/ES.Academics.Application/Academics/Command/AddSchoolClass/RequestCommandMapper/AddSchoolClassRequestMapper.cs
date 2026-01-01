@@ -11,7 +11,8 @@ namespace ES.Academics.Application.Academics.Command.AddSchoolClass.RequestComma
         public static AddSchoolClassCommand ToCommand(this AddSchoolClassRequest request)
         {
             return new AddSchoolClassCommand(
-                request.Name
+                request.Name,
+                request.Subjects
                 );
         }
     }

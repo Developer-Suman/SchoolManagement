@@ -29,13 +29,13 @@ namespace TN.Shared.Domain.Entities.Academics
             string modifiedBy,
             DateTime modifiedAt,
             bool isActive,
-            string classId
+            string classId,
+            List<ExamSubject> examSubjects
             ) : base(id)
         {
             ClassId = classId;
             Name = name;
             ExamDate = examDate;
-            Subjects =new List<Subject>();
             SchoolId = schoolId;
             FyId = fyId;
             CreatedBy = createdBy;
@@ -45,17 +45,15 @@ namespace TN.Shared.Domain.Entities.Academics
             IsFinalExam = isfinalExam;
             IsActive = isActive;
             ExamResults = new List<ExamResult>();
+            ExamSubjects = examSubjects;
         }
 
-
-        public virtual ICollection<Subject> Subjects { get; set; }  
         public string ClassId { get; set;  }
         public string FyId { get; set; }
         //public FiscalYears FiscalYears { get; set; }
         public string Name { get; set; }
         public string SchoolId { get; set; }
         public DateTime ExamDate { get; set; }
-        public decimal TotalMarks { get; set; }
         
         public string CreatedBy { get; set; }
         public bool? IsFinalExam { get; set;  }
@@ -64,13 +62,14 @@ namespace TN.Shared.Domain.Entities.Academics
         public string ModifiedBy { get; set; }
         public DateTime ModifiedAt { get; set; } = DateTime.Now;
         public ICollection<ExamResult> ExamResults { get; set; }
+        public ICollection<ExamSubject> ExamSubjects { get; set; }
 
-        public void UpdateTotalMarks()
-        {
-            if (Subjects != null && Subjects.Any())
-            {
-                TotalMarks = Subjects.Sum(s => s.FullMarks);
-            }
-        }
+        //public void UpdateTotalMarks()
+        //{
+        //    if (Subjects != null && Subjects.Any())
+        //    {
+        //        TotalMarks = Subjects.Sum(s => s.FullMarks);
+        //    }
+        //}
     }
 }

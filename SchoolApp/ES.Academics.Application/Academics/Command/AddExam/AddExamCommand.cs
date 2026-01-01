@@ -10,9 +10,10 @@ namespace ES.Academics.Application.Academics.Command.AddExam
 {
     public record AddExamCommand
     (
-        string name,
+         string name,
             DateTime examDate,
             bool? isfinalExam,
-            string classId
+            string classId,
+            List<ExamSubjectDTOs> examSubjects
         ) : IRequest<Result<AddExamResponse>>;
 }

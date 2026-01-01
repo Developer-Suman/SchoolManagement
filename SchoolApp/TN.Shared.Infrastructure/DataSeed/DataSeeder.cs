@@ -64,25 +64,27 @@ namespace TN.Shared.Infrastructure.DataSeed
             await SeedInstitution();
             await SeedDemoCompany();
             await SeedStockCenter();
-            await SeedExam();
+            //await SeedExam();
 
         }
 
         #region Exam
 
-        private async Task SeedExam()
-        {
-            if (!await _context.Exams.AnyAsync())
-            {
-                var exams = new List<Exam>()
-                {
-                    new Exam("f47ac10b-58cc-4372-a567-0e02b2c3d479","Final Exams",DateTime.UtcNow,"",true, "","",DateTime.UtcNow,"", DateTime.UtcNow,true,"")
-                };
+        //private async Task SeedExam()
+        //{
+        //    if (!await _context.Exams.AnyAsync())
+        //    {
+        //        var exams = new List<Exam>()
+        //        {
+        //            new Exam("f47ac10b-58cc-4372-a567-0e02b2c3d479","Final Exams",DateTime.UtcNow,"",true, "","",DateTime.UtcNow,"", DateTime.UtcNow,new List<ExamResult>())
 
-                await _context.Exams.AddRangeAsync(exams);
-                await _unitOfWork.SaveChangesAsync();
-            }
-        }
+
+        //        };
+
+        //        await _context.Exams.AddRangeAsync(exams);
+        //        await _unitOfWork.SaveChangesAsync();
+        //    }
+        //}
 
         #endregion
 

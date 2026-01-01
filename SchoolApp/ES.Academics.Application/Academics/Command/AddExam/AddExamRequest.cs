@@ -11,6 +11,7 @@ namespace ES.Academics.Application.Academics.Command.AddExam
             string name,
             DateTime examDate,
             bool? isfinalExam,
-            string classId
+            string classId,
+            List<ExamSubjectDTOs> examSubjects
         );
 }

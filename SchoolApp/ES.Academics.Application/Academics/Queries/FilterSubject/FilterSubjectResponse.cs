@@ -17,7 +17,6 @@ namespace ES.Academics.Application.Academics.Queries.FilterSubject
 
             string schoolId,
             bool isActive,
-            int fullMarks,
                 string createdBy,
             DateTime createdAt,
             string modifiedBy,

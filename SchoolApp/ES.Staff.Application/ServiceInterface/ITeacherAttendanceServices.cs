@@ -1,4 +1,5 @@
-﻿using ES.Staff.Application.Staff.Command.TeacherAttendanceQR;
+﻿using ES.Staff.Application.Staff.Command.StaffAttendanceRegister;
+using ES.Staff.Application.Staff.Command.TeacherAttendanceQR;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,5 +12,6 @@ namespace ES.Staff.Application.ServiceInterface
     public interface ITeacherAttendanceServices
     {
         Task<Result<TeacherAttendanceQRResponse>> CreateQR(TeacherAttendanceQRCommand teacherAttendanceQRCommand);
+        Task<Result<StaffAttendanceregisterResponse>> ResitserStaffAttendance(StaffAttendanceregisterCommand staffAttendanceregisterCommand);
     }
 }

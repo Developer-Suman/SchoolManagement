@@ -73,10 +73,19 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                         "",
                         default,
                         true,
-                        addExamCommand.classId
+                        addExamCommand.classId,
+                        addExamCommand.examSubjects.Select(es => new ExamSubject
+                        (
+                            Guid.NewGuid().ToString(),
+                            newId,
+                            es.subjectId,
+                            es.passMarks,
+                            es.fullMarks
+                            )
+                       ).ToList()
                     );
 
-                    addExam.UpdateTotalMarks();
+                    //addExam.UpdateTotalMarks();
 
                     await _unitOfWork.BaseRepository<Exam>().AddAsync(addExam);
                     await _unitOfWork.SaveChangesAsync();
@@ -190,7 +199,7 @@ namespace ES.Academics.Infrastructure.ServiceImpl
 
                 var filterExam = isSuperAdmin
                     ? exam
-                    : exam.Where(x => x.SchoolId == _tokenService.SchoolId().FirstOrDefault() || x.SchoolId == "");
+                    : exam.Include(x=>x.ExamSubjects).Where(x => x.SchoolId == _tokenService.SchoolId().FirstOrDefault() || x.SchoolId == "");
 
                 var (startUtc, endUtc) = await _dateConverter.GetDateRangeUtc(filterExamDTOs.startDate, filterExamDTOs.endDate);
 
@@ -214,7 +223,7 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                     i.Id,
                     i.Name,
                     i.ExamDate,
-                    i.TotalMarks,
+                    i.ExamSubjects.Sum(x=>x.FullMarks),
          
                     i.IsFinalExam,
                     i.ClassId

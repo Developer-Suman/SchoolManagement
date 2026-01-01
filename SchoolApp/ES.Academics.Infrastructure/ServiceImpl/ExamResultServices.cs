@@ -506,14 +506,15 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                 var schoolId = _tokenService.SchoolId().FirstOrDefault() ?? "";
 
                 var allSubject = await _unitOfWork.BaseRepository<Subject>().
-                    GetConditionalAsync(x => x.ClassId == classId && x.SchoolId == schoolId
+                    GetConditionalAsync(x => x.ClassId == classId && x.SchoolId == schoolId,
+                    queryModifier => queryModifier.Include(x=>x.ExamSubjects)
                     );
 
                 var subjectResponse = allSubject
                     .Select(subject => new SubjectByClassIdResponse(
                         subject.Id,
                         subject.Name,
-                        subject.FullMarks
+                        subject.ExamSubjects.Sum(a=>a.FullMarks)
                     ))
                     .ToList();
 

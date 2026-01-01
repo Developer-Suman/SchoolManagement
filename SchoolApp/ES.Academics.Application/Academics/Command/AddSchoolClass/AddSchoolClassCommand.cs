@@ -10,6 +10,7 @@ namespace ES.Academics.Application.Academics.Command.AddSchoolClass
 {
     public record AddSchoolClassCommand
     (
-        string name
-        ): IRequest<Result<AddSchoolClassResponse>>;
+        string Name,
+        List<AddSubjectDTOs> Subjects
+        ) : IRequest<Result<AddSchoolClassResponse>>;
 }
