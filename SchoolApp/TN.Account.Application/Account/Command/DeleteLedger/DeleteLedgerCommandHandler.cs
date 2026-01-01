@@ -24,21 +24,21 @@ namespace TN.Account.Application.Account.Command.DeleteLedger
 
         public async Task<Result<bool>> Handle(DeleteLedgerCommand request, CancellationToken cancellationToken)
         {
-            try
-            {
-                var deleteLedger = await _ledgerServices.Delete(request.id, cancellationToken);
-                if (deleteLedger is null)
+                try
                 {
-                    return Result<bool>.Failure("NotFound", "Ledger not Found");
+                    var deleteLedger = await _ledgerServices.Delete(request.id, cancellationToken);
+                    if (deleteLedger is null)
+                    {
+                        return Result<bool>.Failure("NotFound", "Ledger not Found");
+                    }
+                    return Result<bool>.Success(true);
+
+
                 }
-                return Result<bool>.Success(true);
-
-
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"An error occurred while deleting {request.id}", ex);
-            }
+                catch (Exception ex)
+                {
+                    throw new Exception($"An error occurred while deleting {request.id}", ex);
+                }
         }
     }
 }

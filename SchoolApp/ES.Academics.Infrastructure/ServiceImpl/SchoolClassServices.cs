@@ -67,8 +67,21 @@ namespace ES.Academics.Infrastructure.ServiceImpl
 
                     var addSchoolClass = new Class(
                             newId,
-                        addLedgerCommand.name,
-                       
+                        addLedgerCommand.Name,
+                        addLedgerCommand.Subjects.Select(s=> new Subject(
+                            Guid.NewGuid().ToString(),
+                            s.name,
+                            s.code,
+                            s.creditHours,
+                            s.description,
+                            newId,
+                            schoolId ?? "",
+                            true,
+                            userId,
+                            DateTime.UtcNow,
+                            "",
+                            default
+                            )).ToList(),
                         schoolId ?? "",
                         true,
                         false,

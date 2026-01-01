@@ -12,6 +12,7 @@ using ES.Finances.Application.Finance.Command.Fee.AddStudentFee;
 using ES.Finances.Application.Finance.Command.Fee.AddStudentFee.RequestCommandMapper;
 using ES.Finances.Application.Finance.Command.Fee.AssignMonthlyFee;
 using ES.Finances.Application.Finance.Command.Fee.AssignMonthlyFee.RequestCommandMapper;
+using ES.Finances.Application.Finance.Command.Fee.DeleteFeeType;
 using ES.Finances.Application.Finance.Command.Fee.UpdateFeeStructure;
 using ES.Finances.Application.Finance.Command.Fee.UpdateFeeStructure.RequestCommandMapper;
 
@@ -41,6 +42,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
+using TN.Account.Application.Account.Command.DeleteBillSundry;
 using TN.Authentication.Domain.Entities;
 using TN.Inventory.Application.Inventory.Command.SchoolAssets.SchoolItemHistory;
 using TN.Inventory.Application.Inventory.Queries.SchoolAssets.FilterSchoolItemsHistory;
@@ -449,14 +451,33 @@ namespace TN.Web.Controllers.Finance.v1
 
             #endregion
         }
+        #endregion
+
+
+        #endregion
+
+        #region Feetype
+        #region DeleteFeetype
+        [HttpDelete("DeleteFeetype/{id}")]
+
+        public async Task<IActionResult> DeleteFeetype([FromRoute] string id, CancellationToken cancellationToken)
+        {
+            var command = new DeleteFeeTypeCommand(id);
+            var deleteResult = await _mediator.Send(command);
+            #region Switch Statement
+            return deleteResult switch
+            {
+                { IsSuccess: true, Data: true } => NoContent(),
+                { IsSuccess: true, Message: not null } => new JsonResult(new { Message = deleteResult.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(deleteResult.Errors),
+                _ => BadRequest("Invalid Fields")
+            };
+
             #endregion
-
-
-            #endregion
-
-            #region Feetype
-            #region Feetype
-            [HttpGet("Feetype")]
+        }
+        #endregion
+        #region Feetype
+        [HttpGet("Feetype")]
         public async Task<IActionResult> Feetype([FromQuery] PaginationRequest paginationRequest)
         {
             var query = new FeeTypeQuery(paginationRequest);

@@ -16,5 +16,6 @@ namespace ES.Finances.Application.ServiceInterface
 
         Task<Result<FeetypeByidResponse>> GetFeetype(string id, CancellationToken cancellationToken = default);
         Task<Result<UpdateFeeTypeResponse>> Update(string feeTypeId, UpdateFeeTypeCommand updateFeeTypeCommand);
+        Task<Result<bool>> Delete(string feeTypeId);
     }
 }

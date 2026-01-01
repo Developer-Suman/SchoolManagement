@@ -76,24 +76,10 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                         userId,
                         DateTime.UtcNow,
                         "",
-                        default,
-                        addSubjectCommand.fullMarks,
-                        addSubjectCommand.passMarks,
-                        addSubjectCommand.examId
+                        default
                     );
 
                     await _unitOfWork.BaseRepository<Subject>().AddAsync(addSubject);
-
-                    //Update the TotalMarks on the Parent Exam, sum existing and new one
-
-                    var allSubjectsForThisExam = await _unitOfWork.BaseRepository<Subject>()
-                    .GetConditionalAsync(x => x.ExamId == addSubjectCommand.examId);
-
-                    exam.TotalMarks = allSubjectsForThisExam.Sum(s => s.FullMarks) + addSubject.FullMarks;
-
-                     _unitOfWork.BaseRepository<Exam>().Update(exam);
-
-
 
                     await _unitOfWork.SaveChangesAsync();
                     scope.Complete();
@@ -201,8 +187,6 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                  .ToList();
 
 
-
-
                 var responseList = filteredResult
                 .OrderByDescending(x => x.CreatedAt)
                 .Select(i => new FilterSubjectResponse(
@@ -214,7 +198,6 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                     i.ClassId,
                     i.SchoolId,
                     i.IsActive,
-                    i.FullMarks,
                     i.CreatedBy,
                     i.CreatedAt,
                     i.ModifiedBy,

@@ -17,6 +17,7 @@ namespace TN.Shared.Domain.Entities.Academics
         public Class(
             string id,
             string name,
+            List<Subject> subjects,
             string schoolId,
             bool isActive,
             bool isSeeded,
@@ -36,7 +37,7 @@ namespace TN.Shared.Domain.Entities.Academics
             IsSeeded = isSeeded;
             Sections = new List<Section>();
             FeeStructures = new List<FeeStructure>();
-            Subjects = new List<Subject>();
+            Subjects = subjects;
             ClassSections = new List<ClassSection>();
             Students = new List<StudentData>();
             AcademicTeamClasses = new List<AcademicTeamClass>();

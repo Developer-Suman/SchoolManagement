@@ -1,5 +1,6 @@
 ﻿using ES.Staff.Application.Staff.Command.AddAcademicTeam;
 using ES.Staff.Application.Staff.Command.AssignClassToAcademicTeam;
+using ES.Staff.Application.Staff.Command.StaffAttendanceRegister;
 using ES.Staff.Application.Staff.Command.TeacherAttendanceQR;
 using ES.Staff.Application.Staff.Command.UnAssignedClassToAcademicTeam;
 using FluentValidation;
@@ -25,6 +26,7 @@ namespace ES.Staff.Application
             services.AddScoped<IValidator<AssignClassCommand>, AssignClassCommandValidator>();
             services.AddScoped<IValidator<UnAssignClassCommand>, UnAssignClassCommandValidator>();
             services.AddScoped<IValidator<TeacherAttendanceQRCommand>, TeacherAttendanceQRCommandValidator>();
+            services.AddScoped<IValidator<StaffAttendanceregisterCommand>, StaffAttendanceregisterCommandValidator>();
             return services;
         }
     }

@@ -55,6 +55,9 @@ namespace TN.Shared.Infrastructure.Data
         #endregion
 
         #region Staff
+
+        public DbSet<TeacherAttendance> TeacherAttendances { get; set; }
+        public DbSet<StaffAttendanceregister> StaffAttendanceregisters { get; set; }
         public DbSet<AcademicTeam> AcademicTeams { get; set; }
         public DbSet<AcademicTeamClass> AcademicTeamClass { get; set; }
         #endregion
@@ -77,8 +80,7 @@ namespace TN.Shared.Infrastructure.Data
         #endregion
 
         #region Academics
-
-        public DbSet<TeacherAttendance> TeacherAttendances { get; set; }
+        public DbSet<ExamSubject> ExamSubjects { get; set; }
         public DbSet<Assignment> Assignments { get; set; }
         public DbSet<AssignmentStudent> AssignmentStudents { get; set; }
         public DbSet<AssignmentClassSection> AssignmentClassSections { get; set; }
@@ -546,12 +548,22 @@ namespace TN.Shared.Infrastructure.Data
 
 
 
-            #region Exam and Subject(1:m)
-            builder.Entity<Exam>()
-               .HasMany(p => p.Subjects)
-               .WithOne(p => p.Exam)
-               .HasForeignKey(p => p.ExamId)
-               .OnDelete(DeleteBehavior.Restrict);
+            #region Subject and Exam(m:m)
+            builder.Entity<ExamSubject>()
+                .HasKey(es => new { es.ExamId, es.SubjectId });
+
+            builder.Entity<ExamSubject>()
+                .HasOne(es => es.Exam)
+                .WithMany(e => e.ExamSubjects)
+                .HasForeignKey(es => es.ExamId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<ExamSubject>()
+                .HasOne(es => es.Subject)
+                .WithMany(s => s.ExamSubjects)
+                .HasForeignKey(es => es.SubjectId)
+                .OnDelete(DeleteBehavior.Restrict);
+
             #endregion
 
 

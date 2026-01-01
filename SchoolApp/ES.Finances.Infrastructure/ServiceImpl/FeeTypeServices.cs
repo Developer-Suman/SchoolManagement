@@ -129,6 +129,30 @@ namespace ES.Finances.Infrastructure.ServiceImpl
             }
         }
 
+        public async Task<Result<bool>> Delete(string feeTypeId)
+        {
+            try
+            {
+                var feeType = await _unitOfWork.BaseRepository<FeeType>().GetByGuIdAsync(feeTypeId);
+
+                if (feeType is null)
+                {
+                    return Result<bool>.Failure("NotFound", "FeeType not found");
+                }
+
+                feeType.IsActive = false;
+
+                _unitOfWork.BaseRepository<FeeType>().Update(feeType);
+
+                return Result<bool>.Success(true);
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while deleting feeType", ex);
+            }
+        }
+
         public async Task<Result<PagedResult<FeeTypeResponse>>> FeeType(PaginationRequest paginationRequest, CancellationToken cancellationToken = default)
         {
             try

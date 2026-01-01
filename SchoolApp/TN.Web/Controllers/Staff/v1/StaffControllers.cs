@@ -4,6 +4,8 @@ using ES.Staff.Application.Staff.Command.AddAcademicTeam;
 using ES.Staff.Application.Staff.Command.AddAcademicTeam.RequestCommandMapper;
 using ES.Staff.Application.Staff.Command.AssignClassToAcademicTeam;
 using ES.Staff.Application.Staff.Command.AssignClassToAcademicTeam.RequestCommandMapper;
+using ES.Staff.Application.Staff.Command.StaffAttendanceRegister;
+using ES.Staff.Application.Staff.Command.StaffAttendanceRegister.RequestCommandMapper;
 using ES.Staff.Application.Staff.Command.TeacherAttendanceQR;
 using ES.Staff.Application.Staff.Command.TeacherAttendanceQR.RequestCommandMapper;
 using ES.Staff.Application.Staff.Command.UnAssignedClassToAcademicTeam;
@@ -40,6 +42,28 @@ namespace TN.Web.Controllers.Staff.v1
         }
 
         #region TeacherAttendance
+
+        #region AddStaffAttendanceRegister
+        [HttpPost("AddStaffAttendanceRegister")]
+        public async Task<IActionResult> AddStaffAttendanceRegister([FromForm] StaffAttendanceRegisterRequest request)
+        {
+            //Mapping command and request
+            var command = request.ToCommand();
+            var attendanceRegister = await _mediator.Send(command);
+            #region Switch Statement
+            return attendanceRegister switch
+            {
+                { IsSuccess: true, Data: not null } => CreatedAtAction(nameof(AddStaffAttendanceRegister), attendanceRegister.Data),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = attendanceRegister.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(attendanceRegister.Errors),
+                _ => BadRequest("Invalid Fields for Add AttendanceRegister")
+            };
+
+            #endregion
+        }
+        #endregion
+
+
         #region AddTeacherQR
         [HttpPost("AddTeacherQR")]
         public async Task<IActionResult> AddTeacherQR([FromForm] TeacherAttendanceQRRequest request)
