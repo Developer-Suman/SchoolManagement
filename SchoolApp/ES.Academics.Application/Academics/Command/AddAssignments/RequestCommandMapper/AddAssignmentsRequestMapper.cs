@@ -16,7 +16,6 @@ namespace ES.Academics.Application.Academics.Command.AddAssignment.RequestComman
                 request.title,
                 request.description,
                 request.dueDate,
-                request.academicTeamId,
                 request.classId,
                 request.subjectId
                 );

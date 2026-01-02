@@ -4,6 +4,7 @@ using ES.Academics.Application.Academics.Command.AddAssignments;
 using ES.Academics.Application.Academics.Command.AddAssignmentStudents;
 using ES.Academics.Application.Academics.Command.AddExam;
 using ES.Academics.Application.Academics.Command.EvaluteAssignments;
+using ES.Academics.Application.Academics.Queries.ClassWithSubject;
 using ES.Academics.Application.ServiceInterface;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.VisualBasic;
@@ -20,6 +21,7 @@ using TN.Shared.Domain.Abstractions;
 using TN.Shared.Domain.Entities.Academics;
 using TN.Shared.Domain.Entities.OrganizationSetUp;
 using TN.Shared.Domain.Entities.Staff;
+using TN.Shared.Domain.ExtensionMethod.Pagination;
 using TN.Shared.Domain.IRepository;
 
 namespace ES.Academics.Infrastructure.ServiceImpl
@@ -58,12 +60,23 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                     var schoolId = _tokenService.SchoolId().FirstOrDefault() ?? "";
                     var userId = _tokenService.GetUserId();
 
+                    var academicTeam = await _unitOfWork.BaseRepository<AcademicTeam>()
+                        .FirstOrDefaultAsync(x => x.UserId == userId);
+
+                    if (academicTeam == null)
+                    {
+                        return Result<AddAssignmentsResponse>.Failure(
+                            "NotFound",
+                            "Academic team not found for this user."
+                        );
+                    }
+
                     var addassignments = new Assignment(
                         newId,
                         addAssignmentsCommand.title,
                         addAssignmentsCommand.description,
                         addAssignmentsCommand.dueDate,
-                        addAssignmentsCommand.academicTeamId,
+                        academicTeam.Id,
                         addAssignmentsCommand.classId,
                         addAssignmentsCommand.subjectId,
                         true,

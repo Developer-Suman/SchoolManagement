@@ -25,10 +25,6 @@ namespace ES.Academics.Application.Academics.Command.AddAssignments
                 .Must(date => date.Date >= DateTime.UtcNow.Date)
                 .WithMessage("Due date cannot be in the past.");
 
-            RuleFor(x => x.academicTeamId)
-                .NotEmpty().WithMessage("Academic Team ID is required.")
-                .Matches(@"\S").WithMessage("Academic Team ID must not be whitespace.");
-
             RuleFor(x => x.classId)
                 .Must(x => string.IsNullOrWhiteSpace(x) == false)
                 .When(x => x.classId != null)

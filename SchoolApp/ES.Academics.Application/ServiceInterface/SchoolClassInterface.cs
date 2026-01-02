@@ -1,5 +1,6 @@
 ﻿using ES.Academics.Application.Academics.Command.AddSchoolClass;
 using ES.Academics.Application.Academics.Command.UpdateSchoolClass;
+using ES.Academics.Application.Academics.Queries.ClassWithSubject;
 using ES.Academics.Application.Academics.Queries.FilterSchoolClass;
 using ES.Academics.Application.Academics.Queries.SchoolClass;
 using ES.Academics.Application.Academics.Queries.SchoolClassById;
@@ -22,6 +23,7 @@ namespace ES.Academics.Application.ServiceInterface
         Task<Result<AddSchoolClassResponse>> Add(AddSchoolClassCommand addLedgerCommand);
         Task<Result<PagedResult<SchoolClassQueryResponse>>> GetSchoolClass(PaginationRequest paginationRequest, CancellationToken cancellationToken = default);
         Task<Result<SchoolClassByIdResponse>> GetSchoolClassById(string classId, CancellationToken cancellationToken = default);
+        Task<Result<PagedResult<ClassWithSubjectResponse>>> GetClassWithSubjects(PaginationRequest paginationRequest);
 
         Task<Result<UpdateSchoolClassResponse>> Update(string classId, UpdateSchoolClassCommand updateSchoolClassCommand);
         Task<Result<bool>> Delete(string id, CancellationToken cancellationToken);
