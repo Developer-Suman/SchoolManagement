@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using ES.Staff.Application.Staff.Command.AddAcademicTeam;
 using ES.Staff.Application.Staff.Command.AssignClassToAcademicTeam;
+using ES.Staff.Application.Staff.Command.StaffAttendanceRegister;
 using ES.Staff.Application.Staff.Command.TeacherAttendanceQR;
 using ES.Staff.Application.Staff.Command.UnAssignedClassToAcademicTeam;
 using ES.Staff.Application.Staff.Command.UpdateAcademicTeam;
@@ -26,6 +27,8 @@ namespace ES.Staff.Application.AutoMapper
         {
             #region TeacherAttendance
             CreateMap<TeacherAttendanceQRResponse, TeacherAttendanceQRCommand>().ReverseMap();
+            CreateMap<StaffAttendanceregister, StaffAttendanceregisterResponse>().ReverseMap();
+            CreateMap<StaffAttendanceregisterCommand, StaffAttendanceregisterResponse>().ReverseMap();
             #endregion
             #region AssignedAndUnAssign Class
             CreateMap<UnAssignClassResponse, UnAssignClassCommand>().ReverseMap();

@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using ES.Staff.Application.ServiceInterface;
+using ES.Staff.Application.Staff.Command.StaffAttendanceRegister;
 using ES.Staff.Application.Staff.Command.TeacherAttendanceQR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -112,6 +113,8 @@ namespace ES.Staff.Infrastructure.ServiceImpl
                        DateTime.UtcNow,
                        false,
                        qrCodeLink,
+                       "",
+                       "",
                        ""
                    );
 
@@ -135,6 +138,42 @@ namespace ES.Staff.Infrastructure.ServiceImpl
                 {
                     scope.Dispose();
                     throw new Exception("An error occurred while adding Exam ", ex);
+
+                }
+            }
+        }
+
+        public async Task<Result<StaffAttendanceregisterResponse>> ResitserStaffAttendance(StaffAttendanceregisterCommand staffAttendanceregisterCommand)
+        {
+            using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            {
+                try
+                {
+
+                    string newId = Guid.NewGuid().ToString();
+                    var FyId = _fiscalContext.CurrentFiscalYearId;
+                    var schoolId = _tokenService.SchoolId().FirstOrDefault() ?? "";
+                    var userId = _tokenService.GetUserId();
+
+                    var staffAttendance = new StaffAttendanceregister(
+                            newId,
+                        staffAttendanceregisterCommand.userId,
+                        staffAttendanceregisterCommand.token
+
+                    );
+
+                    await _unitOfWork.BaseRepository<StaffAttendanceregister>().AddAsync(staffAttendance);
+                    await _unitOfWork.SaveChangesAsync();
+                    scope.Complete();
+
+                    var resultDTOs = _mapper.Map<StaffAttendanceregisterResponse>(staffAttendance);
+                    return Result<StaffAttendanceregisterResponse>.Success(resultDTOs);
+
+                }
+                catch (Exception ex)
+                {
+                    scope.Dispose();
+                    throw new Exception("An error occurred while adding ", ex);
 
                 }
             }

@@ -11,7 +11,7 @@ namespace ES.Academics.Application.Academics.Command.AddSchoolClass
     {
         public AddSchoolClassCommandValidator()
         {
-            RuleFor(x => x.name)
+            RuleFor(x => x.Name)
              .NotEmpty()
              .WithMessage("Name is required.")
              .MaximumLength(100)

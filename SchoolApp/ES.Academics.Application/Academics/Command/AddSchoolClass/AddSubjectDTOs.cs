@@ -6,9 +6,11 @@ using System.Threading.Tasks;
 
 namespace ES.Academics.Application.Academics.Command.AddSchoolClass
 {
-    public record AddSchoolClassRequest
+    public record AddSubjectDTOs
     (
-        string Name,
-        List<AddSubjectDTOs> Subjects
+        string name,
+            string code,
+            int? creditHours,
+            string? description
         );
 }
