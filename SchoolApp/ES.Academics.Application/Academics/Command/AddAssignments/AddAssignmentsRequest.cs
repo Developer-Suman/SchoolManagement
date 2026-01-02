@@ -11,7 +11,6 @@ namespace ES.Academics.Application.Academics.Command.AddAssignments
          string title,
             string description,
             DateTime dueDate,
-            string academicTeamId,
             string? classId,
             string? subjectId
         );

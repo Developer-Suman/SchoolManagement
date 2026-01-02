@@ -8,19 +8,18 @@ namespace ES.Academics.Application.Academics.Queries.Subject
 {
     public record SubjectResponse
     (
-        string Id,
-                string name,
-                string code,
-                int? creditHours,
-                string? description,
-                string classId,
+        string Id="",
+                string name="",
+                string code = "",
+                int? creditHours=0,
+                string? description="",
+                string classId = "",
 
-                string schoolId,
-                bool isActive,
-                int fullMarks,
-                    string createdBy,
-                DateTime createdAt,
-                string modifiedBy,
-                DateTime modifiedAt
+                string schoolId = "",
+                bool isActive=default,
+                    string createdBy = "",
+                DateTime createdAt=default,
+                string modifiedBy = "",
+                DateTime modifiedAt = default
         );
 }

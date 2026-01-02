@@ -3,16 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TN.Shared.Domain.Entities.Academics;
 
 namespace ES.Academics.Application.Academics.Queries.SchoolClass
 {
-    public record SchoolClassQueryResponse
+    public record SubjectDTOs
     (
-        string id="",
-        string name="",
-        List<SubjectDTOs> subjects= default
-
-
+        string id,
+            string name,
+            string code,
+            int? creditHours,
+            string? description,
+            string classId
         );
 }

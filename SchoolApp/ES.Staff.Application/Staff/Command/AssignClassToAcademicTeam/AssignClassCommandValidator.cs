@@ -11,9 +11,7 @@ namespace ES.Staff.Application.Staff.Command.AssignClassToAcademicTeam
     {
         public AssignClassCommandValidator()
         {
-            RuleFor(x => x.ClassesId)
-                         .NotEmpty()
-                         .WithMessage("ClassId is required.");
+
 
 
             RuleFor(x => x.AcademicTeamId)

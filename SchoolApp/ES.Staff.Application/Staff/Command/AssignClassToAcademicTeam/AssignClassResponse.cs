@@ -9,6 +9,6 @@ namespace ES.Staff.Application.Staff.Command.AssignClassToAcademicTeam
     public record AssignClassResponse
     (
         string AcademicTeamId,
-        string ClassesId
+        List<string> ClassIds
         );
 }

@@ -1,11 +1,14 @@
 ﻿using AutoMapper;
 using ES.Academics.Application.Academics.Command.AddSchoolClass;
 using ES.Academics.Application.Academics.Command.UpdateSchoolClass;
+using ES.Academics.Application.Academics.Queries.ClassWithSubject;
 using ES.Academics.Application.Academics.Queries.FilterSchoolClass;
 using ES.Academics.Application.Academics.Queries.SchoolClass;
 using ES.Academics.Application.Academics.Queries.SchoolClassById;
+using ES.Academics.Application.Academics.Queries.Subject;
 using ES.Academics.Application.ServiceInterface;
 using Microsoft.EntityFrameworkCore;
+using SendGrid.Helpers.Mail;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,6 +29,7 @@ using TN.Shared.Domain.Abstractions;
 using TN.Shared.Domain.Entities.Academics;
 using TN.Shared.Domain.Entities.AuditLogs;
 using TN.Shared.Domain.Entities.OrganizationSetUp;
+using TN.Shared.Domain.Entities.Staff;
 using TN.Shared.Domain.ExtensionMethod.Pagination;
 using TN.Shared.Domain.IRepository;
 using TN.Shared.Domain.Static.Cache;
@@ -229,14 +233,14 @@ namespace ES.Academics.Infrastructure.ServiceImpl
 
 
 
-                var finalQuery = queryable.AsNoTracking();
+                var finalQuery = queryable.Include(x=>x.Subjects).AsNoTracking();
 
 
-                var pagedResult = await finalQuery.ToPagedResultAsync(
+                var pagedResult = await finalQuery.ToPagedResultAsync(  
                     paginationRequest.pageIndex,
                     paginationRequest.pageSize,
                     paginationRequest.IsPagination);
-
+                    
 
                 var mappedItems = _mapper.Map<List<SchoolClassQueryResponse>>(pagedResult.Data.Items);
 
@@ -273,6 +277,66 @@ namespace ES.Academics.Infrastructure.ServiceImpl
             }
         }
 
+        public async Task<Result<PagedResult<ClassWithSubjectResponse>>> GetClassWithSubjects(PaginationRequest paginationRequest)
+        {
+            try
+            {
+                var fyId = _fiscalContext.CurrentFiscalYearId;
+                var userId = _tokenService.GetUserId();
+
+                var academicTeam = await _unitOfWork.BaseRepository<AcademicTeam>()
+                    .FirstOrDefaultAsync(x=>x.UserId == userId);
+
+                if (academicTeam == null)
+                {
+                    return Result<PagedResult<ClassWithSubjectResponse>>.Failure(
+                        "NotFound",
+                        "Academic team not found for this user."
+                    );
+                }
+
+                var academicTeamClass = _unitOfWork.BaseRepository<AcademicTeamClass>()
+                    .GetAllWithIncludeQueryable(x => x.AcademicTeamId == academicTeam.Id)
+                    .Select(x => x.Classes)
+                    .Distinct()
+                    .Select(c=> new ClassWithSubjectResponse(
+                        c.Id,
+                        c.Name,
+                        c.Subjects
+                            .Select(s => new SubjectResponseDTOs(
+                                s.Id,
+                                s.Name
+                            ))
+                            .ToList()
+                    )).AsNoTracking();
+
+                var pagedResult = await academicTeamClass.ToPagedResultAsync(
+                   paginationRequest.pageIndex,
+                   paginationRequest.pageSize,
+                   paginationRequest.IsPagination);
+
+
+                var mappedItems = _mapper.Map<List<ClassWithSubjectResponse>>(pagedResult.Data.Items);
+
+                var response = new PagedResult<ClassWithSubjectResponse>
+                {
+                    Items = mappedItems,
+                    TotalItems = pagedResult.Data.TotalItems,
+                    PageIndex = pagedResult.Data.PageIndex,
+                    pageSize = pagedResult.Data.pageSize
+                };
+
+                return Result<PagedResult<ClassWithSubjectResponse>>.Success(response);
+
+
+
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while fetching Class with Subjects", ex);
+            }
+        }
         public async Task<Result<UpdateSchoolClassResponse>> Update(string classId, UpdateSchoolClassCommand updateSchoolClassCommand)
         {
             using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
@@ -311,5 +375,6 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                 }
             }
         }
+
     }
 }

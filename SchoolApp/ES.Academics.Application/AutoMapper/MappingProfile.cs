@@ -14,6 +14,7 @@ using ES.Academics.Application.Academics.Command.EvaluteAssignments;
 using ES.Academics.Application.Academics.Command.SubmitAssignments;
 using ES.Academics.Application.Academics.Command.UpdateSchoolClass;
 using ES.Academics.Application.Academics.Queries.ClassByExamSession;
+using ES.Academics.Application.Academics.Queries.ClassWithSubject;
 using ES.Academics.Application.Academics.Queries.Exam;
 using ES.Academics.Application.Academics.Queries.ExamById;
 using ES.Academics.Application.Academics.Queries.ExamResult;
@@ -40,6 +41,7 @@ using TN.Account.Application.Account.Queries.LedgerById;
 using TN.Account.Domain.Entities;
 using TN.Setup.Application.Setup.Queries.SchoolById;
 using TN.Shared.Domain.Entities.Academics;
+using TN.Shared.Domain.Entities.Staff;
 using TN.Shared.Domain.ExtensionMethod.Pagination;
 
 namespace ES.Academics.Application.AutoMapper
@@ -71,6 +73,21 @@ namespace ES.Academics.Application.AutoMapper
             #endregion
 
             #region SchoolClass
+
+            CreateMap<ClassWithSubjectResponse, AcademicTeamClass>().ReverseMap();
+            CreateMap<PagedResult<AcademicTeamClass>, PagedResult<ClassWithSubjectResponse>>().ReverseMap();
+
+            CreateMap<Class, SchoolClassQueryResponse>()
+                .ForMember(dest => dest.id, 
+                    opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.name,
+                    opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.subjects,
+                    opt => opt.MapFrom(src => src.Subjects));
+
+            CreateMap<Subject, SubjectDTOs>();
+
+
 
             CreateMap<Class, DeleteSchoolClassCommand>().ReverseMap();
 
@@ -136,7 +153,7 @@ namespace ES.Academics.Application.AutoMapper
             #endregion
 
             #region Subject
-
+            CreateMap<Subject, SubjectResponse>().ReverseMap();
             CreateMap<Subject, DeleteSubjectCommand>().ReverseMap();
 
             CreateMap<SubjectByIdQuery, Subject>().ReverseMap();
@@ -151,7 +168,7 @@ namespace ES.Academics.Application.AutoMapper
             CreateMap<AddSubjectResponse, Subject>().ReverseMap();
             CreateMap<AddSubjectCommand, AddSubjectResponse>().ReverseMap();
 
-            CreateMap<Subject, SubjectResponse>().ReverseMap();
+            
 
             CreateMap<PagedResult<Subject>, PagedResult<SubjectResponse>>().ReverseMap();
 

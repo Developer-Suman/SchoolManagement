@@ -11,6 +11,6 @@ namespace ES.Staff.Application.Staff.Command.AssignClassToAcademicTeam
     public record AssignClassCommand
     (
         string AcademicTeamId,
-        string ClassesId
+        List<string> ClassIds
         ) : IRequest<Result<AssignClassResponse>>;
 }

@@ -32,6 +32,7 @@ using TN.Shared.Domain.Entities.Students;
 using TN.Shared.Domain.ExtensionMethod.Pagination;
 using TN.Shared.Domain.ICryptography;
 using TN.Shared.Domain.IRepository;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace ES.Staff.Infrastructure.ServiceImpl
 {
@@ -235,28 +236,41 @@ namespace ES.Staff.Infrastructure.ServiceImpl
                 try
                 {
                     var alreadyAssigned = await _unitOfWork.BaseRepository<AcademicTeamClass>()
-                            .AnyAsync(x => x.AcademicTeamId == assignClassCommand.AcademicTeamId && x.ClassId == assignClassCommand.ClassesId);
+                            .FindBy(x => x.AcademicTeamId == assignClassCommand.AcademicTeamId 
+                            && assignClassCommand.ClassIds.Contains(x.ClassId));
 
-                    if (alreadyAssigned)
+                    var assignedClassIds = await alreadyAssigned.Select(x => x.ClassId).ToListAsync();
+
+                    var newClassIds = assignClassCommand.ClassIds
+                            .Except(assignedClassIds)
+                            .ToList();
+
+                    if (!newClassIds.Any())
                     {
-                        return Result<AssignClassResponse>.Failure("AlreadyAssigned", "This team is already assigned to the class.");
-
+                        return Result<AssignClassResponse>.Failure(
+                            "AlreadyAssigned",
+                            "All selected classes are already assigned to this academic team."
+                        );
                     }
 
-                    var record = new AcademicTeamClass(Guid.NewGuid().ToString(), assignClassCommand.AcademicTeamId, assignClassCommand.ClassesId);
-                    await _unitOfWork.BaseRepository<AcademicTeamClass>().AddAsync(record);
+                    var records = newClassIds.Select(classId =>
+                         new AcademicTeamClass(
+                             Guid.NewGuid().ToString(),
+                             assignClassCommand.AcademicTeamId,
+                             classId
+                         )).ToList();
+
+
+                    await _unitOfWork.BaseRepository<AcademicTeamClass>().AddRange(records);
                     await _unitOfWork.SaveChangesAsync();
                     scope.Complete();
 
-                    var academicTeamResponse = new AssignClassResponse
-                    (
-                        record.AcademicTeamId,
-                        record.ClassId
-        
+                    return Result<AssignClassResponse>.Success(
+                        new AssignClassResponse(
+                            assignClassCommand.AcademicTeamId,
+                            newClassIds
+                        )
                     );
-
-
-                    return Result<AssignClassResponse>.Success(academicTeamResponse);
 
 
                 }

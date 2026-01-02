@@ -12,7 +12,7 @@ namespace ES.Staff.Application.Staff.Command.AssignClassToAcademicTeam.RequestCo
         {
             return new AssignClassCommand(
                 request.AcademicTeamId,
-                request.ClassesId
+                request.ClassIds
             );
         }
     }
