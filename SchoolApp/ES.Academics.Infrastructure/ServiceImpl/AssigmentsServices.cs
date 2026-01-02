@@ -3,7 +3,6 @@ using DateConverterNepali;
 using ES.Academics.Application.Academics.Command.AddAssignments;
 using ES.Academics.Application.Academics.Command.AddAssignmentStudents;
 using ES.Academics.Application.Academics.Command.AddExam;
-using ES.Academics.Application.Academics.Command.EvaluteAssignments;
 using ES.Academics.Application.ServiceInterface;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.VisualBasic;
@@ -58,7 +57,7 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                     var schoolId = _tokenService.SchoolId().FirstOrDefault() ?? "";
                     var userId = _tokenService.GetUserId();
 
-                    var addassignments = new Assignment(
+                    var addAssignments = new Assignment(
                         newId,
                         addAssignmentsCommand.title,
                         addAssignmentsCommand.description,
@@ -72,16 +71,13 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                         DateTime.UtcNow,
                         "",
                         default
-
                         );
-                    
- 
 
-                    await _unitOfWork.BaseRepository<Assignment>().AddAsync(addassignments);
+                    await _unitOfWork.BaseRepository<Assignment>().AddAsync(addAssignments);
                     await _unitOfWork.SaveChangesAsync();
                     scope.Complete();
 
-                    var resultDTOs = _mapper.Map<AddAssignmentsResponse>(addassignments);
+                    var resultDTOs = _mapper.Map<AddAssignmentsResponse>(addAssignments);
                     return Result<AddAssignmentsResponse>.Success(resultDTOs);
 
                 }

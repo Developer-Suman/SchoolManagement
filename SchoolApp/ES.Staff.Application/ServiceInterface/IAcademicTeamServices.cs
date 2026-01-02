@@ -1,6 +1,7 @@
 ﻿using ES.Staff.Application.Staff.Command.AddAcademicTeam;
 using ES.Staff.Application.Staff.Command.AssignClassToAcademicTeam;
 using ES.Staff.Application.Staff.Command.UnAssignedClassToAcademicTeam;
+using ES.Staff.Application.Staff.Command.UpdateAcademicTeam;
 using ES.Staff.Application.Staff.Queries.AcademicTeam;
 using ES.Staff.Application.Staff.Queries.AcademicTeamById;
 using ES.Staff.Application.Staff.Queries.FilterAcademicTeam;
@@ -22,5 +23,6 @@ namespace ES.Staff.Application.ServiceInterface
         Task<Result<AcademicTeamByIdResponse>> GetacademicTeam(string id, CancellationToken cancellationToken = default);
         Task<Result<PagedResult<AcademicTeamResponse>>> GetAllAcademicTeams(PaginationRequest paginationRequest, CancellationToken cancellationToken = default);
         Task<Result<PagedResult<FilterAcademicTeamResponse>>> GetFilterAcademicTeam(PaginationRequest paginationRequest, FilterAcademicTeamDTOs filterAcademicTeamDTOs);
+        Task<Result<UpdateAcademicTeamResponse>> Update(string academicTeamId, UpdateAcademicTeamCommand updateAcademicTeamCommand);
     }
 }

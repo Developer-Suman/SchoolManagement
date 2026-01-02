@@ -3,6 +3,7 @@ using ES.Staff.Application.ServiceInterface;
 using ES.Staff.Application.Staff.Command.AddAcademicTeam;
 using ES.Staff.Application.Staff.Command.AssignClassToAcademicTeam;
 using ES.Staff.Application.Staff.Command.UnAssignedClassToAcademicTeam;
+using ES.Staff.Application.Staff.Command.UpdateAcademicTeam;
 using ES.Staff.Application.Staff.Queries.AcademicTeam;
 using ES.Staff.Application.Staff.Queries.AcademicTeamById;
 using ES.Staff.Application.Staff.Queries.FilterAcademicTeam;
@@ -454,6 +455,59 @@ namespace ES.Staff.Infrastructure.ServiceImpl
                 {
                     scope.Dispose();
                     throw new Exception("An error occurred while assigning class to academic");
+                }
+            }
+        }
+
+        public async Task<Result<UpdateAcademicTeamResponse>> Update(string academicTeamId, UpdateAcademicTeamCommand updateAcademicTeamCommand)
+        {
+            using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            {
+                try
+                {
+                    if (academicTeamId == null)
+                    {
+                        return Result<UpdateAcademicTeamResponse>.Failure("NotFound", "Please provide valid AcademicTeamId");
+                    }
+
+                    var academicTeamToBeUpdated = await _unitOfWork.BaseRepository<AcademicTeam>().GetByGuIdAsync(academicTeamId);
+                    if (academicTeamToBeUpdated is null)
+                    {
+                        return Result<UpdateAcademicTeamResponse>.Failure("NotFound", "AcademicTeam are not Found");
+                    }
+                    academicTeamToBeUpdated.ModifiedAt = DateTime.UtcNow;
+                    _mapper.Map(updateAcademicTeamCommand, academicTeamToBeUpdated);
+                    await _unitOfWork.SaveChangesAsync();
+                    scope.Complete();
+
+                    var resultResponse = new UpdateAcademicTeamResponse(
+                        academicTeamId,
+                        academicTeamToBeUpdated.User?.Email ?? "",
+                        academicTeamToBeUpdated.User?.UserName ?? "",
+                        academicTeamToBeUpdated.FullName,
+                        academicTeamToBeUpdated.ImageUrl,
+                        academicTeamToBeUpdated.ProvinceId,
+                        academicTeamToBeUpdated.DistrictId,
+                        academicTeamToBeUpdated.WardNumber,
+                        academicTeamToBeUpdated.CreatedBy,
+                        academicTeamToBeUpdated.Address,
+                        academicTeamToBeUpdated.CreatedAt,
+                        academicTeamToBeUpdated.ModifiedBy,
+                        academicTeamToBeUpdated.ModifiedAt,
+                        academicTeamToBeUpdated.Gender,
+                        academicTeamToBeUpdated.SchoolId,
+                        academicTeamToBeUpdated.IsActive,
+                        academicTeamToBeUpdated.VdcId,
+                        academicTeamToBeUpdated.MunicipalityId
+                    );
+
+
+                    return Result<UpdateAcademicTeamResponse>.Success(resultResponse);
+
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception("An error occurred while updating", ex);
                 }
             }
         }

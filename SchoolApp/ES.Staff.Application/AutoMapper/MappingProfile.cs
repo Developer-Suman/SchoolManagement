@@ -3,6 +3,7 @@ using ES.Staff.Application.Staff.Command.AddAcademicTeam;
 using ES.Staff.Application.Staff.Command.AssignClassToAcademicTeam;
 using ES.Staff.Application.Staff.Command.TeacherAttendanceQR;
 using ES.Staff.Application.Staff.Command.UnAssignedClassToAcademicTeam;
+using ES.Staff.Application.Staff.Command.UpdateAcademicTeam;
 using ES.Staff.Application.Staff.Queries.AcademicTeam;
 using ES.Staff.Application.Staff.Queries.AcademicTeamById;
 using ES.Staff.Application.Staff.Queries.FilterAcademicTeam;
@@ -12,6 +13,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TN.Authentication.Domain.Entities;
+using TN.Shared.Domain.Entities.Finance;
 using TN.Shared.Domain.Entities.Staff;
 using TN.Shared.Domain.Entities.Students;
 using TN.Shared.Domain.ExtensionMethod.Pagination;
@@ -31,7 +33,7 @@ namespace ES.Staff.Application.AutoMapper
             #endregion
             #region AcademicTeam
 
-            CreateMap<AcademicTeamResponse, AcademicTeam>().ReverseMap();
+            CreateMap<AcademicTeam, UpdateAcademicTeamCommand>().ReverseMap();
             CreateMap<AcademicTeamByIdResponse, AcademicTeam>().ReverseMap();
             CreateMap<PagedResult<AcademicTeam>, PagedResult<AcademicTeamResponse>>().ReverseMap();
 
