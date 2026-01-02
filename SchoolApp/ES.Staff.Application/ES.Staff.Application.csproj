@@ -18,4 +18,8 @@
     <ProjectReference Include="..\TN.Shared.Domain\TN.Shared.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Staff\Command\UpdateAcademicTeam\RequestCommandmapper\" />
+  </ItemGroup>
+
 </Project>

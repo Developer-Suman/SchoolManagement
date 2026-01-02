@@ -85,16 +85,13 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                         DateTime.UtcNow,
                         "",
                         default
-
                         );
-                    
- 
 
-                    await _unitOfWork.BaseRepository<Assignment>().AddAsync(addassignments);
+                    await _unitOfWork.BaseRepository<Assignment>().AddAsync(addAssignments);
                     await _unitOfWork.SaveChangesAsync();
                     scope.Complete();
 
-                    var resultDTOs = _mapper.Map<AddAssignmentsResponse>(addassignments);
+                    var resultDTOs = _mapper.Map<AddAssignmentsResponse>(addAssignments);
                     return Result<AddAssignmentsResponse>.Success(resultDTOs);
 
                 }

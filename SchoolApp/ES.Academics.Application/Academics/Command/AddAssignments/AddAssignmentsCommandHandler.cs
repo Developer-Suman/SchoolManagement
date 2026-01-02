@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using ES.Academics.Application.Academics.Command.AddAssignmentStudents;
 using ES.Academics.Application.ServiceInterface;
 using FluentValidation;
 using MediatR;

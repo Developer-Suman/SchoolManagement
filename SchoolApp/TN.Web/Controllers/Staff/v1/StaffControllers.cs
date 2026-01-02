@@ -1,4 +1,6 @@
 ﻿using ES.Academics.Application.Academics.Queries.FilterExamResult;
+using ES.Finances.Application.Finance.Command.Fee.UpdateFeeStructure;
+using ES.Finances.Application.Finance.Command.Fee.UpdateFeeStructure.RequestCommandMapper;
 using ES.Finances.Application.Finance.Queries.Fee.FeeStructureById;
 using ES.Staff.Application.Staff.Command.AddAcademicTeam;
 using ES.Staff.Application.Staff.Command.AddAcademicTeam.RequestCommandMapper;
@@ -10,6 +12,8 @@ using ES.Staff.Application.Staff.Command.TeacherAttendanceQR;
 using ES.Staff.Application.Staff.Command.TeacherAttendanceQR.RequestCommandMapper;
 using ES.Staff.Application.Staff.Command.UnAssignedClassToAcademicTeam;
 using ES.Staff.Application.Staff.Command.UnAssignedClassToAcademicTeam.RequestCommandMapper;
+using ES.Staff.Application.Staff.Command.UpdateAcademicTeam;
+using ES.Staff.Application.Staff.Command.UpdateAcademicTeam.RequestCommandmapper;
 using ES.Staff.Application.Staff.Queries.AcademicTeam;
 using ES.Staff.Application.Staff.Queries.AcademicTeamById;
 using ES.Staff.Application.Staff.Queries.FilterAcademicTeam;
@@ -134,6 +138,31 @@ namespace TN.Web.Controllers.Staff.v1
         #endregion
 
         #region AcademicTeam
+
+        #region UpdateAcademicTeam
+        [HttpPatch("UpdateAcademicTeam/{Id}")]
+
+        public async Task<IActionResult> UpdateAcademicTeam([FromRoute] string Id, [FromBody] UpdateAcademicTeamRequest request)
+        {
+            //Mapping command and request
+            var command = request.ToCommand(Id);
+            var update = await _mediator.Send(command);
+            #region Switch Statement
+            return update switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(update.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = update.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(update.Errors),
+                _ => BadRequest("Invalid Fields for Update")
+            };
+
+            #endregion
+        }
+        #endregion
+
         #region AcademicTeamById
         [HttpGet("AcademicTeam/{AcademicTeamById}")]
         public async Task<IActionResult> GetAcademicTeamById([FromRoute] string AcademicTeamById)

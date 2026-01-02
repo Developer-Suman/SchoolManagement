@@ -48,7 +48,6 @@ namespace ES.Finances.Application.AutoMapper
             #region Feetype
             CreateMap<FeeType, FeetypeByidResponse>().ReverseMap();
             CreateMap<FeeType, UpdateFeeTypeCommand>().ReverseMap();
-            CreateMap<StudentFee, UpdateStudentFeeCommand>().ReverseMap();
             CreateMap<FeeType, AddFeeTypeResponse>().ReverseMap();
             CreateMap<FilterFeeTypeResponse, FeeType>().ReverseMap();
             CreateMap<PagedResult<FeeType>, PagedResult<FilterFeeTypeResponse>>().ReverseMap();
@@ -58,7 +57,6 @@ namespace ES.Finances.Application.AutoMapper
 
             #region FeeStructure
             CreateMap<FeeStructure, UpdateFeeStructureCommand>().ReverseMap();
-
             CreateMap<FeeStructure, FeeStructureByIdResponse>().ReverseMap();
             CreateMap<FeeStructure, AddFeeStructureResponse>().ReverseMap();
             CreateMap<FilterFeeStructureResponse, FeeStructure>().ReverseMap();
@@ -69,6 +67,7 @@ namespace ES.Finances.Application.AutoMapper
 
             #region StudentFee
             CreateMap<StudentFee, AddStudentFeeResponse>().ReverseMap();
+            CreateMap<StudentFee, UpdateStudentFeeCommand>().ReverseMap();
             CreateMap<StudentFee, StudentFeeByIdResponse>().ReverseMap();
             CreateMap<FilterStudentFeeResponse, StudentFee>().ReverseMap();
             CreateMap<PagedResult<StudentFee>, PagedResult<FilterStudentFeeResponse>>().ReverseMap();
