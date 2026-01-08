@@ -87,11 +87,11 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                         default
                         );
 
-                    await _unitOfWork.BaseRepository<Assignment>().AddAsync(addAssignments);
+                    await _unitOfWork.BaseRepository<Assignment>().AddAsync(addassignments);
                     await _unitOfWork.SaveChangesAsync();
                     scope.Complete();
 
-                    var resultDTOs = _mapper.Map<AddAssignmentsResponse>(addAssignments);
+                    var resultDTOs = _mapper.Map<AddAssignmentsResponse>(addassignments);
                     return Result<AddAssignmentsResponse>.Success(resultDTOs);
 
                 }
