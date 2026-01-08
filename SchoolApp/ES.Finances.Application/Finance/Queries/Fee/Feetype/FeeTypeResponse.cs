@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static TN.Shared.Domain.Enum.HelperEnum;
 
 namespace ES.Finances.Application.Finance.Queries.Fee.Feetype
 {
@@ -16,6 +17,7 @@ namespace ES.Finances.Application.Finance.Queries.Fee.Feetype
             string createdBy,
             DateTime createdAt,
             string modifiedBy,
-            DateTime modifiedAt
+            DateTime modifiedAt,
+            NameOfMonths NameOfMonths
         );
 }

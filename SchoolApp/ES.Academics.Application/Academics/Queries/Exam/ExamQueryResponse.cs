@@ -8,11 +8,11 @@ namespace ES.Academics.Application.Academics.Queries.Exam
 {
     public record ExamQueryResponse
     (
-        string id,
-                 string name,
-            DateTime examDate,
-            decimal totalMarks,
-            bool? isfinalExam,
-            string classId
+        string id="",
+                 string name="",
+            DateTime examDate=default,
+            decimal totalMarks=0,
+            bool? isfinalExam=true,
+            string classId = ""
         );
 }
