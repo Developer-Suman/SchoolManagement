@@ -67,22 +67,37 @@ namespace ES.Finances.Infrastructure.ServiceImpl
             {
                 try
                 {
-
-                    string newId = Guid.NewGuid().ToString();
                     var FyId = _fiscalContext.CurrentFiscalYearId;
-                    var schoolId = _tokenService.SchoolId().FirstOrDefault() ?? "";
+                    var schoolId = _tokenService.SchoolId().FirstOrDefault() ?? throw new Exception("School ID not found.");
                     var userId = _tokenService.GetUserId();
 
-                    var add = new StudentFee(
-                            newId,
+                    var feeStructure = await _unitOfWork.BaseRepository<FeeStructure>()
+                        .GetByGuIdAsync(addStudentFeeCommand.feeStructureId);
+
+                    if (feeStructure == null)
+                        throw new Exception("Fee structure not found.");
+
+                    var studentFee = await _unitOfWork.BaseRepository<StudentFee>()
+                        .FirstOrDefaultAsync(x => x.StudentId == addStudentFeeCommand.studentId &&
+                                                  x.ClassId == addStudentFeeCommand.classId);
+
+                    decimal currentTotal = studentFee?.TotalAmount ?? feeStructure.Amount;
+                    decimal currentPaid = studentFee?.PaidAmount ?? 0;
+
+                    decimal discountAmount = feeStructure.Amount * (addStudentFeeCommand.discountPercentage / 100);
+
+                    var newRecord = new StudentFee(
+                        Guid.NewGuid().ToString(),
                         addStudentFeeCommand.studentId,
                         addStudentFeeCommand.feeStructureId,
-                        addStudentFeeCommand.discount,
-                        addStudentFeeCommand.totalAmount,
-                        addStudentFeeCommand.paidAmount,
-                       DateTime.UtcNow,
+                        addStudentFeeCommand.classId,
+                        discountAmount,
+                        addStudentFeeCommand.discountPercentage,
+                        
+                        currentTotal,
+                        currentPaid,
                         true,
-                        schoolId ?? "",
+                        schoolId,
                         PaidStatus.Pending,
                         userId,
                         DateTime.UtcNow,
@@ -90,19 +105,125 @@ namespace ES.Finances.Infrastructure.ServiceImpl
                         default
                     );
 
-                    await _unitOfWork.BaseRepository<StudentFee>().AddAsync(add);
+                    await _unitOfWork.BaseRepository<StudentFee>().AddAsync(newRecord);
+
+                    var students = await _unitOfWork.BaseRepository<StudentData>()
+                       .GetByGuIdAsync(addStudentFeeCommand.studentId);
+
+                    #region Tax part
+                    //var taxAmount = (13 / 100) * currentPaid;
+
+                    //var totalPayable = currentPaid + taxAmount - discountAmount;
+                    #endregion
+
+                    #region Journal Entries
+                    var newJournalId = Guid.NewGuid().ToString();
+                    var netAmountDue = currentTotal - discountAmount;
+
+                    var journalDetails = new List<JournalEntryDetails>();
+                    journalDetails.Add(new JournalEntryDetails(
+                                        Guid.NewGuid().ToString(),
+                                        newJournalId,
+                                        students.LedgerId,
+                                        netAmountDue,
+                                        0,
+                                        DateTime.UtcNow,
+                                        schoolId,
+                                        FyId,
+                                        true
+                                    ));
+
+                    // We record the full income so your reports show the total potential revenue.
+                    journalDetails.Add(new JournalEntryDetails(
+                        Guid.NewGuid().ToString(),
+                        newJournalId,
+                        feeStructure.LedgerId,
+                        0,
+                        currentTotal, // Credit the full original amount
+                        DateTime.UtcNow,
+                        schoolId,
+                        FyId,
+                        true
+                    ));
+
+                    if (discountAmount > 0)
+                    {
+                        journalDetails.Add(new JournalEntryDetails(
+                            Guid.NewGuid().ToString(),
+                            newJournalId,
+                            LedgerConstants.DiscountLedgerId,
+                            discountAmount, // Debit the discount as an expense
+                            0,
+                            DateTime.UtcNow,
+                            schoolId,
+                            FyId,
+                            true
+                        ));
+                    }
+
+
+                    //if (taxAmount > 0)
+                    //{
+                    //    journalDetails.Add(new JournalEntryDetails(
+                    //        Guid.NewGuid().ToString(),
+                    //        newJournalId,
+                    //        LedgerConstants.VATLedgerId,     
+                    //        0,
+                    //        taxAmount,       
+                    //        DateTime.UtcNow,
+                    //        schoolId,
+                    //        FyId,
+                    //        true
+                    //    ));
+                    //}
+
+
+
+
+                    var journalData = new JournalEntry(
+                           newJournalId,
+                           "Student Fee Assigned Voucher",
+                           DateTime.UtcNow,
+                           "Being Students fees Assigned",
+                           userId,
+                           schoolId,
+                           DateTime.UtcNow,
+                           "",
+                           default,
+                           "",
+                           FyId,
+                           true,
+                           journalDetails
+                       );
+
+                    decimal totalDebitFinal = journalDetails.Sum(x => x.DebitAmount);
+                    decimal totalCreditFinal = journalDetails.Sum(x => x.CreditAmount);
+
+                    await _unitOfWork.BaseRepository<JournalEntry>().AddAsync(journalData);
+
+
+                    #endregion
+
+
+
+
+
+
+
+
+
                     await _unitOfWork.SaveChangesAsync();
+
+                    // 4. Commit transaction
                     scope.Complete();
 
-                    var resultDTOs = _mapper.Map<AddStudentFeeResponse>(add);
+                    var resultDTOs = _mapper.Map<AddStudentFeeResponse>(newRecord);
                     return Result<AddStudentFeeResponse>.Success(resultDTOs);
-
                 }
                 catch (Exception ex)
                 {
-                    scope.Dispose();
-                    throw new Exception("An error occurred while adding", ex);
-
+                    // Log ex here
+                    throw new Exception("An error occurred while processing the student fee.", ex);
                 }
             }
         }
@@ -111,122 +232,69 @@ namespace ES.Finances.Infrastructure.ServiceImpl
         {
             try
             {
-                try
+                string newId = Guid.NewGuid().ToString();
+                var FyId = _fiscalContext.CurrentFiscalYearId;
+                var schoolId = _tokenService.SchoolId().FirstOrDefault() ?? "";
+                var userId = _tokenService.GetUserId();
+
+
+                var feeStructure = await _unitOfWork.BaseRepository<FeeStructure>()
+                    .FirstOrDefaultAsync(x =>
+                        x.FeeTypeId == assignMonthlyFeeCommand.feeTypeId &&
+                        x.ClassId == assignMonthlyFeeCommand.classId &&
+                        x.IsActive);
+
+                if (feeStructure == null)
+                    throw new Exception("Fee structure not defined for this class.");
+
+                var students = (await _unitOfWork.BaseRepository<StudentData>()
+                      .FindBy(x =>
+                          x.ClassId == assignMonthlyFeeCommand.classId &&
+                          x.IsActive))
+                      .ToList();
+
+                if (!students.Any())
+                    return Result<AssignMonthlyFeeResponse>.Failure(
+                        "No active students found for this class.");
+
+                var feetypes = (await _unitOfWork.BaseRepository<FeeType>()
+                      .GetByGuIdAsync(assignMonthlyFeeCommand.feeTypeId));
+
+                var studentIds = students.Select(s => s.Id).ToList();
+
+                foreach (var student in students)
                 {
 
-
-                    string newId = Guid.NewGuid().ToString();
-                    var FyId = _fiscalContext.CurrentFiscalYearId;
-                    var schoolId = _tokenService.SchoolId().FirstOrDefault() ?? "";
-                    var userId = _tokenService.GetUserId();
-
-
-                    var feeStructure = await _unitOfWork.BaseRepository<FeeStructure>()
-                        .FirstOrDefaultAsync(x =>
-                            x.FeeTypeId == assignMonthlyFeeCommand.feeTypeId &&
-                            x.ClassId == assignMonthlyFeeCommand.classId &&
-                            x.IsActive);
-
-                    if (feeStructure == null)
-                        throw new Exception("Fee structure not defined for this class.");
-
-                    var students = (await _unitOfWork.BaseRepository<StudentData>()
-                          .FindBy(x =>
-                              x.ClassId == assignMonthlyFeeCommand.classId &&
-                              x.IsActive))
-                          .ToList();
-
-                    if (!students.Any())
-                        return Result<AssignMonthlyFeeResponse>.Failure(
-                            "No active students found for this class.");
-
-
-
-                    var studentIds = students.Select(s => s.Id).ToList();
-
-                    var feeTypeLedger = await _unitOfWork.BaseRepository<Ledger>()
-                       .FirstOrDefaultAsync(l =>
-                           l.FeeTypeid == assignMonthlyFeeCommand.feeTypeId);
-
-                    var existingStudentLedgers = await _unitOfWork.BaseRepository<Ledger>()
-                        .FindBy(l => studentIds.Contains(l.StudentId));
-
-                    if (existingStudentLedgers.Any())
-                    {
-                        return Result<AssignMonthlyFeeResponse>.Failure(
-                            "Monthly fee has already been assigned for this class.");
-                    }
-
-
-                    var ledgerLookup = existingStudentLedgers
-                        .ToDictionary(l => l.StudentId);
-
-                    foreach (var student in students)
-                    {
-                        if (ledgerLookup.ContainsKey(student.Id))
-                            continue;
-
-                        var ledger = new Ledger
-                            (
-                            Guid.NewGuid().ToString(),
-                            $"{student.FirstName} {student.LastName}"+ "A/C",
-                            DateTime.UtcNow,
-                            false,
-                            student.Address,
-                            "",
-                            student.PhoneNumber,
-                            "",
-                            "",
-                            LedgerConstants.AccountsReceivable,
-                            schoolId,
-                            FyId,
-                            0,
-                            false,
-                            true,
-                            student.Id,
-                            null
-
-                            );
-
-                        await _unitOfWork.BaseRepository<Ledger>().AddAsync(ledger);
-        
-
-                        ledgerLookup.Add(student.Id, ledger);
-
-                        var addJournal = new AddJournalEntryCommand(
-                            $"Opening balance for {student.FirstName} {student.LastName}",
-                            DateTime.UtcNow.ToString(),
-                            "Being opening balance entry",
-                            new List<AddJournalEntryDetailsRequest>
-                            {
+                    var addJournal = new AddJournalEntryCommand(
+                        $"Opening balance for {student.FirstName} {student.LastName}",
+                        DateTime.UtcNow.ToString(),
+                        "Being opening balance entry",
+                        new List<AddJournalEntryDetailsRequest>
+                        {
                                 new AddJournalEntryDetailsRequest(
-                                    ledger.Id,
+                                    student.LedgerId,
                                     feeStructure.Amount,
                                     0
                                 ),
                                 new AddJournalEntryDetailsRequest(
-                                    feeTypeLedger.Id,
+                                    feeStructure.LedgerId,
                                     0,
                                     feeStructure.Amount
                                 )
-                                        }
-                                    );
+                                    }
+                                );
 
-                                    await _journalServices.Add(addJournal);
-                                }
-
-                    await _unitOfWork.SaveChangesAsync();
-
-                    var response = new AssignMonthlyFeeResponse(
-                        assignMonthlyFeeCommand.classId,
-                        assignMonthlyFeeCommand.feeTypeId);
-
-                    return Result<AssignMonthlyFeeResponse>.Success(response);
+                    await _journalServices.Add(addJournal);
                 }
-                catch (Exception ex)
-                {
-                    throw new Exception("An error occurred while assigning monthly fee.", ex);
-                }
+
+                await _unitOfWork.SaveChangesAsync();
+
+                var response = new AssignMonthlyFeeResponse(
+                    assignMonthlyFeeCommand.classId,
+                    assignMonthlyFeeCommand.feeTypeId);
+
+                return Result<AssignMonthlyFeeResponse>.Success(response);
+
 
             }
             catch(Exception ex)
@@ -257,40 +325,36 @@ namespace ES.Finances.Infrastructure.ServiceImpl
                 var (startUtc, endUtc) = await _dateConverter.GetDateRangeUtc(filterStudentFeeDTOs.startDate, filterStudentFeeDTOs.endDate);
 
                 var filteredResult = filter
-                 .Where(x =>
-                       (string.IsNullOrEmpty(filterStudentFeeDTOs.studentId) || x.StudentId == filterStudentFeeDTOs.studentId) &&
-                     x.CreatedAt >= startUtc &&
-                         x.CreatedAt <= endUtc &&
-                         x.IsActive
-                 )
-                 .OrderByDescending(x => x.CreatedAt) // newest first
-                 .ToList();
+                  .Where(x =>
+                      (string.IsNullOrEmpty(filterStudentFeeDTOs.studentId) || x.StudentId == filterStudentFeeDTOs.studentId) &&
+                      x.CreatedAt >= startUtc &&
+                      x.CreatedAt <= endUtc &&
+                      x.IsActive
+                  )
+                  .GroupBy(x => new { x.StudentId, x.ClassId })
+                  .Select(g => new {
+                      StudentId = g.Key.StudentId,
+                      FeeStructureIds = g.Select(x => $"{x.FeeStructure.FeeType.Name} -> {x.DiscountPercentage}%").ToList(),
+                      TotalAmount = g.Sum(x => x.TotalAmount),
+                      TotalPaid = g.Sum(x => x.PaidAmount),
 
+                      // Calculation (must use g.Sum again here or do it in the next Select)
+                      DueAmount = g.Sum(x => x.TotalAmount) - g.Sum(x => x.PaidAmount),
 
-
+                      LatestDate = g.Max(x => x.CreatedAt)
+                  })
+                  .OrderByDescending(x => x.LatestDate)
+                  .ToList();
 
                 var responseList = filteredResult
-                .OrderByDescending(x => x.CreatedAt)
-                .Select(i => new FilterStudentFeeResponse(
-
-                    i.Id,
-                    i.StudentId,
-                    i.FeeStructureId,
-                    i.Discount,
-                    i.TotalAmount,
-                    i.PaidAmount,
-                    i.DueDate,
-                    i.DueAmount,
-                    i.IsActive,
-                    i.SchoolId,
-                    i.CreatedBy,
-                    i.CreatedAt,
-                    i.ModifiedBy,
-                    i.ModifiedAt
-
-
-                ))
-                .ToList();
+                    .Select(i => new FilterStudentFeeResponse(
+                        i.StudentId,
+                        i.FeeStructureIds, 
+                        i.TotalAmount,
+                        i.TotalPaid,
+                        i.DueAmount
+                    ))
+                    .ToList();
 
                 PagedResult<FilterStudentFeeResponse> finalResponseList;
 
@@ -356,73 +420,69 @@ namespace ES.Finances.Infrastructure.ServiceImpl
         {
             try
             {
-                var fyId = _fiscalContext.CurrentFiscalYearId;
-                var userId = _tokenService.GetUserId();
-                string institutionId = _tokenService.InstitutionId();
+                string schoolId = _tokenService.SchoolId().FirstOrDefault();
 
-                var schoolIds = await _unitOfWork.BaseRepository<School>()
-                    .GetConditionalFilterType(
-                        x => x.InstitutionId == institutionId,
-                        query => query.Select(c => c.Id)
-                    );
+                var query = _unitOfWork.BaseRepository<PaymentsRecords>()
+                .GetAllWithIncludeQueryable(x =>
+                    x.Schoolid == schoolId &&
+                    x.StudentId == studentFeeSummaryDTOs.studentId
+                )
 
-                var responseList = await _unitOfWork.BaseRepository<StudentFee>()
-                    .GetAllWithIncludeQueryable(
-                        x => schoolIds.Contains(x.SchoolId) && x.StudentId == studentFeeSummaryDTOs.studentId,
-                        x => x.FeeStructure.FeeType
-                    )
-                    .Select(x => new StudentFeeSummaryResponse
-                    (
-                        x.FeeStructure.FeeType.Name,
-                         x.TotalAmount,
-                         x.PaidAmount,
-                        x.DueAmount,
-                        x.IsPaidStatus
-                    ))
-                    .AsNoTracking()
-                    .ToListAsync();
+                .Include(x => x.StudentFee)
+                .AsNoTracking();
 
+                // 2. Count Total Records at the Database level
+                int totalItems = await query.CountAsync();
 
+                // 3. Apply Pagination and Projection
+                int pageIndex = paginationRequest.pageIndex <= 0 ? 1 : paginationRequest.pageIndex;
+                int pageSize = paginationRequest.pageSize <= 0 ? 10 : paginationRequest.pageSize;
 
-                PagedResult<StudentFeeSummaryResponse> finalResponseList;
+                List<StudentFeeSummaryResponse> items;
 
                 if (paginationRequest.IsPagination)
                 {
-
-                    int pageIndex = paginationRequest.pageIndex <= 0 ? 1 : paginationRequest.pageIndex;
-                    int pageSize = paginationRequest.pageSize <= 0 ? 10 : paginationRequest.pageSize;
-
-                    int totalItems = responseList.Count();
-
-                    var pagedItems = responseList
+                    items = await query
+                        .OrderByDescending(x => x.CreatedAt) // Always sort when paginating!
                         .Skip((pageIndex - 1) * pageSize)
                         .Take(pageSize)
-                        .ToList();
-
-                    finalResponseList = new PagedResult<StudentFeeSummaryResponse>
-                    {
-                        Items = pagedItems,
-                        TotalItems = totalItems,
-                        PageIndex = pageIndex,
-                        pageSize = pageSize
-                    };
+                        .Select(x => new StudentFeeSummaryResponse(
+                            x.StudentFee.ClassId,
+                            x.StudentFee.PaidAmount,
+                            x.PaymentMethod,
+                            x.StudentFee.TotalAmount,
+                            x.StudentFee.DueAmount
+                        ))
+                        .ToListAsync();
                 }
                 else
                 {
-                    finalResponseList = new PagedResult<StudentFeeSummaryResponse>
-                    {
-                        Items = responseList.ToList(),
-                        TotalItems = responseList.Count(),
-                        PageIndex = 1,
-                        pageSize = responseList.Count()
-                    };
+                    items = await query
+                        .Select(x => new StudentFeeSummaryResponse(
+                            x.StudentFee.ClassId,
+                            x.StudentFee.PaidAmount,
+                            x.PaymentMethod,
+                            x.StudentFee.TotalAmount,
+                            x.StudentFee.DueAmount
+                        ))
+                        .ToListAsync();
+                    pageSize = items.Count;
                 }
-                return Result<PagedResult<StudentFeeSummaryResponse>>.Success(finalResponseList);
 
+                var finalResponseList = new PagedResult<StudentFeeSummaryResponse>
+                {
+                    Items = items,
+                    TotalItems = totalItems,
+                    PageIndex = pageIndex,
+                    pageSize = pageSize
+                };
+
+                return Result<PagedResult<StudentFeeSummaryResponse>>.Success(finalResponseList);
             }
             catch (Exception ex)
             {
-                throw new Exception($"An error occurred while fetching: {ex.Message}", ex);
+                // Avoid throwing raw exceptions; return a Failure result for better API handling
+                return Result<PagedResult<StudentFeeSummaryResponse>>.Failure($"Error: {ex.Message}");
             }
         }
 
@@ -487,10 +547,9 @@ namespace ES.Finances.Infrastructure.ServiceImpl
                             studentFeeId,
                             studentFeeToBeUpdated.StudentId,
                             studentFeeToBeUpdated.FeeStructureId,
-                            studentFeeToBeUpdated.Discount,
+                            studentFeeToBeUpdated.DiscountAmount,
                             studentFeeToBeUpdated.TotalAmount,
                             studentFeeToBeUpdated.PaidAmount,
-                            studentFeeToBeUpdated.DueDate,
                             studentFeeToBeUpdated.IsActive,
                             studentFeeToBeUpdated.SchoolId,
                             studentFeeToBeUpdated.CreatedBy,

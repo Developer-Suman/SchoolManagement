@@ -41,21 +41,11 @@ namespace TN.Setup.Infrastructure.ServiceImpl
         {
             try
             {
-                var cacheKeys = CacheKeys.District;
 
-                var cacheData = await _memoryCacheRepository.GetCacheKey<PagedResult<GetAllDistrictResponse>>(cacheKeys);
-                if (cacheData is not null)
-                {
-                    return Result<PagedResult<GetAllDistrictResponse>>.Success(cacheData);
-                }
 
                 var district = await _unitOfWork.BaseRepository<District>().GetAllAsyncWithPagination();
                 var districtPagedResult = await district.AsNoTracking().ToPagedResultAsync(paginationRequest.pageIndex, paginationRequest.pageSize, paginationRequest.IsPagination);
                 var allDistrictResponse = _mapper.Map<PagedResult<GetAllDistrictResponse>>(districtPagedResult.Data);
-                await _memoryCacheRepository.SetAsync(cacheKeys, allDistrictResponse, new Microsoft.Extensions.Caching.Memory.MemoryCacheEntryOptions
-                {
-                    AbsoluteExpiration = DateTimeOffset.Now.AddMinutes(30)
-                }, cancellationToken);
                 return Result<PagedResult<GetAllDistrictResponse>>.Success(allDistrictResponse);
 
             }
@@ -69,20 +59,11 @@ namespace TN.Setup.Infrastructure.ServiceImpl
         {
             try
             {
-                var cacheKey = $"GetDistrictById{districtId}";
-                var cacheData = await _memoryCacheRepository.GetCacheKey<GetDistrictByIdResponse>(cacheKey);
-                if (cacheData is not null)
-                {
-                    return Result<GetDistrictByIdResponse>.Success(cacheData);
-                }
+
                 var district = await _unitOfWork.BaseRepository<District>().GetById(districtId);
 
                 var districtResponse = _mapper.Map<GetDistrictByIdResponse>(district);
 
-                await _memoryCacheRepository.SetAsync(cacheKey, districtResponse, new Microsoft.Extensions.Caching.Memory.MemoryCacheEntryOptions
-                {
-                    AbsoluteExpiration = DateTimeOffset.Now.AddMinutes(30)
-                }, cancellationToken);
                 return Result<GetDistrictByIdResponse>.Success(districtResponse);
                
 

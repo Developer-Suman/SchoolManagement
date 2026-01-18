@@ -352,7 +352,7 @@ namespace ES.Staff.Infrastructure.ServiceImpl
 
                 var filterStudentsData = isSuperAdmin
                     ? students
-                    : students.Where(x => x.SchoolId == _tokenService.SchoolId().FirstOrDefault() || x.SchoolId == "");
+                    : students.Include(x=>x.User).Where(x => x.SchoolId == _tokenService.SchoolId().FirstOrDefault() || x.SchoolId == "");
 
                 var (startUtc, endUtc) = await _dateConverter.GetDateRangeUtc(filterAcademicTeamDTOs.startDate, filterAcademicTeamDTOs.endDate);
 
@@ -382,6 +382,7 @@ namespace ES.Staff.Infrastructure.ServiceImpl
                     i.CreatedAt,
                     i.ModifiedBy,
                     i.ImageUrl,
+                    i.User.Email,
                     i.ModifiedAt,
                     i.Gender,
                     i.SchoolId,

@@ -12,5 +12,8 @@ namespace TN.Shared.Domain.Static.Cache
         public const string SundryCreditors = "f5c2cba4-e4c7-496a-9f07-f2060c426e06";
         public const string CashInHands = "3d5c1e24-d0ae-4f74-9c88-bf9f4b5c4d0b";
         public const string BankAccounts = "7a9a6c6f-3b4a-4e58-b13c-c61e7bba9d72";
+        public const string IndirectIncomeRevenue = "3f6a9c2e-7b44-4f9a-9a3d-1b6d8f2c4e91";
+        public const string SundryDebtors = "dff66bb4-11e6-4e5f-8bb9-f00c01b90284";
+        public const string DirectIncome = "4f82937b-91d4-4a52-9b2d-f7e9c8a41031";
     }
 }

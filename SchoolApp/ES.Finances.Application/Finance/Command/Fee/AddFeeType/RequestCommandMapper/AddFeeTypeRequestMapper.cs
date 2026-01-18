@@ -12,8 +12,7 @@ namespace ES.Finances.Application.Finance.Command.Fee.AddFeeType.RequestCommandM
         {
             return new AddFeeTypeCommand(
                 request.name,
-                request.description,
-                request.nameOfMonths
+                request.description
                 );
         }
     }

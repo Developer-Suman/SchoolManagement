@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TN.Shared.Domain.Abstractions;
+using static TN.Shared.Domain.Enum.HelperEnum;
 
 namespace ES.Finances.Application.Finance.Command.Fee.AddFeeStructure
 {
@@ -12,6 +13,7 @@ namespace ES.Finances.Application.Finance.Command.Fee.AddFeeStructure
     (
           decimal amount,
             string classId,
-            string feeTypeId
+            string feeTypeId,
+           NameOfMonths? nameOfMonths
         ) : IRequest<Result<AddFeeStructureResponse>>;
 }

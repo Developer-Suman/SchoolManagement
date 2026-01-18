@@ -33,7 +33,11 @@ namespace TN.Authentication.Application.AutoMapper
     {
         public MappingProfile()
         {
+            #region FilterUser
+            CreateMap<DeleteRoleCommand, IdentityRole>().ReverseMap();
+            CreateMap<PagedResult<IdentityRole>, PagedResult<AllRolesResponse>>().ReverseMap();
 
+            #endregion
             #region UserServices
             CreateMap<RegisterCommand, ApplicationUser>()
             .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.Username))

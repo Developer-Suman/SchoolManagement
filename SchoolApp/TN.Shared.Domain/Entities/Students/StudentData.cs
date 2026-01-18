@@ -38,9 +38,9 @@ namespace TN.Shared.Domain.Entities.Students
             string createdBy, 
             DateTime createdAt, 
             string modifiedBy, 
-
+            string? ledgerId,
             DateTime modifiedAt,
-            string schoolId,
+            string schoolId,    
             bool isActive,
             int? vdcid,
             int? municipalityId,
@@ -71,6 +71,7 @@ namespace TN.Shared.Domain.Entities.Students
             CreatedAt = createdAt;
             ModifiedBy = modifiedBy;
             ModifiedAt = modifiedAt;
+            LedgerId = ledgerId;
             SchoolId = schoolId;
             IsActive = isActive;
             VdcId = vdcid;
@@ -82,10 +83,11 @@ namespace TN.Shared.Domain.Entities.Students
             IssuedCertificates = new List<IssuedCertificate>();
             SeatAssignments = new List<SeatAssignment>();
             AssignmentStudents= new List<AssignmentStudent>();
+            Awards = new List<Award>();
 
         }
-
-
+        public string? LedgerId { get; set; }
+        public Ledger? Ledger { get; set; }
         public string? UserId { get; set; }
         public ApplicationUser? Users { get; set; }
         public string SchoolId { get; set; }
@@ -123,9 +125,9 @@ namespace TN.Shared.Domain.Entities.Students
         public Vdc? Vdc { get; set; }
         public int WardNumber { get; set;  }
 
-
-
-        public Ledger? Ledger { get; set; }
+        // Financial Link: The Student's Personal Sub-Ledger
+        // This ledger's ParentLedgerId should point to the Parent's LedgerId
+     
         public DateTime EnrollmentDate { get; set; }
         public string CreatedBy { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.Now;
@@ -137,6 +139,7 @@ namespace TN.Shared.Domain.Entities.Students
         public ICollection<IssuedCertificate> IssuedCertificates { get; set; }
         public ICollection<SeatAssignment> SeatAssignments { get; set; }
         public ICollection<AssignmentStudent> AssignmentStudents { get; set; }
+        public ICollection<Award> Awards { get; set; }
 
     }
 

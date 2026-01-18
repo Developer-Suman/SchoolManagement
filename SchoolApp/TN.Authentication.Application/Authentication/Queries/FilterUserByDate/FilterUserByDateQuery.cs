@@ -6,9 +6,10 @@ using System.Threading.Tasks;
 using MediatR;
 using TN.Authentication.Application.ServiceInterface;
 using TN.Shared.Domain.Abstractions;
+using TN.Shared.Domain.ExtensionMethod.Pagination;
 
 namespace TN.Authentication.Application.Authentication.Queries.FilterUserByDate
 {
   public record FilterUserByDateQuery
-   (FilterUserDTOs FilterUserDTOs):IRequest<Result<IEnumerable<FilterUserByDateQueryResponse>>>;
+   (PaginationRequest paginationRequest, FilterUserDTOs FilterUserDTOs):IRequest<Result<PagedResult<FilterUserByDateQueryResponse>>>;
 }

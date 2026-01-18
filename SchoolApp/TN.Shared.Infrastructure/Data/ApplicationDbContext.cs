@@ -63,6 +63,7 @@ namespace TN.Shared.Infrastructure.Data
         #endregion
 
         #region Certificate
+        public DbSet<Award> Awards { get; set; }
         public DbSet<CertificateTemplate> CertificateTemplates { get; set; }
         public DbSet<IssuedCertificate> issuedCertificates { get; set; }
 
@@ -244,9 +245,34 @@ namespace TN.Shared.Infrastructure.Data
         {
             base.OnModelCreating(builder);
 
+            #region FeeStructure and Ledger(1:m)
+            builder.Entity<FeeStructure>()
+               .HasOne(p => p.Ledger)
+               .WithMany(p => p.FeeStructures)
+               .HasForeignKey(p => p.LedgerId)
+               .OnDelete(DeleteBehavior.Restrict);
+            #endregion
+
+            #region Students, Parenst and Ledger Configuration
+            //builder.Entity<Ledger>()
+            //    .HasOne(l => l.ParentLedger)
+            //    .WithMany(l => l.ChildLedgers)
+            //    .HasForeignKey(l => l.ParentLedgerId)
+            //    .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<StudentData>()
+                .HasOne(s => s.Ledger)
+                .WithOne(a=>a.StudentData)
+                .HasForeignKey<StudentData>(s => s.LedgerId);
+
+            builder.Entity<Parent>()
+                .HasOne(p => p.Ledger)
+                .WithOne(b=>b.Parent)
+                .HasForeignKey<Parent>(p => p.LedgerId);
+
+            #endregion
 
 
-          
 
 
             #region Register EntityConfiguration
@@ -351,6 +377,15 @@ namespace TN.Shared.Infrastructure.Data
             #endregion
 
             #region Certificate
+
+            #region StudentData and Awards (1:m)
+            builder.Entity<StudentData>()
+               .HasMany(p => p.Awards)
+               .WithOne(p => p.Students)
+               .HasForeignKey(p => p.StudentId)
+               .OnDelete(DeleteBehavior.Restrict);
+            #endregion
+
 
             #region StudentData and IssuedCertificate (1:m)
             builder.Entity<StudentData>()
@@ -679,23 +714,6 @@ namespace TN.Shared.Infrastructure.Data
 
 
             #region FeeAndAccounting
-
-            #region FeeType and Ledger(1:1)
-            builder.Entity<FeeType>()
-                .HasOne(f => f.Ledger)
-                .WithOne(x=>x.FeeType)
-                .HasForeignKey<Ledger>(l => l.FeeTypeid)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            #endregion
-
-            #region Student and Ledger(1:1)
-            builder.Entity<StudentData>()
-                .HasOne(s => s.Ledger)
-                .WithOne(l => l.StudentData)
-                .HasForeignKey<Ledger>(l => l.StudentId) 
-                .OnDelete(DeleteBehavior.Restrict);
-            #endregion
 
             #region Class and FeeStructure(1:m)
             builder.Entity<Class>()

@@ -14,7 +14,6 @@ namespace ES.Finances.Application.Finance.Command.Fee.UpdateStudentFee
             decimal discount,
             decimal totalAmount,
             decimal paidAmount,
-            DateTime dueDate,
             bool isActive,
             string schoolid,
             string createdBy,

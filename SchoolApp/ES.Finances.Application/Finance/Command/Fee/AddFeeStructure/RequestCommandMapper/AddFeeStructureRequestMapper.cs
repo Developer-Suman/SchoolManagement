@@ -14,7 +14,8 @@ namespace ES.Finances.Application.Finance.Command.Fee.AddFeeStructure.RequestCom
                 (
                 request.amount,
                 request.classId,
-                request.feeTypeId
+                request.feeTypeId,
+                request.nameOfMonths
                 );
         }
     }

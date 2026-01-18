@@ -20,11 +20,11 @@ namespace TN.Shared.Domain.Entities.Finance
             string id,
             string studentId,
             string feeStructureId,
-          
-            decimal discount,
+            string classId,
+            decimal discountAmount,
+            decimal discountPercentage,
             decimal totalAmount,
             decimal paidAmount,
-            DateTime dueDate,
             bool isActive,
             string schoolid,
             PaidStatus isPaidStatus,
@@ -35,14 +35,15 @@ namespace TN.Shared.Domain.Entities.Finance
             ) : base(id)
         {
             StudentId = studentId;
+            ClassId = classId;
             FeeStructureId = feeStructureId;
             IsPaidStatus = isPaidStatus;
             IsActive = isActive;
             SchoolId = schoolid;
-            Discount = discount;
+            DiscountAmount = discountAmount;
+            DiscountPercentage = discountPercentage;
             TotalAmount = totalAmount;
             PaidAmount = paidAmount;
-            DueDate = dueDate;
             CreatedBy = createdBy;
             CreatedAt = createdAt;
             ModifiedBy = modifiedBy;
@@ -51,6 +52,7 @@ namespace TN.Shared.Domain.Entities.Finance
 
         }
 
+        public string ClassId { get; set; }
         public PaidStatus IsPaidStatus { get; set; }
         public bool IsActive { get; set; }
         public string SchoolId { get; set; }
@@ -59,12 +61,12 @@ namespace TN.Shared.Domain.Entities.Finance
         public string FeeStructureId { get; set; }
         public FeeStructure FeeStructure { get; set; }
 
-        public decimal Discount { get; set; }
+        public decimal DiscountAmount { get; set; }
+        public decimal DiscountPercentage { get; set; }
         public decimal TotalAmount { get; set; }
         public decimal PaidAmount { get; set; }
         // ✅ Computed property
-        public decimal DueAmount => TotalAmount - PaidAmount;
-        public DateTime DueDate { get; set; }
+        public decimal DueAmount { get; set;  }
         public string CreatedBy { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public string ModifiedBy { get; set; }

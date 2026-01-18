@@ -1,9 +1,5 @@
-﻿using ES.Academics.Application.Academics.Command.UpdateExam;
-using ES.Academics.Application.Academics.Command.UpdateExam.RequestCommandMapper;
-
-using ES.Communication.Application.Communication.Command.PublishNotice;
+﻿using ES.Academics.Application.Academics.Command.UpdateExam.RequestCommandMapper;
 using ES.Communication.Application.Communication.Command.PublishNotice.RequestCommandMapper;
-using ES.Communication.Application.Communication.Queries.NoticeById;
 using ES.Finances.Application.Finance.Command.Fee.AddFeeStructure;
 using ES.Finances.Application.Finance.Command.Fee.AddFeeStructure.RequestCommandMapper;
 using ES.Finances.Application.Finance.Command.Fee.AddFeeType;
@@ -15,7 +11,6 @@ using ES.Finances.Application.Finance.Command.Fee.AssignMonthlyFee.RequestComman
 using ES.Finances.Application.Finance.Command.Fee.DeleteFeeType;
 using ES.Finances.Application.Finance.Command.Fee.UpdateFeeStructure;
 using ES.Finances.Application.Finance.Command.Fee.UpdateFeeStructure.RequestCommandMapper;
-
 using ES.Finances.Application.Finance.Command.Fee.UpdateFeeType;
 using ES.Finances.Application.Finance.Command.Fee.UpdateFeeType.RequestMapper;
 using ES.Finances.Application.Finance.Command.Fee.UpdateStudentFee;
@@ -23,6 +18,7 @@ using ES.Finances.Application.Finance.Command.Fee.UpdateStudentFee.RequestMapper
 using ES.Finances.Application.Finance.Command.PaymentRecords.AddpaymentsRecords;
 using ES.Finances.Application.Finance.Command.PaymentRecords.AddpaymentsRecords.RequestCommandMapper;
 using ES.Finances.Application.Finance.Queries.Fee.FeeStructure;
+using ES.Finances.Application.Finance.Queries.Fee.FeeStructureByClass;
 using ES.Finances.Application.Finance.Queries.Fee.FeeStructureById;
 using ES.Finances.Application.Finance.Queries.Fee.Feetype;
 using ES.Finances.Application.Finance.Queries.Fee.FeetypeById;
@@ -34,18 +30,13 @@ using ES.Finances.Application.Finance.Queries.Fee.StudentFeeById;
 using ES.Finances.Application.Finance.Queries.Fee.StudentFeeSummary;
 using ES.Finances.Application.Finance.Queries.PaymentsRecords.FilterpaymentsRecords;
 using ES.Finances.Application.Finance.Queries.PaymentsRecords.PaymentsRecordsById;
-using ES.Student.Application.Student.Queries.GetAllStudents;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
-using TN.Account.Application.Account.Command.DeleteBillSundry;
 using TN.Authentication.Domain.Entities;
-using TN.Inventory.Application.Inventory.Command.SchoolAssets.SchoolItemHistory;
-using TN.Inventory.Application.Inventory.Queries.SchoolAssets.FilterSchoolItemsHistory;
 using TN.Shared.Domain.ExtensionMethod.Pagination;
 using TN.Web.BaseControllers;
 using TN.Web.Controllers.Communication.v1;
@@ -92,6 +83,7 @@ namespace TN.Web.Controllers.Finance.v1
         #endregion
 
         #endregion
+
         #region Payments Records
         #region PaymentsRecordsById
         [HttpGet("PaymentsRecords/{PaymentsRecordsById}")]
@@ -165,6 +157,31 @@ namespace TN.Web.Controllers.Finance.v1
         #endregion
 
         #region StudentFee
+
+        #region FeeStructureByClass
+        [HttpGet("FeeStructureByClass")]
+        public async Task<IActionResult> FeeStructureByClass([FromQuery] FeeStructureByClassDTOs feeStructureByClassDTOs, [FromQuery] PaginationRequest paginationRequest)
+        {
+            var query = new FeeStructureByClassQuery(paginationRequest, feeStructureByClassDTOs);
+            var result = await _mediator.Send(query);
+            #region Switch Statement
+            return result switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(result.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = result.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(result.Errors),
+                _ => BadRequest("Invalid page and pageSize Fields")
+            };
+            #endregion
+
+        }
+
+        #endregion
+
+
         #region UpdateStudentFee
         [HttpPatch("UpdateStudentFee/{Id}")]
 

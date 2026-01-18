@@ -19,6 +19,7 @@ namespace TN.Shared.Domain.Entities.Finance
             decimal amountPaid,
             DateTime paymentDate,
             PaymentMethods paymentMethod,
+            string studentid,
             string reference,
             bool isActive,
             string schoolId,
@@ -29,7 +30,7 @@ namespace TN.Shared.Domain.Entities.Finance
             ) : base(id)
         {
             StudentfeeId = studentfeeId;
-
+            StudentId = studentid;
             AmountPaid = amountPaid;
             PaymentDate = paymentDate;
             PaymentMethod = paymentMethod;
@@ -42,6 +43,7 @@ namespace TN.Shared.Domain.Entities.Finance
             ModifiedAt = modifiedAt;
         }
 
+        public string StudentId { get; set; }
         public bool IsActive { get; set; }
         public string Schoolid { get; set; }
         public string StudentfeeId { get; set; }

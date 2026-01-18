@@ -19,6 +19,7 @@ namespace ES.Staff.Application.Staff.Queries.FilterAcademicTeam
             DateTime createdAt=default,
             string modifiedBy = "",
             string imageUrl = "",
+            string email="",
             DateTime modifiedAt= default,
             GenderStatus gender=default,
             string schoolId = "",

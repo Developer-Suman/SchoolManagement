@@ -11,9 +11,9 @@ namespace ES.Finances.Application.Finance.Command.PaymentRecords.AddpaymentsReco
     {
         public AddPaymentsRecordsCommandValidators()
         {
-            RuleFor(x => x.studentfeeId)
+            RuleFor(x => x.studentid)
             .NotEmpty()
-            .WithMessage("StudentFeeid is required.");
+            .WithMessage("StudentId is required.");
         }
     }
 }

@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
 using ES.Finances.Application.Finance.Command.Fee.AddFeeStructure;
+using ES.Finances.Application.Finance.Command.Fee.AddFeeType;
 using ES.Finances.Application.Finance.Command.Fee.UpdateFeeStructure;
 using ES.Finances.Application.Finance.Queries.Fee.FeeStructure;
+using ES.Finances.Application.Finance.Queries.Fee.FeeStructureByClass;
 using ES.Finances.Application.Finance.Queries.Fee.FeeStructureById;
 using ES.Finances.Application.Finance.Queries.Fee.FilterFeeStructure;
 using ES.Finances.Application.Finance.Queries.Fee.FilterFeetype;
@@ -13,6 +15,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Transactions;
+using TN.Account.Domain.Entities;
 using TN.Authentication.Domain.Entities;
 using TN.Shared.Application.ServiceInterface;
 using TN.Shared.Domain.Abstractions;
@@ -23,6 +26,7 @@ using TN.Shared.Domain.Entities.OrganizationSetUp;
 using TN.Shared.Domain.Entities.Students;
 using TN.Shared.Domain.ExtensionMethod.Pagination;
 using TN.Shared.Domain.IRepository;
+using TN.Shared.Domain.Static.Cache;
 
 namespace ES.Finances.Infrastructure.ServiceImpl
 {
@@ -58,12 +62,70 @@ namespace ES.Finances.Infrastructure.ServiceImpl
                     var schoolId = _tokenService.SchoolId().FirstOrDefault() ?? "";
                     var userId = _tokenService.GetUserId();
 
+                    var feeType = await _unitOfWork.BaseRepository<FeeType>()
+                        .GetByGuIdAsync(
+                            addFeeStructureCommand.feeTypeId
+                        );
+
+                    var feeStructure = await _unitOfWork.BaseRepository<FeeStructure>()
+                       .FirstOrDefaultAsync(
+                           x=>x.ClassId == addFeeStructureCommand.classId &&
+                           x.FeeTypeId == addFeeStructureCommand.feeTypeId &&
+                           x.NameOfMonths == addFeeStructureCommand.nameOfMonths &&
+                           x.FyId == FyId
+                       );
+
+                    if (feeStructure is not null)
+                    {
+                        return Result<AddFeeStructureResponse>.Failure("Conflict", $"Already assigned in the month of {addFeeStructureCommand.nameOfMonths}");
+                    }
+                    #region AddLedger
+
+                    string ledgerId;
+
+                    if (feeStructure != null &&
+                        feeStructure.FeeTypeId == addFeeStructureCommand.feeTypeId)
+                    {
+                        ledgerId = feeStructure.LedgerId;
+                    }
+                    else
+                    {
+                        ledgerId = Guid.NewGuid().ToString();
+
+                        var ledger = new Ledger(
+                            ledgerId,
+                            feeType.Name + " A/C",
+                            DateTime.UtcNow,
+                            false,
+                            "",
+                            "",
+                            "",
+                            "",
+                            "",
+                            SubLedgerGroupConstants.IndirectIncomeRevenue,
+                            schoolId,
+                            FyId,
+                            0,
+                            false,
+                            true
+                        );
+
+                        await _unitOfWork.BaseRepository<Ledger>().AddAsync(ledger);
+                        await _unitOfWork.SaveChangesAsync();
+                    }
+
+
+                    #endregion
+
+
                     var add = new FeeStructure(
                             newId,
                         addFeeStructureCommand.amount,
                         addFeeStructureCommand.classId,
                         FyId,
+                        ledgerId,
                         addFeeStructureCommand.feeTypeId,
+                        addFeeStructureCommand.nameOfMonths,
                         true,
                         schoolId ?? "",
                         userId,
@@ -73,6 +135,66 @@ namespace ES.Finances.Infrastructure.ServiceImpl
                     );
 
                     await _unitOfWork.BaseRepository<FeeStructure>().AddAsync(add);
+
+
+       
+
+
+                    #region Journal Entries
+                    var newJournalId = Guid.NewGuid().ToString();
+
+
+                    var journalDetails = new List<JournalEntryDetails>();
+                    journalDetails.Add(new JournalEntryDetails(
+                                        Guid.NewGuid().ToString(),
+                                        newJournalId,
+                                        LedgerConstants.FeeReceivable,
+                                        addFeeStructureCommand.amount,
+                                        0,
+                                        DateTime.UtcNow,
+                                        schoolId,
+                                        FyId,
+                                        true
+                                    ));
+
+                    journalDetails.Add(new JournalEntryDetails(
+                                        Guid.NewGuid().ToString(),
+                                        newJournalId,
+                                        ledgerId,
+                                        0,
+                                        addFeeStructureCommand.amount,
+                                        DateTime.UtcNow,
+                                        schoolId,
+                                        FyId,
+                                        true
+                                    ));
+
+
+
+
+                    var journalData = new JournalEntry(
+                           newJournalId,
+                           "Add Feetypes Voucher",
+                           DateTime.UtcNow,
+                           "Being FeeTypes are added",
+                           userId,
+                           schoolId,
+                           DateTime.UtcNow,
+                           "",
+                           default,
+                           "",
+                           FyId,
+                           true,
+                           journalDetails
+                       );
+
+                    decimal totalDebitFinal = journalDetails.Sum(x => x.DebitAmount);
+                    decimal totalCreditFinal = journalDetails.Sum(x => x.CreditAmount);
+
+                    await _unitOfWork.BaseRepository<JournalEntry>().AddAsync(journalData);
+
+
+                    #endregion
                     await _unitOfWork.SaveChangesAsync();
                     scope.Complete();
 
@@ -235,6 +357,44 @@ namespace ES.Finances.Infrastructure.ServiceImpl
             catch (Exception ex)
             {
                 throw new Exception("An error occurred while fetching Notice by using Id", ex);
+            }
+        }
+
+        public async Task<Result<PagedResult<FeeStructureByClassResponse>>> getFeeStructureBy(PaginationRequest paginationRequest, FeeStructureByClassDTOs feeStructureByClassDTOs)
+        {
+            try
+            {
+
+                var (feeStructure, currentSchoolId, institutionId, userRole, isSuperAdmin) =
+                    await _getUserScopedData.GetUserScopedData<FeeStructure>();
+
+                var finalQuery = feeStructure.Where(
+                    x => x.IsActive == true 
+                    && x.SchoolId == currentSchoolId 
+                    && x.ClassId == feeStructureByClassDTOs.classId).AsNoTracking();
+
+
+                var pagedResult = await finalQuery.ToPagedResultAsync(
+                    paginationRequest.pageIndex,
+                    paginationRequest.pageSize,
+                    paginationRequest.IsPagination);
+
+
+                var mappedItems = _mapper.Map<List<FeeStructureByClassResponse>>(pagedResult.Data.Items);
+
+                var response = new PagedResult<FeeStructureByClassResponse>
+                {
+                    Items = mappedItems,
+                    TotalItems = pagedResult.Data.TotalItems,
+                    PageIndex = pagedResult.Data.PageIndex,
+                    pageSize = pagedResult.Data.pageSize
+                };
+
+                return Result<PagedResult<FeeStructureByClassResponse>>.Success(response);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while fetching", ex);
             }
         }
 
