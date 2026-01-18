@@ -25,9 +25,7 @@ namespace TN.Account.Domain.Entities
             string? fyId,
             decimal? openingBalance,
             bool? isSeeded,
-            bool? isActive,
-            string? studentId,
-            string? feeTypeid
+            bool? isActive
             ) : base(id) 
         { 
 
@@ -45,14 +43,13 @@ namespace TN.Account.Domain.Entities
             OpeningBalance = openingBalance;
             IsActive = isActive;
             IsSeeded = isSeeded;
-            StudentId = studentId;
-            FeeTypeid = feeTypeid;
             Customers = new List<Customers>();
             JournalEntryDetails = new List<JournalEntryDetails>();
             Payments = new List<Payments>();
             TransactionItems = new List<TransactionItems>();
             OpeningBalances = new List<OpeningBalance>();
             ClosingBalances = new List<ClosingBalance>();
+            FeeStructures = new List<FeeStructure>();
 
         }
         public string Name { get; set; }
@@ -72,10 +69,11 @@ namespace TN.Account.Domain.Entities
 
         public bool? IsActive { get; set; }
 
-        public string? StudentId { get; set; }
-        public StudentData? StudentData { get; set; }
-        public string? FeeTypeid { get; set; }
-        public FeeType? FeeType { get; set; }
+        // SCALABILITY SECRET: Self-referencing Ledger
+        // For Students, this points to their Parent's LedgerId
+        //public string? ParentLedgerId { get; set; }
+        //public Ledger? ParentLedger { get; set; }
+        //public ICollection<Ledger> ChildLedgers { get; set; } = new List<Ledger>();
 
         //Navigation Properties
         public SubLedgerGroup SubLedgerGroup { get; set; }
@@ -88,8 +86,11 @@ namespace TN.Account.Domain.Entities
 
         public ICollection<OpeningBalance> OpeningBalances { get; set; }
         public ICollection<ClosingBalance> ClosingBalances { get; set; }
+        public ICollection<FeeStructure> FeeStructures { get; set; }
+
+        public StudentData? StudentData { get; set; }
+        public Parent? Parent { get; set; }
 
 
-  
-    }
+        }
 }

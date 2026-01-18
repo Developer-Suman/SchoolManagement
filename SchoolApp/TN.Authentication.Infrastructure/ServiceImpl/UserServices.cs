@@ -720,7 +720,7 @@ namespace TN.Authentication.Infrastructure.ServiceImpl
             }
         }
 
-        public async Task<Result<IEnumerable<FilterUserByDateQueryResponse>>> GetUserFilter(FilterUserDTOs filterUserDTOs, CancellationToken cancellationToken)
+        public async Task<Result<PagedResult<FilterUserByDateQueryResponse>>> GetUserFilter(PaginationRequest paginationRequest,FilterUserDTOs filterUserDTOs, CancellationToken cancellationToken)
         {
             try
             {
@@ -764,22 +764,45 @@ namespace TN.Authentication.Infrastructure.ServiceImpl
                     .Include(u => u.UserSchools)
                         .ThenInclude(uc => uc.Schools);
 
-                var userResponse = filterUsers.Select(p => new FilterUserByDateQueryResponse(
-                              p.Id,
-                              p.FirstName,
-                              p.LastName,
-                              p.UserName,
-                              p.Address,
-                              p.Email,
-                              p.PhoneNumber,
-                              p.CreatedAt.HasValue
-                             ? p.CreatedAt.Value.ToString("yyyy-MM-dd HH:mm:ss")
-                             : string.Empty,
-                            p.UserSchools.FirstOrDefault().SchoolId ?? "",
-                            p.InstitutionId ?? ""
-                            ));
 
-                return Result<IEnumerable<FilterUserByDateQueryResponse>>.Success(userResponse);
+
+                int totalCount = await filterUsers.CountAsync();
+                IQueryable<ApplicationUser> pagedQuery = filterUsers;
+
+                if (paginationRequest.IsPagination)
+                {
+                    pagedQuery = pagedQuery
+                        .OrderByDescending(p => p.CreatedAt) // Ordering is required for Skip/Take
+                        .Skip(paginationRequest.pageIndex * paginationRequest.pageSize)
+                        .Take(paginationRequest.pageSize);
+                }
+
+                var usersList = await pagedQuery.ToListAsync();
+
+                var userResponse = usersList.Select(p => new FilterUserByDateQueryResponse(
+                        p.Id,
+                        p.FirstName,
+                        p.LastName,
+                        p.UserName,
+                        p.Address,
+                        p.Email,
+                        p.PhoneNumber,
+                        p.CreatedAt.HasValue
+                            ? p.CreatedAt.Value.ToString("yyyy-MM-dd HH:mm:ss")
+                            : string.Empty,
+                        p.UserSchools.FirstOrDefault()?.SchoolId ?? "",
+                        p.InstitutionId ?? ""
+                    )).ToList();
+                var pagedResult = new PagedResult<FilterUserByDateQueryResponse>
+                {
+                    Items = userResponse,
+                    TotalItems = totalCount,
+                    PageIndex = paginationRequest.pageIndex,
+                    pageSize = paginationRequest.pageSize
+                };
+
+
+                return Result<PagedResult<FilterUserByDateQueryResponse>>.Success(pagedResult);
 
             }
             catch (Exception ex)

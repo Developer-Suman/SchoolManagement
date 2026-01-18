@@ -11,7 +11,18 @@ namespace TN.Account.Application.Account.Command.AddLedger.RequestCommandMapper
     {
         public static AddLedgerCommand ToCommand(this AddLedgerRequest request)
         {
-            return new AddLedgerCommand(request.name, request.isInventoryAffected,request.address,request.panNo,request.phoneNumber, request.maxCreditPeriod, request.maxDuePeriod, request.subledgerGroupId,request.openingBalance, request.studentId, request.feeTypeid);
+            return new AddLedgerCommand(request.name,
+                request.isInventoryAffected,
+                request.address,
+                request.panNo,
+                request.phoneNumber,
+                request.maxCreditPeriod,
+                request.maxDuePeriod, 
+                request.subledgerGroupId,
+                request.openingBalance
+                //request.studentId,
+                //request.feeTypeid
+                );
         }
 
     }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TN.Account.Domain.Entities;
 using TN.Shared.Domain.Primitive;
 
 namespace TN.Shared.Domain.Entities.Students
@@ -29,6 +30,7 @@ namespace TN.Shared.Domain.Entities.Students
             string modifiedBy,
             DateTime modifiedAt,
             string schoolId,
+            string? ledgerId,
             bool isActive
 
 
@@ -39,6 +41,7 @@ namespace TN.Shared.Domain.Entities.Students
             ParentType = parentType;
             PhoneNumber = phoneNumber;
             Email = email;
+            LedgerId = ledgerId;
             Address = address;
             SchoolId = schoolId;
             IsActive = isActive;
@@ -67,6 +70,11 @@ namespace TN.Shared.Domain.Entities.Students
         public string ModifiedBy { get; set; }
         public DateTime ModifiedAt { get; set; } = DateTime.Now;
         public ICollection<StudentData> Students { get; set; }
+
+        // Financial Link: The Parent's Master/Control Account
+        // This ledger tracks the total family balance
+        public string? LedgerId { get; set; }
+        public Ledger? Ledger { get; set; }
 
 
     }

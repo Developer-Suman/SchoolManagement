@@ -49,14 +49,6 @@ namespace TN.Shared.Infrastructure.Migrations
                 filter: "[StudentId] IS NOT NULL");
 
             migrationBuilder.AddForeignKey(
-                name: "FK_Ledgers_FeeTypes_FeeTypeid",
-                table: "Ledgers",
-                column: "FeeTypeid",
-                principalTable: "FeeTypes",
-                principalColumn: "Id",
-                onDelete: ReferentialAction.Restrict);
-
-            migrationBuilder.AddForeignKey(
                 name: "FK_Ledgers_Students_StudentId",
                 table: "Ledgers",
                 column: "StudentId",
@@ -68,9 +60,6 @@ namespace TN.Shared.Infrastructure.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropForeignKey(
-                name: "FK_Ledgers_FeeTypes_FeeTypeid",
-                table: "Ledgers");
 
             migrationBuilder.DropForeignKey(
                 name: "FK_Ledgers_Students_StudentId",

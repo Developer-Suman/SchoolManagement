@@ -19,6 +19,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using SendGrid.Helpers.Errors.Model;
 using System.Transactions;
+using TN.Account.Domain.Entities;
 using TN.Authentication.Domain.Entities;
 using TN.Shared.Application.ServiceInterface;
 using TN.Shared.Application.ServiceInterface.IHelperServices;
@@ -30,6 +31,7 @@ using TN.Shared.Domain.Entities.Staff;
 using TN.Shared.Domain.Entities.Students;
 using TN.Shared.Domain.ExtensionMethod.Pagination;
 using TN.Shared.Domain.IRepository;
+using TN.Shared.Domain.Static.Cache;
 
 namespace ES.Student.Infrastructure.ServiceImpl
 {
@@ -70,6 +72,7 @@ namespace ES.Student.Infrastructure.ServiceImpl
                     string newId = Guid.NewGuid().ToString();
                     var userId = _tokenService.GetUserId();
                     var schoolId = _tokenService.SchoolId().FirstOrDefault();
+                    var FyId = _fiscalContext.CurrentFiscalYearId;
 
                     var nullableClassSectionId =
                         string.IsNullOrWhiteSpace(addStudentsCommand.classSectionId)
@@ -132,42 +135,130 @@ namespace ES.Student.Infrastructure.ServiceImpl
                     }
 
 
-                    var studentsData = new StudentData
-                    (
-                        newId,
-                        addStudentsCommand.firstName,
-                        nullableMiddleName,
-                        addStudentsCommand.lastName,
-                        addStudentsCommand.registrationNumber,
-                        addStudentsCommand.genderStatus,
-                        addStudentsCommand.studentStatus,
-                        addStudentsCommand.dateOfBirth,
-                        nullableEmail,
-                        nullablePhoneNumber,
-                        imageURL,
+                    #region AddLedger
+
+                    var ledgerId = Guid.NewGuid().ToString();
+                    var ledger = new Ledger(
+                        ledgerId,
+                        addStudentsCommand.firstName+""+ nullableMiddleName+""+addStudentsCommand.lastName,
+                        DateTime.UtcNow,
+                        false,
                         nullableAddress,
-                        addStudentsCommand.enrollmentDate,
-                        nullableParentId,
-                        nullableClassSectionId,
-                        addStudentsCommand.provinceId ?? 0,
-                        addStudentsCommand.districtId ?? 0,
-                        addStudentsCommand.wardNumber ?? 0,
-                        userId,
-                        DateTime.UtcNow,
                         "",
-                        DateTime.UtcNow,
+                        nullablePhoneNumber,
+                        "",
+                        "",
+                        SubLedgerGroupConstants.SundryDebtors,
                         schoolId,
-                        true,
-                        nullablevdcId,
-                        nullableMunicipalityId,
-                        nullableClassId,
-                        ""
+                        FyId,
+                        0,
+                        false,
+                        true
+
+
+                        );
+                    await _unitOfWork.BaseRepository<Ledger>().AddAsync(ledger);
+                    #endregion
+
+
+                    var studentsData = new StudentData
+                     (
+                         newId,
+                         addStudentsCommand.firstName,
+                         nullableMiddleName,
+                         addStudentsCommand.lastName,
+                         addStudentsCommand.registrationNumber,
+                         addStudentsCommand.genderStatus,
+                         addStudentsCommand.studentStatus,
+                         addStudentsCommand.dateOfBirth,
+                         nullableEmail,
+                         nullablePhoneNumber,
+                         imageURL,
+                         nullableAddress,
+                         addStudentsCommand.enrollmentDate,
+                         nullableParentId,
+                         nullableClassSectionId,
+                         addStudentsCommand.provinceId ?? 0,
+                         addStudentsCommand.districtId ?? 0,
+                         addStudentsCommand.wardNumber ?? 0,
+                         userId,
+                         DateTime.UtcNow,
+                         "",
+                         ledgerId,
+                         DateTime.UtcNow,
+                         schoolId,
+                         true,
+                         nullablevdcId,
+                         nullableMunicipalityId,
+                         nullableClassId,
+                         ""
 
 
 
-                    );
+                     );
 
                     await _unitOfWork.BaseRepository<StudentData>().AddAsync(studentsData);
+
+                    #region Journal Entries
+                    var newJournalId = Guid.NewGuid().ToString();
+
+
+                    var journalDetails = new List<JournalEntryDetails>();
+                    journalDetails.Add(new JournalEntryDetails(
+                                        Guid.NewGuid().ToString(),
+                                        newJournalId,
+                                        LedgerConstants.FeeReceivable,
+                                        0,
+                                        0,
+                                        DateTime.UtcNow,
+                                        schoolId,
+                                        FyId,
+                                        true
+                                    ));
+
+                    journalDetails.Add(new JournalEntryDetails(
+                                        Guid.NewGuid().ToString(),
+                                        newJournalId,
+                                        LedgerConstants.DirectIncome,
+                                        0,
+                                        0,
+                                        DateTime.UtcNow,
+                                        schoolId,
+                                        FyId,
+                                        true
+                                    ));
+
+
+
+
+                    var journalData = new JournalEntry(
+                           newJournalId,
+                           "Admission Students Voucher",
+                           DateTime.UtcNow,
+                           "Being Students get Admitted",
+                           userId,
+                           schoolId,
+                           DateTime.UtcNow,
+                           "",
+                           default,
+                           "",
+                           FyId,
+                           true,
+                           journalDetails
+                       );
+
+                    decimal totalDebitFinal = journalDetails.Sum(x => x.DebitAmount);
+                    decimal totalCreditFinal = journalDetails.Sum(x => x.CreditAmount);
+
+                    await _unitOfWork.BaseRepository<JournalEntry>().AddAsync(journalData);
+
+
+                    #endregion
+
+
+
+
+
                     await _unitOfWork.SaveChangesAsync();
                     scope.Complete();
 
@@ -188,10 +279,88 @@ namespace ES.Student.Infrastructure.ServiceImpl
             {
                 try
                 {
+
                     string newId = Guid.NewGuid().ToString();
                     var userId = _tokenService.GetUserId();
-
+                    var FyId = _fiscalContext.CurrentFiscalYearId;
                     var schoolId = _tokenService.SchoolId().FirstOrDefault();
+                    #region AddLedger
+
+                    var ledgerId = Guid.NewGuid().ToString();
+                    var ledger = new Ledger(
+                        ledgerId,
+                        "Parents"+" "+addParentCommand.fullName,
+                        DateTime.UtcNow,
+                        false,
+                        addParentCommand.address,
+                        "",
+                        addParentCommand.phoneNumber,
+                        "",
+                        "",
+                        SubLedgerGroupConstants.SundryDebtors,
+                        schoolId,
+                        FyId,
+                        0,
+                        false,
+                        true
+                        );
+                    await _unitOfWork.BaseRepository<Ledger>().AddAsync(ledger);
+                    #endregion
+
+                    #region Journal Entries
+                    var newJournalId = Guid.NewGuid().ToString();
+                    var journalDetails = new List<JournalEntryDetails>();
+                    journalDetails.Add(new JournalEntryDetails(
+                                        Guid.NewGuid().ToString(),
+                                        newJournalId,
+                                        SubLedgerGroupConstants.SundryDebtors,
+                                        0,
+                                        0,
+                                        DateTime.UtcNow,
+                                        schoolId,
+                                        FyId,
+                                        true
+                                    ));
+
+                    journalDetails.Add(new JournalEntryDetails(
+                                        Guid.NewGuid().ToString(),
+                                        newJournalId,
+                                        LedgerConstants.DirectIncome,
+                                        0,
+                                        0,
+                                        DateTime.UtcNow,
+                                        schoolId,
+                                        FyId,
+                                        true
+                                    ));
+
+
+
+
+                    var journalData = new JournalEntry(
+                           newJournalId,
+                           "Student Parents Voucher",
+                           DateTime.UtcNow,
+                           "Being Parents get Admitted",
+                           userId,
+                           schoolId,
+                           DateTime.UtcNow,
+                           "",
+                           default,
+                           "",
+                           FyId,
+                           true,
+                           journalDetails
+                       );
+
+                    decimal totalDebitFinal = journalDetails.Sum(x => x.DebitAmount);
+                    decimal totalCreditFinal = journalDetails.Sum(x => x.CreditAmount);
+
+                    await _unitOfWork.BaseRepository<JournalEntry>().AddAsync(journalData);
+
+
+                    #endregion
+
                     var parentData = new Parent
                     (
                         newId,
@@ -207,10 +376,8 @@ namespace ES.Student.Infrastructure.ServiceImpl
                         "",
                         DateTime.Now,
                         schoolId,
+                        ledgerId,
                         true
-
-
-
                     );
 
                     await _unitOfWork.BaseRepository<Parent>().AddAsync(parentData);

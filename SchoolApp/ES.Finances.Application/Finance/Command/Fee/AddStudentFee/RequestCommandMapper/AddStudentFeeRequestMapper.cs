@@ -13,9 +13,8 @@ namespace ES.Finances.Application.Finance.Command.Fee.AddStudentFee.RequestComma
             return new AddStudentFeeCommand(
                 request.studentId,
                 request.feeStructureId,
-                request.discount,
-                request.totalAmount,
-                request.paidAmount
+                request.classId,
+                request.discountPercentage
                 );
         }
     }

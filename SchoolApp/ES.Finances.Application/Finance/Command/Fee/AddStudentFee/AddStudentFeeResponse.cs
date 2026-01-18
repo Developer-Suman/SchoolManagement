@@ -8,19 +8,18 @@ namespace ES.Finances.Application.Finance.Command.Fee.AddStudentFee
 {
     public record AddStudentFeeResponse
     (
-        string id,
-            string studentId,
-            string feeStructureId,
+        string id="",
+            string studentId="",
+            string feeStructureId="",
 
-            decimal discount,
-            decimal totalAmount,
-            decimal paidAmount,
-            DateTime dueDate,
-            bool isActive,
-            string schoolid,
-            string createdBy,
-            DateTime createdAt,
-            string modifiedBy,
-            DateTime modifiedAt
+            decimal discount=0,
+            decimal totalAmount=0,
+            decimal paidAmount = 0,
+            bool isActive=true,
+            string schoolid = "",
+            string createdBy = "",
+            DateTime createdAt=default,
+            string modifiedBy = "",
+            DateTime modifiedAt=default
         );
 }

@@ -68,12 +68,15 @@ namespace ES.Finances.Infrastructure.ServiceImpl
 
 
                     var existingFeetype = await _unitOfWork.BaseRepository<FeeType>()
-                        .FirstOrDefaultAsync(l => l.NameOfMonths == addFeeTypeCommand.nameOfMonths && l.FyId == FyId);
+                        .FirstOrDefaultAsync(l =>
+                            l.Name == addFeeTypeCommand.name &&
+                            l.FyId == FyId);
 
                     if (existingFeetype is not null)
                     {
                         return Result<AddFeeTypeResponse>.Failure("Conflict","Fee Type already exists");
                     }
+
 
 
                     var add = new FeeType(
@@ -86,30 +89,14 @@ namespace ES.Finances.Infrastructure.ServiceImpl
                         DateTime.UtcNow,
                         "",
                         default,
-                        FyId,
-                        addFeeTypeCommand.nameOfMonths
+                        FyId
 
                     );
 
                     await _unitOfWork.BaseRepository<FeeType>().AddAsync(add);
 
 
-
-                    var addFeeTypeLedger = new AddLedgerCommand(
-                         addFeeTypeCommand.name,
-                         false,
-                         "",
-                         "",
-                         "",
-                         "",
-                         "",
-                         LedgerConstants.DirectIncome,
-                         0,
-                         null,
-                         newId
-                         );
-
-                    await _ledgerService.Add(addFeeTypeLedger);
+                   
 
 
 
@@ -231,7 +218,6 @@ namespace ES.Finances.Infrastructure.ServiceImpl
                     i.Description,
                     i.IsActive,
                     i.SchoolId,
-                    i.NameOfMonths,
                     i.CreatedBy,
                     i.CreatedAt,
                     i.ModifiedBy,

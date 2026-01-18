@@ -11,7 +11,8 @@ namespace ES.Finances.Application.Finance.Command.PaymentRecords.AddpaymentsReco
 {
     public record AddpaymentsRecordsRequest
     (
-        string studentfeeId,
+        string studentid,
+        string classid,
             decimal amountPaid,
             DateTime paymentDate,
             PaymentMethods paymentMethod,

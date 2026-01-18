@@ -26,8 +26,8 @@ namespace TN.Shared.Domain.Entities.Finance
             DateTime createdAt,
             string modifiedBy,
             DateTime modifiedAt,
-            string? fyId,
-            NameOfMonths? nameOfMonths
+            string? fyId
+      
             ) : base(id)
         {
             Name = name;
@@ -39,13 +39,11 @@ namespace TN.Shared.Domain.Entities.Finance
             ModifiedBy = modifiedBy;
             ModifiedAt = modifiedAt;
             FyId = fyId;
-            NameOfMonths = nameOfMonths;
             FeeStructures = new List<FeeStructure>();
         }
 
-        public NameOfMonths? NameOfMonths { get; set; }
+     
         public string? FyId { get; set; }
-        public Ledger? Ledger { get; set; }
 
         public string SchoolId { get; set; }
         public bool IsActive { get; set; }
@@ -59,6 +57,5 @@ namespace TN.Shared.Domain.Entities.Finance
         {
             get; set;
         }
-        public string StudentId { get; set; }
     }
 }

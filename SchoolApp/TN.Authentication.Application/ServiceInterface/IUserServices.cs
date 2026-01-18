@@ -63,6 +63,6 @@ namespace TN.Authentication.Application.ServiceInterface
         Task<Result<List<AssignableRolesResponse>>> AssignableRoles();
         Task<Result<List<GetUserByRoleIdQueryResponse>>> GetUserByRoleId(string roleId, CancellationToken cancellationToken = default);
         Task<Result<UpdatePermissionResponse>> Update(string id, UpdatePermissionCommand updatePermissionCommand);
-        Task<Result<IEnumerable<FilterUserByDateQueryResponse>>> GetUserFilter(FilterUserDTOs filterUserDTOs, CancellationToken cancellationToken);
+        Task<Result<PagedResult<FilterUserByDateQueryResponse>>> GetUserFilter(PaginationRequest paginationRequest,FilterUserDTOs filterUserDTOs, CancellationToken cancellationToken);
     }
 }

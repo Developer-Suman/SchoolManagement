@@ -18,6 +18,10 @@ namespace TN.Shared.Domain.Static.Cache
         public const string BankLedgerId = "c04fe4fb-f761-4d55-b9bf-8e57cecbea18";
         public const string ShareCapitalAccount = "b3f8d2a1-9c4e-4e1b-8f32-7a2d5c9f0e6b";
         public const string AccountsReceivable = "47e7b39f-2f5b-439c-8512-a567c9c0d21a";
-        public const string DirectIncome = "4f82937b-91d4-4a52-9b2d-f7e9c8a41031";
+  
+       
+        public const string FeeReceivable = "7d9c2b4a-3f8a-4e4f-9b4a-0c7f3a2e6d91";
+        public const string IndirectIncome = "a8c1d4b7-2f9e-4c3a-b6e5-91f2a7d0c843";
+        public const string DirectIncome = "7f9c2b4e-3a8d-4c6e-9f2a-1e8d7b6a5c41";
     }
 }

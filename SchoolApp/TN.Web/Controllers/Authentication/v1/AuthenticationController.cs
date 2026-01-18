@@ -680,9 +680,9 @@ namespace TN.Web.Controllers.Authentication.v1
 
         #region FilterUserByDate
         [HttpGet("FilterUserByDate")]
-        public async Task<IActionResult> GetUserFilter([FromQuery] FilterUserDTOs filterUserDTOs)
+        public async Task<IActionResult> GetUserFilter([FromQuery] PaginationRequest paginationRequest,[FromQuery] FilterUserDTOs filterUserDTOs)
         {
-            var query = new FilterUserByDateQuery(filterUserDTOs);
+            var query = new FilterUserByDateQuery(paginationRequest,filterUserDTOs);
             var filterUserResult = await _mediator.Send(query);
 
             #region Switch Statement

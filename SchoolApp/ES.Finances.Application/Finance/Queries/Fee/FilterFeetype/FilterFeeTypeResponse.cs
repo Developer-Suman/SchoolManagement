@@ -14,7 +14,6 @@ namespace ES.Finances.Application.Finance.Queries.Fee.FilterFeetype
             string? description,
             bool isActive,
             string schoolId,
-             NameOfMonths? nameOfMonths,
             string createdBy,
             DateTime createdAt,
             string modifiedBy,

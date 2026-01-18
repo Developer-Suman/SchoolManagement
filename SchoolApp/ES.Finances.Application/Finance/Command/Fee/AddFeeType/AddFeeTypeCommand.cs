@@ -12,7 +12,6 @@ namespace ES.Finances.Application.Finance.Command.Fee.AddFeeType
     public record AddFeeTypeCommand
     (
         string name,
-            string? description,
-            NameOfMonths? nameOfMonths
+            string? description
         ) : IRequest<Result<AddFeeTypeResponse>>;
 }

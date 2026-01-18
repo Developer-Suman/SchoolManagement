@@ -10,9 +10,7 @@ namespace ES.Finances.Application.Finance.Command.Fee.AddStudentFee
     (
         string studentId,
             string feeStructureId,
-
-            decimal discount,
-            decimal totalAmount,
-            decimal paidAmount
+            string classId,
+            decimal discountPercentage
         );
 }

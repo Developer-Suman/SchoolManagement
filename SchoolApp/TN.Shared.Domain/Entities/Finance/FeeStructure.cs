@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TN.Account.Domain.Entities;
 using TN.Shared.Domain.Entities.Academics;
 using TN.Shared.Domain.Entities.OrganizationSetUp;
 using TN.Shared.Domain.Primitive;
+using static TN.Shared.Domain.Enum.HelperEnum;
 
 namespace TN.Shared.Domain.Entities.Finance
 {
@@ -21,7 +23,9 @@ namespace TN.Shared.Domain.Entities.Finance
             decimal amount,
             string classId,
             string fyId,
+            string? ledgerId,
             string feeTypeId,
+            NameOfMonths? nameOfMonths,
             bool isActive,
             string schoolId,
             string createdBy,
@@ -30,9 +34,10 @@ namespace TN.Shared.Domain.Entities.Finance
             DateTime modifiedAt
             ) : base(id)
         {
+            NameOfMonths = nameOfMonths;
             Amount = amount;
             ClassId = classId;
-
+            LedgerId = ledgerId;
             FyId = fyId;
             FeeTypeId = feeTypeId;
             IsActive = isActive;
@@ -43,6 +48,8 @@ namespace TN.Shared.Domain.Entities.Finance
             ModifiedAt = modifiedAt;
             StudentFees = new List<StudentFee>();
         }
+
+        public NameOfMonths? NameOfMonths { get; set; }
         public bool IsActive { get; set; }
         public string SchoolId { get;set;  }
         public decimal Amount { get; set; }
@@ -50,6 +57,9 @@ namespace TN.Shared.Domain.Entities.Finance
         public Class Class { get; set; }
         public string FeeTypeId { get; set; }
         public FeeType FeeType { get; set; }
+
+        public string? LedgerId { get; set; }
+        public Ledger? Ledger { get; set; }
         public string FyId { get; set; }
         public FiscalYears FiscalYears { get; set; }
         public string CreatedBy { get; set; }

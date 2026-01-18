@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static TN.Shared.Domain.Enum.HelperEnum;
 
 namespace ES.Finances.Application.Finance.Command.Fee.AddFeeStructure
 {
@@ -18,6 +19,7 @@ namespace ES.Finances.Application.Finance.Command.Fee.AddFeeStructure
             string createdBy,
             DateTime createdAt,
             string modifiedBy,
-            DateTime modifiedAt
+            DateTime modifiedAt,
+                  NameOfMonths? nameOfMonths
         );
 }

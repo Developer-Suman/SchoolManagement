@@ -1,24 +1,30 @@
 ﻿using AutoMapper;
 using ES.Finances.Application.Finance.Command.Fee.AddFeeType;
+using ES.Finances.Application.Finance.Command.Fee.AddStudentFee;
 using ES.Finances.Application.Finance.Command.PaymentRecords.AddpaymentsRecords;
 using ES.Finances.Application.Finance.Queries.Fee.FilterFeetype;
 using ES.Finances.Application.Finance.Queries.PaymentsRecords.FilterpaymentsRecords;
 using ES.Finances.Application.Finance.Queries.PaymentsRecords.PaymentsRecordsById;
 using ES.Finances.Application.ServiceInterface;
+using Microsoft.EntityFrameworkCore;
+using NV.Payment.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Transactions;
+using TN.Account.Domain.Entities;
 using TN.Authentication.Domain.Entities;
 using TN.Shared.Application.ServiceInterface;
 using TN.Shared.Domain.Abstractions;
 using TN.Shared.Domain.Entities.Communication;
 using TN.Shared.Domain.Entities.Finance;
 using TN.Shared.Domain.Entities.OrganizationSetUp;
+using TN.Shared.Domain.Entities.Students;
 using TN.Shared.Domain.ExtensionMethod.Pagination;
 using TN.Shared.Domain.IRepository;
+using TN.Shared.Domain.Static.Cache;
 using static TN.Shared.Domain.Entities.Finance.StudentFee;
 
 namespace ES.Finances.Infrastructure.ServiceImpl
@@ -55,31 +61,47 @@ namespace ES.Finances.Infrastructure.ServiceImpl
                     var schoolId = _tokenService.SchoolId().FirstOrDefault() ?? "";
                     var userId = _tokenService.GetUserId();
 
-                    var fee = await _unitOfWork.BaseRepository<StudentFee>().FirstOrDefaultAsync(x=>x.Id == addPaymentsRecordsCommand.studentfeeId);
+                    var studentFee = await _unitOfWork.BaseRepository<StudentFee>()
+                        .GetAsQueryable()
+                        .Where(x => x.StudentId == addPaymentsRecordsCommand.studentid
+                                 && x.ClassId == addPaymentsRecordsCommand.classid
+                                 && x.IsPaidStatus != PaidStatus.Paid) // Only get unpaid fees
+                        .FirstOrDefaultAsync();
 
-                    if (fee is null)
+                    if (studentFee == null)
                     {
-                        return Result<AddpaymentsRecordsResponse>.Failure("NotFound", "There is no any fee");
+                        return Result<AddpaymentsRecordsResponse>.Failure("NotFound", "There is no outstanding fee for this student.");
                     }
 
-                    fee.PaidAmount += addPaymentsRecordsCommand.amountPaid;
+                    studentFee.PaidAmount += addPaymentsRecordsCommand.amountPaid;
+                    _unitOfWork.BaseRepository<StudentFee>().Update(studentFee);
+                    await _unitOfWork.SaveChangesAsync();
+
+                    if (studentFee.PaidAmount >= studentFee.TotalAmount)
+                    {
+                        studentFee.IsPaidStatus = PaidStatus.Paid;
+                    }
+                    else
+                    {
+                        studentFee.IsPaidStatus = PaidStatus.partiallyPaid;
+                    }
+
+                    decimal totalRemaining = await _unitOfWork.BaseRepository<StudentFee>()
+                        .GetAsQueryable()
+                        .Where(x => x.StudentId == addPaymentsRecordsCommand.studentid && x.ClassId == addPaymentsRecordsCommand.classid)
+                        .SumAsync(x => x.TotalAmount - x.PaidAmount - x.DiscountAmount);
 
 
-                    if (fee.PaidAmount >= fee.TotalAmount)
-                    {
-                        fee.IsPaidStatus = PaidStatus.Paid;
-                    }
-                    else if (fee.PaidAmount > 0 && fee.PaidAmount < fee.TotalAmount)
-                    {
-                        fee.IsPaidStatus = PaidStatus.partiallyPaid;
-                    }
+                    //decimal currentTotal = fees.Sum(x => x.TotalAmount);
+                    decimal currentPaid = addPaymentsRecordsCommand.amountPaid;
 
                     var add = new PaymentsRecords(
                             newId,
-                        addPaymentsRecordsCommand.studentfeeId,
-                        fee.PaidAmount,
+                        studentFee.Id,
+                        currentPaid,
                         addPaymentsRecordsCommand.paymentDate,
                         addPaymentsRecordsCommand.paymentMethod,
+                        studentFee.StudentId,
                         addPaymentsRecordsCommand.reference,
                         true,
                         schoolId ?? "",
@@ -90,6 +112,75 @@ namespace ES.Finances.Infrastructure.ServiceImpl
                     );
 
                     await _unitOfWork.BaseRepository<PaymentsRecords>().AddAsync(add);
+
+                    var student = await _unitOfWork.BaseRepository<StudentData>().GetByGuIdAsync(studentFee.StudentId);
+
+                    #region Journal Entries
+                    var newJournalId = Guid.NewGuid().ToString();
+
+
+
+                    string debitLedgerId = addPaymentsRecordsCommand.paymentMethod switch
+                    {
+                        PaymentMethods.Cash => LedgerConstants.CashLedgerId,           // Replace with your system Cash ledger ID
+                        PaymentMethods.CreditCard => LedgerConstants.BankLedgerId,    // Replace with your system Bank ledger ID
+                        PaymentMethods.DebitCard => LedgerConstants.BankLedgerId,
+                        PaymentMethods.BankTransfer => LedgerConstants.BankLedgerId,
+                        PaymentMethods.MobilePayment => LedgerConstants.BankLedgerId,
+                        PaymentMethods.Check => LedgerConstants.BankLedgerId,
+                        _ => throw new Exception("Invalid payment method")
+                    };
+
+                    var journalDetails = new List<JournalEntryDetails>();
+                    journalDetails.Add(new JournalEntryDetails(
+                                        Guid.NewGuid().ToString(),
+                                        newJournalId,
+                                        debitLedgerId,
+                                        addPaymentsRecordsCommand.amountPaid,
+                                        0,
+                                        DateTime.UtcNow,
+                                        schoolId,
+                                        FyId,
+                                        true
+                                    ));
+
+                    journalDetails.Add(new JournalEntryDetails(
+                                        Guid.NewGuid().ToString(),
+                                        newJournalId,
+                                        student.LedgerId,
+                                        0,
+                                        addPaymentsRecordsCommand.amountPaid,
+                                        DateTime.UtcNow,
+                                        schoolId,
+                                        FyId,
+                                        true
+                                    ));
+                    
+
+                    var journalData = new JournalEntry(
+                           Guid.NewGuid().ToString(),
+                           "Student Fee Paid Voucher",
+                           DateTime.UtcNow,
+                           "Being Students fees Paid",
+                           userId,
+                           schoolId,
+                           DateTime.UtcNow,
+                           "",
+                           default,
+                           "",
+                           FyId,
+                           true,
+                           journalDetails
+                       );
+
+                    decimal totalDebitFinal = journalDetails.Sum(x => x.DebitAmount);
+                    decimal totalCreditFinal = journalDetails.Sum(x => x.CreditAmount);
+
+                    await _unitOfWork.BaseRepository<JournalEntry>().AddAsync(journalData);
+
+
+                    #endregion
+
                     await _unitOfWork.SaveChangesAsync();
                     scope.Complete();
 

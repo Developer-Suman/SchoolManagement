@@ -36,21 +36,12 @@ namespace TN.Setup.Infrastructure.ServiceImpl
             try
 
             {
-                var cachekeys = CacheKeys.Municipality;
-                var cacheData = await _memoryCacheRepository.GetCacheKey<PagedResult<GetAllMunicipalityResponse>>(cachekeys);
-                if (cacheData is not null)
-                {
-                    return Result<PagedResult<GetAllMunicipalityResponse>>.Success(cacheData);
 
-                }
 
                 var municipality = await _unitOfWork.BaseRepository<Municipality>().GetAllAsyncWithPagination();
                 var municipalityPagedResult = await municipality.AsNoTracking().ToPagedResultAsync(paginationRequest.pageIndex, paginationRequest.pageSize, paginationRequest.IsPagination);
                 var allMunicipalityResponse = _mapper.Map<PagedResult<GetAllMunicipalityResponse>>(municipalityPagedResult.Data);
-                await _memoryCacheRepository.SetAsync(cachekeys, allMunicipalityResponse, new Microsoft.Extensions.Caching.Memory.MemoryCacheEntryOptions
-                {
-                    AbsoluteExpiration = DateTimeOffset.Now.AddMinutes(30)
-                },cancellationToken);
+
                 
                 return Result<PagedResult<GetAllMunicipalityResponse>>.Success(allMunicipalityResponse);
             }
@@ -64,17 +55,11 @@ namespace TN.Setup.Infrastructure.ServiceImpl
         {
             try
             {
-                var cachekeys=$"GetMunicipalityById{municipalityId}";
-                var cacheData= await _memoryCacheRepository.GetCacheKey<GetMunicipalityByIdResponse>(cachekeys);
-                if(cacheData is not null) 
-                {
-                  return Result<GetMunicipalityByIdResponse>.Success(cacheData);
-                }
-
+  
                 var municipality = await _unitOfWork.BaseRepository<Municipality>().GetById(municipalityId);
                 var municipalityResponse = _mapper.Map<GetMunicipalityByIdResponse>(municipality);
                
-                await _memoryCacheRepository.SetAsync(cachekeys, municipalityResponse, new Microsoft.Extensions.Caching.Memory.MemoryCacheEntryOptions { AbsoluteExpiration=DateTimeOffset.Now.AddMinutes(30)},cancellationToken);
+              
                 
                 return Result<GetMunicipalityByIdResponse>.Success(municipalityResponse);
 
@@ -90,13 +75,6 @@ namespace TN.Setup.Infrastructure.ServiceImpl
             try
             {
 
-                var cachekeys = $"GetMunicipalityByDistrictId{CacheKeys.Municipality}";
-                var cacheData= await _memoryCacheRepository.GetCacheKey<List<GetMunicipalityByDistrictIdResponse>>(cachekeys);
-                if (cacheData is not null) 
-                {
-                    return Result<List<GetMunicipalityByDistrictIdResponse>>.Success(cacheData);
-                }
-
                 var municipality= await _unitOfWork.BaseRepository<Municipality>().GetConditionalAsync(x => x.DistrictId == districtId);    
                 if(municipality == null)
                 {
@@ -104,7 +82,7 @@ namespace TN.Setup.Infrastructure.ServiceImpl
                 }
                 var municipalityResponse=_mapper.Map<List<GetMunicipalityByDistrictIdResponse>>(municipality);
                 
-                await _memoryCacheRepository.SetAsync(cachekeys, municipalityResponse, new Microsoft.Extensions.Caching.Memory.MemoryCacheEntryOptions { AbsoluteExpiration=DateTimeOffset.Now.AddMinutes(30)},cancellationToken);
+           
                 
                 return Result<List<GetMunicipalityByDistrictIdResponse>>.Success(municipalityResponse);
             }

@@ -504,9 +504,6 @@ namespace TN.Shared.Infrastructure.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("FeeTypeid")
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<string>("FyId")
                         .HasColumnType("nvarchar(max)");
 
@@ -546,24 +543,13 @@ namespace TN.Shared.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("StudentId")
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<string>("SubLedgerGroupId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("FeeTypeid")
-                        .IsUnique()
-                        .HasFilter("[FeeTypeid] IS NOT NULL");
-
                     b.HasIndex("LedgerGroupId");
-
-                    b.HasIndex("StudentId")
-                        .IsUnique()
-                        .HasFilter("[StudentId] IS NOT NULL");
 
                     b.HasIndex("SubLedgerGroupId");
 
@@ -2410,10 +2396,6 @@ namespace TN.Shared.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<decimal>("TotalMarks")
-                        .HasPrecision(18, 4)
-                        .HasColumnType("decimal(18,4)");
-
                     b.HasKey("Id");
 
                     b.ToTable("Exams");
@@ -2968,6 +2950,54 @@ namespace TN.Shared.Infrastructure.Migrations
                     b.ToTable("AuditLogs");
                 });
 
+            modelBuilder.Entity("TN.Shared.Domain.Entities.Certificates.Award", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("AwardDescriptions")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("AwardedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("AwardedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("ModifiedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ModifiedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SchoolId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("StudentId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("StudentId");
+
+                    b.ToTable("Awards");
+                });
+
             modelBuilder.Entity("TN.Shared.Domain.Entities.Certificates.CertificateTemplate", b =>
                 {
                     b.Property<string>("Id")
@@ -3174,12 +3204,18 @@ namespace TN.Shared.Infrastructure.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
+                    b.Property<string>("LedgerId")
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<DateTime>("ModifiedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("ModifiedBy")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("NameOfMonths")
+                        .HasColumnType("int");
 
                     b.Property<string>("SchoolId")
                         .IsRequired()
@@ -3192,6 +3228,8 @@ namespace TN.Shared.Infrastructure.Migrations
                     b.HasIndex("FeeTypeId");
 
                     b.HasIndex("FyId");
+
+                    b.HasIndex("LedgerId");
 
                     b.ToTable("FeeStructures");
                 });
@@ -3228,14 +3266,7 @@ namespace TN.Shared.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("NameOfMonths")
-                        .HasColumnType("int");
-
                     b.Property<string>("SchoolId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("StudentId")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -3284,6 +3315,10 @@ namespace TN.Shared.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("StudentId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("StudentfeeId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
@@ -3300,6 +3335,10 @@ namespace TN.Shared.Infrastructure.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<string>("ClassId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -3307,12 +3346,17 @@ namespace TN.Shared.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<decimal>("Discount")
+                    b.Property<decimal>("DiscountAmount")
                         .HasPrecision(18, 4)
                         .HasColumnType("decimal(18,4)");
 
-                    b.Property<DateTime>("DueDate")
-                        .HasColumnType("datetime2");
+                    b.Property<decimal>("DiscountPercentage")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<decimal>("DueAmount")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
 
                     b.Property<string>("FeeStructureId")
                         .IsRequired()
@@ -4351,6 +4395,9 @@ namespace TN.Shared.Infrastructure.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
+                    b.Property<string>("LedgerId")
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<DateTime>("ModifiedAt")
                         .HasColumnType("datetime2");
 
@@ -4373,6 +4420,10 @@ namespace TN.Shared.Infrastructure.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("LedgerId")
+                        .IsUnique()
+                        .HasFilter("[LedgerId] IS NOT NULL");
 
                     b.ToTable("Parents");
                 });
@@ -4479,6 +4530,9 @@ namespace TN.Shared.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("LedgerId")
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<string>("MiddleName")
                         .HasColumnType("nvarchar(max)");
 
@@ -4528,6 +4582,10 @@ namespace TN.Shared.Infrastructure.Migrations
                     b.HasIndex("ClassSectionId");
 
                     b.HasIndex("DistrictId");
+
+                    b.HasIndex("LedgerId")
+                        .IsUnique()
+                        .HasFilter("[LedgerId] IS NOT NULL");
 
                     b.HasIndex("MunicipalityId");
 
@@ -4800,29 +4858,15 @@ namespace TN.Shared.Infrastructure.Migrations
 
             modelBuilder.Entity("TN.Account.Domain.Entities.Ledger", b =>
                 {
-                    b.HasOne("TN.Shared.Domain.Entities.Finance.FeeType", "FeeType")
-                        .WithOne("Ledger")
-                        .HasForeignKey("TN.Account.Domain.Entities.Ledger", "FeeTypeid")
-                        .OnDelete(DeleteBehavior.Restrict);
-
                     b.HasOne("TN.Shared.Domain.Entities.Account.LedgerGroup", null)
                         .WithMany("Ledgers")
                         .HasForeignKey("LedgerGroupId");
-
-                    b.HasOne("TN.Shared.Domain.Entities.Students.StudentData", "StudentData")
-                        .WithOne("Ledger")
-                        .HasForeignKey("TN.Account.Domain.Entities.Ledger", "StudentId")
-                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("TN.Shared.Domain.Entities.Account.SubLedgerGroup", "SubLedgerGroup")
                         .WithMany("Ledgers")
                         .HasForeignKey("SubLedgerGroupId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.Navigation("FeeType");
-
-                    b.Navigation("StudentData");
 
                     b.Navigation("SubLedgerGroup");
                 });
@@ -5541,6 +5585,17 @@ namespace TN.Shared.Infrastructure.Migrations
                     b.Navigation("LedgerGroup");
                 });
 
+            modelBuilder.Entity("TN.Shared.Domain.Entities.Certificates.Award", b =>
+                {
+                    b.HasOne("TN.Shared.Domain.Entities.Students.StudentData", "Students")
+                        .WithMany("Awards")
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Students");
+                });
+
             modelBuilder.Entity("TN.Shared.Domain.Entities.Certificates.CertificateTemplate", b =>
                 {
                     b.HasOne("TN.Authentication.Domain.Entities.School", "School")
@@ -5599,11 +5654,18 @@ namespace TN.Shared.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("TN.Account.Domain.Entities.Ledger", "Ledger")
+                        .WithMany("FeeStructures")
+                        .HasForeignKey("LedgerId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.Navigation("Class");
 
                     b.Navigation("FeeType");
 
                     b.Navigation("FiscalYears");
+
+                    b.Navigation("Ledger");
                 });
 
             modelBuilder.Entity("TN.Shared.Domain.Entities.Finance.PaymentsRecords", b =>
@@ -5895,6 +5957,15 @@ namespace TN.Shared.Infrastructure.Migrations
                     b.Navigation("Classes");
                 });
 
+            modelBuilder.Entity("TN.Shared.Domain.Entities.Students.Parent", b =>
+                {
+                    b.HasOne("TN.Account.Domain.Entities.Ledger", "Ledger")
+                        .WithOne("Parent")
+                        .HasForeignKey("TN.Shared.Domain.Entities.Students.Parent", "LedgerId");
+
+                    b.Navigation("Ledger");
+                });
+
             modelBuilder.Entity("TN.Shared.Domain.Entities.Students.StudentAttendances", b =>
                 {
                     b.HasOne("TN.Shared.Domain.Entities.Staff.AcademicTeam", "AcademicTeams")
@@ -5932,6 +6003,10 @@ namespace TN.Shared.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("TN.Account.Domain.Entities.Ledger", "Ledger")
+                        .WithOne("StudentData")
+                        .HasForeignKey("TN.Shared.Domain.Entities.Students.StudentData", "LedgerId");
+
                     b.HasOne("TN.Authentication.Domain.Entities.Municipality", "Municipality")
                         .WithMany("StudentData")
                         .HasForeignKey("MunicipalityId")
@@ -5962,6 +6037,8 @@ namespace TN.Shared.Infrastructure.Migrations
                     b.Navigation("ClassSection");
 
                     b.Navigation("District");
+
+                    b.Navigation("Ledger");
 
                     b.Navigation("Municipality");
 
@@ -6048,11 +6125,17 @@ namespace TN.Shared.Infrastructure.Migrations
 
                     b.Navigation("Customers");
 
+                    b.Navigation("FeeStructures");
+
                     b.Navigation("JournalEntryDetails");
 
                     b.Navigation("OpeningBalances");
 
+                    b.Navigation("Parent");
+
                     b.Navigation("Payments");
+
+                    b.Navigation("StudentData");
 
                     b.Navigation("TransactionItems");
                 });
@@ -6324,8 +6407,6 @@ namespace TN.Shared.Infrastructure.Migrations
             modelBuilder.Entity("TN.Shared.Domain.Entities.Finance.FeeType", b =>
                 {
                     b.Navigation("FeeStructures");
-
-                    b.Navigation("Ledger");
                 });
 
             modelBuilder.Entity("TN.Shared.Domain.Entities.Finance.StudentFee", b =>
@@ -6416,11 +6497,11 @@ namespace TN.Shared.Infrastructure.Migrations
                 {
                     b.Navigation("AssignmentStudents");
 
+                    b.Navigation("Awards");
+
                     b.Navigation("ExamResults");
 
                     b.Navigation("IssuedCertificates");
-
-                    b.Navigation("Ledger");
 
                     b.Navigation("SeatAssignments");
 

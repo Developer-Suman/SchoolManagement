@@ -10,7 +10,6 @@ namespace ES.Finances.Application.Finance.Command.Fee.AddFeeType
     public record AddFeeTypeRequest
     (
         string name,
-            string? description,
-            NameOfMonths? nameOfMonths
+            string? description
         );
 }
