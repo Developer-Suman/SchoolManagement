@@ -86,5 +86,28 @@ namespace ES.Certificate.Infrastructure.ServiceImpl
                 }
             }
         }
+
+        public async Task<Result<bool>> Delete(string id, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var awards = await _unitOfWork.BaseRepository<Award>().GetByGuIdAsync(id);
+                if (awards is null)
+                {
+                    return Result<bool>.Failure("NotFound", "Awards Cannot be Found");
+                }
+
+                awards.IsActive = false;
+                _unitOfWork.BaseRepository<Award>().Update(awards);
+                await _unitOfWork.SaveChangesAsync();
+
+
+                return Result<bool>.Success(true);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"An error occurred while deleting Awards having {id}", ex);
+            }
+        }
     }
 }
