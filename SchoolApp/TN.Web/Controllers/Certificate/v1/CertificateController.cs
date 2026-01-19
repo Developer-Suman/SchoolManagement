@@ -9,6 +9,8 @@ using ES.Certificate.Application.Certificates.Command.AddCertificateTemplate;
 using ES.Certificate.Application.Certificates.Command.AddCertificateTemplate.RequestCommandMapper;
 using ES.Certificate.Application.Certificates.Command.AddIssuedCertificate;
 using ES.Certificate.Application.Certificates.Command.AddIssuedCertificate.RequestCommandMapper;
+using ES.Certificate.Application.Certificates.Command.Awards.AddAwards;
+using ES.Certificate.Application.Certificates.Command.Awards.AddAwards.RequestCommandMapper;
 using ES.Certificate.Application.Certificates.Command.DeleteCertificateTemplate;
 using ES.Certificate.Application.Certificates.Command.DeleteIssuedCertificate;
 using ES.Certificate.Application.Certificates.Command.UpdateCertificateTemplate;
@@ -49,6 +51,33 @@ namespace TN.Web.Controllers.Certificate.v1
             _logger = logger;
             _mediator = mediator;
         }
+
+        #region Awards
+
+        #region AddAwards
+        [HttpPost("AddAwards")]
+
+        public async Task<IActionResult> AddAwards([FromBody] AddAwardsRequest request)
+        {
+            //Mapping command and request
+            var command = request.ToCommand();
+            var addAwardsResult = await _mediator.Send(command);
+            #region Switch Statement
+            return addAwardsResult switch
+            {
+                { IsSuccess: true, Data: not null } => CreatedAtAction(nameof(AddAwards), addAwardsResult.Data),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = addAwardsResult.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(addAwardsResult.Errors),
+                _ => BadRequest("Invalid Fields ")
+
+            };
+
+            #endregion
+        }
+        #endregion
+
+        #endregion
+
 
         #region GeneratECertificate
 
