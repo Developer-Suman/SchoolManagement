@@ -6,7 +6,14 @@ using System.Threading.Tasks;
 
 namespace ES.Certificate.Application.Certificates.Command.Awards.AddAwards
 {
-    internal class AddAwardsRequest
-    {
-    }
+    public record AddAwardsRequest
+    (
+            string studentId,
+            DateTime awardedAt,
+            string awardedBy,
+            string awardDescriptions,
+            string schoolId,
+            string createdBy,
+            string modiifiedby
+        );
 }

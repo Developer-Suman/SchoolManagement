@@ -6,7 +6,20 @@ using System.Threading.Tasks;
 
 namespace ES.Certificate.Application.Certificates.Command.Awards.AddAwards.RequestCommandMapper
 {
-    internal class AddAwardsRequestMapper
+    public static class AddAwardsRequestMapper
     {
+        public static AddAwardsCommand ToCommand(this AddAwardsRequest request)
+        {
+            return new AddAwardsCommand
+                (
+                request.studentId,
+                request.awardedAt,
+                request.awardedBy,
+                request.awardDescriptions,
+                request.schoolId,
+                request.createdBy,
+                request.modiifiedby
+                );
+        }
     }
 }
