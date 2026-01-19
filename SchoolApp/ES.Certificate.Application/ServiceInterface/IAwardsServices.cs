@@ -11,5 +11,6 @@ namespace ES.Certificate.Application.ServiceInterface
     public interface IAwardsServices
     {
         Task<Result<AddAwardsResponse>> Add(AddAwardsCommand addAwardsCommand);
+        Task<Result<bool>> Delete(string id, CancellationToken cancellationToken);
     }
 }

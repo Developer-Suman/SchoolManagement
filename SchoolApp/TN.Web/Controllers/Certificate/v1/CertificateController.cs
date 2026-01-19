@@ -11,6 +11,7 @@ using ES.Certificate.Application.Certificates.Command.AddIssuedCertificate;
 using ES.Certificate.Application.Certificates.Command.AddIssuedCertificate.RequestCommandMapper;
 using ES.Certificate.Application.Certificates.Command.Awards.AddAwards;
 using ES.Certificate.Application.Certificates.Command.Awards.AddAwards.RequestCommandMapper;
+using ES.Certificate.Application.Certificates.Command.Awards.DeleteAwards;
 using ES.Certificate.Application.Certificates.Command.DeleteCertificateTemplate;
 using ES.Certificate.Application.Certificates.Command.DeleteIssuedCertificate;
 using ES.Certificate.Application.Certificates.Command.UpdateCertificateTemplate;
@@ -76,6 +77,26 @@ namespace TN.Web.Controllers.Certificate.v1
         }
         #endregion
 
+        #region DeleteAwards
+        [HttpDelete("DeleteAwards/{id}")]
+
+        public async Task<IActionResult> DeleteAwards([FromRoute] string id, CancellationToken cancellationToken)
+        {
+            var command = new DeleteAwardsCommand(id);
+            var deleteAwardsResult = await _mediator.Send(command);
+            #region Switch Statement
+            return deleteAwardsResult switch
+            {
+                { IsSuccess: true, Data: true } => NoContent(),
+                { IsSuccess: true, Message: not null } => new JsonResult(new { Message = deleteAwardsResult.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(deleteAwardsResult.Errors),
+                _ => BadRequest("Invalid Fields for Delete Awards")
+            };
+
+            #endregion
+        }
+
+        #endregion
         #endregion
 
 
