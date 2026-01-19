@@ -18,6 +18,7 @@ using ES.Certificate.Application.Certificates.Command.UpdateCertificateTemplate;
 using ES.Certificate.Application.Certificates.Command.UpdateCertificateTemplate.RequestCommandMapper;
 using ES.Certificate.Application.Certificates.Command.UpdateIssuedCertificate;
 using ES.Certificate.Application.Certificates.Command.UpdateIssuedCertificate.RequestCommandMapper;
+using ES.Certificate.Application.Certificates.Queries.Awards;
 using ES.Certificate.Application.Certificates.Queries.CertificateTemplate;
 using ES.Certificate.Application.Certificates.Queries.FilterCertificateTemplate;
 using ES.Certificate.Application.Certificates.Queries.FilterIssuedCertificate;
@@ -77,6 +78,29 @@ namespace TN.Web.Controllers.Certificate.v1
         }
         #endregion
 
+        #region GetAllAwards
+        [HttpGet("GetAllAwards")]
+        public async Task<IActionResult> GetAllAwards([FromQuery] PaginationRequest paginationRequest)
+        {
+            var query = new AwardsQuery(paginationRequest);
+            var allAwards = await _mediator.Send(query);
+            #region Switch Statement
+            return allAwards switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(allAwards.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = allAwards.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(allAwards.Errors),
+                _ => BadRequest("Invalid page and pageSize Fields")
+            };
+            #endregion
+
+        }
+
+        #endregion
+
         #region DeleteAwards
         [HttpDelete("DeleteAwards/{id}")]
 
@@ -97,6 +121,7 @@ namespace TN.Web.Controllers.Certificate.v1
         }
 
         #endregion
+
         #endregion
 
 
