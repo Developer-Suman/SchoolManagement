@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using ES.Certificate.Application.Certificates.Command.AddCertificateTemplate;
 using ES.Certificate.Application.Certificates.Command.Awards.AddAwards;
+using ES.Certificate.Application.Certificates.Command.Awards.UpdateAwards;
+using ES.Certificate.Application.Certificates.Command.UpdateCertificateTemplate;
 using ES.Certificate.Application.Certificates.Queries.Awards;
 using ES.Certificate.Application.Certificates.Queries.AwardsById;
 using ES.Certificate.Application.Certificates.Queries.CertificateTemplate;
@@ -165,6 +167,53 @@ namespace ES.Certificate.Infrastructure.ServiceImpl
             catch (Exception ex)
             {
                 throw new Exception("An error occurred while fetching Award by using Id", ex);
+            }
+        }
+
+        public async Task<Result<UpdateAwardsResponse>> Update(string awardsId, UpdateAwardsCommand updateAwardsCommand)
+        {
+            using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            {
+                try
+                {
+                    if (awardsId == null)
+                    {
+                        return Result<UpdateAwardsResponse>.Failure("NotFound", "Please provide valid AwardsId");
+                    }
+
+                    var awardsToBeUpdated = await _unitOfWork.BaseRepository<Award>().GetByGuIdAsync(awardsId);
+                    if (awardsToBeUpdated is null)
+                    {
+                        return Result<UpdateAwardsResponse>.Failure("NotFound", "Awards are not Found");
+                    }
+                    awardsToBeUpdated.CreatedAt = DateTime.UtcNow;
+                    _mapper.Map(updateAwardsCommand, awardsToBeUpdated);
+                    await _unitOfWork.SaveChangesAsync();
+                    scope.Complete();
+
+                    var resultResponse = new UpdateAwardsResponse
+                        (
+                            awardsToBeUpdated.Id,
+                            awardsToBeUpdated.StudentId,
+                            awardsToBeUpdated.AwardedAt,
+                            awardsToBeUpdated.AwardedBy,
+                            awardsToBeUpdated.AwardDescriptions,
+                            awardsToBeUpdated.SchoolId,
+                            awardsToBeUpdated.CreatedBy,
+                            awardsToBeUpdated.CreatedAt,
+                            awardsToBeUpdated.ModifiedBy,
+                            awardsToBeUpdated.ModifiedAt,
+                            awardsToBeUpdated.IsActive
+
+                        );
+
+                    return Result<UpdateAwardsResponse>.Success(resultResponse);
+
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception("An error occurred while updating the Awards", ex);
+                }
             }
         }
     }

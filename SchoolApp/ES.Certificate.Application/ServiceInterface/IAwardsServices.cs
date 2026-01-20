@@ -1,4 +1,6 @@
 ﻿using ES.Certificate.Application.Certificates.Command.Awards.AddAwards;
+using ES.Certificate.Application.Certificates.Command.Awards.UpdateAwards;
+using ES.Certificate.Application.Certificates.Command.UpdateCertificateTemplate;
 using ES.Certificate.Application.Certificates.Queries.Awards;
 using ES.Certificate.Application.Certificates.Queries.AwardsById;
 using ES.Certificate.Application.Certificates.Queries.CertificateTemplate;
@@ -19,5 +21,6 @@ namespace ES.Certificate.Application.ServiceInterface
         Task<Result<bool>> Delete(string id, CancellationToken cancellationToken);
         Task<Result<PagedResult<AwardsResponse>>> GetAllAwardsResponse(PaginationRequest paginationRequest, CancellationToken cancellationToken = default);
         Task<Result<AwardsByIdResponse>> GetAwards(string certificateTemplateId, CancellationToken cancellationToken = default);
+        Task<Result<UpdateAwardsResponse>> Update(string awardsId, UpdateAwardsCommand updateAwardsCommand);
     }
 }
