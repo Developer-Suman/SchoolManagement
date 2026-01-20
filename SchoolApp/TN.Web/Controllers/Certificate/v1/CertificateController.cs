@@ -101,6 +101,28 @@ namespace TN.Web.Controllers.Certificate.v1
 
         #endregion
 
+        #region AwardsById
+        [HttpGet("Awards/{AwardsById}")]
+        public async Task<IActionResult> AwardsById([FromRoute] string awardsById)
+        {
+            var query = new IssuedCertificateByIdQuery(awardsById);
+            var awardsByIdResult = await _mediator.Send(query);
+            #region Switch Statement
+            return awardsByIdResult switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(awardsByIdResult.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = awardsByIdResult.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(awardsByIdResult.Errors),
+                _ => BadRequest("Invalid page and pageSize Fields")
+            };
+            #endregion
+
+        }
+        #endregion
+
         #region DeleteAwards
         [HttpDelete("DeleteAwards/{id}")]
 

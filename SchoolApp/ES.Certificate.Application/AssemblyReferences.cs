@@ -1,5 +1,6 @@
 ﻿using ES.Certificate.Application.Certificates.Command.AddCertificateTemplate;
 using ES.Certificate.Application.Certificates.Command.AddIssuedCertificate;
+using ES.Certificate.Application.Certificates.Command.Awards.AddAwards;
 using ES.Certificate.Application.Certificates.Command.UpdateCertificateTemplate;
 using ES.Certificate.Application.Certificates.Command.UpdateIssuedCertificate;
 using FluentValidation;
@@ -22,6 +23,8 @@ namespace CS.Certificate.Application
             services.AddScoped<IValidator<UpdateIssuedCertificateCommand>, UpdateIssuedCertificateCommandValidator>();
 
             services.AddScoped<IValidator<AddCertificateTemplateCommand>, AddCertificateTemplateCommandValidator>();
+            services.AddScoped<IValidator<AddAwardsCommand>, AddAwardsCommandValidator>();
+
             services.AddScoped<IValidator<UpdateCertificateTemplateCommand>, UpdateCertificateTemplateCommandValidator>();
 
 

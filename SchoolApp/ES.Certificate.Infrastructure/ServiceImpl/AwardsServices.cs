@@ -2,7 +2,9 @@
 using ES.Certificate.Application.Certificates.Command.AddCertificateTemplate;
 using ES.Certificate.Application.Certificates.Command.Awards.AddAwards;
 using ES.Certificate.Application.Certificates.Queries.Awards;
+using ES.Certificate.Application.Certificates.Queries.AwardsById;
 using ES.Certificate.Application.Certificates.Queries.CertificateTemplate;
+using ES.Certificate.Application.Certificates.Queries.CertificateTemplateById;
 using ES.Certificate.Application.ServiceInterface;
 using ES.Certificate.Application.ServiceInterface.IHelperMethod;
 using Microsoft.EntityFrameworkCore;
@@ -146,6 +148,23 @@ namespace ES.Certificate.Infrastructure.ServiceImpl
             catch (Exception ex)
             {
                 throw new Exception("An error occurred while fetching all Awards", ex);
+            }
+        }
+
+        public async Task<Result<AwardsByIdResponse>> GetAwards(string certificateTemplateId, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                var awards = await _unitOfWork.BaseRepository<Award>().GetByGuIdAsync(certificateTemplateId);
+
+                var awardsResponse = _mapper.Map<AwardsByIdResponse>(awards);
+
+                return Result<AwardsByIdResponse>.Success(awardsResponse);
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while fetching Award by using Id", ex);
             }
         }
     }
