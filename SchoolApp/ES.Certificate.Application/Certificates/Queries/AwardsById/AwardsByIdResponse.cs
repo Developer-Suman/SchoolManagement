@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ES.Certificate.Application.Certificates.Queries.Awards
+namespace ES.Certificate.Application.Certificates.Queries.AwardsById
 {
-    public record AwardsResponse
+    public record AwardsByIdResponse
     (
         string Id,
          string studentId,
