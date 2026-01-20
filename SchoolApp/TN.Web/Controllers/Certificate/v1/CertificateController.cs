@@ -12,6 +12,8 @@ using ES.Certificate.Application.Certificates.Command.AddIssuedCertificate.Reque
 using ES.Certificate.Application.Certificates.Command.Awards.AddAwards;
 using ES.Certificate.Application.Certificates.Command.Awards.AddAwards.RequestCommandMapper;
 using ES.Certificate.Application.Certificates.Command.Awards.DeleteAwards;
+using ES.Certificate.Application.Certificates.Command.Awards.UpdateAwards;
+using ES.Certificate.Application.Certificates.Command.Awards.UpdateAwards.RequestCommandMapper;
 using ES.Certificate.Application.Certificates.Command.DeleteCertificateTemplate;
 using ES.Certificate.Application.Certificates.Command.DeleteIssuedCertificate;
 using ES.Certificate.Application.Certificates.Command.UpdateCertificateTemplate;
@@ -120,6 +122,30 @@ namespace TN.Web.Controllers.Certificate.v1
             };
             #endregion
 
+        }
+        #endregion
+
+        #region UpdateAwards
+        [HttpPatch("UpdateAwards/{Id}")]
+
+        public async Task<IActionResult> UpdateAwards([FromRoute] string Id, [FromBody] UpdateAwardsRequest request)
+        {
+            //Mapping command and request
+            var command = request.ToCommand(Id);
+            var updateAwardsResult = await _mediator.Send(command);
+            #region Switch Statement
+            return updateAwardsResult switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(updateAwardsResult.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = updateAwardsResult.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(updateAwardsResult.Errors),
+                _ => BadRequest("Invalid Fields for Update Awards")
+            };
+
+            #endregion
         }
         #endregion
 
