@@ -18,7 +18,6 @@ namespace ES.Finances.Application.Finance.Queries.Fee.FeetypeById
             DateTime createdAt,
             string modifiedBy,
             DateTime modifiedAt,
-            string? fyId,
-            NameOfMonths? nameOfMonths
+            string? fyId
         );
 }
