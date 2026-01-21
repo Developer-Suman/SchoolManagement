@@ -13,7 +13,6 @@ namespace ES.Finances.Application.ServiceInterface
         Task<Result<AddFeeTypeResponse>> Add(AddFeeTypeCommand addFeeTypeCommand);
         Task<Result<PagedResult<FeeTypeResponse>>> FeeType(PaginationRequest paginationRequest, CancellationToken cancellationToken = default);
         Task<Result<PagedResult<FilterFeeTypeResponse>>> Filter(PaginationRequest paginationRequest, FilterFeeTypeDTOs filterFeeTypeDTOs);
-
         Task<Result<FeetypeByidResponse>> GetFeetype(string id, CancellationToken cancellationToken = default);
         Task<Result<UpdateFeeTypeResponse>> Update(string feeTypeId, UpdateFeeTypeCommand updateFeeTypeCommand);
         Task<Result<bool>> Delete(string feeTypeId);

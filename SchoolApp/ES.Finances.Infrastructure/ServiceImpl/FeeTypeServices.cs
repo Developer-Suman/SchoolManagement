@@ -2,6 +2,7 @@
 using ES.Finances.Application.Finance.Command.Fee.AddFeeType;
 using ES.Finances.Application.Finance.Command.Fee.AssignMonthlyFee;
 using ES.Finances.Application.Finance.Command.Fee.UpdateFeeType;
+using ES.Finances.Application.Finance.Queries.Fee.FeeStructureByClass;
 using ES.Finances.Application.Finance.Queries.Fee.Feetype;
 using ES.Finances.Application.Finance.Queries.Fee.FeetypeById;
 using ES.Finances.Application.Finance.Queries.Fee.FilterFeetype;
@@ -286,6 +287,7 @@ namespace ES.Finances.Infrastructure.ServiceImpl
                 throw new Exception("An error occurred while fetching by using Id", ex);
             }
          }
+
         public async Task<Result<UpdateFeeTypeResponse>> Update(string feeTypeId, UpdateFeeTypeCommand updateFeeTypeCommand)
         {
             using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
