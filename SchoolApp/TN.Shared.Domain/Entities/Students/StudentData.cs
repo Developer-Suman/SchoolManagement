@@ -83,7 +83,7 @@ namespace TN.Shared.Domain.Entities.Students
             IssuedCertificates = new List<IssuedCertificate>();
             SeatAssignments = new List<SeatAssignment>();
             AssignmentStudents= new List<AssignmentStudent>();
-            Awards = new List<Award>();
+            StudentsAwards = new List<StudentsAward>();
 
         }
         public string? LedgerId { get; set; }
@@ -139,7 +139,7 @@ namespace TN.Shared.Domain.Entities.Students
         public ICollection<IssuedCertificate> IssuedCertificates { get; set; }
         public ICollection<SeatAssignment> SeatAssignments { get; set; }
         public ICollection<AssignmentStudent> AssignmentStudents { get; set; }
-        public ICollection<Award> Awards { get; set; }
+        public ICollection<StudentsAward> StudentsAwards { get; set; }
 
     }
 

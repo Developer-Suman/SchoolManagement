@@ -22,7 +22,8 @@ namespace ES.Certificate.Infrastructure
             #region Inject Dependencies
             services.AddScoped<IIssuedCertificateServices, IssuedCertificateServices>();
             services.AddScoped<ICertificateTemplateServices, CertificateTemplateServices>();
-            services.AddScoped<IAwardsServices, AwardsServices>();
+            services.AddScoped<IStudentsAwardsServices, StudentsAwardsServices>();
+            services.AddScoped<ISchoolAwardsServices, SchoolAwardsServices>();
             services.AddScoped<IHelperMethodServices, HelperServices>();
             #endregion
 

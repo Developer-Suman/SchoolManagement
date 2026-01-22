@@ -10,7 +10,7 @@ using TN.Shared.Domain.ExtensionMethod.Pagination;
 
 namespace ES.Certificate.Application.Certificates.Queries.FilterIssuedCertificate
 {
-    public record FilterIssuedCertificateQuery
+    public record FilterIssuedCertificateQuery  
     (
         PaginationRequest PaginationRequest,
         FilterIssuedCertificateDTOs FilterIssuedCertificateDTOs

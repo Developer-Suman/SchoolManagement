@@ -1,6 +1,10 @@
 ﻿using ES.Certificate.Application.Certificates.Command.AddCertificateTemplate;
 using ES.Certificate.Application.Certificates.Command.AddIssuedCertificate;
-using ES.Certificate.Application.Certificates.Command.Awards.AddAwards;
+using ES.Certificate.Application.Certificates.Command.Awards.SchoolAwards.AddAwards;
+using ES.Certificate.Application.Certificates.Command.Awards.SchoolAwards.UpdateAwards;
+using ES.Certificate.Application.Certificates.Command.Awards.StudentsAwards.AddAwards;
+using ES.Certificate.Application.Certificates.Command.Awards.StudentsAwards.SchoolAwards.UpdateAwards;
+using ES.Certificate.Application.Certificates.Command.Awards.StudentsAwards.UpdateAwards;
 using ES.Certificate.Application.Certificates.Command.UpdateCertificateTemplate;
 using ES.Certificate.Application.Certificates.Command.UpdateIssuedCertificate;
 using FluentValidation;
@@ -10,6 +14,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TN.Setup.Application.Setup.Command.UpdateSchool;
 
 namespace CS.Certificate.Application
 {
@@ -23,7 +28,13 @@ namespace CS.Certificate.Application
             services.AddScoped<IValidator<UpdateIssuedCertificateCommand>, UpdateIssuedCertificateCommandValidator>();
 
             services.AddScoped<IValidator<AddCertificateTemplateCommand>, AddCertificateTemplateCommandValidator>();
+
             services.AddScoped<IValidator<AddAwardsCommand>, AddAwardsCommandValidator>();
+            services.AddScoped<IValidator<UpdateAwardsCommand>, UpdateAwardsCommandValidator>();
+
+            services.AddScoped<IValidator<AddSchoolAwardsCommand>, AddSchoolAwardsCommandValidator>();
+            services.AddScoped<IValidator<UpdateSchoolAwardsCommand>, UpdateSchoolAwardsCommandValidator>();
+
 
             services.AddScoped<IValidator<UpdateCertificateTemplateCommand>, UpdateCertificateTemplateCommandValidator>();
 
