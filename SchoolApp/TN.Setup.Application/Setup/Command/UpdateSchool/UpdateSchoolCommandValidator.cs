@@ -13,7 +13,7 @@ namespace TN.Setup.Application.Setup.Command.UpdateSchool
         {
             RuleFor(x => x.name)
                         .NotEmpty()
-                        .WithMessage("Institution name is required.");
+                        .WithMessage("School name is required.");
 
 
             RuleFor(x => x.address)

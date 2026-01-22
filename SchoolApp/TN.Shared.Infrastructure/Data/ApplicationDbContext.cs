@@ -63,7 +63,8 @@ namespace TN.Shared.Infrastructure.Data
         #endregion
 
         #region Certificate
-        public DbSet<Award> Awards { get; set; }
+        public DbSet<StudentsAward> StudentsAwards { get; set; }
+        public DbSet<SchoolAwards> SchoolAwards { get; set; }
         public DbSet<CertificateTemplate> CertificateTemplates { get; set; }
         public DbSet<IssuedCertificate> issuedCertificates { get; set; }
 
@@ -81,6 +82,7 @@ namespace TN.Shared.Infrastructure.Data
         #endregion
 
         #region Academics
+        public DbSet<Events> Events { get; set; }
         public DbSet<ExamSubject> ExamSubjects { get; set; }
         public DbSet<Assignment> Assignments { get; set; }
         public DbSet<AssignmentStudent> AssignmentStudents { get; set; }
@@ -378,9 +380,9 @@ namespace TN.Shared.Infrastructure.Data
 
             #region Certificate
 
-            #region StudentData and Awards (1:m)
+            #region StudentData and StudentsAwards (1:m)
             builder.Entity<StudentData>()
-               .HasMany(p => p.Awards)
+               .HasMany(p => p.StudentsAwards)
                .WithOne(p => p.Students)
                .HasForeignKey(p => p.StudentId)
                .OnDelete(DeleteBehavior.Restrict);

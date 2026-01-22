@@ -1,6 +1,12 @@
 ﻿using AutoMapper;
 using ES.Certificate.Application.Certificates.Command.AddCertificateTemplate;
 using ES.Certificate.Application.Certificates.Command.AddIssuedCertificate;
+using ES.Certificate.Application.Certificates.Command.Awards.SchoolAwards.AddAwards;
+using ES.Certificate.Application.Certificates.Command.Awards.SchoolAwards.DeleteAwards;
+using ES.Certificate.Application.Certificates.Command.Awards.SchoolAwards.UpdateAwards;
+using ES.Certificate.Application.Certificates.Command.Awards.StudentsAwards.AddAwards;
+using ES.Certificate.Application.Certificates.Command.Awards.StudentsAwards.DeleteAwards;
+using ES.Certificate.Application.Certificates.Command.Awards.StudentsAwards.UpdateAwards;
 using ES.Certificate.Application.Certificates.Command.DeleteCertificateTemplate;
 using ES.Certificate.Application.Certificates.Command.DeleteIssuedCertificate;
 using ES.Certificate.Application.Certificates.Queries.CertificateTemplate;
@@ -10,6 +16,11 @@ using ES.Certificate.Application.Certificates.Queries.FilterIssuedCertificate;
 using ES.Certificate.Application.Certificates.Queries.GenerateCertificate;
 using ES.Certificate.Application.Certificates.Queries.IssuedCertificate;
 using ES.Certificate.Application.Certificates.Queries.IssuedCertificateById;
+using ES.Certificate.Application.Certificates.Queries.SchoolAwards.Awards;
+using ES.Certificate.Application.Certificates.Queries.SchoolAwards.AwardsById;
+using ES.Certificate.Application.Certificates.Queries.SchoolAwards.FilterSchoolAwards;
+using ES.Certificate.Application.Certificates.Queries.StudentsAwards.Awards;
+using ES.Certificate.Application.Certificates.Queries.StudentsAwards.AwardsById;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,6 +37,48 @@ namespace ES.Certificate.Application.AutoMapper
 
         public MappingProfile()
         {
+
+            #region StudentsAwards
+            CreateMap<StudentsAward, DeleteAwardsCommand>().ReverseMap();
+
+            CreateMap<AwardsByIdQuery, StudentsAward>().ReverseMap();
+
+            CreateMap<AwardsByIdResponse, StudentsAward>().ReverseMap();
+
+            CreateMap<UpdateAwardsCommand, StudentsAward>().ReverseMap();
+            CreateMap<AwardsResponse, StudentsAward>().ReverseMap();
+            CreateMap<AddAwardsCommand, StudentsAward>().ReverseMap();
+            CreateMap<AddAwardsResponse, StudentsAward>().ReverseMap();
+            CreateMap<AddAwardsCommand, AddAwardsResponse>().ReverseMap();
+
+            CreateMap<PagedResult<StudentsAward>, PagedResult<AwardsResponse>>().ReverseMap();
+
+            CreateMap<FilterSchoolAwardsResponse, SchoolAwards>().ReverseMap();
+            CreateMap<PagedResult<SchoolAwards>, PagedResult<FilterSchoolAwardsResponse>>().ReverseMap();
+            #endregion
+
+
+
+            #region SchoolAwards
+            CreateMap<SchoolAwards, DeleteSchoolAwardsCommand>().ReverseMap();
+
+            CreateMap<SchoolAwardsByIdQuery, SchoolAwards>().ReverseMap();
+
+            CreateMap<SchoolAwardsByIdResponse, SchoolAwards>().ReverseMap();
+
+            CreateMap<UpdateSchoolAwardsCommand, SchoolAwards>().ReverseMap();
+            CreateMap<SchoolAwardsResponse, SchoolAwards>().ReverseMap();
+            CreateMap<AddSchoolAwardsCommand, SchoolAwards>().ReverseMap();
+            CreateMap<AddSchoolAwardsResponse, SchoolAwards>().ReverseMap();
+            CreateMap<AddSchoolAwardsCommand, AddSchoolAwardsResponse>().ReverseMap();
+
+            CreateMap<PagedResult<SchoolAwards>, PagedResult<SchoolAwardsResponse>>().ReverseMap();
+
+            //CreateMap<FilterIssuedCertificateResponse, SchoolAwards>().ReverseMap();
+            //CreateMap<PagedResult<SchoolAwards>, PagedResult<FilterIssuedCertificateResponse>>().ReverseMap();
+            #endregion
+
+
             #region IssuedCertificate
 
             CreateMap<IssuedCertificate, DeleteIssuedCertificateCommand>().ReverseMap();

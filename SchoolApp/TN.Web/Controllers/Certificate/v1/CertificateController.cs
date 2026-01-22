@@ -9,10 +9,15 @@ using ES.Certificate.Application.Certificates.Command.AddCertificateTemplate;
 using ES.Certificate.Application.Certificates.Command.AddCertificateTemplate.RequestCommandMapper;
 using ES.Certificate.Application.Certificates.Command.AddIssuedCertificate;
 using ES.Certificate.Application.Certificates.Command.AddIssuedCertificate.RequestCommandMapper;
-using ES.Certificate.Application.Certificates.Command.Awards.AddAwards;
-using ES.Certificate.Application.Certificates.Command.Awards.AddAwards.RequestCommandMapper;
-using ES.Certificate.Application.Certificates.Command.Awards.DeleteAwards;
-using ES.Certificate.Application.Certificates.Command.Awards.UpdateAwards;
+using ES.Certificate.Application.Certificates.Command.Awards.SchoolAwards.AddAwards;
+using ES.Certificate.Application.Certificates.Command.Awards.SchoolAwards.AddAwards.RequestCommandMapper;
+using ES.Certificate.Application.Certificates.Command.Awards.SchoolAwards.DeleteAwards;
+using ES.Certificate.Application.Certificates.Command.Awards.SchoolAwards.UpdateAwards;
+using ES.Certificate.Application.Certificates.Command.Awards.StudentsAwards.AddAwards;
+using ES.Certificate.Application.Certificates.Command.Awards.StudentsAwards.AddAwards.RequestCommandMapper;
+using ES.Certificate.Application.Certificates.Command.Awards.StudentsAwards.DeleteAwards;
+using ES.Certificate.Application.Certificates.Command.Awards.StudentsAwards.UpdateAwards;
+using ES.Certificate.Application.Certificates.Command.Awards.StudentsAwards.UpdateAwards.RequestCommandMapper;
 using ES.Certificate.Application.Certificates.Command.Awards.UpdateAwards.RequestCommandMapper;
 using ES.Certificate.Application.Certificates.Command.DeleteCertificateTemplate;
 using ES.Certificate.Application.Certificates.Command.DeleteIssuedCertificate;
@@ -20,13 +25,18 @@ using ES.Certificate.Application.Certificates.Command.UpdateCertificateTemplate;
 using ES.Certificate.Application.Certificates.Command.UpdateCertificateTemplate.RequestCommandMapper;
 using ES.Certificate.Application.Certificates.Command.UpdateIssuedCertificate;
 using ES.Certificate.Application.Certificates.Command.UpdateIssuedCertificate.RequestCommandMapper;
-using ES.Certificate.Application.Certificates.Queries.Awards;
 using ES.Certificate.Application.Certificates.Queries.CertificateTemplate;
 using ES.Certificate.Application.Certificates.Queries.FilterCertificateTemplate;
 using ES.Certificate.Application.Certificates.Queries.FilterIssuedCertificate;
 using ES.Certificate.Application.Certificates.Queries.GenerateCertificate;
 using ES.Certificate.Application.Certificates.Queries.IssuedCertificate;
 using ES.Certificate.Application.Certificates.Queries.IssuedCertificateById;
+using ES.Certificate.Application.Certificates.Queries.SchoolAwards.Awards;
+using ES.Certificate.Application.Certificates.Queries.SchoolAwards.AwardsById;
+using ES.Certificate.Application.Certificates.Queries.SchoolAwards.FilterSchoolAwards;
+using ES.Certificate.Application.Certificates.Queries.StudentsAwards.Awards;
+using ES.Certificate.Application.Certificates.Queries.StudentsAwards.AwardsById;
+using ES.Certificate.Application.Certificates.Queries.StudentsAwards.FilterStudentsAwards;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
@@ -56,12 +66,36 @@ namespace TN.Web.Controllers.Certificate.v1
             _mediator = mediator;
         }
 
-        #region Awards
+        #region SchoolsAwards
 
-        #region AddAwards
-        [HttpPost("AddAwards")]
 
-        public async Task<IActionResult> AddAwards([FromBody] AddAwardsRequest request)
+        #region FilterSchoolAwards
+        [HttpGet("FilterSchoolAwards")]
+        public async Task<IActionResult> GetFilterSchoolAwards([FromQuery] FilterSchoolAwardsDTOs filterSchoolAwardsDTOs, [FromQuery] PaginationRequest paginationRequest)
+        {
+            var query = new FilterSchoolAwardsQuery(paginationRequest, filterSchoolAwardsDTOs);
+            var filterSchoolAwardsResult = await _mediator.Send(query);
+            #region Switch Statement
+            return filterSchoolAwardsResult switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(filterSchoolAwardsResult.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = filterSchoolAwardsResult.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(filterSchoolAwardsResult.Errors),
+                _ => BadRequest("Invalid page and pageSize Fields")
+            };
+            #endregion
+
+        }
+
+        #endregion
+
+        #region AddSchoolsAwards
+        [HttpPost("AddSchoolsAwards")]
+
+        public async Task<IActionResult> AddSchoolsAwards([FromBody] AddSchoolAwardsRequest request)
         {
             //Mapping command and request
             var command = request.ToCommand();
@@ -69,7 +103,7 @@ namespace TN.Web.Controllers.Certificate.v1
             #region Switch Statement
             return addAwardsResult switch
             {
-                { IsSuccess: true, Data: not null } => CreatedAtAction(nameof(AddAwards), addAwardsResult.Data),
+                { IsSuccess: true, Data: not null } => CreatedAtAction(nameof(AddSchoolsAwards), addAwardsResult.Data),
                 { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = addAwardsResult.Message }),
                 { IsSuccess: false, Errors: not null } => HandleFailureResult(addAwardsResult.Errors),
                 _ => BadRequest("Invalid Fields ")
@@ -80,9 +114,148 @@ namespace TN.Web.Controllers.Certificate.v1
         }
         #endregion
 
-        #region GetAllAwards
-        [HttpGet("GetAllAwards")]
-        public async Task<IActionResult> GetAllAwards([FromQuery] PaginationRequest paginationRequest)
+        #region GetAllSchoolsAwards
+        [HttpGet("GetAllSchoolsAwards")]
+        public async Task<IActionResult> GetAllSchoolsAwards([FromQuery] PaginationRequest paginationRequest)
+        {
+            var query = new SchoolAwardsQuery(paginationRequest);
+            var allAwards = await _mediator.Send(query);
+            #region Switch Statement
+            return allAwards switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(allAwards.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = allAwards.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(allAwards.Errors),
+                _ => BadRequest("Invalid page and pageSize Fields")
+            };
+            #endregion
+
+        }
+
+        #endregion
+
+        #region SchoolAwardsById
+        [HttpGet("SchoolAwards/{awardsId}")]
+        public async Task<IActionResult> SchoolAwardsById([FromRoute] string awardsId)
+        {
+            var query = new SchoolAwardsByIdQuery(awardsId);
+            var awardsByIdResult = await _mediator.Send(query);
+            #region Switch Statement
+            return awardsByIdResult switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(awardsByIdResult.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = awardsByIdResult.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(awardsByIdResult.Errors),
+                _ => BadRequest("Invalid page and pageSize Fields")
+            };
+            #endregion
+
+        }
+        #endregion
+
+        #region UpdateSchoolAwards
+        [HttpPatch("UpdateSchoolAwards/{Id}")]
+
+        public async Task<IActionResult> UpdateSchoolAwards([FromRoute] string Id, [FromBody] UpdateSchoolAwardsRequest request)
+        {
+            //Mapping command and request
+            var command = request.ToCommand(Id);
+            var updateAwardsResult = await _mediator.Send(command);
+            #region Switch Statement
+            return updateAwardsResult switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(updateAwardsResult.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = updateAwardsResult.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(updateAwardsResult.Errors),
+                _ => BadRequest("Invalid Fields for Update Awards")
+            };
+
+            #endregion
+        }
+        #endregion
+
+        #region DeleteSchoolAwards
+        [HttpDelete("DeleteSchoolAwards/{id}")]
+
+        public async Task<IActionResult> DeleteSchoolAwards([FromRoute] string id, CancellationToken cancellationToken)
+        {
+            var command = new DeleteSchoolAwardsCommand(id);
+            var deleteAwardsResult = await _mediator.Send(command);
+            #region Switch Statement
+            return deleteAwardsResult switch
+            {
+                { IsSuccess: true, Data: true } => NoContent(),
+                { IsSuccess: true, Message: not null } => new JsonResult(new { Message = deleteAwardsResult.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(deleteAwardsResult.Errors),
+                _ => BadRequest("Invalid Fields for Delete Awards")
+            };
+
+            #endregion
+        }
+
+        #endregion
+
+        #endregion
+
+        #region StudentsAwards
+
+        #region FilterStudentsAwards
+        [HttpGet("FilterStudentsAwards")]
+        public async Task<IActionResult> GetFilterStudentsAwards([FromQuery] FilterStudentsAwardsDTOs filterStudentsAwardsDTOs, [FromQuery] PaginationRequest paginationRequest)
+        {
+            var query = new FilterStudentsAwardsQuery(paginationRequest, filterStudentsAwardsDTOs);
+            var filterStudentsAwardsResult = await _mediator.Send(query);
+            #region Switch Statement
+            return filterStudentsAwardsResult switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(filterStudentsAwardsResult.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = filterStudentsAwardsResult.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(filterStudentsAwardsResult.Errors),
+                _ => BadRequest("Invalid page and pageSize Fields")
+            };
+            #endregion
+
+        }
+
+        #endregion
+
+        #region AddStudentsAwards
+        [HttpPost("AddStudentsAwards")]
+
+        public async Task<IActionResult> AddStudentsAwards([FromBody] AddAwardsRequest request)
+        {
+            //Mapping command and request
+            var command = request.ToCommand();
+            var addAwardsResult = await _mediator.Send(command);
+            #region Switch Statement
+            return addAwardsResult switch
+            {
+                { IsSuccess: true, Data: not null } => CreatedAtAction(nameof(AddStudentsAwards), addAwardsResult.Data),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = addAwardsResult.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(addAwardsResult.Errors),
+                _ => BadRequest("Invalid Fields ")
+
+            };
+
+            #endregion
+        }
+        #endregion
+
+        #region GetAllStudentsAwards
+        [HttpGet("GetAllStudentsAwards")]
+        public async Task<IActionResult> GetAllStudentsAwards([FromQuery] PaginationRequest paginationRequest)
         {
             var query = new AwardsQuery(paginationRequest);
             var allAwards = await _mediator.Send(query);
@@ -103,11 +276,11 @@ namespace TN.Web.Controllers.Certificate.v1
 
         #endregion
 
-        #region AwardsById
-        [HttpGet("Awards/{AwardsById}")]
-        public async Task<IActionResult> AwardsById([FromRoute] string awardsById)
+        #region StudentsAwardsById
+        [HttpGet("StudentsAwards/{awardsId}")]
+        public async Task<IActionResult> AwardsById([FromRoute] string awardsId)
         {
-            var query = new IssuedCertificateByIdQuery(awardsById);
+            var query = new AwardsByIdQuery(awardsId);
             var awardsByIdResult = await _mediator.Send(query);
             #region Switch Statement
             return awardsByIdResult switch
@@ -126,9 +299,9 @@ namespace TN.Web.Controllers.Certificate.v1
         #endregion
 
         #region UpdateAwards
-        [HttpPatch("UpdateAwards/{Id}")]
+        [HttpPatch("UpdateStudentsAwards/{Id}")]
 
-        public async Task<IActionResult> UpdateAwards([FromRoute] string Id, [FromBody] UpdateAwardsRequest request)
+        public async Task<IActionResult> UpdateStudentsAwards([FromRoute] string Id, [FromBody] UpdateAwardsRequest request)
         {
             //Mapping command and request
             var command = request.ToCommand(Id);
