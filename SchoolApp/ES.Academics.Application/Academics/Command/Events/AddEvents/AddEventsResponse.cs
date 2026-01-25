@@ -6,8 +6,9 @@ using System.Threading.Tasks;
 
 namespace ES.Academics.Application.Academics.Command.Events.AddEvents
 {
-    public record AddEventsRequest
+    public record AddEventsResponse
     (
+        string id,
             string title,
             string? descriptions,
             string eventsType,
@@ -17,7 +18,12 @@ namespace ES.Academics.Application.Academics.Command.Events.AddEvents
             string venue,
             string? chiefGuest,
             string? organizer,
-            string? mentor
+            string? mentor,
+            string schoolId,
+            string createdBy,
+            DateTime createdAt,
+            string modifiedBy,
+            DateTime modifiedAt,
+            bool isActive
         );
-
 }

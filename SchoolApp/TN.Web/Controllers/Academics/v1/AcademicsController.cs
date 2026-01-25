@@ -19,6 +19,8 @@ using ES.Academics.Application.Academics.Command.DeleteSchoolClass;
 using ES.Academics.Application.Academics.Command.DeleteSubject;
 using ES.Academics.Application.Academics.Command.EvaluteAssignments;
 using ES.Academics.Application.Academics.Command.EvaluteAssignments.RequestCommandMapper;
+using ES.Academics.Application.Academics.Command.Events.AddEvents;
+using ES.Academics.Application.Academics.Command.Events.AddEvents.RequestCommandMapper;
 using ES.Academics.Application.Academics.Command.SubmitAssignments;
 using ES.Academics.Application.Academics.Command.SubmitAssignments.RequestCommandMapper;
 using ES.Academics.Application.Academics.Command.UpdateExam;
@@ -47,6 +49,7 @@ using ES.Academics.Application.Academics.Queries.SchoolClassById;
 using ES.Academics.Application.Academics.Queries.Subject;
 using ES.Academics.Application.Academics.Queries.SubjectByClassId;
 using ES.Academics.Application.Academics.Queries.SubjectById;
+using ES.Certificate.Application.Certificates.Command.Awards.SchoolAwards.AddAwards;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -78,6 +81,33 @@ namespace TN.Web.Controllers.Academics.v1
             _authorizationService = authorizationService;
 
         }
+
+        #region Events
+        #region AddEvents
+        [HttpPost("AddEvents")]
+
+        public async Task<IActionResult> AddEvents([FromBody] AddEventsRequest request)
+        {
+            //Mapping command and request
+            var command = request.ToCommand();
+            var addEventsResult = await _mediator.Send(command);
+            #region Switch Statement
+            return addEventsResult switch
+            {
+                { IsSuccess: true, Data: not null } => CreatedAtAction(nameof(AddEvents), addEventsResult.Data),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = addEventsResult.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(addEventsResult.Errors),
+                _ => BadRequest("Invalid Fields ")
+
+            };
+
+            #endregion
+        }
+        #endregion
+
+
+
+        #endregion
 
         #region Assignments
 
