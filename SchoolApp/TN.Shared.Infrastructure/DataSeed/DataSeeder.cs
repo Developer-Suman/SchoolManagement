@@ -64,27 +64,226 @@ namespace TN.Shared.Infrastructure.DataSeed
             await SeedInstitution();
             await SeedDemoCompany();
             await SeedStockCenter();
-            //await SeedExam();
+            await SeedClasses();
 
         }
 
         #region Exam
 
-        //private async Task SeedExam()
-        //{
-        //    if (!await _context.Exams.AnyAsync())
-        //    {
-        //        var exams = new List<Exam>()
-        //        {
-        //            new Exam("f47ac10b-58cc-4372-a567-0e02b2c3d479","Final Exams",DateTime.UtcNow,"",true, "","",DateTime.UtcNow,"", DateTime.UtcNow,new List<ExamResult>())
+        private async Task SeedClasses()
+        {
+            if (await _context.Classes.AnyAsync())
+                return;
+
+            var schoolId = "";
+            var createdBy = "SYSTEM";
+            var now = DateTime.UtcNow;
+
+            var classes = new List<Class>
+            {
+                CreateClass(
+                    classId: "f8d4c1a7-6b92-4e3f-8a51-2c9e7d5b1f23",
+                    className: "Nursary",
+                    schoolId,
+                    createdBy,
+                    now,
+                    new[]
+                    {
+                        "Kids Set-Nursary"
+                    }
+                ),
+
+                CreateClass(
+                    classId: "0a9f7d2e-3b6c-4f18-9e45-8c1a2d6b7f34",
+                    className: "L.K.G",
+                    schoolId,
+                    createdBy,
+                    now,
+                    new[]
+                    {
+                        "Kids Set-L.K.G"
+                    }
+                ),
+
+                CreateClass(
+                    classId: "1b7c9e4f-8a2d-4c56-b3f1-9d0e7a6c5b12",
+                    className: "U.K.G",
+                    schoolId,
+                    createdBy,
+                    now,
+                    new[]
+                    {
+                       "Kids Set-U.K.G"
+                    }
+                ),
+                CreateClass(
+                    classId: "a1f3c9b2-5f6d-4c8e-9a41-0c9c9a7b8d12",
+                    className: "Class 1",
+                    schoolId,
+                    createdBy,
+                    now,
+                    new[]
+                    {
+                        "Byakaran", "Nepali", "Serophero", "Math", "English", "G.K", "Science"
+                    }
+                ),
+
+                CreateClass(
+                    classId: "b47e2d6a-8c1f-4b3a-9e52-2d6f8c1a7e34",
+                    className: "Class 2",
+                    schoolId,
+                    createdBy,
+                    now,
+                    new[]
+                    {
+                        "Nepali", "Serophero", "Grammar", "Math", "Byakaran", "English", "Science", "G.K"
+                    }
+                ),
+
+                CreateClass(
+                    classId: "c9d1a7f4-3b82-4e6a-8f19-6a2e9d4b0c57",
+                    className: "Class 3",
+                    schoolId,
+                    createdBy,
+                    now,
+                    new[]
+                    {
+                        "Serophero", "Nepali", "Science", "Math", "English", "Computer", "Grammar", "Byakaran","Drawing", "G.K"
+                    }
+                ),
+
+                CreateClass(
+                    classId: "d5a8e3b1-7c4f-4a92-b6e1-1f9c8d2a4e68",
+                    className: "Class 4",
+                    schoolId,
+                    createdBy,
+                    now,
+                    new[]
+                    {
+                        "Samajik", "English", "Nepali", "Science", "Computer", "Math", "Grammar", "Byakaran","Health","G.K","Drawing"
+                    }
+                ),
+
+                CreateClass(
+                    classId: "e2b6f9c4-1a7d-4e38-9c52-7a1d8b6f3e90",
+                    className: "Class 5",
+                    schoolId,
+                    createdBy,
+                    now,
+                    new[]
+                    {
+                        "Science", "Computer", "Nepali", "Samajik", "English", "Grammar", "Byakaran", "Health","Math","G.K"
+                    }
+                ),
+
+                CreateClass(
+                    classId: "2c8f5a6e-9d41-4b37-8c1a-f0e2b7d9a456",
+                    className: "Class 6",
+                    schoolId,
+                    createdBy,
+                    now,
+                    new[]
+                    {
+                        "English", "Nepali", "Samajik", "Grammar", "Computer","Science","Math","Health","G.K","Byakaran","Opt.Math"
+                    }
+                ),
+
+                CreateClass(
+                    classId: "3d6a1f9c-7b82-4e45-8a2c-b9f0d5e1a678",
+                    className: "Class 7",
+                    schoolId,
+                    createdBy,
+                    now,
+                    new[]
+                    {
+                        "Samajik", "Nepali", "Science", "English", "Grammar", "Math", "Health","Computer","Opt. Math", "Byakaran"
+                    }
+                ),
+
+                CreateClass(
+                    classId: "4e9b7d2c-5a6f-4c18-8d31-a2f0e1b9c789",
+                    className: "Class 8",
+                    schoolId,
+                    createdBy,
+                    now,
+                    new[]
+                    {
+                        "Science", "Math", "English", "Nepali", "Grammar", "Opt Math", "Samajik","Computer","Byakaran","Health"
+                    }
+                ),
+
+                CreateClass(
+                    classId: "5f1c8e9a-2d6b-4a73-9c45-7e0b1d8f2a90",
+                    className: "Class 9",
+                    schoolId,
+                    createdBy,
+                    now,
+                    new[]
+                    {
+                        "Science", "Math", "English", "Nepali", "Grammar", "Opt Math", "Samajik", "Account", "Byakaran"
+                    }
+                ),
+
+                CreateClass(
+                    classId: "7b8e1a6f-9c2d-4f35-8a41-d0c9b2e5a678",
+                    className: "Class 10",
+                    schoolId,
+                    createdBy,
+                    now,
+                    new[]
+                    {
+                        "Science", "Math", "English", "Nepali", "Grammar", "Opt Math", "Samajik","Account"
+                    }
+                )
+
+            };
+
+            await _context.Classes.AddRangeAsync(classes);
+            await _unitOfWork.SaveChangesAsync();
+        }
 
 
-        //        };
+        private Class CreateClass(
+            string classId,
+            string className,
+            string schoolId,
+            string createdBy,
+            DateTime now,
+            string[] subjectNames
+        )
+                {
+                    var subjects = subjectNames.Select((name, index) =>
+                        new Subject(
+                            id: Guid.NewGuid().ToString(),
+                            name: name,
+                            code: $"{name.Substring(0, 3).ToUpper()}-{index + 1:D2}",
+                            creditHours: 20,
+                            description: $"{name} for {className}",
+                            classId: classId,
+                            schoolId: schoolId,
+                            isActive: true,
+                            createdBy: createdBy,
+                            createdAt: now,
+                            modifiedBy: createdBy,
+                            modifiedAt: now
+                        )
+                    ).ToList();
 
-        //        await _context.Exams.AddRangeAsync(exams);
-        //        await _unitOfWork.SaveChangesAsync();
-        //    }
-        //}
+                    return new Class(
+                        id: classId,
+                        name: className,
+                        subjects: subjects,
+                        schoolId: schoolId,
+                        isActive: true,
+                        isSeeded: true,
+                        createdBy: createdBy,
+                        createdAt: now,
+                        modifiedBy: createdBy,
+                        modifiedAt: now
+                    );
+                }
+
+
 
         #endregion
 

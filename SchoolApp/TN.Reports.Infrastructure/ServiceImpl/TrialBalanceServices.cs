@@ -37,13 +37,12 @@ namespace TN.Reports.Infrastructure.ServiceImpl
         {
             try
             {
-                // Get user scope
                 var (journalEntry, currentSchoolId, institutionId, userRole, isSuperAdmin) =
-                    await _getUserScopedData.GetUserScopedData<JournalEntryDetails>();
+        await _getUserScopedData.GetUserScopedData<JournalEntryDetails>();
 
                 IQueryable<JournalEntryDetails> filterJournalEntry;
 
-                // Apply company/institution filters
+                // 1. Apply company/institution filters
                 if (!string.IsNullOrEmpty(schoolId))
                 {
                     filterJournalEntry = journalEntry.Where(x => x.SchoolId == schoolId);
@@ -67,7 +66,7 @@ namespace TN.Reports.Infrastructure.ServiceImpl
                     filterJournalEntry = journalEntry;
                 }
 
-                // Aggregate journal entries into trial balance per ledger
+                // 2. Fetch Transactional Data grouped by Ledger
                 var trialBalanceData = await _unitOfWork.BaseRepository<JournalEntryDetails>()
                     .GetConditionalFilterType(
                         c => filterJournalEntry.Select(x => x.JournalEntryId).Contains(c.JournalEntryId),
@@ -76,14 +75,14 @@ namespace TN.Reports.Infrastructure.ServiceImpl
                             .Select(g => new
                             {
                                 LedgerId = g.Key,
-                                DebitAmount = g.Sum(x => x.DebitAmount) == 0 ? (decimal?)null : g.Sum(x => x.DebitAmount),
-                                CreditAmount = g.Sum(x => x.CreditAmount) == 0 ? (decimal?)null : g.Sum(x => x.CreditAmount)
+                                DebitAmount = g.Sum(x => x.DebitAmount),
+                                CreditAmount = g.Sum(x => x.CreditAmount)
                             })
                     );
 
+                // 3. Fetch related Ledger/Group information
                 var ledgerIds = trialBalanceData.Select(x => x.LedgerId).Distinct().ToList();
 
-                // Fetch ledgers + related groups in one go
                 var ledgers = await _unitOfWork.BaseRepository<Ledger>()
                     .FindBy(l => ledgerIds.Contains(l.Id));
 
@@ -97,27 +96,36 @@ namespace TN.Reports.Infrastructure.ServiceImpl
                 var ledgerGroups = await _unitOfWork.BaseRepository<LedgerGroup>()
                     .FindBy(lg => ledgerGroupIds.Contains(lg.Id));
 
-                // Build trial balance details
+                // 4. Corrected Trial Balance Mapping 
+                // This ensures Opening Balances are added to the correct side
                 var trialBalanceDetails = trialBalanceData.Select(entry =>
                 {
                     var ledger = ledgers.FirstOrDefault(l => l.Id == entry.LedgerId);
-                    var subLedgerGroup = ledger != null
-                        ? subLedgerGroups.FirstOrDefault(sg => sg.Id == ledger.SubLedgerGroupId)
-                        : null;
-                    var ledgerGroup = subLedgerGroup != null
-                        ? ledgerGroups.FirstOrDefault(lg => lg.Id == subLedgerGroup.LedgerGroupId)
-                        : null;
+                    var subLedgerGroup = ledger != null ? subLedgerGroups.FirstOrDefault(sg => sg.Id == ledger.SubLedgerGroupId) : null;
+                    var ledgerGroup = subLedgerGroup != null ? ledgerGroups.FirstOrDefault(lg => lg.Id == subLedgerGroup.LedgerGroupId) : null;
+
+                    // Logic: If OpeningBalance is positive -> Debit. If negative -> Credit.
+                    decimal? openingDebit = (ledger?.OpeningBalance > 0) ? ledger.OpeningBalance : 0;
+                    decimal openingCredit = (ledger?.OpeningBalance < 0) ? Math.Abs(ledger.OpeningBalance ?? 0) : 0;
 
                     return new TrialBalanceDetails(
                         ledgerGroup?.MasterId,
                         subLedgerGroup?.Id,
                         entry.LedgerId,
-                        (ledger?.OpeningBalance ?? 0) + (entry.DebitAmount ?? 0), // Opening balance added to debit
-                        entry.CreditAmount
+                        openingDebit + (entry.DebitAmount),
+                        openingCredit + (entry.CreditAmount)
                     );
                 }).ToList();
 
-                // Group by Master → LedgerGroup → Ledger
+                // 5. Corrected Totals Calculation
+                // Totals must match the trialBalanceDetails logic exactly to balance
+                var totals = new
+                {
+                    TotalDebitAmount = trialBalanceDetails.Sum(x => x.debitAmount),
+                    TotalCreditAmount = trialBalanceDetails.Sum(x => x.creditAmount)
+                };
+
+                // 6. Group by Master → LedgerGroup → Ledger
                 var masterGroups = trialBalanceDetails
                     .GroupBy(x => x.masterId)
                     .Select(master => new MasterLevelQueryRespones(
@@ -137,15 +145,14 @@ namespace TN.Reports.Infrastructure.ServiceImpl
                             )).ToList()
                     )).ToList();
 
+                // 7. Pagination Logic
                 PagedResult<MasterLevelQueryRespones> finalResponseList;
+                int totalItems = masterGroups.Count();
 
                 if (paginationRequest.IsPagination)
                 {
-
                     int pageIndex = paginationRequest.pageIndex <= 0 ? 1 : paginationRequest.pageIndex;
                     int pageSize = paginationRequest.pageSize <= 0 ? 10 : paginationRequest.pageSize;
-
-                    int totalItems = masterGroups.Count();
 
                     var pagedItems = masterGroups
                         .Skip((pageIndex - 1) * pageSize)
@@ -164,10 +171,10 @@ namespace TN.Reports.Infrastructure.ServiceImpl
                 {
                     finalResponseList = new PagedResult<MasterLevelQueryRespones>
                     {
-                        Items = masterGroups.ToList(),
-                        TotalItems = masterGroups.Count(),
+                        Items = masterGroups,
+                        TotalItems = totalItems,
                         PageIndex = 1,
-                        pageSize = masterGroups.Count()
+                        pageSize = totalItems
                     };
                 }
 

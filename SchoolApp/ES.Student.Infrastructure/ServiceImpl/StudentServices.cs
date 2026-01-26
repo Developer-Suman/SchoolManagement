@@ -822,6 +822,7 @@ namespace ES.Student.Infrastructure.ServiceImpl
                             .OrderByDescending(x => x.CreatedAt)
                             .Select(x => new StudentForAttendanceResponse(
                                 x.Id,
+                                x.ClassId,
                                 string.Join(" ",
                                     x.FirstName,
                                     x.MiddleName,

@@ -4,6 +4,7 @@ using ES.Student.Application.Student.Command.AddParent;
 using ES.Student.Application.Student.Command.AddStudents;
 using ES.Student.Application.Student.Command.UpdateParent;
 using ES.Student.Application.Student.Command.UpdateStudents;
+using ES.Student.Application.Student.Queries.Attendance.AttendanceReport;
 using ES.Student.Application.Student.Queries.FilterAttendances;
 using ES.Student.Application.Student.Queries.FilterParents;
 using ES.Student.Application.Student.Queries.FilterStudents;
@@ -33,6 +34,13 @@ namespace ES.Student.Application.AutoMapper
             CreateMap<AddAttendanceResponse, StudentAttendances>().ReverseMap();
             CreateMap<FilterAttendanceResponse, StudentAttendances>().ReverseMap();
             CreateMap<PagedResult<StudentAttendances>, PagedResult<FilterAttendanceResponse>>().ReverseMap();
+
+
+
+            CreateMap<AttendanceReportResponse, StudentAttendances>().ReverseMap();
+            CreateMap<PagedResult<StudentAttendances>, PagedResult<AttendanceReportResponse>>().ReverseMap();
+
+
             #endregion
             #region Student
 

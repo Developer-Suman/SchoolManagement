@@ -14,13 +14,11 @@ namespace TN.Inventory.Application.Inventory.Command.SchoolAssets.SchoolItems.Re
             (
                 addSchoolItemsRequest.name,
                 addSchoolItemsRequest.contributorId,
-                addSchoolItemsRequest.itemStatus,
                 addSchoolItemsRequest.itemCondition,
                 addSchoolItemsRequest.receivedDate,
                 addSchoolItemsRequest.estimatedValue,
                 addSchoolItemsRequest.quantity,
-                addSchoolItemsRequest.unitType,
-                addSchoolItemsRequest.fiscalYearId
+                addSchoolItemsRequest.unitType
             );
         }
     }

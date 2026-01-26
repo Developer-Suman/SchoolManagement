@@ -9,6 +9,7 @@ namespace ES.Student.Application.Student.Queries.GetStudentForAttendance
     public record StudentForAttendanceResponse
     (
         string id,
+        string classId,
         string name
         );
 }

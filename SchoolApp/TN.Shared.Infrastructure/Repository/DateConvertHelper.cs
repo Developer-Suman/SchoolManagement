@@ -1,5 +1,7 @@
-﻿using NepaliCalendarBS;
+﻿
 using NepaliDateConverter.Net;
+using NepDate;
+using NepDate.Extensions;
 using System;
 using System.Threading.Tasks;
 using TN.Shared.Application.ServiceInterface;
@@ -32,12 +34,15 @@ namespace TN.Shared.Infrastructure.Repository
         {
             try
             {
+
                 // Convert English (AD) date to Nepali (BS)
                 var nepaliDate = NepaliCalendarBS.NepaliCalendar.Convert_AD2BS(englishDate).ToString();
 
                 // Convert digits to Nepali numerals
                 //string[] nepaliNumbers = { "०", "१", "२", "३", "४", "५", "६", "७", "८", "९" };
                 nepaliDate = nepaliDate.Replace("/", "-");
+
+              
 
                 //for (int i = 0; i < nepaliNumbers.Length; i++)
                 //{
@@ -82,6 +87,12 @@ namespace TN.Shared.Infrastructure.Repository
                 TimeZoneInfo.ConvertTimeToUtc(endLocal, nepalTz);
 
             return (startUtc, endUtc);
+        }
+
+        public async Task<NepDate.NepaliDate> NepaliDateDetails(DateTime englishDate)
+        {
+            NepaliDate nepaliDateDetails = englishDate.ToNepaliDate();
+            return nepaliDateDetails;
         }
 
         private async Task<DateTime> ConvertFullBsDateToEnglish(string bsDateTime)

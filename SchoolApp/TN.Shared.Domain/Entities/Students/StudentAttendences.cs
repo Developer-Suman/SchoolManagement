@@ -28,9 +28,12 @@ namespace TN.Shared.Domain.Entities.Students
             string modifiedBy,
             DateTime modifiedAt,
             string schoolId,
-            bool isActive
+            bool isActive,
+            string classId,
+            string attendanceDateNepali
             ) : base(id)
         {
+            AttendanceDateNepali = attendanceDateNepali;
             StudentId = studentId;
             AttendanceDate = attendanceDate;
             AttendanceStatus = attendanceStatus;
@@ -42,9 +45,12 @@ namespace TN.Shared.Domain.Entities.Students
             ModifiedAt = modifiedAt;
             SchoolId = schoolId;
             IsActive = isActive;
+            ClassId = classId;
 
         }
 
+        public string AttendanceDateNepali { get; set; }
+        public string ClassId { get; set; }
         public string SchoolId { get; set; }
         public bool IsActive { get; set; }
         public string StudentId { get; set; }

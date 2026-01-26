@@ -3,9 +3,12 @@ using ES.Certificate.Application.ServiceInterface.IHelperMethod;
 using ES.Student.Application.ServiceInterface;
 using ES.Student.Application.Student.Command.AddAttendances;
 using ES.Student.Application.Student.Command.AddStudents;
+using ES.Student.Application.Student.Queries.Attendance.AttendanceReport;
 using ES.Student.Application.Student.Queries.FilterAttendances;
 using ES.Student.Application.Student.Queries.FilterParents;
 using Microsoft.AspNetCore.Authorization;
+using NepDate;
+using NepDate.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -48,27 +51,125 @@ namespace ES.Student.Infrastructure.ServiceImpl
             _tokenService = tokenService;
         }
 
+        public async Task<Result<PagedResult<AttendanceReportResponse>>> GetAttendanceReport(PaginationRequest paginationRequest, AttendanceReportDTOs attendanceReportDTOs)
+        {
+            try
+            {
+                var fyId = _fiscalContext.CurrentFiscalYearId;
+                var userId = _tokenService.GetUserId();
+
+                var (StudentAttendence, schoolId, institutionId, userRole, isSuperAdmin) = await _getUserScopedData.GetUserScopedData<StudentAttendances>();
+
+                var schoolIds = await _unitOfWork.BaseRepository<School>()
+                    .GetConditionalFilterType(
+                        x => x.InstitutionId == institutionId,
+                        query => query.Select(c => c.Id)
+                    );
+
+                var parentsFilterData = isSuperAdmin
+                    ? StudentAttendence
+                    : StudentAttendence.Where(x => x.SchoolId == _tokenService.SchoolId().FirstOrDefault() || x.SchoolId == "");
+
+                var (startUtc, endUtc) = await _dateConverter.GetDateRangeUtc(attendanceReportDTOs.startDate, attendanceReportDTOs.endDate);
+
+                DateTime currentDate = DateTime.UtcNow;
+
+                NepaliDate nepaliDatetest = await _dateConverter.NepaliDateDetails(currentDate);
+
+
+                var month = _helperMethodServices.GetNepaliMonthNumber(attendanceReportDTOs.nameOfMonths.ToString()?? "");
+
+
+            string datePrefix = $"{attendanceReportDTOs.yearName}-{month}";
+
+                var filteredResult = parentsFilterData
+                    .Where(x =>
+                        (string.IsNullOrEmpty(attendanceReportDTOs.academicTeamId) || x.AcademicTeamId == attendanceReportDTOs.academicTeamId) &&
+                        (string.IsNullOrEmpty(attendanceReportDTOs.classId) || x.ClassId == attendanceReportDTOs.classId) &&
+                        x.AttendanceDateNepali.StartsWith(datePrefix) && // Filters by Year and Month
+                        x.IsActive
+                    )
+                    .OrderByDescending(x => x.CreatedAt)
+                    .ToList();
+
+
+
+
+                var responseList = filteredResult
+                .OrderByDescending(x => x.CreatedAt)
+                .Select(i => new AttendanceReportResponse(
+                    i.StudentId,
+                    i.AttendanceDate,
+                    i.AttendanceStatus,
+                    i.AcademicTeamId,
+                    i.Remarks,
+                    i.CreatedAt
+                ))
+                .ToList();
+
+                PagedResult<AttendanceReportResponse> finalResponseList;
+
+                if (paginationRequest.IsPagination)
+                {
+
+                    int pageIndex = paginationRequest.pageIndex <= 0 ? 1 : paginationRequest.pageIndex;
+                    int pageSize = paginationRequest.pageSize <= 0 ? 10 : paginationRequest.pageSize;
+
+                    int totalItems = responseList.Count();
+
+                    var pagedItems = responseList
+                        .Skip((pageIndex - 1) * pageSize)
+                        .Take(pageSize)
+                        .ToList();
+
+                    finalResponseList = new PagedResult<AttendanceReportResponse>
+                    {
+                        Items = pagedItems,
+                        TotalItems = totalItems,
+                        PageIndex = pageIndex,
+                        pageSize = pageSize
+                    };
+                }
+                else
+                {
+                    finalResponseList = new PagedResult<AttendanceReportResponse>
+                    {
+                        Items = responseList.ToList(),
+                        TotalItems = responseList.Count(),
+                        PageIndex = 1,
+                        pageSize = responseList.Count()
+                    };
+                }
+                return Result<PagedResult<AttendanceReportResponse>>.Success(finalResponseList);
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"An error occurred while fetching: {ex.Message}", ex);
+            }
+        }
+
 
 
 
         //Policy based Authorization
-    //    var classId = await _unitOfWork
-    //.BaseRepository<AcademicTeamClass>()
-    //.GetConditionalFilterType(
-    //    predicate: x => x.AcademicTeam.ApplicationUserId == userId,
-    //    queryModifier: q => q
-    //        .Select(x => x.ClassId)
-    //)
-    //.FirstOrDefaultAsync();
+        //    var classId = await _unitOfWork
+        //.BaseRepository<AcademicTeamClass>()
+        //.GetConditionalFilterType(
+        //    predicate: x => x.AcademicTeam.ApplicationUserId == userId,
+        //    queryModifier: q => q
+        //        .Select(x => x.ClassId)
+        //)
+        //.FirstOrDefaultAsync();
 
-    //    var authResult = await _authorizationService.AuthorizeAsync(
-    //            User,
-    //            classId,
-    //            "TeacherCanAddExamResult"
-    //        );
+        //    var authResult = await _authorizationService.AuthorizeAsync(
+        //            User,
+        //            classId,
+        //            "TeacherCanAddExamResult"
+        //        );
 
-    //        if (!authResult.Succeeded)
-    //            return Forbid();
+        //        if (!authResult.Succeeded)
+        //            return Forbid();
 
         public async Task<Result<PagedResult<FilterAttendanceResponse>>> GetFilterStudentAttendance(PaginationRequest paginationRequest, FilterAttendanceDTOs filterAttendanceDTOs)
         {
@@ -169,13 +270,16 @@ namespace ES.Student.Infrastructure.ServiceImpl
                     var schoolId = _tokenService.SchoolId().FirstOrDefault();
                     var result = new List<AddAttendanceResponse>();
 
+                    var attendanceDateNeplai = await _dateConverter.ConvertToNepali(DateTime.UtcNow);
+
                     foreach (var s in request.StudentAttendances)
                     {
                         var existing = await _unitOfWork.BaseRepository<StudentAttendances>()
                          .FirstOrDefaultAsync(x =>
                              x.StudentId == s.studentId &&
                              x.AcademicTeamId == userId &&
-                             x.AttendanceDate.Date == DateTime.UtcNow
+                             x.AttendanceDate.Date == DateTime.UtcNow &&
+                             x.ClassId == request.classId
                          );
                         if (existing != null)
                         {
@@ -194,7 +298,8 @@ namespace ES.Student.Infrastructure.ServiceImpl
                                 existing.CreatedBy,
                                 existing.CreatedAt,
                                 existing.ModifiedBy,
-                                existing.ModifiedAt
+                                existing.ModifiedAt,
+                                existing.ClassId
                             ));
 
                             continue;
@@ -215,7 +320,9 @@ namespace ES.Student.Infrastructure.ServiceImpl
                             modifiedBy: userId,
                             modifiedAt: DateTime.Now,
                             schoolId: schoolId!,
-                            isActive: true
+                            isActive: true,
+                            classId: request.classId,
+                            attendanceDateNepali: attendanceDateNeplai
                         );
 
                         await _unitOfWork.BaseRepository<StudentAttendances>().AddAsync(attendance);
@@ -230,7 +337,8 @@ namespace ES.Student.Infrastructure.ServiceImpl
                             attendance.CreatedBy,
                             attendance.CreatedAt,
                             attendance.ModifiedBy,
-                            attendance.ModifiedAt
+                            attendance.ModifiedAt,
+                            attendance.ClassId
                         ));
                     }
 

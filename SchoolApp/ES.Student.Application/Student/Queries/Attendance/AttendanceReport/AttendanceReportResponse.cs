@@ -5,20 +5,15 @@ using System.Text;
 using System.Threading.Tasks;
 using TN.Shared.Domain.Entities.Students;
 
-namespace ES.Student.Application.Student.Command.AddAttendances
+namespace ES.Student.Application.Student.Queries.Attendance.AttendanceReport
 {
-    public record AddAttendanceResponse
+    public record AttendanceReportResponse
     (
-              string id,
-            string studentId,
+          string studentId,
             DateTime attendanceDate,
             AttendanceStatus attendanceStatus,
             string academicTeamId,
             string? remarks,
-            string createdBy,
-            DateTime createdAt,
-            string modifiedBy,
-            DateTime modifiedAt,
-            string classId
+            DateTime createdAt
         );
 }

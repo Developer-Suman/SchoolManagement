@@ -8,8 +8,8 @@ namespace ES.Academics.Application.Academics.Queries.SchoolClassById
 {
     public record SchoolClassByIdResponse
     (
-        string classId,
-        string name
+        string Id="",
+        string name=""
 
         );
 }

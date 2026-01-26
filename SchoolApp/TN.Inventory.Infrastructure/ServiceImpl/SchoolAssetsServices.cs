@@ -150,6 +150,7 @@ namespace TN.Inventory.Infrastructure.ServiceImpl
                     string userId = _tokenService.GetUserId();
                     string schoolId = _tokenService.SchoolId().FirstOrDefault() ?? "";
                     string newId = Guid.NewGuid().ToString();
+                    var fyId = _fiscalContext.CurrentFiscalYearId;
 
 
                     var schoolItem = new SchoolItem
@@ -157,14 +158,13 @@ namespace TN.Inventory.Infrastructure.ServiceImpl
                             newId,
                             addSchoolItemsCommand.name,
                             addSchoolItemsCommand.contributorId,
-                            addSchoolItemsCommand.itemStatus,
                             addSchoolItemsCommand.itemCondition,
                             addSchoolItemsCommand.receivedDate,
                             addSchoolItemsCommand.estimatedValue,
                             addSchoolItemsCommand.quantity,
                             addSchoolItemsCommand.unitType,
                             schoolId,
-                            addSchoolItemsCommand.fiscalYearId,
+                            fyId,
                             true,
                             userId,
                             DateTime.UtcNow,
@@ -325,7 +325,6 @@ namespace TN.Inventory.Infrastructure.ServiceImpl
                     i.Id,
                     i.Name,
                     i.ContributorId,
-                    i.ItemStatus,
                     i.ItemCondition,
                     i.ReceivedDate,
                     i.EstimatedValue,

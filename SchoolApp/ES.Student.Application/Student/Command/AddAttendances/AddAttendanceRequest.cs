@@ -9,6 +9,7 @@ namespace ES.Student.Application.Student.Command.AddAttendances
 {
     public record AddAttendanceRequest
     (
+        string classId,
         List<StudentAttendanceDto> StudentAttendances
 
         );
