@@ -38,7 +38,6 @@ namespace ES.Student.Application.AutoMapper
 
 
             CreateMap<AttendanceReportResponse, StudentAttendances>().ReverseMap();
-            CreateMap<PagedResult<StudentAttendances>, PagedResult<AttendanceReportResponse>>().ReverseMap();
 
 
             #endregion

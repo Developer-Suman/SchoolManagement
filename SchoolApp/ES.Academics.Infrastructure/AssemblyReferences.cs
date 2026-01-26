@@ -25,6 +25,7 @@ namespace ES.Academics.Infrastructure
             services.AddScoped<ISubjectServices, SubjectServices>();
             services.AddScoped<IAssignmentServices, AssignmentServices>();
             services.AddScoped<IAssignmentsServices, AssigmentsServices>();
+            services.AddScoped<IEventsServices, EventsServices>();
             #endregion
 
             return services;

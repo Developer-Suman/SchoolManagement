@@ -12,7 +12,7 @@ using TN.Shared.Domain.ExtensionMethod.Pagination;
 
 namespace ES.Student.Application.Student.Queries.Attendance.AttendanceReport
 {
-    public class AttendanceReportQueryHandler : IRequestHandler<AttendanceReportQuery, Result<PagedResult<AttendanceReportResponse>>>
+    public class AttendanceReportQueryHandler : IRequestHandler<AttendanceReportQuery, Result<AttendanceReportResponse>>
     {
         private readonly IMapper _mapper;
         private readonly IAttendanceServices _attendanceServices;
@@ -24,20 +24,20 @@ namespace ES.Student.Application.Student.Queries.Attendance.AttendanceReport
 
 
         }
-        public async Task<Result<PagedResult<AttendanceReportResponse>>> Handle(AttendanceReportQuery request, CancellationToken cancellationToken)
+        public async Task<Result<AttendanceReportResponse>> Handle(AttendanceReportQuery request, CancellationToken cancellationToken)
         {
             try
             {
 
-                var result = await _attendanceServices.GetAttendanceReport(request.PaginationRequest, request.AttendanceReportDTOs);
+                var result = await _attendanceServices.GetAttendanceReport(request.AttendanceReportDTOs);
 
-                var attendanceReport = _mapper.Map<PagedResult<AttendanceReportResponse>>(result.Data);
+                var attendanceReport = _mapper.Map<AttendanceReportResponse>(result.Data);
 
-                return Result<PagedResult<AttendanceReportResponse>>.Success(attendanceReport);
+                return Result<AttendanceReportResponse>.Success(attendanceReport);
             }
             catch (Exception ex)
             {
-                return Result<PagedResult<AttendanceReportResponse>>.Failure($"An error occurred: {ex.Message}");
+                return Result<AttendanceReportResponse>.Failure($"An error occurred: {ex.Message}");
             }
         }
     }

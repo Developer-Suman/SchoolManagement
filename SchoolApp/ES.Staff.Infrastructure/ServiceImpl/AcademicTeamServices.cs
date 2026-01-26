@@ -342,7 +342,13 @@ namespace ES.Staff.Infrastructure.ServiceImpl
                 var fyId = _fiscalContext.CurrentFiscalYearId;
                 var userId = _tokenService.GetUserId();
 
-                var (students, schoolId, institutionId, userRole, isSuperAdmin) = await _getUserScopedData.GetUserScopedData<AcademicTeam>();
+                var (academicTeam, schoolId, institutionId, userRole, isSuperAdmin) = await _getUserScopedData.GetUserScopedData<AcademicTeam>();
+
+
+
+
+
+
 
                 var schoolIds = await _unitOfWork.BaseRepository<School>()
                     .GetConditionalFilterType(
@@ -350,13 +356,13 @@ namespace ES.Staff.Infrastructure.ServiceImpl
                         query => query.Select(c => c.Id)
                     );
 
-                var filterStudentsData = isSuperAdmin
-                    ? students
-                    : students.Include(x=>x.User).Where(x => x.SchoolId == _tokenService.SchoolId().FirstOrDefault() || x.SchoolId == "");
+                var filterAcademicTeamData = isSuperAdmin
+                    ? academicTeam
+                    : academicTeam.Include(x=>x.User).Where(x => x.SchoolId == _tokenService.SchoolId().FirstOrDefault() || x.SchoolId == "");
 
                 var (startUtc, endUtc) = await _dateConverter.GetDateRangeUtc(filterAcademicTeamDTOs.startDate, filterAcademicTeamDTOs.endDate);
 
-                var filteredResult = filterStudentsData
+                var filteredResult = filterAcademicTeamData
                  .Where(x =>
                        (string.IsNullOrEmpty(filterAcademicTeamDTOs.fullName) || x.FullName == filterAcademicTeamDTOs.fullName) &&
                      x.CreatedAt >= startUtc &&

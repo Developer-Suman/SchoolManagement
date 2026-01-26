@@ -54,9 +54,9 @@ namespace TN.Web.Controllers.Student.v1
 
         #region AttendanceReport
         [HttpGet("AttendanceReport")]
-        public async Task<IActionResult> AttendanceReport([FromQuery] AttendanceReportDTOs attendanceReportDTOs, [FromQuery] PaginationRequest paginationRequest)
+        public async Task<IActionResult> AttendanceReport([FromQuery] AttendanceReportDTOs attendanceReportDTOs)
         {
-            var query = new AttendanceReportQuery(paginationRequest, attendanceReportDTOs);
+            var query = new AttendanceReportQuery(attendanceReportDTOs);
             var attendanceReportResult = await _mediator.Send(query);
             #region Switch Statement
             return attendanceReportResult switch
