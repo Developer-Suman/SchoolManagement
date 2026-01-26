@@ -21,6 +21,8 @@ using ES.Academics.Application.Academics.Command.EvaluteAssignments;
 using ES.Academics.Application.Academics.Command.EvaluteAssignments.RequestCommandMapper;
 using ES.Academics.Application.Academics.Command.Events.AddEvents;
 using ES.Academics.Application.Academics.Command.Events.AddEvents.RequestCommandMapper;
+using ES.Academics.Application.Academics.Command.Events.UpdateEvents;
+using ES.Academics.Application.Academics.Command.Events.UpdateEvents.RequestCommandMapper;
 using ES.Academics.Application.Academics.Command.SubmitAssignments;
 using ES.Academics.Application.Academics.Command.SubmitAssignments.RequestCommandMapper;
 using ES.Academics.Application.Academics.Command.UpdateExam;
@@ -50,6 +52,7 @@ using ES.Academics.Application.Academics.Queries.Subject;
 using ES.Academics.Application.Academics.Queries.SubjectByClassId;
 using ES.Academics.Application.Academics.Queries.SubjectById;
 using ES.Certificate.Application.Certificates.Command.Awards.SchoolAwards.AddAwards;
+using ES.Certificate.Application.Certificates.Command.Awards.SchoolAwards.UpdateAwards;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -105,6 +108,29 @@ namespace TN.Web.Controllers.Academics.v1
         }
         #endregion
 
+        #region UpdateEvents
+        [HttpPatch("UpdateEvents/{Id}")]
+
+        public async Task<IActionResult> UpdateEvents([FromRoute] string Id, [FromBody] UpdateEventsRequest request)
+        {
+            //Mapping command and request
+            var command = request.ToCommand(Id);
+            var updateEventsResult = await _mediator.Send(command);
+            #region Switch Statement
+            return updateEventsResult switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(updateEventsResult.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = updateEventsResult.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(updateEventsResult.Errors),
+                _ => BadRequest("Invalid Fields for Update Events")
+            };
+
+            #endregion
+        }
+        #endregion
 
 
         #endregion
