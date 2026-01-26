@@ -1,8 +1,11 @@
 ﻿using AutoMapper;
 using ES.Academics.Application.Academics.Command.Events.AddEvents;
+using ES.Academics.Application.Academics.Command.Events.UpdateEvents;
 using ES.Academics.Application.ServiceInterface;
 using ES.Certificate.Application.Certificates.Command.Awards.SchoolAwards.AddAwards;
+using ES.Certificate.Application.Certificates.Command.Awards.SchoolAwards.UpdateAwards;
 using ES.Certificate.Application.Certificates.Command.Awards.StudentsAwards.AddAwards;
+using ES.Certificate.Application.Certificates.Command.Awards.StudentsAwards.UpdateAwards;
 using ES.Certificate.Application.ServiceInterface.IHelperMethod;
 using System;
 using System.Collections.Generic;
@@ -12,10 +15,11 @@ using System.Threading.Tasks;
 using System.Transactions;
 using TN.Shared.Application.ServiceInterface;
 using TN.Shared.Domain.Abstractions;
+using TN.Shared.Domain.Entities.Academics;
 using TN.Shared.Domain.Entities.Certificates;
 using TN.Shared.Domain.Entities.OrganizationSetUp;
 using TN.Shared.Domain.IRepository;
-using static Microsoft.IO.RecyclableMemoryStreamManager;
+using Unity.Injection;
 
 namespace ES.Academics.Infrastructure.ServiceImpl
 {
@@ -53,7 +57,25 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                     var userId = _tokenService.GetUserId();
 
                     var addEvents = new Events(
-                        
+                        newId,
+                        addEventsCommand.title,
+                        addEventsCommand.descriptions,
+                            addEventsCommand.eventsType,
+                        addEventsCommand.eventsDate,
+
+                        addEventsCommand.participants,
+                        addEventsCommand.eventTime,
+                        addEventsCommand.venue,
+                        addEventsCommand.chiefGuest,
+                        addEventsCommand.organizer,
+                        addEventsCommand.mentor,
+                        schoolId,
+                        userId,
+                        DateTime.UtcNow,
+                        "",
+                        default,
+                        true
+
 
                     );
 
@@ -70,6 +92,58 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                     scope.Dispose();
                     throw new Exception("An error occurred while adding ", ex);
 
+                }
+            }
+        }
+
+        public async Task<Result<UpdateEventsResponse>> Update(string eventsId, UpdateEventsCommand updateEventsCommand)
+            {
+            using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            {
+                try
+                {
+                    if (eventsId == null)
+                    {
+                        return Result<UpdateEventsResponse>.Failure("NotFound", "Please provide valid EventsId");
+                    }
+
+                    var eventsToBeUpdated = await _unitOfWork.BaseRepository<Events>().GetByGuIdAsync(eventsId);
+                    if (eventsToBeUpdated is null)
+                    {
+                        return Result<UpdateEventsResponse>.Failure("NotFound", "Events are not Found");
+                    }
+                    eventsToBeUpdated.CreatedAt = DateTime.UtcNow;
+                    _mapper.Map(updateEventsCommand, eventsToBeUpdated);
+                    await _unitOfWork.SaveChangesAsync();
+                    scope.Complete();
+
+                    var resultResponse = new UpdateEventsResponse
+                        (
+                            eventsToBeUpdated.Id,
+                            eventsToBeUpdated.Title,
+                            eventsToBeUpdated.Description,
+                            eventsToBeUpdated.EventsType,
+                            eventsToBeUpdated.EventsDate,
+                            eventsToBeUpdated.Participants,
+                            eventsToBeUpdated.EventTime,
+                            eventsToBeUpdated.Venue,
+                            eventsToBeUpdated.ChiefGuest,
+                            eventsToBeUpdated.Organizer,
+                            eventsToBeUpdated.Mentor,
+                            eventsToBeUpdated.SchoolId,
+                            eventsToBeUpdated.CreatedBy,
+                            eventsToBeUpdated.CreatedAt,
+                            eventsToBeUpdated.ModifiedBy,
+                            eventsToBeUpdated.ModifiedAt,
+                            eventsToBeUpdated.IsActive
+                         );
+
+                    return Result<UpdateEventsResponse>.Success(resultResponse);
+
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception("An error occurred while updating the Events", ex);
                 }
             }
         }

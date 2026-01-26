@@ -17,6 +17,7 @@ using Microsoft.Extensions.DependencyInjection;
 using ES.Academics.Application.Academics.Command.EvaluteAssignments;
 using ES.Academics.Application.Academics.Command.SubmitAssignments;
 using ES.Academics.Application.Academics.Command.Events.AddEvents;
+using ES.Academics.Application.Academics.Command.Events.UpdateEvents;
 
 
 namespace ES.Academics.Application
@@ -45,6 +46,7 @@ namespace ES.Academics.Application
             services.AddScoped<IValidator<SubmitAssignmentsCommand>, SubmitAssignmentsCommandValidator>();
             services.AddScoped<IValidator<AddAssignmentsCommand>, AddAssignmentsCommandValidator>();
             services.AddScoped<IValidator<AddEventsCommand>, AddEventsCommandValidator>();
+            services.AddScoped<IValidator<UpdateEventsCommand>, UpdateEventsCommandValidator>();
 
 
 

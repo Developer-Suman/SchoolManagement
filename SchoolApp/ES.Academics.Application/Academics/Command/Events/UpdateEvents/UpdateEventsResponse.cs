@@ -6,8 +6,9 @@ using System.Threading.Tasks;
 
 namespace ES.Academics.Application.Academics.Command.Events.UpdateEvents
 {
-    public record UpdateEventsRequest
+    public record UpdateEventsResponse
     (
+         string id,
             string title,
             string? descriptions,
             string eventsType,
@@ -18,7 +19,11 @@ namespace ES.Academics.Application.Academics.Command.Events.UpdateEvents
             string? chiefGuest,
             string? organizer,
             string? mentor,
-            string schoolId
-
+            string schoolId,
+            string createdBy,
+            DateTime createdAt,
+            string modifiedBy,
+            DateTime modifiedAt,
+            bool isActive
         );
 }

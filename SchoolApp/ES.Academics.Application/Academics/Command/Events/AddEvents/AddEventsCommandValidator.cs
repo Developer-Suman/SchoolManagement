@@ -19,15 +19,15 @@ namespace ES.Academics.Application.Academics.Command.Events.AddEvents
             RuleFor(x => x.eventsType)
                 .NotEmpty().WithMessage("Events type is required.")
                 .MaximumLength(100).WithMessage("Events type cannot exceed 100 characters.");
-            RuleFor(x => x.eventsDate)
-                .NotEmpty().WithMessage("Events date is required.")
-                .LessThanOrEqualTo(DateTime.Now).WithMessage("Events date cannot be in the future.");
+            //RuleFor(x => x.eventsDate)
+            //    .NotEmpty().WithMessage("Events date is required.")
+            //    .LessThanOrEqualTo(DateTime.Now).WithMessage("Events date cannot be in the future.");
             RuleFor(x => x.participants)
                 .NotEmpty().WithMessage("Participants are required.")
-                .MaximumLength(500).WithMessage("Participants cannot exceed 500 characters.");
-            RuleFor(x => x.eventTime)
-                .NotEmpty().WithMessage("Event time is required.");
-            RuleFor(x => x.venue)
+            //    .MaximumLength(500).WithMessage("Participants cannot exceed 500 characters.");
+            //RuleFor(x => x.eventTime)
+            //    .NotEmpty().WithMessage("Event time is required.");
+            //RuleFor(x => x.venue)
                 .NotEmpty().WithMessage("Venue is required.")
                 .MaximumLength(300).WithMessage("Venue cannot exceed 300 characters.");
             RuleFor(x => x.chiefGuest)
