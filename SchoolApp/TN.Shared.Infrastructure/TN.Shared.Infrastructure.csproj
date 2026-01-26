@@ -27,6 +27,7 @@
     <PackageReference Include="NepaliDateConverter" Version="1.0.6" />
     <PackageReference Include="NepaliDateConverter.Net" Version="2.0.1" />
     <PackageReference Include="NepaliDateConverter.NETCORE" Version="1.0.4" />
+    <PackageReference Include="NepDate" Version="2.0.5" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.11" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL.Design" Version="1.1.0" />
     <PackageReference Include="QRCoder" Version="1.7.0" />

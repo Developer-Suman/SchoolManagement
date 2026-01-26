@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NepDate;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,6 +11,8 @@ namespace TN.Shared.Application.ServiceInterface
     {
         Task<DateTime> ConvertToEnglish(string nepaliDate);
         Task<string> ConvertToNepali(DateTime englishDate);
+
+        Task<NepaliDate> NepaliDateDetails(DateTime englishDate);
         Task<(DateTime StartUtc, DateTime EndUtc)> GetDateRangeUtc(string startDate, string endDate);
     }
 }

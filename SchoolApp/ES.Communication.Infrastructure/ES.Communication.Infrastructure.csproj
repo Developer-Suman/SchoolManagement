@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="NepDate" Version="2.0.5" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\ES.Certificate.Application\ES.Certificate.Application.csproj" />
     <ProjectReference Include="..\ES.Communication.Application\ES.Communication.Application.csproj" />
     <ProjectReference Include="..\TN.Shared.Domain\TN.Shared.Domain.csproj" />

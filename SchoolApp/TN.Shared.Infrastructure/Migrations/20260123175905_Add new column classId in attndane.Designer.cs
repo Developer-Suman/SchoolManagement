@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TN.Shared.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using TN.Shared.Infrastructure.Data;
 namespace TN.Shared.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260123175905_Add new column classId in attndane")]
+    partial class AddnewcolumnclassIdinattndane
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -4214,6 +4217,9 @@ namespace TN.Shared.Infrastructure.Migrations
                     b.Property<int>("ItemCondition")
                         .HasColumnType("int");
 
+                    b.Property<int>("ItemStatus")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("ModifiedAt")
                         .HasColumnType("datetime2");
 
@@ -4538,10 +4544,6 @@ namespace TN.Shared.Infrastructure.Migrations
 
                     b.Property<DateTime>("AttendanceDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("AttendanceDateNepali")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("AttendanceStatus")
                         .HasColumnType("int");

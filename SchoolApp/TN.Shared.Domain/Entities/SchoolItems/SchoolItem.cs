@@ -21,7 +21,7 @@ namespace TN.Shared.Domain.Entities.SchoolItems
             string id,
             string name,
             string contributorId,
-            ItemStatus itemStatus,
+            //ItemStatus itemStatus,
             ItemCondition itemCondition,
             DateTime receivedDate,
             decimal? estimatedValue,
@@ -41,7 +41,7 @@ namespace TN.Shared.Domain.Entities.SchoolItems
             Id = id;
             Name = name;
             ContributorId = contributorId;
-            ItemStatus = itemStatus;
+            //ItemStatus = itemStatus;
             ItemCondition = itemCondition;
             ReceivedDate = receivedDate;
             EstimatedValue = estimatedValue;
@@ -68,7 +68,7 @@ namespace TN.Shared.Domain.Entities.SchoolItems
 
         public string ContributorId { get;set; }
         public Contributor Contributor { get; set; }
-        public ItemStatus ItemStatus { get; set; }
+        //public ItemStatus ItemStatus { get; set; }
         public ItemCondition ItemCondition { get; set; }
         public DateTime ReceivedDate { get; set; }
         public decimal? EstimatedValue { get; set; }

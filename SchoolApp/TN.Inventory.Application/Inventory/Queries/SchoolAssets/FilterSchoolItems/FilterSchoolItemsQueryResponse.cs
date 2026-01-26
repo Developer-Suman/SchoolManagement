@@ -12,7 +12,6 @@ namespace TN.Inventory.Application.Inventory.Queries.SchoolAssets.FilterSchoolIt
          string id,
             string name,
             string contributorId,
-            ItemStatus itemStatus,
             ItemCondition itemCondition,
             DateTime receivedDate,
             decimal? estimatedValue,

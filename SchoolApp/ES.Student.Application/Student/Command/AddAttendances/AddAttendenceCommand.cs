@@ -11,6 +11,7 @@ namespace ES.Student.Application.Student.Command.AddAttendances
 {
     public record AddAttendenceCommand
     (
+        string classId,
         List<StudentAttendanceDto> StudentAttendances
         ) : IRequest<Result<List<AddAttendanceResponse>>>;
 }

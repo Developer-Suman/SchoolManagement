@@ -11,12 +11,10 @@ namespace TN.Inventory.Application.Inventory.Command.SchoolAssets.SchoolItems
     (
             string name,
             string contributorId,
-            ItemStatus itemStatus,
             ItemCondition itemCondition,
             DateTime receivedDate,
             decimal? estimatedValue,
             decimal? quantity,
-            UnitType? unitType,
-            string fiscalYearId
+            UnitType? unitType
         );
 }

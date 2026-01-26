@@ -331,5 +331,25 @@ namespace ES.Certificate.Infrastructure.HelperMethod
                 throw new Exception($"Error while calculating division for student ID: {marksSheetDTOs.studentId}. Details: {ex.Message}", ex);
             }
         }
+
+        public string GetNepaliMonthNumber(string monthName)
+        {
+            return monthName.Trim().ToLower() switch
+            {
+                "baisakh" => "01",
+                "jestha" => "02",
+                "ashadh" => "03",
+                "shrawan" => "04",
+                "bhadra" => "05",
+                "ashwin" => "06",
+                "kartik" => "07",
+                "mangsir" => "08",
+                "poush" => "09",
+                "magh" => "10",
+                "falgun" => "11",
+                "chaitra" => "12",
+                _ => throw new ArgumentException("Invalid Nepali month name")
+            };
+        }
     }
 }

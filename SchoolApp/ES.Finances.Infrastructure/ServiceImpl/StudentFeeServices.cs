@@ -3,6 +3,7 @@ using ES.Finances.Application.Finance.Command.Fee.AddFeeStructure;
 using ES.Finances.Application.Finance.Command.Fee.AddStudentFee;
 using ES.Finances.Application.Finance.Command.Fee.AssignMonthlyFee;
 using ES.Finances.Application.Finance.Command.Fee.UpdateStudentFee;
+using ES.Finances.Application.Finance.Command.PaymentRecords.AddpaymentsRecords;
 using ES.Finances.Application.Finance.Queries.Fee.Feetype;
 using ES.Finances.Application.Finance.Queries.Fee.FilterFeetype;
 using ES.Finances.Application.Finance.Queries.Fee.FilterStudentFee;
@@ -82,9 +83,13 @@ namespace ES.Finances.Infrastructure.ServiceImpl
                                                   x.ClassId == addStudentFeeCommand.classId);
 
                     decimal currentTotal = studentFee?.TotalAmount ?? feeStructure.Amount;
-                    decimal currentPaid = studentFee?.PaidAmount ?? 0;
 
                     decimal discountAmount = feeStructure.Amount * (addStudentFeeCommand.discountPercentage / 100);
+
+                    decimal tobePaid = currentTotal - discountAmount;
+
+
+
 
                     var newRecord = new StudentFee(
                         Guid.NewGuid().ToString(),
@@ -95,7 +100,7 @@ namespace ES.Finances.Infrastructure.ServiceImpl
                         addStudentFeeCommand.discountPercentage,
                         
                         currentTotal,
-                        currentPaid,
+                        tobePaid,
                         true,
                         schoolId,
                         PaidStatus.Pending,
@@ -341,7 +346,8 @@ namespace ES.Finances.Infrastructure.ServiceImpl
                       // Calculation (must use g.Sum again here or do it in the next Select)
                       DueAmount = g.Sum(x => x.TotalAmount) - g.Sum(x => x.PaidAmount),
 
-                      LatestDate = g.Max(x => x.CreatedAt)
+                      LatestDate = g.Max(x => x.CreatedAt),
+                      ClassId = g.Select(x=>x.ClassId)
                   })
                   .OrderByDescending(x => x.LatestDate)
                   .ToList();
@@ -352,7 +358,8 @@ namespace ES.Finances.Infrastructure.ServiceImpl
                         i.FeeStructureIds, 
                         i.TotalAmount,
                         i.TotalPaid,
-                        i.DueAmount
+                        i.DueAmount,
+                        i.ClassId.FirstOrDefault()
                     ))
                     .ToList();
 
@@ -440,6 +447,11 @@ namespace ES.Finances.Infrastructure.ServiceImpl
 
                 List<StudentFeeSummaryResponse> items;
 
+                //decimal totalRemaining = await _unitOfWork.BaseRepository<StudentFee>()
+                //      .GetAsQueryable()
+                //      .Where(x => x.StudentId == studentFeeSummaryDTOs.studentId)
+                //      .SumAsync(x => x.TotalAmount - x.PaidAmount - x.DiscountAmount);
+
                 if (paginationRequest.IsPagination)
                 {
                     items = await query
@@ -451,7 +463,7 @@ namespace ES.Finances.Infrastructure.ServiceImpl
                             x.StudentFee.PaidAmount,
                             x.PaymentMethod,
                             x.StudentFee.TotalAmount,
-                            x.StudentFee.DueAmount
+                            x.StudentFee.TotalAmount - x.StudentFee.PaidAmount
                         ))
                         .ToListAsync();
                 }
@@ -460,10 +472,10 @@ namespace ES.Finances.Infrastructure.ServiceImpl
                     items = await query
                         .Select(x => new StudentFeeSummaryResponse(
                             x.StudentFee.ClassId,
-                            x.StudentFee.PaidAmount,
+                            x.AmountPaid,
                             x.PaymentMethod,
                             x.StudentFee.TotalAmount,
-                            x.StudentFee.DueAmount
+                             x.StudentFee.TotalAmount - x.StudentFee.PaidAmount
                         ))
                         .ToListAsync();
                     pageSize = items.Count;

@@ -66,7 +66,6 @@ namespace TN.Shared.Domain.Entities.Finance
         public decimal TotalAmount { get; set; }
         public decimal PaidAmount { get; set; }
         // ✅ Computed property
-        public decimal DueAmount { get; set;  }
         public string CreatedBy { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public string ModifiedBy { get; set; }

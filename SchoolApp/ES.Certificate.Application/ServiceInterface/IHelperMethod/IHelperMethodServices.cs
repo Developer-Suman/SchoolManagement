@@ -13,5 +13,6 @@ namespace ES.Certificate.Application.ServiceInterface.IHelperMethod
         Task<string> CalculateGPA(MarksSheetDTOs marksSheetDTOs);
 
         Task<string> CalculateDivision(MarksSheetDTOs marksSheetDTOs);
+        string GetNepaliMonthNumber(string monthName);
     }
 }

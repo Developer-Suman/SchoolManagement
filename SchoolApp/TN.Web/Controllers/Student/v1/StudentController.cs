@@ -12,6 +12,7 @@ using ES.Student.Application.Student.Command.UpdateParent;
 using ES.Student.Application.Student.Command.UpdateParent.RequestCommandMapper;
 using ES.Student.Application.Student.Command.UpdateStudents;
 using ES.Student.Application.Student.Command.UpdateStudents.RequestCommandMapper;
+using ES.Student.Application.Student.Queries.Attendance.AttendanceReport;
 using ES.Student.Application.Student.Queries.FilterAttendances;
 using ES.Student.Application.Student.Queries.FilterParents;
 using ES.Student.Application.Student.Queries.FilterStudents;
@@ -50,6 +51,32 @@ namespace TN.Web.Controllers.Student.v1
         }
 
         #region Attendance
+
+        #region AttendanceReport
+        [HttpGet("AttendanceReport")]
+        public async Task<IActionResult> AttendanceReport([FromQuery] AttendanceReportDTOs attendanceReportDTOs, [FromQuery] PaginationRequest paginationRequest)
+        {
+            var query = new AttendanceReportQuery(paginationRequest, attendanceReportDTOs);
+            var attendanceReportResult = await _mediator.Send(query);
+            #region Switch Statement
+            return attendanceReportResult switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(attendanceReportResult.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = attendanceReportResult.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(attendanceReportResult.Errors),
+                _ => BadRequest("Invalid page and pageSize Fields")
+            };
+            #endregion
+
+        }
+
+        #endregion
+
+
+
 
         #region AddStudentAttendence
         [HttpPost("AddStudentAttendence")]

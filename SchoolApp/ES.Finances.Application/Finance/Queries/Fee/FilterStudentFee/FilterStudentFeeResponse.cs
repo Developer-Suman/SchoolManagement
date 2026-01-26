@@ -12,6 +12,7 @@ namespace ES.Finances.Application.Finance.Queries.Fee.FilterStudentFee
             List<string> feeStructureId,
             decimal totalAmount,
             decimal paidAmount,
-            decimal dueAmount
+            decimal dueAmount,
+            string classId
         );
 }
