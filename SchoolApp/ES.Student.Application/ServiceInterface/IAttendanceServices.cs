@@ -16,6 +16,6 @@ namespace ES.Student.Application.ServiceInterface
     {
         Task<Result<IEnumerable<AddAttendanceResponse>>> MarkBulkAsync(AddAttendenceCommand request);
         Task<Result<PagedResult<FilterAttendanceResponse>>> GetFilterStudentAttendance(PaginationRequest paginationRequest, FilterAttendanceDTOs filterAttendanceDTOs);
-        Task<Result<PagedResult<AttendanceReportResponse>>> GetAttendanceReport(PaginationRequest paginationRequest, AttendanceReportDTOs attendanceReportDTOs);
+        Task<Result<AttendanceReportResponse>> GetAttendanceReport(AttendanceReportDTOs attendanceReportDTOs);
     }
 }

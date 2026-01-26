@@ -51,101 +51,74 @@ namespace ES.Student.Infrastructure.ServiceImpl
             _tokenService = tokenService;
         }
 
-        public async Task<Result<PagedResult<AttendanceReportResponse>>> GetAttendanceReport(PaginationRequest paginationRequest, AttendanceReportDTOs attendanceReportDTOs)
+        public async Task<Result<AttendanceReportResponse>> GetAttendanceReport( AttendanceReportDTOs attendanceReportDTOs)
         {
             try
             {
                 var fyId = _fiscalContext.CurrentFiscalYearId;
                 var userId = _tokenService.GetUserId();
 
-                var (StudentAttendence, schoolId, institutionId, userRole, isSuperAdmin) = await _getUserScopedData.GetUserScopedData<StudentAttendances>();
+                var (StudentAttendence, schoolId, institutionId, userRole, isSuperAdmin) =
+                    await _getUserScopedData.GetUserScopedData<StudentAttendances>();
 
-                var schoolIds = await _unitOfWork.BaseRepository<School>()
-                    .GetConditionalFilterType(
-                        x => x.InstitutionId == institutionId,
-                        query => query.Select(c => c.Id)
-                    );
-
+                // 1. Initial Filtering
                 var parentsFilterData = isSuperAdmin
                     ? StudentAttendence
                     : StudentAttendence.Where(x => x.SchoolId == _tokenService.SchoolId().FirstOrDefault() || x.SchoolId == "");
 
-                var (startUtc, endUtc) = await _dateConverter.GetDateRangeUtc(attendanceReportDTOs.startDate, attendanceReportDTOs.endDate);
+                var monthNumber = _helperMethodServices.GetNepaliMonthNumber(attendanceReportDTOs.nameOfMonths.ToString() ?? "");
 
-                DateTime currentDate = DateTime.UtcNow;
-
-                NepaliDate nepaliDatetest = await _dateConverter.NepaliDateDetails(currentDate);
-
-
-                var month = _helperMethodServices.GetNepaliMonthNumber(attendanceReportDTOs.nameOfMonths.ToString()?? "");
-
-
-            string datePrefix = $"{attendanceReportDTOs.yearName}-{month}";
+                // Formatting month to 2 digits ensures "2082-1" becomes "2082-01" for accurate string matching
+                string datePrefix = $"{attendanceReportDTOs.yearName}-{monthNumber:D2}";
 
                 var filteredResult = parentsFilterData
                     .Where(x =>
                         (string.IsNullOrEmpty(attendanceReportDTOs.academicTeamId) || x.AcademicTeamId == attendanceReportDTOs.academicTeamId) &&
                         (string.IsNullOrEmpty(attendanceReportDTOs.classId) || x.ClassId == attendanceReportDTOs.classId) &&
-                        x.AttendanceDateNepali.StartsWith(datePrefix) && // Filters by Year and Month
+                        x.AttendanceDateNepali.StartsWith(datePrefix) &&
                         x.IsActive
                     )
                     .OrderByDescending(x => x.CreatedAt)
                     .ToList();
 
+                var studentDetails = filteredResult
+                    .GroupBy(x => x.StudentId)
+                    .Select(group => new AttendanceStudentDetail(
+                        StudentId: group.Key,
+                        Attendance: group.GroupBy(d => d.AttendanceDateNepali)
+                             .ToDictionary(
+                                dateGroup => dateGroup.Key,
+                                dateGroup => {
+                                    var latest = dateGroup.First(); // Handles duplicates by taking the latest entry
+                                    return new AttendanceDetail(
+                                        Status: latest.AttendanceStatus switch
+                                        {
+                                            AttendanceStatus.Present => "P",
+                                            AttendanceStatus.Absent => "A",
+                                            AttendanceStatus.Excused => "E",
+                                            AttendanceStatus.Late => "L",
+                                            AttendanceStatus.LeftEarly => "LE",
+                                            _ => "N/A"
+                                        },
+                                        Review: latest.Remarks
+                                    );
+                                }
+                             )
+                    ))
+                    .ToList();
 
 
+                var finalResponse = new AttendanceReportResponse(
+                    ClassId: attendanceReportDTOs.classId ?? filteredResult.FirstOrDefault()?.ClassId ?? "N/A",
+                    AcademicTeamId: attendanceReportDTOs.academicTeamId ?? filteredResult.FirstOrDefault()?.AcademicTeamId ?? "N/A",
+                    Students: studentDetails
+                );
 
-                var responseList = filteredResult
-                .OrderByDescending(x => x.CreatedAt)
-                .Select(i => new AttendanceReportResponse(
-                    i.StudentId,
-                    i.AttendanceDate,
-                    i.AttendanceStatus,
-                    i.AcademicTeamId,
-                    i.Remarks,
-                    i.CreatedAt
-                ))
-                .ToList();
-
-                PagedResult<AttendanceReportResponse> finalResponseList;
-
-                if (paginationRequest.IsPagination)
-                {
-
-                    int pageIndex = paginationRequest.pageIndex <= 0 ? 1 : paginationRequest.pageIndex;
-                    int pageSize = paginationRequest.pageSize <= 0 ? 10 : paginationRequest.pageSize;
-
-                    int totalItems = responseList.Count();
-
-                    var pagedItems = responseList
-                        .Skip((pageIndex - 1) * pageSize)
-                        .Take(pageSize)
-                        .ToList();
-
-                    finalResponseList = new PagedResult<AttendanceReportResponse>
-                    {
-                        Items = pagedItems,
-                        TotalItems = totalItems,
-                        PageIndex = pageIndex,
-                        pageSize = pageSize
-                    };
-                }
-                else
-                {
-                    finalResponseList = new PagedResult<AttendanceReportResponse>
-                    {
-                        Items = responseList.ToList(),
-                        TotalItems = responseList.Count(),
-                        PageIndex = 1,
-                        pageSize = responseList.Count()
-                    };
-                }
-                return Result<PagedResult<AttendanceReportResponse>>.Success(finalResponseList);
-
+                return Result<AttendanceReportResponse>.Success(finalResponse);
             }
             catch (Exception ex)
             {
-                throw new Exception($"An error occurred while fetching: {ex.Message}", ex);
+                throw new Exception($"An error occurred while processing attendance report: {ex.Message}", ex);
             }
         }
 

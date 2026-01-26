@@ -12,7 +12,6 @@ namespace ES.Student.Application.Student.Queries.Attendance.AttendanceReport
 {
     public record AttendanceReportQuery
     (
-        PaginationRequest PaginationRequest,
         AttendanceReportDTOs AttendanceReportDTOs
-        ) : IRequest<Result<PagedResult<AttendanceReportResponse>>>;
+        ) : IRequest<Result<AttendanceReportResponse>>;
 }
