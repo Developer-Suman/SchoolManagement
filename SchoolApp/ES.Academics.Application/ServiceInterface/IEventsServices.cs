@@ -2,6 +2,7 @@
 using ES.Academics.Application.Academics.Command.Events.UpdateEvents;
 using ES.Academics.Application.Academics.Queries.Events.Events;
 using ES.Academics.Application.Academics.Queries.Events.EventsById;
+using ES.Academics.Application.Academics.Queries.Events.FilterEvents;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,5 +20,6 @@ namespace ES.Academics.Application.ServiceInterface
         Task<Result<PagedResult<EventsResponse>>> GetAllEvents(PaginationRequest paginationRequest, CancellationToken cancellationToken = default);
         Task<Result<EventsByIdResponse>> GetEvents(string eventsId, CancellationToken cancellationToken = default);
         Task<Result<bool>> Delete(string id, CancellationToken cancellationToken);
+        Task<Result<PagedResult<FilterEventsResponse>>> GetFilterEvents(PaginationRequest paginationRequest, FilterEventsDTOs filterEventsDTOs);
     }
 }
