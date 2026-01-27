@@ -35,6 +35,8 @@ using ES.Academics.Application.Academics.Command.UpdateSubject;
 using ES.Academics.Application.Academics.Command.UpdateSubject.RequestCommandMapper;
 using ES.Academics.Application.Academics.Queries.ClassByExamSession;
 using ES.Academics.Application.Academics.Queries.ClassWithSubject;
+using ES.Academics.Application.Academics.Queries.Events.Events;
+using ES.Academics.Application.Academics.Queries.Events.EventsById;
 using ES.Academics.Application.Academics.Queries.Exam;
 using ES.Academics.Application.Academics.Queries.ExamById;
 using ES.Academics.Application.Academics.Queries.ExamResult;
@@ -53,6 +55,8 @@ using ES.Academics.Application.Academics.Queries.SubjectByClassId;
 using ES.Academics.Application.Academics.Queries.SubjectById;
 using ES.Certificate.Application.Certificates.Command.Awards.SchoolAwards.AddAwards;
 using ES.Certificate.Application.Certificates.Command.Awards.SchoolAwards.UpdateAwards;
+using ES.Certificate.Application.Certificates.Queries.SchoolAwards.Awards;
+using ES.Certificate.Application.Certificates.Queries.SchoolAwards.AwardsById;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -129,6 +133,51 @@ namespace TN.Web.Controllers.Academics.v1
             };
 
             #endregion
+        }
+        #endregion
+
+        #region GetAllEvents
+        [HttpGet("GetAllEvents")]
+        public async Task<IActionResult> GetAllEvents([FromQuery] PaginationRequest paginationRequest)
+        {
+            var query = new EventsQuery(paginationRequest);
+            var allEvents = await _mediator.Send(query);
+            #region Switch Statement
+            return allEvents switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(allEvents.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = allEvents.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(allEvents.Errors),
+                _ => BadRequest("Invalid page and pageSize Fields")
+            };
+            #endregion
+
+        }
+
+        #endregion
+
+        #region EventsById
+        [HttpGet("Events/{eventsId}")]
+        public async Task<IActionResult> EventsById([FromRoute] string eventsId)
+        {
+            var query = new EventsByIdQuery(eventsId);
+            var eventsByIdResult = await _mediator.Send(query);
+            #region Switch Statement
+            return eventsByIdResult switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(eventsByIdResult.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = eventsByIdResult.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(eventsByIdResult.Errors),
+                _ => BadRequest("Invalid page and pageSize Fields")
+            };
+            #endregion
+
         }
         #endregion
 

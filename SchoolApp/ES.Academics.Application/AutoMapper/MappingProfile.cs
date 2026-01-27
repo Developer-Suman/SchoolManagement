@@ -17,6 +17,8 @@ using ES.Academics.Application.Academics.Command.SubmitAssignments;
 using ES.Academics.Application.Academics.Command.UpdateSchoolClass;
 using ES.Academics.Application.Academics.Queries.ClassByExamSession;
 using ES.Academics.Application.Academics.Queries.ClassWithSubject;
+using ES.Academics.Application.Academics.Queries.Events.Events;
+using ES.Academics.Application.Academics.Queries.Events.EventsById;
 using ES.Academics.Application.Academics.Queries.Exam;
 using ES.Academics.Application.Academics.Queries.ExamById;
 using ES.Academics.Application.Academics.Queries.ExamResult;
@@ -58,6 +60,8 @@ namespace ES.Academics.Application.AutoMapper
             #region Events
             CreateMap<Events, UpdateEventsCommand>().ReverseMap();
             CreateMap<Events, AddEventsResponse>().ReverseMap();
+            CreateMap<Events, EventsResponse>().ReverseMap();
+            CreateMap<Events, EventsByIdResponse>().ReverseMap();
 
 
             #endregion

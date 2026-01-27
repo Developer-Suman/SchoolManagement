@@ -1,12 +1,17 @@
 ﻿using AutoMapper;
 using ES.Academics.Application.Academics.Command.Events.AddEvents;
 using ES.Academics.Application.Academics.Command.Events.UpdateEvents;
+using ES.Academics.Application.Academics.Queries.Events.Events;
+using ES.Academics.Application.Academics.Queries.Events.EventsById;
 using ES.Academics.Application.ServiceInterface;
 using ES.Certificate.Application.Certificates.Command.Awards.SchoolAwards.AddAwards;
 using ES.Certificate.Application.Certificates.Command.Awards.SchoolAwards.UpdateAwards;
 using ES.Certificate.Application.Certificates.Command.Awards.StudentsAwards.AddAwards;
 using ES.Certificate.Application.Certificates.Command.Awards.StudentsAwards.UpdateAwards;
+using ES.Certificate.Application.Certificates.Queries.SchoolAwards.Awards;
+using ES.Certificate.Application.Certificates.Queries.SchoolAwards.AwardsById;
 using ES.Certificate.Application.ServiceInterface.IHelperMethod;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,6 +23,7 @@ using TN.Shared.Domain.Abstractions;
 using TN.Shared.Domain.Entities.Academics;
 using TN.Shared.Domain.Entities.Certificates;
 using TN.Shared.Domain.Entities.OrganizationSetUp;
+using TN.Shared.Domain.ExtensionMethod.Pagination;
 using TN.Shared.Domain.IRepository;
 using Unity.Injection;
 
@@ -93,6 +99,58 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                     throw new Exception("An error occurred while adding ", ex);
 
                 }
+            }
+        }
+
+        public async Task<Result<PagedResult<EventsResponse>>> GetAllEvents(PaginationRequest paginationRequest, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+
+                var (award, currentSchoolId, institutionId, userRole, isSuperAdmin) =
+                    await _getUserScopedData.GetUserScopedData<SchoolAwards>();
+
+                var finalQuery = award.Where(x => x.IsActive == true).AsNoTracking();
+
+
+                var pagedResult = await finalQuery.ToPagedResultAsync(
+                    paginationRequest.pageIndex,
+                    paginationRequest.pageSize,
+                    paginationRequest.IsPagination);
+
+
+                var mappedItems = _mapper.Map<List<EventsResponse>>(pagedResult.Data.Items);
+
+                var response = new PagedResult<EventsResponse>
+                {
+                    Items = mappedItems,
+                    TotalItems = pagedResult.Data.TotalItems,
+                    PageIndex = pagedResult.Data.PageIndex,
+                    pageSize = pagedResult.Data.pageSize
+                };
+
+                return Result<PagedResult<EventsResponse>>.Success(response);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while fetching all Events", ex);
+            }
+        }
+
+        public async Task<Result<EventsByIdResponse>> GetEvents(string eventsId, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                var events = await _unitOfWork.BaseRepository<SchoolAwards>().GetByGuIdAsync(eventsId);
+
+                var eventsResponse = _mapper.Map<EventsByIdResponse>(events);
+
+                return Result<EventsByIdResponse>.Success(eventsResponse);
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while fetching Event by using Id", ex);
             }
         }
 
