@@ -6,7 +6,24 @@ using System.Threading.Tasks;
 
 namespace ES.Academics.Application.Academics.Queries.Events.EventsById
 {
-    internal class EventsByIdResponse
-    {
-    }
+    public record EventsByIdResponse
+    (
+        string id,
+            string title,
+            string? descriptions,
+            string eventsType,
+            DateTime eventsDate,
+            string participants,
+            DateTime eventTime,
+            string venue,
+            string? chiefGuest,
+            string? organizer,
+            string? mentor,
+            string schoolId,
+            string createdBy,
+            DateTime createdAt,
+            string modifiedBy,
+            DateTime modifiedAt,
+            bool isActive
+        );
 }
