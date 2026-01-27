@@ -18,5 +18,6 @@ namespace ES.Academics.Application.ServiceInterface
         Task<Result<UpdateEventsResponse>> Update(string eventsId, UpdateEventsCommand updateEventsCommand);
         Task<Result<PagedResult<EventsResponse>>> GetAllEvents(PaginationRequest paginationRequest, CancellationToken cancellationToken = default);
         Task<Result<EventsByIdResponse>> GetEvents(string eventsId, CancellationToken cancellationToken = default);
+        Task<Result<bool>> Delete(string id, CancellationToken cancellationToken);
     }
 }
