@@ -21,6 +21,7 @@ using ES.Academics.Application.Academics.Command.EvaluteAssignments;
 using ES.Academics.Application.Academics.Command.EvaluteAssignments.RequestCommandMapper;
 using ES.Academics.Application.Academics.Command.Events.AddEvents;
 using ES.Academics.Application.Academics.Command.Events.AddEvents.RequestCommandMapper;
+using ES.Academics.Application.Academics.Command.Events.DeleteEvents;
 using ES.Academics.Application.Academics.Command.Events.UpdateEvents;
 using ES.Academics.Application.Academics.Command.Events.UpdateEvents.RequestCommandMapper;
 using ES.Academics.Application.Academics.Command.SubmitAssignments;
@@ -54,6 +55,7 @@ using ES.Academics.Application.Academics.Queries.Subject;
 using ES.Academics.Application.Academics.Queries.SubjectByClassId;
 using ES.Academics.Application.Academics.Queries.SubjectById;
 using ES.Certificate.Application.Certificates.Command.Awards.SchoolAwards.AddAwards;
+using ES.Certificate.Application.Certificates.Command.Awards.SchoolAwards.DeleteAwards;
 using ES.Certificate.Application.Certificates.Command.Awards.SchoolAwards.UpdateAwards;
 using ES.Certificate.Application.Certificates.Queries.SchoolAwards.Awards;
 using ES.Certificate.Application.Certificates.Queries.SchoolAwards.AwardsById;
@@ -179,6 +181,27 @@ namespace TN.Web.Controllers.Academics.v1
             #endregion
 
         }
+        #endregion
+
+        #region DeleteEvents
+        [HttpDelete("DeleteEvents/{id}")]
+
+        public async Task<IActionResult> DeleteEvents([FromRoute] string id, CancellationToken cancellationToken)
+        {
+            var command = new DeleteEventsCommand(id);
+            var deleteEventsResult = await _mediator.Send(command);
+            #region Switch Statement
+            return deleteEventsResult switch
+            {
+                { IsSuccess: true, Data: true } => NoContent(),
+                { IsSuccess: true, Message: not null } => new JsonResult(new { Message = deleteEventsResult.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(deleteEventsResult.Errors),
+                _ => BadRequest("Invalid Fields for Delete Awards")
+            };
+
+            #endregion
+        }
+
         #endregion
 
 

@@ -102,6 +102,29 @@ namespace ES.Academics.Infrastructure.ServiceImpl
             }
         }
 
+        public async Task<Result<bool>> Delete(string id, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var events = await _unitOfWork.BaseRepository<Events>().GetByGuIdAsync(id);
+                if (events is null)
+                {
+                    return Result<bool>.Failure("NotFound", "Events Cannot be Found");
+                }
+
+                events.IsActive = false;
+                _unitOfWork.BaseRepository<Events>().Update(events);
+                await _unitOfWork.SaveChangesAsync();
+
+
+                return Result<bool>.Success(true);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"An error occurred while deleting Events having {id}", ex);
+            }
+        }
+
         public async Task<Result<PagedResult<EventsResponse>>> GetAllEvents(PaginationRequest paginationRequest, CancellationToken cancellationToken = default)
         {
             try
