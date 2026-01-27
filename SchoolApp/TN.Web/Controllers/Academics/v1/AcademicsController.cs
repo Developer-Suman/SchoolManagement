@@ -38,6 +38,7 @@ using ES.Academics.Application.Academics.Queries.ClassByExamSession;
 using ES.Academics.Application.Academics.Queries.ClassWithSubject;
 using ES.Academics.Application.Academics.Queries.Events.Events;
 using ES.Academics.Application.Academics.Queries.Events.EventsById;
+using ES.Academics.Application.Academics.Queries.Events.FilterEvents;
 using ES.Academics.Application.Academics.Queries.Exam;
 using ES.Academics.Application.Academics.Queries.ExamById;
 using ES.Academics.Application.Academics.Queries.ExamResult;
@@ -59,6 +60,7 @@ using ES.Certificate.Application.Certificates.Command.Awards.SchoolAwards.Delete
 using ES.Certificate.Application.Certificates.Command.Awards.SchoolAwards.UpdateAwards;
 using ES.Certificate.Application.Certificates.Queries.SchoolAwards.Awards;
 using ES.Certificate.Application.Certificates.Queries.SchoolAwards.AwardsById;
+using ES.Certificate.Application.Certificates.Queries.SchoolAwards.FilterSchoolAwards;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -200,6 +202,29 @@ namespace TN.Web.Controllers.Academics.v1
             };
 
             #endregion
+        }
+
+        #endregion
+
+        #region FilterEvents
+        [HttpGet("FilterEvents")]
+        public async Task<IActionResult> GetFilterEvents([FromQuery] FilterEventsDTOs filterEventsDTOs, [FromQuery] PaginationRequest paginationRequest)
+        {
+            var query = new FilterEventsQuery(paginationRequest, filterEventsDTOs);
+            var filterEventsResult = await _mediator.Send(query);
+            #region Switch Statement
+            return filterEventsResult switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(filterEventsResult.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = filterEventsResult.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(filterEventsResult.Errors),
+                _ => BadRequest("Invalid page and pageSize Fields")
+            };
+            #endregion
+
         }
 
         #endregion

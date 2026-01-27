@@ -3,6 +3,7 @@ using ES.Academics.Application.Academics.Command.Events.AddEvents;
 using ES.Academics.Application.Academics.Command.Events.UpdateEvents;
 using ES.Academics.Application.Academics.Queries.Events.Events;
 using ES.Academics.Application.Academics.Queries.Events.EventsById;
+using ES.Academics.Application.Academics.Queries.Events.FilterEvents;
 using ES.Academics.Application.ServiceInterface;
 using ES.Certificate.Application.Certificates.Command.Awards.SchoolAwards.AddAwards;
 using ES.Certificate.Application.Certificates.Command.Awards.SchoolAwards.UpdateAwards;
@@ -10,6 +11,7 @@ using ES.Certificate.Application.Certificates.Command.Awards.StudentsAwards.AddA
 using ES.Certificate.Application.Certificates.Command.Awards.StudentsAwards.UpdateAwards;
 using ES.Certificate.Application.Certificates.Queries.SchoolAwards.Awards;
 using ES.Certificate.Application.Certificates.Queries.SchoolAwards.AwardsById;
+using ES.Certificate.Application.Certificates.Queries.SchoolAwards.FilterSchoolAwards;
 using ES.Certificate.Application.ServiceInterface.IHelperMethod;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -18,6 +20,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Transactions;
+using TN.Authentication.Domain.Entities;
 using TN.Shared.Application.ServiceInterface;
 using TN.Shared.Domain.Abstractions;
 using TN.Shared.Domain.Entities.Academics;
@@ -174,6 +177,107 @@ namespace ES.Academics.Infrastructure.ServiceImpl
             catch (Exception ex)
             {
                 throw new Exception("An error occurred while fetching Event by using Id", ex);
+            }
+        }
+
+        public async Task<Result<PagedResult<FilterEventsResponse>>> GetFilterEvents(PaginationRequest paginationRequest, FilterEventsDTOs filterEventsDTOs)
+        {
+            try
+            {
+                var fyId = _fiscalContext.CurrentFiscalYearId;
+                var userId = _tokenService.GetUserId();
+
+                var (events, schoolId, institutionId, userRole, isSuperAdmin) = await _getUserScopedData.GetUserScopedData<Events>();
+
+                var schoolIds = await _unitOfWork.BaseRepository<School>()
+                    .GetConditionalFilterType(
+                        x => x.InstitutionId == institutionId,
+                        query => query.Select(c => c.Id)
+                    );
+
+                var filterEventsResult = isSuperAdmin
+                    ? events
+                    : events.Where(x => x.SchoolId == _tokenService.SchoolId().FirstOrDefault() || x.SchoolId == "");
+
+                var (startUtc, endUtc) = await _dateConverter.GetDateRangeUtc(filterEventsDTOs.startDate, filterEventsDTOs.endDate);
+
+                var filteredResult = filterEventsResult
+                 .Where(x =>
+                     //(string.IsNullOrEmpty(filterSchoolAwardsDTOs.templateId) || x.TemplateId == filterIssuedCertificateDTOs.templateId) &&
+                     x.CreatedAt >= startUtc &&
+                         x.CreatedAt <= endUtc &&
+                         x.IsActive
+                 )
+                 .OrderByDescending(x => x.CreatedAt) // newest first
+                 .ToList();
+
+
+
+
+                var responseList = filteredResult
+                .OrderByDescending(x => x.CreatedAt)
+                .Select(i => new FilterEventsResponse(
+                    i.Id,
+                    i.Title,
+                    i.Description,
+                    i.EventsType,
+                    i.EventsDate,
+                    i.Participants,
+                    i.EventTime,
+                    i.Venue,
+                    i.ChiefGuest,
+                    i.Organizer,
+                    i.Mentor,
+                    i.SchoolId,
+                    i.CreatedBy,
+                    i.CreatedAt,
+                    i.ModifiedBy,
+                    i.ModifiedAt,
+                    i.IsActive
+
+
+                ))
+                .ToList();
+
+                PagedResult<FilterEventsResponse> finalResponseList;
+
+                if (paginationRequest.IsPagination)
+                {
+
+                    int pageIndex = paginationRequest.pageIndex <= 0 ? 1 : paginationRequest.pageIndex;
+                    int pageSize = paginationRequest.pageSize <= 0 ? 10 : paginationRequest.pageSize;
+
+                    int totalItems = responseList.Count();
+
+                    var pagedItems = responseList
+                        .Skip((pageIndex - 1) * pageSize)
+                        .Take(pageSize)
+                        .ToList();
+
+                    finalResponseList = new PagedResult<FilterEventsResponse>
+                    {
+                        Items = pagedItems,
+                        TotalItems = totalItems,
+                        PageIndex = pageIndex,
+                        pageSize = pageSize
+                    };
+                }
+                else
+                {
+                    finalResponseList = new PagedResult<FilterEventsResponse>
+                    {
+                        Items = responseList.ToList(),
+                        TotalItems = responseList.Count(),
+                        PageIndex = 1,
+                        pageSize = responseList.Count()
+                    };
+                }
+                return Result<PagedResult<FilterEventsResponse>>.Success(finalResponseList);
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"An error occurred while fetching {ex.Message}", ex);
             }
         }
 

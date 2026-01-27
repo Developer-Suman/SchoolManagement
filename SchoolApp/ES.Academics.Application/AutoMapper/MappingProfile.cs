@@ -12,6 +12,7 @@ using ES.Academics.Application.Academics.Command.DeleteSchoolClass;
 using ES.Academics.Application.Academics.Command.DeleteSubject;
 using ES.Academics.Application.Academics.Command.EvaluteAssignments;
 using ES.Academics.Application.Academics.Command.Events.AddEvents;
+using ES.Academics.Application.Academics.Command.Events.DeleteEvents;
 using ES.Academics.Application.Academics.Command.Events.UpdateEvents;
 using ES.Academics.Application.Academics.Command.SubmitAssignments;
 using ES.Academics.Application.Academics.Command.UpdateSchoolClass;
@@ -19,6 +20,7 @@ using ES.Academics.Application.Academics.Queries.ClassByExamSession;
 using ES.Academics.Application.Academics.Queries.ClassWithSubject;
 using ES.Academics.Application.Academics.Queries.Events.Events;
 using ES.Academics.Application.Academics.Queries.Events.EventsById;
+using ES.Academics.Application.Academics.Queries.Events.FilterEvents;
 using ES.Academics.Application.Academics.Queries.Exam;
 using ES.Academics.Application.Academics.Queries.ExamById;
 using ES.Academics.Application.Academics.Queries.ExamResult;
@@ -45,6 +47,7 @@ using TN.Account.Application.Account.Queries.LedgerById;
 using TN.Account.Domain.Entities;
 using TN.Setup.Application.Setup.Queries.SchoolById;
 using TN.Shared.Domain.Entities.Academics;
+using TN.Shared.Domain.Entities.Certificates;
 using TN.Shared.Domain.Entities.Staff;
 using TN.Shared.Domain.ExtensionMethod.Pagination;
 
@@ -58,10 +61,22 @@ namespace ES.Academics.Application.AutoMapper
 
 
             #region Events
-            CreateMap<Events, UpdateEventsCommand>().ReverseMap();
-            CreateMap<Events, AddEventsResponse>().ReverseMap();
-            CreateMap<Events, EventsResponse>().ReverseMap();
-            CreateMap<Events, EventsByIdResponse>().ReverseMap();
+            CreateMap<UpdateEventsCommand, Events>().ReverseMap();
+
+            CreateMap<AddEventsResponse, Events>().ReverseMap();
+
+            CreateMap<AddEventsCommand, Events>().ReverseMap();
+
+            CreateMap<EventsResponse, Events>().ReverseMap();
+            CreateMap<EventsByIdResponse, Events>().ReverseMap();
+            CreateMap<EventsByIdQuery, Events>().ReverseMap();
+            CreateMap<Events, DeleteEventsCommand>().ReverseMap();
+            CreateMap<AddEventsCommand, AddEventsResponse>().ReverseMap();
+
+            CreateMap<PagedResult<Events>, PagedResult<EventsResponse>>().ReverseMap();
+
+            CreateMap<FilterEventsResponse, Events>().ReverseMap();
+            CreateMap<PagedResult<Events>, PagedResult<FilterEventsResponse>>().ReverseMap();
 
 
             #endregion
