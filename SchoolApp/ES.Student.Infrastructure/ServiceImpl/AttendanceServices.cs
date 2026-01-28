@@ -250,9 +250,7 @@ namespace ES.Student.Infrastructure.ServiceImpl
                         var existing = await _unitOfWork.BaseRepository<StudentAttendances>()
                          .FirstOrDefaultAsync(x =>
                              x.StudentId == s.studentId &&
-                             x.AcademicTeamId == userId &&
-                             x.AttendanceDate.Date == DateTime.UtcNow &&
-                             x.ClassId == request.classId
+                             x.AttendanceDateNepali == attendanceDateNeplai
                          );
                         if (existing != null)
                         {

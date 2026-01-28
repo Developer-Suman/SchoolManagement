@@ -20,9 +20,9 @@ namespace TN.Shared.Domain.Entities.Academics
             string title,
             string? descriptions,
             string eventsType,
-            DateTime eventsDate,
+            string eventsDate,
             string participants,
-            DateTime eventTime,
+            string? eventTime,
             string venue,
             string? chiefGuest,
             string? organizer,
@@ -61,9 +61,9 @@ namespace TN.Shared.Domain.Entities.Academics
         public string Title { get;set; }
         public string? Description { get;set; }
         public string? EventsType { get; set; }
-        public DateTime EventsDate { get; set; }
+        public string EventsDate { get; set; }
         public string Participants { get; set; }
-        public DateTime EventTime { get; set; }
+        public string? EventTime { get; set; }
         public string Venue { get; set; }
         public string? ChiefGuest { get; set; }
         public string? Organizer { get; set; }
