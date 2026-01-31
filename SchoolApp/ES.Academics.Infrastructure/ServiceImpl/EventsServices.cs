@@ -105,11 +105,11 @@ namespace ES.Academics.Infrastructure.ServiceImpl
             }
         }
 
-        public async Task<Result<bool>> Delete(string id, CancellationToken cancellationToken)
+        public async Task<Result<bool>> Delete(string Id, CancellationToken cancellationToken)
         {
             try
             {
-                var events = await _unitOfWork.BaseRepository<Events>().GetByGuIdAsync(id);
+                var events = await _unitOfWork.BaseRepository<Events>().GetByGuIdAsync(Id);
                 if (events is null)
                 {
                     return Result<bool>.Failure("NotFound", "Events Cannot be Found");
@@ -124,7 +124,7 @@ namespace ES.Academics.Infrastructure.ServiceImpl
             }
             catch (Exception ex)
             {
-                throw new Exception($"An error occurred while deleting Events having {id}", ex);
+                throw new Exception($"An error occurred while deleting Events having {Id}", ex);
             }
         }
 
@@ -133,10 +133,10 @@ namespace ES.Academics.Infrastructure.ServiceImpl
             try
             {
 
-                var (award, currentSchoolId, institutionId, userRole, isSuperAdmin) =
-                    await _getUserScopedData.GetUserScopedData<SchoolAwards>();
+                var (events, currentSchoolId, institutionId, userRole, isSuperAdmin) =
+                    await _getUserScopedData.GetUserScopedData<Events>();
 
-                var finalQuery = award.Where(x => x.IsActive == true).AsNoTracking();
+                var finalQuery = events.Where(x => x.IsActive == true).AsNoTracking();
 
 
                 var pagedResult = await finalQuery.ToPagedResultAsync(
@@ -167,7 +167,7 @@ namespace ES.Academics.Infrastructure.ServiceImpl
         {
             try
             {
-                var events = await _unitOfWork.BaseRepository<SchoolAwards>().GetByGuIdAsync(eventsId);
+                var events = await _unitOfWork.BaseRepository<Events>().GetByGuIdAsync(eventsId);
 
                 var eventsResponse = _mapper.Map<EventsByIdResponse>(events);
 

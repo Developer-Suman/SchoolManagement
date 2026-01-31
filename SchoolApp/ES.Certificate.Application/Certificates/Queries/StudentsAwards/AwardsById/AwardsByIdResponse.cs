@@ -18,6 +18,9 @@ namespace ES.Certificate.Application.Certificates.Queries.StudentsAwards.AwardsB
             DateTime createdAt,
             string modifiedBy,
             DateTime modifiedAt,
-            bool isActive
+            bool isActive,
+                string certificateTemplateId,
+    string eventsId,
+    string contentHtml
         );
 }

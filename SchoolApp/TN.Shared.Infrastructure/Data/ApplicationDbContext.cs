@@ -380,6 +380,27 @@ namespace TN.Shared.Infrastructure.Data
 
             #region Certificate
 
+            #region Events and StudentsAwards (1:m)
+            builder.Entity<Events>()
+               .HasMany(p => p.StudentsAwards)
+               .WithOne(p => p.Events)
+               .HasForeignKey(p => p.Eventsid)
+               .OnDelete(DeleteBehavior.Restrict);
+            #endregion
+
+
+
+            #region CertificateTemplets and StudentsAwards (1:m)
+            builder.Entity<CertificateTemplate>()
+               .HasMany(p => p.StudentsAwards)
+               .WithOne(p => p.CertificateTemplate)
+               .HasForeignKey(p => p.CertificateTemplateId)
+               .OnDelete(DeleteBehavior.Restrict);
+            #endregion
+
+
+
+
             #region StudentData and StudentsAwards (1:m)
             builder.Entity<StudentData>()
                .HasMany(p => p.StudentsAwards)

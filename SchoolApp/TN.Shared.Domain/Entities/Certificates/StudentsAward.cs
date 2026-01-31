@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TN.Shared.Domain.Entities.Academics;
 using TN.Shared.Domain.Entities.Students;
 using TN.Shared.Domain.Primitive;
 
@@ -27,7 +28,13 @@ namespace TN.Shared.Domain.Entities.Certificates
             DateTime createdAt,
             string modifiedBy,
             DateTime modifiedAt,
-            bool isActive
+            bool isActive,
+            string fyId,
+            string certificateTemplateId,
+            string eventsid,
+            string contentHtml
+
+
             ) : base(id)
         {
             StudentId = studentId;
@@ -40,9 +47,20 @@ namespace TN.Shared.Domain.Entities.Certificates
             ModifiedBy = modifiedBy;
             ModifiedAt = modifiedAt;
             IsActive = isActive;
+            FyId = fyId;
+            CertificateTemplateId = certificateTemplateId;
+            Eventsid = eventsid;
+            ContentHtml = contentHtml;
 
         }
 
+        public string ContentHtml { get; set; }
+        public string CertificateTemplateId { get; set; }
+
+        public CertificateTemplate CertificateTemplate { get; set; }
+        public string Eventsid { get; set; }
+        public Events Events { get; set; }
+        public string FyId { get; set; }
         public string StudentId { get; set; }
         public StudentData Students { get; set; }
         public DateTime AwardedAt { get; set; }

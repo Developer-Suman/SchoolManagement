@@ -77,7 +77,12 @@ namespace ES.Certificate.Infrastructure.ServiceImpl
                         DateTime.UtcNow,
                         "",
                         default,
-                        true
+                        true,
+                        FyId,
+                        addAwardsCommand.certificateTemplateId,
+                        addAwardsCommand.eventsId,
+                        addAwardsCommand.contentHtml
+
 
                     );
 
@@ -220,7 +225,10 @@ namespace ES.Certificate.Infrastructure.ServiceImpl
                     i.CreatedAt,
                     i.ModifiedBy,
                     i.ModifiedAt,
-                    i.IsActive
+                    i.IsActive,
+                    i.CertificateTemplateId,
+                    i.Eventsid,
+                    i.ContentHtml
 
 
                 ))
