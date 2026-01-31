@@ -313,7 +313,7 @@ namespace ES.Student.Infrastructure.ServiceImpl
                     journalDetails.Add(new JournalEntryDetails(
                                         Guid.NewGuid().ToString(),
                                         newJournalId,
-                                        SubLedgerGroupConstants.SundryDebtors,
+                                        LedgerConstants.FeeReceivable,
                                         0,
                                         0,
                                         DateTime.UtcNow,

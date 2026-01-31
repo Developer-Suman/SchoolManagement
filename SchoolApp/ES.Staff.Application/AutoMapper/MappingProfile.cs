@@ -38,6 +38,7 @@ namespace ES.Staff.Application.AutoMapper
 
             CreateMap<AcademicTeam, UpdateAcademicTeamCommand>().ReverseMap();
             CreateMap<AcademicTeamByIdResponse, AcademicTeam>().ReverseMap();
+            CreateMap<AcademicTeamResponse, AcademicTeam>().ReverseMap();
             CreateMap<PagedResult<AcademicTeam>, PagedResult<AcademicTeamResponse>>().ReverseMap();
 
             CreateMap<AddAcademicTeamResponse, AddAcademicTeamCommand>().ReverseMap();
