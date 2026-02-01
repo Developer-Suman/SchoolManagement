@@ -17,6 +17,9 @@ using TN.Inventory.Application.Inventory.Command.ImportExcelForItems;
 using TN.Inventory.Application.Inventory.Command.SchoolAssets.Contributors;
 using TN.Inventory.Application.Inventory.Command.SchoolAssets.SchoolItemHistory;
 using TN.Inventory.Application.Inventory.Command.SchoolAssets.SchoolItems;
+using TN.Inventory.Application.Inventory.Command.SchoolAssets.UpdateContributors;
+using TN.Inventory.Application.Inventory.Command.SchoolAssets.UpdateSchoolItemHistory;
+using TN.Inventory.Application.Inventory.Command.SchoolAssets.UpdateSchoolItems;
 using TN.Inventory.Application.Inventory.Command.UpdateConversionFactor;
 using TN.Inventory.Application.Inventory.Command.UpdateItem;
 using TN.Inventory.Application.Inventory.Command.UpdateItemGroup;
@@ -52,7 +55,10 @@ namespace TN.Inventory.Application
             services.AddScoped<IValidator<AddSchoolItemsCommand>, AddSchoolItemsCommandValidators>();
             services.AddScoped<IValidator<AddContributorsCommand>, AddContributorsCommandValidators>();
             services.AddScoped<IValidator<AddSchoolItemHistoryCommand>, AddSchoolItemsHistoryCommandValidator>();
-      
+            services.AddScoped<IValidator<UpdateContributorsCommand>, UpdateContributorsCommandValidator>();
+            services.AddScoped<IValidator<UpdateSchoolItemHistoryCommand>, UpdateSchoolItemHistoryCommandValidator>();
+            services.AddScoped<IValidator<UpdateSchoolItemsCommand>, UpdateSchoolItemsCommandValidator>();
+
             return services;
         }
     }

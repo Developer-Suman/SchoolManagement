@@ -21,6 +21,9 @@ using TN.Inventory.Application.Inventory.Command.DeleteUnits;
 using TN.Inventory.Application.Inventory.Command.SchoolAssets.Contributors;
 using TN.Inventory.Application.Inventory.Command.SchoolAssets.SchoolItemHistory;
 using TN.Inventory.Application.Inventory.Command.SchoolAssets.SchoolItems;
+using TN.Inventory.Application.Inventory.Command.SchoolAssets.UpdateContributors;
+using TN.Inventory.Application.Inventory.Command.SchoolAssets.UpdateSchoolItemHistory;
+using TN.Inventory.Application.Inventory.Command.SchoolAssets.UpdateSchoolItems;
 using TN.Inventory.Application.Inventory.Command.UpdateConversionFactor;
 using TN.Inventory.Application.Inventory.Command.UpdateItem;
 using TN.Inventory.Application.Inventory.Command.UpdateItemGroup;
@@ -70,17 +73,18 @@ namespace TN.Inventory.Application.AutoMapper
             #endregion
 
             #region SchoolItemsHistory
+
+            CreateMap<SchoolItemsHistory, UpdateSchoolItemHistoryCommand>().ReverseMap();
             CreateMap<AddSchoolItemHistoryResponse, SchoolItemsHistory>().ReverseMap();
             CreateMap<FilterSchoolItemsHistoryResponse, SchoolItemsHistory>().ReverseMap();
             CreateMap<PagedResult<SchoolItemsHistory>, PagedResult<FilterSchoolItemsHistoryResponse>>().ReverseMap();
 
             #endregion
 
-
             #region Contributors
             CreateMap<ContributorsResponse, Contributor>().ReverseMap();
             CreateMap<PagedResult<Contributor>, PagedResult<ContributorsResponse>>().ReverseMap();
-
+            CreateMap<Contributor, UpdateContributorsCommand>().ReverseMap();
 
             CreateMap<AddContributorsResponse, Contributor>().ReverseMap();
             CreateMap<FilterContributorsResponse, Contributor>().ReverseMap();
@@ -88,8 +92,9 @@ namespace TN.Inventory.Application.AutoMapper
 
             #endregion
 
-
             #region SchoolItems
+
+            CreateMap<SchoolItem, UpdateSchoolItemsCommand>().ReverseMap();
 
             CreateMap<SchoolItemsResponse, SchoolItem>().ReverseMap();
             CreateMap<PagedResult<SchoolItem>, PagedResult<SchoolItemsResponse>>().ReverseMap();
