@@ -12,6 +12,10 @@ using TN.Inventory.Application.Inventory.Command.AddUnits;
 using TN.Inventory.Application.Inventory.Command.SchoolAssets.Contributors;
 using TN.Inventory.Application.Inventory.Command.SchoolAssets.SchoolItemHistory;
 using TN.Inventory.Application.Inventory.Command.SchoolAssets.SchoolItems;
+using TN.Inventory.Application.Inventory.Command.SchoolAssets.UpdateContributors;
+using TN.Inventory.Application.Inventory.Command.SchoolAssets.UpdateSchoolItemHistory;
+using TN.Inventory.Application.Inventory.Command.SchoolAssets.UpdateSchoolItems;
+using TN.Inventory.Application.Inventory.Command.UpdateConversionFactor;
 using TN.Inventory.Application.Inventory.Queries.SchoolAssets.Contributors;
 using TN.Inventory.Application.Inventory.Queries.SchoolAssets.FilterContributors;
 using TN.Inventory.Application.Inventory.Queries.SchoolAssets.FilterSchoolItems;
@@ -622,6 +626,152 @@ namespace TN.Inventory.Infrastructure.ServiceImpl
             catch (Exception ex)
             {
                 throw new Exception($"An error occurred while fetching SchoolItems Reports: {ex.Message}", ex);
+            }
+        }
+
+        public async Task<Result<UpdateContributorsResponse>> UpdateContributors(string id, UpdateContributorsCommand updateContributorsCommand)
+        {
+            using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            {
+                try
+                {
+                    if (id == null)
+                    {
+                        return Result<UpdateContributorsResponse>.Failure("NotFound", "Please provide valid Contributor id");
+                    }
+                    var userId = _tokenService.GetUserId();
+                    var schoolId = _tokenService.SchoolId().FirstOrDefault() ?? "";
+                    var contributorsToBeUpdated = await _unitOfWork.BaseRepository<Contributor>().GetByGuIdAsync(id);
+                    if (contributorsToBeUpdated is null)
+                    {
+                        return Result<UpdateContributorsResponse>.Failure("NotFound", "Contributor are not Found");
+                    }
+
+                    _mapper.Map(updateContributorsCommand, contributorsToBeUpdated);
+                    await _unitOfWork.SaveChangesAsync();
+                    scope.Complete();
+
+                    var resultResponse = new UpdateContributorsResponse
+                        (
+                            contributorsToBeUpdated.Id,
+                            contributorsToBeUpdated.Name,
+                            contributorsToBeUpdated.Organization,
+                            contributorsToBeUpdated.ContactNumber,
+                            contributorsToBeUpdated.Email,
+                            schoolId,
+                               true,
+                                userId,
+                                DateTime.UtcNow,
+                                userId,
+                                DateTime.UtcNow
+                        );
+
+                    return Result<UpdateContributorsResponse>.Success(resultResponse);
+
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception("an error occurred while updating Contributors");
+                }
+            }
+        }
+
+        public async Task<Result<UpdateSchoolItemHistoryResponse>> UpdateSchoolItemHistory(string id, UpdateSchoolItemHistoryCommand updateSchoolItemHistoryCommand)
+        {
+            using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            {
+                try
+                {
+                    if (id == null)
+                    {
+                        return Result<UpdateSchoolItemHistoryResponse>.Failure("NotFound", "Please provide valid Contributor id");
+                    }
+                    var userId = _tokenService.GetUserId();
+                    var schoolId = _tokenService.SchoolId().FirstOrDefault() ?? "";
+                    var schoolItemHistoryToBeUpdated = await _unitOfWork.BaseRepository<SchoolItemsHistory>().GetByGuIdAsync(id);
+                    if (schoolItemHistoryToBeUpdated is null)
+                    {
+                        return Result<UpdateSchoolItemHistoryResponse>.Failure("NotFound", "Contributor are not Found");
+                    }
+
+                    _mapper.Map(updateSchoolItemHistoryCommand, schoolItemHistoryToBeUpdated);
+                    await _unitOfWork.SaveChangesAsync();
+                    scope.Complete();
+
+                    var resultResponse = new UpdateSchoolItemHistoryResponse
+                        (
+                            schoolItemHistoryToBeUpdated.Id,
+                            schoolItemHistoryToBeUpdated.SchoolItemId,
+                            schoolItemHistoryToBeUpdated.PreviousStatus,
+                            schoolItemHistoryToBeUpdated.CurrentStatus,
+                            schoolItemHistoryToBeUpdated.Remarks,
+                            schoolId,
+                               true,
+                                userId,
+                                DateTime.UtcNow,
+                                userId,
+                                DateTime.UtcNow
+                        );
+
+                    return Result<UpdateSchoolItemHistoryResponse>.Success(resultResponse);
+
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception("an error occurred while updating SchoolItemHistory");
+                }
+            }
+        }
+
+        public async Task<Result<UpdateSchoolItemsResponse>> UpdateSchoolItems(string id, UpdateSchoolItemsCommand updateSchoolItemsCommand)
+        {
+            using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            {
+                try
+                {
+                    if (id == null)
+                    {
+                        return Result<UpdateSchoolItemsResponse>.Failure("NotFound", "Please provide valid SchoolItems id");
+                    }
+                    var userId = _tokenService.GetUserId();
+                    var schoolId = _tokenService.SchoolId().FirstOrDefault() ?? "";
+                    var fiscalYearId = _fiscalContext.CurrentFiscalYearId;
+                    var schoolItemsToBeUpdated = await _unitOfWork.BaseRepository < SchoolItem>().GetByGuIdAsync(id);
+                    if (schoolItemsToBeUpdated is null)
+                    {
+                        return Result<UpdateSchoolItemsResponse>.Failure("NotFound", "SchoolItems are not Found");
+                    }
+
+                    _mapper.Map(updateSchoolItemsCommand, schoolItemsToBeUpdated);
+                    await _unitOfWork.SaveChangesAsync();
+                    scope.Complete();
+
+                    var resultResponse = new UpdateSchoolItemsResponse
+                        (
+                           updateSchoolItemsCommand.id,
+                            updateSchoolItemsCommand.name,
+                            updateSchoolItemsCommand.contributorId,
+                            updateSchoolItemsCommand.itemCondition,
+                            updateSchoolItemsCommand.receivedDate,
+                            updateSchoolItemsCommand.estimatedValue,
+                            updateSchoolItemsCommand.quantity,
+                            updateSchoolItemsCommand.unitType,
+                            schoolId,
+                            fiscalYearId,
+                                 true,
+                                  userId,
+                                  DateTime.UtcNow,
+                                  userId,
+                                  DateTime.UtcNow
+                        );
+
+                    return Result<UpdateSchoolItemsResponse>.Success(resultResponse);
+
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception("an error occurred while updating SchoolItems");
+                }
             }
         }
     }

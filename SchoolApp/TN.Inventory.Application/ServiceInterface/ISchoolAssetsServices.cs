@@ -7,6 +7,10 @@ using TN.Inventory.Application.Inventory.Command.AddItems;
 using TN.Inventory.Application.Inventory.Command.SchoolAssets.Contributors;
 using TN.Inventory.Application.Inventory.Command.SchoolAssets.SchoolItemHistory;
 using TN.Inventory.Application.Inventory.Command.SchoolAssets.SchoolItems;
+using TN.Inventory.Application.Inventory.Command.SchoolAssets.UpdateContributors;
+using TN.Inventory.Application.Inventory.Command.SchoolAssets.UpdateSchoolItemHistory;
+using TN.Inventory.Application.Inventory.Command.SchoolAssets.UpdateSchoolItems;
+using TN.Inventory.Application.Inventory.Command.UpdateConversionFactor;
 using TN.Inventory.Application.Inventory.Queries.FilterItemsByDate;
 using TN.Inventory.Application.Inventory.Queries.SchoolAssets.Contributors;
 using TN.Inventory.Application.Inventory.Queries.SchoolAssets.FilterContributors;
@@ -30,5 +34,9 @@ namespace TN.Inventory.Application.ServiceInterface
         Task<Result<PagedResult<SchoolAssetsReportResponse>>> SchoolAssetsReport(PaginationRequest paginationRequest, SchoolAssetsReportDTOs schoolAssetsReportDTOs);
         Task<Result<PagedResult<FilterContributorsResponse>>> FilterContributors(PaginationRequest paginationRequest, FilterContributorsDTOs filterContributorsDTOs);
         Task<Result<PagedResult<FilterSchoolItemsHistoryResponse>>> FilterSchoolItemsHistory(PaginationRequest paginationRequest, FilterSchoolItemsHistoryDTOs filterSchoolItemsHistoryDTOs);
+        Task<Result<UpdateContributorsResponse>> UpdateContributors(string id, UpdateContributorsCommand updateContributorsCommand);
+        Task<Result<UpdateSchoolItemHistoryResponse>> UpdateSchoolItemHistory(string id, UpdateSchoolItemHistoryCommand updateSchoolItemHistoryCommand);
+        Task<Result<UpdateSchoolItemsResponse>> UpdateSchoolItems(string id, UpdateSchoolItemsCommand updateSchoolItemsCommand);
+
     }
 }

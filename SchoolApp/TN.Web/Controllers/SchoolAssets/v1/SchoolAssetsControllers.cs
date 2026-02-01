@@ -13,6 +13,11 @@ using TN.Inventory.Application.Inventory.Command.SchoolAssets.SchoolItemHistory;
 using TN.Inventory.Application.Inventory.Command.SchoolAssets.SchoolItemHistory.RequestCommandMapper;
 using TN.Inventory.Application.Inventory.Command.SchoolAssets.SchoolItems;
 using TN.Inventory.Application.Inventory.Command.SchoolAssets.SchoolItems.RequestCommandMapper;
+using TN.Inventory.Application.Inventory.Command.SchoolAssets.UpdateContributors;
+using TN.Inventory.Application.Inventory.Command.SchoolAssets.UpdateContributors.RequestCommandMapper;
+using TN.Inventory.Application.Inventory.Command.SchoolAssets.UpdateSchoolItemHistory;
+using TN.Inventory.Application.Inventory.Command.SchoolAssets.UpdateSchoolItemHistory.RequestCommandMapper;
+using TN.Inventory.Application.Inventory.Command.UpdateConversionFactor;
 using TN.Inventory.Application.Inventory.Queries.SchoolAssets.Contributors;
 using TN.Inventory.Application.Inventory.Queries.SchoolAssets.FilterContributors;
 using TN.Inventory.Application.Inventory.Queries.SchoolAssets.FilterSchoolItems;
@@ -66,10 +71,33 @@ namespace TN.Web.Controllers.SchoolAssets.v1
 
         #endregion
 
-
-
         #region SchoolItemshistory
 
+        #region UpdateSchoolItemHistory
+        [HttpPatch("UpdateSchoolItemHistory/{id}")]
+
+        public async Task<IActionResult> UpdateSchoolItemHistory([FromRoute] string id, [FromBody] UpdateSchoolItemHistoryRequest request)
+        {
+            //Mapping command and request
+            var command = request.ToCommand(id);
+            var updateSchoolItemHistoryResult = await _mediator.Send(command);
+            #region Switch Statement
+            return updateSchoolItemHistoryResult switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(updateSchoolItemHistoryResult.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = updateSchoolItemHistoryResult.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(updateSchoolItemHistoryResult.Errors),
+                _ => BadRequest("Invalid Fields for Update SchoolItemHistory")
+            };
+
+            #endregion
+
+
+        }
+        #endregion
 
         #region FilterSchoolItemsHistory
         [HttpGet("FilterSchoolItemsHistory")]
@@ -93,8 +121,6 @@ namespace TN.Web.Controllers.SchoolAssets.v1
         }
 
         #endregion
-
-
 
         #region AddFilterItemHistory
         [HttpPost("AddSchoolItemHistory")]
@@ -122,6 +148,31 @@ namespace TN.Web.Controllers.SchoolAssets.v1
 
         #region Contributors
 
+        #region UpdateContributors
+        [HttpPatch("UpdateContributors/{id}")]
+
+        public async Task<IActionResult> UpdateContributors([FromRoute] string id, [FromBody] UpdateContributorsRequest request)
+        {
+            //Mapping command and request
+            var command = request.ToCommand(id);
+            var updateContributorsResult = await _mediator.Send(command);
+            #region Switch Statement
+            return updateContributorsResult switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(updateContributorsResult.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = updateContributorsResult.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(updateContributorsResult.Errors),
+                _ => BadRequest("Invalid Fields for Update Contributors")
+            };
+
+            #endregion
+
+
+        }
+        #endregion
 
         #region AllContributors
         [HttpGet("all-Contributors")]
