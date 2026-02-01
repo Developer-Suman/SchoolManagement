@@ -16,7 +16,10 @@ namespace ES.Certificate.Application.Certificates.Command.Awards.StudentsAwards.
                 request.studentId,
                 request.awardedAt,
                 request.awardedBy,
-                request.awardDescriptions
+                request.awardDescriptions,
+                request.certificateTemplateId,
+                request.eventsId,
+                request.contentHtml
                 );
         }
     }

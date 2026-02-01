@@ -2450,7 +2450,7 @@ namespace TN.Shared.Infrastructure.DataSeed
                 new Ledger("da288c41-f087-41b4-b9ee-ebd2098ca4a9", "TDS A/C", DateTime.Now, true, "", "", "", "", "", "e84cfc6a-2289-4b4a-9ec3-88dc7f0bdf34", "", "", 0, true,true),
                 new Ledger("5ed3243e-f7f1-4d91-b39f-24da38d65c0b", "Salary TDS A/C", DateTime.Now, true, "", "", "", "", "", "e84cfc6a-2289-4b4a-9ec3-88dc7f0bdf34", "", "", 0, true,true),
                 new Ledger("d119a2de-3406-4368-8eb7-68602e3d864b", "Sales A/C", DateTime.Now, true, "", "", "", "", "", "623c3133-f4c7-41e5-a9c1-382c749d3a8a", "", "", 0, true,true),
-                new Ledger("2a4222cc-cab5-4c66-98f1-7fd36c933208", "Discount A/C", DateTime.Now, true, "", "", "", "", "", "623c3133-f4c7-41e5-a9c1-382c749d3a8a", "", "", 0, true,true),
+                new Ledger("2a4222cc-cab5-4c66-98f1-7fd36c933208", "Discount A/C", DateTime.Now, true, "", "", "", "", "", "f20db8f0-a3f3-4033-a274-f92611f2d5ad", "", "", 0, true,true),
                 new Ledger("b11ac192-4fe6-425f-9398-caec0e1ca9aa", "Sales Return A/C", DateTime.Now, true, "", "", "", "", "", "623c3133-f4c7-41e5-a9c1-382c749d3a8a", "", "", 0, true,true),
                 new Ledger("f3bbb573-d6de-4245-a7e2-05c279207355", "Purchase A/C", DateTime.Now, true, "", "", "", "", "", "8a6d5de6-5607-497e-8d7c-90d7494d7aa7", "", "",0,true,true),
                 new Ledger("c5bb7f79-0af7-4c11-9bfa-2a746ec8a99d", "COGS A/C", DateTime.Now, true, "", "", "", "", "", "0423b6c3-51fa-44c4-bd9a-28fa9697ff55", "", "", 0, true,true),

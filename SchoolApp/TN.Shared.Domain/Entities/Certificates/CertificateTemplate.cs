@@ -38,8 +38,11 @@ namespace TN.Shared.Domain.Entities.Certificates
             CreatedBy = createdBy;
             ModifiedAt = modifiedAt;
             ModifiedBy = modifiedBy;
+            IssuedCertificates = new List<IssuedCertificate>();
+            StudentsAwards = new List<StudentsAward>();
 
-            
+
+
         }
         public string CreatedBy { get;set;  }
         public DateTime ModifiedAt { get;set;  }
@@ -56,6 +59,7 @@ namespace TN.Shared.Domain.Entities.Certificates
         public DateTime CreatedAt { get; set; }
 
         public ICollection<IssuedCertificate> IssuedCertificates { get; set; }
+        public ICollection<StudentsAward> StudentsAwards { get; set; }
 
 
    

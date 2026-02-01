@@ -9,22 +9,22 @@ namespace ES.Academics.Application.Academics.Queries.Events.Events
     public record EventsResponse
     (
 
-        string id,
-            string title,
-            string? descriptions,
-            string eventsType,
-            DateTime eventsDate,
-            string participants,
-            DateTime eventTime,
-            string venue,
-            string? chiefGuest,
-            string? organizer,
-            string? mentor,
-            string schoolId,
-            string createdBy,
-            DateTime createdAt,
-            string modifiedBy,
-            DateTime modifiedAt,
-            bool isActive
+        string id="",
+            string title="",
+            string? descriptions="",
+            string eventsType="",
+            string eventsDate="",
+            string participants = "",
+            string eventTime="",
+            string venue = "",
+            string? chiefGuest = "",
+            string? organizer = "",
+            string? mentor = "",
+            string schoolId = "",
+            string createdBy = "",
+            string createdAt="",
+            string modifiedBy = "",
+            string modifiedAt = "",
+            bool isActive=false
         );
 }

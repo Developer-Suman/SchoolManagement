@@ -14,6 +14,9 @@ namespace ES.Certificate.Application.Certificates.Command.Awards.StudentsAwards.
             string studentId,
             DateTime awardedAt,
             string awardedBy,
-            string awardDescriptions
+            string awardDescriptions,
+                string certificateTemplateId,
+    string eventsId,
+    string contentHtml
         ) : IRequest<Result<AddAwardsResponse>>;
 }

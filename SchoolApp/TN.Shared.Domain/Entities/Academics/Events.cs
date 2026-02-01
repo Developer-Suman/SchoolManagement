@@ -1,8 +1,10 @@
-﻿using System;
+﻿using OfficeOpenXml.ConditionalFormatting.Contracts;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TN.Shared.Domain.Entities.Certificates;
 using TN.Shared.Domain.Primitive;
 
 namespace TN.Shared.Domain.Entities.Academics
@@ -53,9 +55,11 @@ namespace TN.Shared.Domain.Entities.Academics
             ModifiedBy = modifiedBy;
             ModifiedAt = modifiedAt;
             IsActive = isActive;
+            StudentsAwards = new List<StudentsAward>();
 
 
-            
+
+
         }
 
         public string Title { get;set; }
@@ -74,5 +78,6 @@ namespace TN.Shared.Domain.Entities.Academics
         public DateTime CreatedAt { get; set; }
         public string ModifiedBy { get; set; }
         public DateTime ModifiedAt { get; set; }
+        public ICollection<StudentsAward> StudentsAwards { get; set; }
     }
 }
