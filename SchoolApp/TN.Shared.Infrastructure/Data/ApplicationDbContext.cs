@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-
+using System.Reflection.Emit;
 using TN.Account.Domain.Entities;
 using TN.Authentication.Domain.Entities;
 using TN.Inventory.Domain.Entities;
@@ -14,6 +14,10 @@ using TN.Shared.Domain.Entities.Account;
 using TN.Shared.Domain.Entities.AuditLogs;
 using TN.Shared.Domain.Entities.Certificates;
 using TN.Shared.Domain.Entities.Communication;
+using TN.Shared.Domain.Entities.Crm.Applicant;
+using TN.Shared.Domain.Entities.Crm.Lead;
+using TN.Shared.Domain.Entities.Crm.Profile;
+using TN.Shared.Domain.Entities.Crm.Students;
 using TN.Shared.Domain.Entities.Finance;
 using TN.Shared.Domain.Entities.Inventory;
 using TN.Shared.Domain.Entities.Notification;
@@ -41,6 +45,18 @@ namespace TN.Shared.Infrastructure.Data
             //AppContext.SetSwitch("Npgsql.DisableDateTimeInfinityConversions", true);
 
         }
+
+        #region CRM
+
+        #region CrmStudents
+        public DbSet<UserProfile> UserProfiles { get; set; }
+        public DbSet<CrmLead> Leads { get; set; }
+        public DbSet<CrmApplicant> Applicants { get; set; }
+        public DbSet<CrmStudent> CrmStudents { get; set; }
+        #endregion
+
+
+        #endregion
 
 
         #region SchoolItem
@@ -246,6 +262,47 @@ namespace TN.Shared.Infrastructure.Data
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
+
+
+            #region CRM Students
+            #region Lead and UserProfile (1:1)
+            builder.Entity<CrmLead>(builder =>
+            {
+                builder.HasKey(e => e.Id);
+
+                builder.HasOne(e => e.Profile)
+                    .WithOne(p => p.CrmLeadDetails)
+                    .HasForeignKey<CrmLead>(e => e.Id) // Id is the PK and FK
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+            #endregion
+
+            #region Applicant and UserProfile (1:1)
+            builder.Entity<CrmApplicant>(builder =>
+            {
+                builder.HasKey(e => e.Id);
+
+                builder.HasOne(e => e.Profile)
+                    .WithOne(p => p.CrmApplicantDetails)
+                    .HasForeignKey<CrmApplicant>(e => e.Id)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+            #endregion
+
+            #region Student and UserProfile (1:1)
+            builder.Entity<CrmStudent>(builder =>
+            {
+                builder.HasKey(e => e.Id);
+
+                builder.HasOne(e => e.Profile)
+                    .WithOne(p => p.CrmStudentDetails)
+                    .HasForeignKey<CrmStudent>(e => e.Id)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+            #endregion
+
+
+            #endregion
 
             #region FeeStructure and Ledger(1:m)
             builder.Entity<FeeStructure>()

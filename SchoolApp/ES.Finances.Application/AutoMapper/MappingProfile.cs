@@ -60,7 +60,7 @@ namespace ES.Finances.Application.AutoMapper
 
             CreateMap<FeeStructureByClassResponse, FeeStructure>().ReverseMap();
             CreateMap<PagedResult<FeeStructure>, PagedResult<FeeStructureByClassResponse>>().ReverseMap();
-
+    
 
             CreateMap<FeeStructure, UpdateFeeStructureCommand>().ReverseMap();
             CreateMap<FeeStructure, FeeStructureByIdResponse>().ReverseMap();

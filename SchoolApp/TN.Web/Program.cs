@@ -8,6 +8,8 @@ using ES.Attendance.Infrastructure;
 using ES.Certificate.Infrastructure;
 using ES.Communication.Application;
 using ES.Communication.Infrastructure;
+using ES.Enrolment.Application;
+using ES.Enrolment.Infrastructure;
 using ES.Finances.Application;
 using ES.Finances.Infrastructure;
 using ES.Staff.Application;
@@ -230,6 +232,10 @@ try
     builder.Services
         .AddCommunicationApplication()
         .AddCommunicationInfrastructure();
+
+    builder.Services
+        .AddEnrolmentApplication()
+        .AddEnrolmentInfrastructure();
 
     ApplicationBuilderConfig.Inject(builder);
 
