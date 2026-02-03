@@ -7,8 +7,12 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 using TN.Authentication.Domain.Entities;
+using TN.Inventory.Application.Inventory.Command.DeleteConversionFactor;
 using TN.Inventory.Application.Inventory.Command.SchoolAssets.Contributors;
 using TN.Inventory.Application.Inventory.Command.SchoolAssets.Contributors.RequestCommandMapper;
+using TN.Inventory.Application.Inventory.Command.SchoolAssets.DeleteContributors;
+using TN.Inventory.Application.Inventory.Command.SchoolAssets.DeleteSchoolItemHistory;
+using TN.Inventory.Application.Inventory.Command.SchoolAssets.DeleteSchoolItems;
 using TN.Inventory.Application.Inventory.Command.SchoolAssets.SchoolItemHistory;
 using TN.Inventory.Application.Inventory.Command.SchoolAssets.SchoolItemHistory.RequestCommandMapper;
 using TN.Inventory.Application.Inventory.Command.SchoolAssets.SchoolItems;
@@ -17,6 +21,8 @@ using TN.Inventory.Application.Inventory.Command.SchoolAssets.UpdateContributors
 using TN.Inventory.Application.Inventory.Command.SchoolAssets.UpdateContributors.RequestCommandMapper;
 using TN.Inventory.Application.Inventory.Command.SchoolAssets.UpdateSchoolItemHistory;
 using TN.Inventory.Application.Inventory.Command.SchoolAssets.UpdateSchoolItemHistory.RequestCommandMapper;
+using TN.Inventory.Application.Inventory.Command.SchoolAssets.UpdateSchoolItems;
+using TN.Inventory.Application.Inventory.Command.SchoolAssets.UpdateSchoolItems.RequestCommandMapper;
 using TN.Inventory.Application.Inventory.Command.UpdateConversionFactor;
 using TN.Inventory.Application.Inventory.Queries.SchoolAssets.Contributors;
 using TN.Inventory.Application.Inventory.Queries.SchoolAssets.FilterContributors;
@@ -72,6 +78,26 @@ namespace TN.Web.Controllers.SchoolAssets.v1
         #endregion
 
         #region SchoolItemshistory
+
+        #region DeleteSchoolItemHistory
+        [HttpDelete("DeleteSchoolItemHistory/{id}")]
+
+        public async Task<IActionResult> DeleteSchoolItemHistory([FromRoute] string id, CancellationToken cancellationToken)
+        {
+            var command = new DeleteSchoolItemHistoryCommand(id);
+            var deleteSchoolItemHistory = await _mediator.Send(command);
+            #region Switch Statement
+            return deleteSchoolItemHistory switch
+            {
+                { IsSuccess: true, Data: true } => NoContent(),
+                { IsSuccess: true, Message: not null } => new JsonResult(new { Message = deleteSchoolItemHistory.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(deleteSchoolItemHistory.Errors),
+                _ => BadRequest("Invalid Fields for Add SchoolItemHistory")
+            };
+
+            #endregion
+        }
+        #endregion
 
         #region UpdateSchoolItemHistory
         [HttpPatch("UpdateSchoolItemHistory/{id}")]
@@ -148,6 +174,25 @@ namespace TN.Web.Controllers.SchoolAssets.v1
 
         #region Contributors
 
+        #region DeleteContributors
+        [HttpDelete("DeleteContributors/{id}")]
+
+        public async Task<IActionResult> DeleteContributors([FromRoute] string id, CancellationToken cancellationToken)
+        {
+            var command = new DeleteContributorsCommand(id);
+            var deleteContributors = await _mediator.Send(command);
+            #region Switch Statement
+            return deleteContributors switch
+            {
+                { IsSuccess: true, Data: true } => NoContent(),
+                { IsSuccess: true, Message: not null } => new JsonResult(new { Message = deleteContributors.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(deleteContributors.Errors),
+                _ => BadRequest("Invalid Fields for Contributors")
+            };
+
+            #endregion
+        }
+        #endregion
         #region UpdateContributors
         [HttpPatch("UpdateContributors/{id}")]
 
@@ -249,6 +294,52 @@ namespace TN.Web.Controllers.SchoolAssets.v1
         #endregion
 
         #region SchoolItems
+
+        #region DeleteSchoolItems
+        [HttpDelete("DeleteSchoolItems/{id}")]
+
+        public async Task<IActionResult> DeleteSchoolItems([FromRoute] string id, CancellationToken cancellationToken)
+        {
+            var command = new DeleteSchoolItemsCommand(id);
+            var deleteSchoolItems = await _mediator.Send(command);
+            #region Switch Statement
+            return deleteSchoolItems switch
+            {
+                { IsSuccess: true, Data: true } => NoContent(),
+                { IsSuccess: true, Message: not null } => new JsonResult(new { Message = deleteSchoolItems.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(deleteSchoolItems.Errors),
+                _ => BadRequest("Invalid Fields for Delete School Items")
+            };
+
+            #endregion
+        }
+        #endregion
+
+        #region UpdateSchoolItems
+        [HttpPatch("UpdateSchoolItems/{id}")]
+
+        public async Task<IActionResult> UpdateSchoolItems([FromRoute] string id, [FromBody] UpdateSchoolitemsRequest request)
+        {
+            //Mapping command and request
+            var command = request.ToCommand(id);
+            var updateSchoolItemsResult = await _mediator.Send(command);
+            #region Switch Statement
+            return updateSchoolItemsResult switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(updateSchoolItemsResult.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = updateSchoolItemsResult.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(updateSchoolItemsResult.Errors),
+                _ => BadRequest("Invalid Fields for Update SchoolItems")
+            };
+
+            #endregion
+
+
+        }
+        #endregion
 
         #region AllSchoolItems
         [HttpGet("all-SchoolItems")]

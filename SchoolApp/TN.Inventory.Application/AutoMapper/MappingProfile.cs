@@ -19,6 +19,9 @@ using TN.Inventory.Application.Inventory.Command.DeleteItem;
 using TN.Inventory.Application.Inventory.Command.DeleteItemGroup;
 using TN.Inventory.Application.Inventory.Command.DeleteUnits;
 using TN.Inventory.Application.Inventory.Command.SchoolAssets.Contributors;
+using TN.Inventory.Application.Inventory.Command.SchoolAssets.DeleteContributors;
+using TN.Inventory.Application.Inventory.Command.SchoolAssets.DeleteSchoolItemHistory;
+using TN.Inventory.Application.Inventory.Command.SchoolAssets.DeleteSchoolItems;
 using TN.Inventory.Application.Inventory.Command.SchoolAssets.SchoolItemHistory;
 using TN.Inventory.Application.Inventory.Command.SchoolAssets.SchoolItems;
 using TN.Inventory.Application.Inventory.Command.SchoolAssets.UpdateContributors;
@@ -74,6 +77,7 @@ namespace TN.Inventory.Application.AutoMapper
 
             #region SchoolItemsHistory
 
+            CreateMap<SchoolItemsHistory, DeleteSchoolItemHistoryCommand>().ReverseMap();
             CreateMap<SchoolItemsHistory, UpdateSchoolItemHistoryCommand>().ReverseMap();
             CreateMap<AddSchoolItemHistoryResponse, SchoolItemsHistory>().ReverseMap();
             CreateMap<FilterSchoolItemsHistoryResponse, SchoolItemsHistory>().ReverseMap();
@@ -82,6 +86,7 @@ namespace TN.Inventory.Application.AutoMapper
             #endregion
 
             #region Contributors
+            CreateMap<Contributor, DeleteContributorsCommand>().ReverseMap();
             CreateMap<ContributorsResponse, Contributor>().ReverseMap();
             CreateMap<PagedResult<Contributor>, PagedResult<ContributorsResponse>>().ReverseMap();
             CreateMap<Contributor, UpdateContributorsCommand>().ReverseMap();
@@ -94,6 +99,7 @@ namespace TN.Inventory.Application.AutoMapper
 
             #region SchoolItems
 
+            CreateMap<SchoolItem, DeleteSchoolItemHistoryCommand>().ReverseMap();
             CreateMap<SchoolItem, UpdateSchoolItemsCommand>().ReverseMap();
 
             CreateMap<SchoolItemsResponse, SchoolItem>().ReverseMap();

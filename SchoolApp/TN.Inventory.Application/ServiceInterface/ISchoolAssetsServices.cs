@@ -37,6 +37,9 @@ namespace TN.Inventory.Application.ServiceInterface
         Task<Result<UpdateContributorsResponse>> UpdateContributors(string id, UpdateContributorsCommand updateContributorsCommand);
         Task<Result<UpdateSchoolItemHistoryResponse>> UpdateSchoolItemHistory(string id, UpdateSchoolItemHistoryCommand updateSchoolItemHistoryCommand);
         Task<Result<UpdateSchoolItemsResponse>> UpdateSchoolItems(string id, UpdateSchoolItemsCommand updateSchoolItemsCommand);
+        Task<Result<bool>> DeleteSchoolItems(string id, CancellationToken cancellationToken = default);
+        Task<Result<bool>> DeleteSchoolItemHistory(string id, CancellationToken cancellationToken = default);
+        Task<Result<bool>> DeleteContributors(string id, CancellationToken cancellationToken = default);
 
     }
 }

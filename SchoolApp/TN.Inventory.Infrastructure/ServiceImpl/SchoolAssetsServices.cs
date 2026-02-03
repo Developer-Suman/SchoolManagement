@@ -193,6 +193,72 @@ namespace TN.Inventory.Infrastructure.ServiceImpl
             }
         }
 
+        public async Task<Result<bool>> DeleteContributors(string id, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                var contributors = await _unitOfWork.BaseRepository<Contributor>().GetByGuIdAsync(id);
+                if (contributors is null)
+                {
+                    return Result<bool>.Failure("NotFound", "Contributors Cannot be Found");
+                }
+
+                _unitOfWork.BaseRepository<Contributor>().Delete(contributors);
+                await _unitOfWork.SaveChangesAsync();
+
+
+                return Result<bool>.Success(true);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"An error occurred while deleting Contributors having {id}", ex);
+            }
+        }
+
+        public async Task<Result<bool>> DeleteSchoolItemHistory(string id, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                var schoolItemsHistory = await _unitOfWork.BaseRepository<SchoolItemsHistory>().GetByGuIdAsync(id);
+                if (schoolItemsHistory is null)
+                {
+                    return Result<bool>.Failure("NotFound", "SchoolItemsHistory Cannot be Found");
+                }
+
+                _unitOfWork.BaseRepository<SchoolItemsHistory>().Delete(schoolItemsHistory);
+                await _unitOfWork.SaveChangesAsync();
+
+
+                return Result<bool>.Success(true);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"An error occurred while deleting SchoolItemsHistory having {id}", ex);
+            }
+        }
+
+        public async Task<Result<bool>> DeleteSchoolItems(string id, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                var schoolItems = await _unitOfWork.BaseRepository<SchoolItem>().GetByGuIdAsync(id);
+                if (schoolItems is null)
+                {
+                    return Result<bool>.Failure("NotFound", "schoolItems Cannot be Found");
+                }
+
+                _unitOfWork.BaseRepository<SchoolItem>().Delete(schoolItems);
+                await _unitOfWork.SaveChangesAsync();
+
+
+                return Result<bool>.Success(true);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"An error occurred while deleting SchoolItem having {id}", ex);
+            }
+        }
+
         public async Task<Result<PagedResult<FilterContributorsResponse>>> FilterContributors(PaginationRequest paginationRequest, FilterContributorsDTOs filterContributorsDTOs)
         {
             try
