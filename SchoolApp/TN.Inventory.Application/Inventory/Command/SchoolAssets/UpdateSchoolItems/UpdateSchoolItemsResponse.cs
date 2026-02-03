@@ -12,12 +12,19 @@ namespace TN.Inventory.Application.Inventory.Command.SchoolAssets.UpdateSchoolIt
         string id,
             string name,
             string contributorId,
+            //ItemStatus itemStatus,
             ItemCondition itemCondition,
             DateTime receivedDate,
             decimal? estimatedValue,
-            bool isActive,
-              decimal? quantity,
+            decimal? quantity,
             UnitType? unitType,
-            string fiscalYearId
+            string schoolId,
+            string fiscalYearId,
+            bool isActive,
+            string createdBy,
+            DateTime createdAt,
+            string modifiedBy,
+
+            DateTime modifiedAt
         );
 }
