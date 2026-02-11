@@ -4,6 +4,8 @@ using ES.Enrolment.Application.Enrolments.Command.AddInquiry;
 using ES.Enrolment.Application.Enrolments.Command.AddInquiry.RequestCommandMapper;
 using ES.Enrolment.Application.Enrolments.Command.ConvertApplicant;
 using ES.Enrolment.Application.Enrolments.Command.ConvertApplicant.RequestCommandMapper;
+using ES.Enrolment.Application.Enrolments.Command.ConvertStudent;
+using ES.Enrolment.Application.Enrolments.Command.ConvertStudent.RequestCommandMapper;
 using ES.Enrolment.Application.Enrolments.Queries.FilterInquery;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -90,7 +92,29 @@ namespace TN.Web.Controllers.Enrolments.v1
             #region Switch Statement
             return convert switch
             {
-                { IsSuccess: true, Data: not null } => CreatedAtAction(nameof(AddInquiry), convert.Data),
+                { IsSuccess: true, Data: not null } => CreatedAtAction(nameof(ConvertToApplicant), convert.Data),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = convert.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(convert.Errors),
+                _ => BadRequest("Invalid Fields ")
+
+            };
+
+            #endregion
+        }
+        #endregion
+
+        #region ConvertToStudents
+        [HttpPost("ConvertToStudents")]
+
+        public async Task<IActionResult> ConvertToStudents([FromBody] ConvertStudentRequest request)
+        {
+            //Mapping command and request
+            var command = request.ToCommand();
+            var convert = await _mediator.Send(command);
+            #region Switch Statement
+            return convert switch
+            {
+                { IsSuccess: true, Data: not null } => CreatedAtAction(nameof(ConvertToStudents), convert.Data),
                 { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = convert.Message }),
                 { IsSuccess: false, Errors: not null } => HandleFailureResult(convert.Errors),
                 _ => BadRequest("Invalid Fields ")
