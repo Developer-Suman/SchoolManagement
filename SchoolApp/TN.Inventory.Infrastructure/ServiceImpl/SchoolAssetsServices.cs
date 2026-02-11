@@ -754,15 +754,10 @@ namespace TN.Inventory.Infrastructure.ServiceImpl
                             updateSchoolItemsCommand.itemCondition,
                             updateSchoolItemsCommand.receivedDate,
                             updateSchoolItemsCommand.estimatedValue,
+                            true,
                             updateSchoolItemsCommand.quantity,
                             updateSchoolItemsCommand.unitType,
-                            schoolId,
-                            fiscalYearId,
-                                 true,
-                                  userId,
-                                  DateTime.UtcNow,
-                                  userId,
-                                  DateTime.UtcNow
+                            fiscalYearId
                         );
 
                     return Result<UpdateSchoolItemsResponse>.Success(resultResponse);
