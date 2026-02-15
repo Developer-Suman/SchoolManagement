@@ -2,6 +2,7 @@
 using ES.Enrolment.Application.Enrolments.Command.AddInquiry;
 using ES.Enrolment.Application.Enrolments.Command.ConvertApplicant;
 using ES.Enrolment.Application.Enrolments.Queries.FilterInquery;
+using ES.Enrolment.Application.Enrolments.Queries.GetAllUserProfile;
 using ES.Enrolment.Application.ServiceInterface;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -244,6 +245,41 @@ namespace ES.Enrolment.Infrastructure.ServiceImpl
             catch (Exception ex)
             {
                 throw new Exception($"An error occurred while fetching result: {ex.Message}", ex);
+            }
+        }
+
+        public async Task<Result<PagedResult<GetAllUserProfileResponse>>> UserProfile(PaginationRequest paginationRequest, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+
+                var (feeType, currentSchoolId, institutionId, userRole, isSuperAdmin) =
+                    await _getUserScopedData.GetUserScopedData<FeeType>();
+
+                var finalQuery = feeType.Where(x => x.IsActive == true && x.SchoolId == currentSchoolId).AsNoTracking();
+
+
+                var pagedResult = await finalQuery.ToPagedResultAsync(
+                    paginationRequest.pageIndex,
+                    paginationRequest.pageSize,
+                    paginationRequest.IsPagination);
+
+
+                var mappedItems = _mapper.Map<List<GetAllUserProfileResponse>>(pagedResult.Data.Items);
+
+                var response = new PagedResult<GetAllUserProfileResponse>
+                {
+                    Items = mappedItems,
+                    TotalItems = pagedResult.Data.TotalItems,
+                    PageIndex = pagedResult.Data.PageIndex,
+                    pageSize = pagedResult.Data.pageSize
+                };
+
+                return Result<PagedResult<GetAllUserProfileResponse>>.Success(response);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while fetching", ex);
             }
         }
     }

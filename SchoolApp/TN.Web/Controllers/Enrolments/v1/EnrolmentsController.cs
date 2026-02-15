@@ -5,6 +5,8 @@ using ES.Enrolment.Application.Enrolments.Command.AddInquiry.RequestCommandMappe
 using ES.Enrolment.Application.Enrolments.Command.ConvertApplicant;
 using ES.Enrolment.Application.Enrolments.Command.ConvertApplicant.RequestCommandMapper;
 using ES.Enrolment.Application.Enrolments.Queries.FilterInquery;
+using ES.Enrolment.Application.Enrolments.Queries.GetAllUserProfile;
+using ES.Finances.Application.Finance.Queries.Fee.Feetype;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
@@ -99,6 +101,33 @@ namespace TN.Web.Controllers.Enrolments.v1
 
             #endregion
         }
+        #endregion
+
+        #region UserProfile
+        #region GetAllUserProfile
+        [HttpGet("GetAllUserProfile")]
+        public async Task<IActionResult> GetAllUserProfile([FromQuery] PaginationRequest paginationRequest)
+        {
+            var query = new GetAllUserProfileQuery(paginationRequest);
+            var result = await _mediator.Send(query);
+            #region Switch Statement
+            return result switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(result.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { result.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(result.Errors),
+                _ => BadRequest("Invalid page and pageSize Fields")
+            };
+            #endregion
+
+        }
+
+
+        #endregion
+
         #endregion
     }
 }

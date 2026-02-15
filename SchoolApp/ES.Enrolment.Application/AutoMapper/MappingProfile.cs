@@ -2,6 +2,7 @@
 using ES.Enrolment.Application.Enrolments.Command.AddInquiry;
 using ES.Enrolment.Application.Enrolments.Command.ConvertApplicant;
 using ES.Enrolment.Application.Enrolments.Queries.FilterInquery;
+using ES.Enrolment.Application.Enrolments.Queries.GetAllUserProfile;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TN.Shared.Domain.Entities.Crm.Applicant;
 using TN.Shared.Domain.Entities.Crm.Lead;
+using TN.Shared.Domain.Entities.Crm.Profile;
 using TN.Shared.Domain.Entities.Finance;
 using TN.Shared.Domain.ExtensionMethod.Pagination;
 
@@ -23,6 +25,11 @@ namespace ES.Enrolment.Application.AutoMapper
             CreateMap<CrmApplicant, ConvertApplicantResponse>().ReverseMap();
             CreateMap<FilterInqueryResponse, CrmLead>().ReverseMap();
             CreateMap<PagedResult<CrmLead>, PagedResult<FilterInqueryResponse>>().ReverseMap();
+            #endregion
+            #region UserProfile
+            CreateMap<GetAllUserProfileResponse, UserProfile>().ReverseMap();
+            CreateMap<PagedResult<UserProfile>, PagedResult<GetAllUserProfileResponse>>().ReverseMap();
+
             #endregion
         }
     }
