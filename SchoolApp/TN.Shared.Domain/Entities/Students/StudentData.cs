@@ -4,7 +4,9 @@ using TN.Authentication.Domain.Entities;
 using TN.Shared.Domain.Entities.Academics;
 using TN.Shared.Domain.Entities.Certificates;
 using TN.Shared.Domain.Entities.Finance;
+using TN.Shared.Domain.Enum;
 using TN.Shared.Domain.Primitive;
+using static TN.Shared.Domain.Enum.SchoolEnrollment;
 
 namespace TN.Shared.Domain.Entities.Students
 {
@@ -45,7 +47,8 @@ namespace TN.Shared.Domain.Entities.Students
             int? vdcid,
             int? municipalityId,
             string? classId,
-            string? userId
+            string? userId,
+            EnrollmentStatus? enrollmentStatus
 
             )
             : base(id)
@@ -76,6 +79,8 @@ namespace TN.Shared.Domain.Entities.Students
             IsActive = isActive;
             VdcId = vdcid;
             ClassId = classId;
+            UserId = userId;
+            EnrollmentStatus = enrollmentStatus;
             MunicipalityId = municipalityId;
             StudentFees = new List<StudentFee>();
             StudentAttendances = new List<StudentAttendances>();
@@ -84,8 +89,11 @@ namespace TN.Shared.Domain.Entities.Students
             SeatAssignments = new List<SeatAssignment>();
             AssignmentStudents= new List<AssignmentStudent>();
             StudentsAwards = new List<StudentsAward>();
+            Registrations = new List<Registrations>();
 
         }
+
+        public EnrollmentStatus? EnrollmentStatus { get; set; }
         public string? LedgerId { get; set; }
         public Ledger? Ledger { get; set; }
         public string? UserId { get; set; }
@@ -140,6 +148,7 @@ namespace TN.Shared.Domain.Entities.Students
         public ICollection<SeatAssignment> SeatAssignments { get; set; }
         public ICollection<AssignmentStudent> AssignmentStudents { get; set; }
         public ICollection<StudentsAward> StudentsAwards { get; set; }
+        public ICollection<Registrations> Registrations { get; set; }
 
     }
 

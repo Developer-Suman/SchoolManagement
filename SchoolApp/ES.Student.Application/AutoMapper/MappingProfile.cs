@@ -1,9 +1,13 @@
 ﻿using AutoMapper;
+using ES.Student.Application.Registration.Command.RegisterMultipleStudents;
+using ES.Student.Application.Registration.Command.RegisterStudents;
+using ES.Student.Application.Registration.Queries.FilterRegisterStudents;
 using ES.Student.Application.Student.Command.AddAttendances;
 using ES.Student.Application.Student.Command.AddParent;
 using ES.Student.Application.Student.Command.AddStudents;
 using ES.Student.Application.Student.Command.UpdateParent;
 using ES.Student.Application.Student.Command.UpdateStudents;
+using ES.Student.Application.Student.Queries.AcademicYear;
 using ES.Student.Application.Student.Queries.Attendance.AttendanceReport;
 using ES.Student.Application.Student.Queries.FilterAttendances;
 using ES.Student.Application.Student.Queries.FilterParents;
@@ -41,10 +45,26 @@ namespace ES.Student.Application.AutoMapper
 
 
             #endregion
+
+            #region Registration
+            CreateMap<RegisterStudentsCommand, Registrations>().ReverseMap();
+            CreateMap<RegisterStudentsResponse, Registrations>().ReverseMap();
+
+
+            CreateMap<RegisterMultipleStudentsCommand, Registrations>().ReverseMap();
+            CreateMap<RegisterMultipleStudentsResponse, Registrations>().ReverseMap();
+
+            CreateMap<FilterRegisterStudentsResponse, Registrations>().ReverseMap();
+            CreateMap<PagedResult<Registrations>, PagedResult<FilterRegisterStudentsResponse>>().ReverseMap();
+
+            #endregion
             #region Student
 
-            //CreateMap<StudentData, GetStudentsByIdQueryResponse>()
-            //.ForMember(dest => dest.studentImg, opt => opt.MapFrom(src => src.ImageUrl));
+
+            CreateMap<AcademicYearResponse, AcademicYear>().ReverseMap();
+            CreateMap<PagedResult<AcademicYear>, PagedResult<AcademicYearResponse>>().ReverseMap();
+
+
             CreateMap<GetStudentByClassResponse, StudentData>().ReverseMap();
             CreateMap<PagedResult<StudentData>, PagedResult<GetStudentByClassResponse>>().ReverseMap();
 

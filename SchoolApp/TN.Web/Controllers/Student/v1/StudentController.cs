@@ -1,5 +1,10 @@
 ﻿using ES.Academics.Application.Academics.Queries.FilterSubject;
 using ES.Communication.Application.Communication.Queries.NoticeDisplay;
+using ES.Student.Application.Registration.Command.RegisterMultipleStudents;
+using ES.Student.Application.Registration.Command.RegisterMultipleStudents.RequestCommandMapper;
+using ES.Student.Application.Registration.Command.RegisterStudents;
+using ES.Student.Application.Registration.Command.RegisterStudents.RequestCommandMapper;
+using ES.Student.Application.Registration.Queries.FilterRegisterStudents;
 using ES.Student.Application.Student.Command.AddAttendances;
 using ES.Student.Application.Student.Command.AddAttendances.RequestCommandMapper;
 using ES.Student.Application.Student.Command.AddParent;
@@ -12,6 +17,7 @@ using ES.Student.Application.Student.Command.UpdateParent;
 using ES.Student.Application.Student.Command.UpdateParent.RequestCommandMapper;
 using ES.Student.Application.Student.Command.UpdateStudents;
 using ES.Student.Application.Student.Command.UpdateStudents.RequestCommandMapper;
+using ES.Student.Application.Student.Queries.AcademicYear;
 using ES.Student.Application.Student.Queries.Attendance.AttendanceReport;
 using ES.Student.Application.Student.Queries.FilterAttendances;
 using ES.Student.Application.Student.Queries.FilterParents;
@@ -49,6 +55,79 @@ namespace TN.Web.Controllers.Student.v1
             _mediator = mediator;
             _logger = logger;
         }
+
+        #region Registration
+
+        #region FilterRegisterStudents
+        [HttpGet("FilterRegisterStudents")]
+        public async Task<IActionResult> FilterRegisterStudents([FromQuery] FilterRegisterStudentsDTOs filterRegisterStudentsDTOs, [FromQuery] PaginationRequest paginationRequest)
+        {
+            var query = new FilterRegisterStudentsQuery(paginationRequest, filterRegisterStudentsDTOs);
+            var filterRegisterStudentsResult = await _mediator.Send(query);
+            #region Switch Statement
+            return filterRegisterStudentsResult switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(filterRegisterStudentsResult.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = filterRegisterStudentsResult.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(filterRegisterStudentsResult.Errors),
+                _ => BadRequest("Invalid page and pageSize Fields")
+            };
+            #endregion
+
+        }
+
+        #endregion
+
+
+
+        #region MultipleStudentRegistration
+        [HttpPost("MultipleStudentRegistration")]
+
+        public async Task<IActionResult> MultipleStudentRegistration([FromBody] RegisterMultipleStudentsRequest request)
+        {
+
+            var command = request.ToCommand();
+            var register = await _mediator.Send(command);
+            #region Switch Statement
+            return register switch
+            {
+                { IsSuccess: true, Data: not null } => CreatedAtAction(nameof(MultipleStudentRegistration), register.Data),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { register.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(register.Errors),
+                _ => BadRequest("Invalid Fields for RegisterMultipleStudents ")
+
+            };
+
+            #endregion
+        }
+        #endregion
+
+        #region StudentRegistration
+        [HttpPost("StudentRegistration")]
+
+        public async Task<IActionResult> StudentRegistration([FromBody] RegisterStudentsRequest request)
+        {
+
+            var command = request.ToCommand();
+            var register = await _mediator.Send(command);
+            #region Switch Statement
+            return register switch
+            {
+                { IsSuccess: true, Data: not null } => CreatedAtAction(nameof(StudentRegistration), register.Data),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { register.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(register.Errors),
+                _ => BadRequest("Invalid Fields for RegisterStudents ")
+
+            };
+
+            #endregion
+        }
+        #endregion
+
+        #endregion
 
         #region Attendance
 
@@ -126,6 +205,33 @@ namespace TN.Web.Controllers.Student.v1
         #endregion
 
         #region Student  
+
+
+        #region AllAcademicYear
+        [HttpGet("AllAcademicYear")]
+        public async Task<IActionResult> AllAcademicYear([FromQuery] PaginationRequest paginationRequest)
+        {
+            var query = new AcademicYearQuery(paginationRequest);
+            var result = await _mediator.Send(query);
+            #region Switch Statement
+            return result switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(result.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { result.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(result.Errors),
+                _ => BadRequest("Invalid page and pageSize Fields")
+            };
+            #endregion
+
+        }
+
+
+        #endregion
+
+
 
         #region StudentsForAttendance
         [HttpGet("StudentsForAttendance")]

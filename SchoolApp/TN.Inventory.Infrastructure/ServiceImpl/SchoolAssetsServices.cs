@@ -820,10 +820,16 @@ namespace TN.Inventory.Infrastructure.ServiceImpl
                             updateSchoolItemsCommand.itemCondition,
                             updateSchoolItemsCommand.receivedDate,
                             updateSchoolItemsCommand.estimatedValue,
-                            true,
                             updateSchoolItemsCommand.quantity,
                             updateSchoolItemsCommand.unitType,
-                            fiscalYearId
+                            schoolItemsToBeUpdated.SchoolId,
+                            schoolItemsToBeUpdated.FiscalYearId,
+                            schoolItemsToBeUpdated.IsActive,
+                            schoolItemsToBeUpdated.CreatedBy,
+                            schoolItemsToBeUpdated.CreatedAt,
+                            schoolItemsToBeUpdated.ModifiedBy,
+                            schoolItemsToBeUpdated.ModifiedAt
+
                         );
 
                     return Result<UpdateSchoolItemsResponse>.Success(resultResponse);
