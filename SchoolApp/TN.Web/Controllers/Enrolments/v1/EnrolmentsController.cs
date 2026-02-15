@@ -6,6 +6,7 @@ using ES.Enrolment.Application.Enrolments.Command.ConvertApplicant;
 using ES.Enrolment.Application.Enrolments.Command.ConvertApplicant.RequestCommandMapper;
 using ES.Enrolment.Application.Enrolments.Command.ConvertStudent;
 using ES.Enrolment.Application.Enrolments.Command.ConvertStudent.RequestCommandMapper;
+using ES.Enrolment.Application.Enrolments.Queries.FilterApplicant;
 using ES.Enrolment.Application.Enrolments.Queries.FilterInquery;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -35,6 +36,31 @@ namespace TN.Web.Controllers.Enrolments.v1
             _logger = logger;
             _mediator = mediator;
         }
+
+        #region FilterApplicants
+        [HttpGet("FilterApplicants")]
+        public async Task<IActionResult> GetFilterApplicants([FromQuery] FilterApplicantDTOs filterApplicantDTOs, [FromQuery] PaginationRequest paginationRequest)
+        {
+            var query = new FilterApplicantQuery(paginationRequest, filterApplicantDTOs);
+            var filterApplicants = await _mediator.Send(query);
+            #region Switch Statement
+            return filterApplicants switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(filterApplicants.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = filterApplicants.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(filterApplicants.Errors),
+                _ => BadRequest("Invalid page and pageSize Fields")
+            };
+            #endregion
+
+        }
+
+        #endregion
+
+
 
         #region FilterInquery
         [HttpGet("FilterInquery")]

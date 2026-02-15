@@ -6,6 +6,7 @@ using ES.Student.Application.Student.Command.AddParent;
 using ES.Student.Application.Student.Command.AddStudents;
 using ES.Student.Application.Student.Command.UpdateParent;
 using ES.Student.Application.Student.Command.UpdateStudents;
+using ES.Student.Application.Student.Queries.AcademicYear;
 using ES.Student.Application.Student.Queries.FilterParents;
 using ES.Student.Application.Student.Queries.FilterStudents;
 using ES.Student.Application.Student.Queries.GetAllParent;
@@ -32,6 +33,7 @@ using TN.Shared.Domain.Entities.Students;
 using TN.Shared.Domain.ExtensionMethod.Pagination;
 using TN.Shared.Domain.IRepository;
 using TN.Shared.Domain.Static.Cache;
+using static TN.Shared.Domain.Enum.SchoolEnrollment;
 
 namespace ES.Student.Infrastructure.ServiceImpl
 {
@@ -191,7 +193,10 @@ namespace ES.Student.Infrastructure.ServiceImpl
                          nullablevdcId,
                          nullableMunicipalityId,
                          nullableClassId,
-                         ""
+                         "",
+                         !string.IsNullOrEmpty(nullableClassId)
+                            ? EnrollmentStatus.Enrolled
+                            : EnrollmentStatus.Added
 
 
 
@@ -442,6 +447,41 @@ namespace ES.Student.Infrastructure.ServiceImpl
             }
         }
 
+        public async Task<Result<PagedResult<AcademicYearResponse>>> GetAllAcademicYear(PaginationRequest paginationRequest, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+
+                var (academicYear, currentSchoolId, institutionId, userRole, isSuperAdmin) =
+                    await _getUserScopedData.GetUserScopedData<AcademicYear>();
+
+                var finalQuery = academicYear.AsNoTracking();
+
+
+                var pagedResult = await finalQuery.ToPagedResultAsync(
+                    paginationRequest.pageIndex,
+                    paginationRequest.pageSize,
+                    paginationRequest.IsPagination);
+
+
+                var mappedItems = _mapper.Map<List<AcademicYearResponse>>(pagedResult.Data.Items);
+
+                var response = new PagedResult<AcademicYearResponse>
+                {
+                    Items = mappedItems,
+                    TotalItems = pagedResult.Data.TotalItems,
+                    PageIndex = pagedResult.Data.PageIndex,
+                    pageSize = pagedResult.Data.pageSize
+                };
+
+                return Result<PagedResult<AcademicYearResponse>>.Success(response);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while fetching", ex);
+            }
+        }
+
         public async Task<Result<PagedResult<GetAllParentQueryResponse>>> GetAllParent(PaginationRequest paginationRequest, CancellationToken cancellationToken = default)
         {
             try
@@ -661,7 +701,8 @@ namespace ES.Student.Infrastructure.ServiceImpl
                     i.EnrollmentDate,
                     i.ParentId,
                     i.ClassSectionId,
-                    i.ClassId
+                    i.ClassId,
+                    i.EnrollmentStatus
 
 
                 ))
@@ -734,9 +775,9 @@ namespace ES.Student.Infrastructure.ServiceImpl
             {
 
                 var (studentsData, currentSchoolId, institutionId, userRole, isSuperAdmin) =
-                    await _getUserScopedData.GetUserScopedData<StudentData>();
+                    await _getUserScopedData.GetUserScopedData<Registrations>();
 
-                var finalQuery = studentsData.Where(x => x.IsActive == true && x.ClassId == classId).AsNoTracking();
+                var finalQuery = studentsData.Include(x=>x.Student).Where(x => x.IsActive == true && x.ClassId == classId).AsNoTracking();
 
 
                 var pagedResult = await finalQuery.ToPagedResultAsync(
@@ -745,7 +786,29 @@ namespace ES.Student.Infrastructure.ServiceImpl
                     paginationRequest.IsPagination);
 
 
-                var mappedItems = _mapper.Map<List<GetStudentByClassResponse>>(pagedResult.Data.Items);
+                var mappedItems = pagedResult.Data.Items.Select(x => new GetStudentByClassResponse
+                (
+                    x.Id,
+                    x.Student.FirstName,
+                    x.Student.MiddleName,
+                    x.Student.LastName,
+                    x.Student.RegistrationNumber,
+                    x.Student.Gender,
+                    x.Student.Status,
+                    x.Student.DateOfBirth,
+                    x.Student.Email,
+                    x.Student.PhoneNumber,
+                    "",
+                    x.Student.Address,
+                    x.Student.EnrollmentDate,
+                    x.Student.ParentId,
+                    x.Student.ClassSectionId,
+                    x.Student.ClassId
+
+
+                    )).ToList();
+                
+                //var mappedItems = _mapper.Map<List<GetStudentByClassResponse>>(pagedResult.Data.Items);
 
                 var response = new PagedResult<GetStudentByClassResponse>
                 {

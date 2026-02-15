@@ -1,4 +1,6 @@
-﻿using ES.Student.Application.Student.Command.AddAttendances;
+﻿using ES.Student.Application.Registration.Command.RegisterMultipleStudents;
+using ES.Student.Application.Registration.Command.RegisterStudents;
+using ES.Student.Application.Student.Command.AddAttendances;
 using ES.Student.Application.Student.Command.AddParent;
 using ES.Student.Application.Student.Command.AddStudents;
 using ES.Student.Application.Student.Command.UpdateParent;
@@ -26,6 +28,8 @@ namespace ES.Student.Application
             services.AddScoped<IValidator<AddParentCommand>, AddParentCommandValidator>();
             services.AddScoped<IValidator<UpdateParentCommand>, UpdateParentCommandValidator>();
             services.AddScoped<IValidator<AddAttendenceCommand>, AddAttendenceCommandValidator>();
+            services.AddScoped<IValidator<RegisterStudentsCommand>, RegisterStudentsCommandValidator>();
+            services.AddScoped<IValidator<RegisterMultipleStudentsCommand>, RegisterMultipleStudentsCommandValidator>();
             return services;
         }
     }

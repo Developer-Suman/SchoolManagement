@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TN.Shared.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using TN.Shared.Infrastructure.Data;
 namespace TN.Shared.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260213083232_add class in Registration")]
+    partial class addclassinRegistration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -4657,20 +4660,6 @@ namespace TN.Shared.Infrastructure.Migrations
                     b.ToTable("StockCenters");
                 });
 
-            modelBuilder.Entity("TN.Shared.Domain.Entities.Students.AcademicYear", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("AcademicYears");
-                });
-
             modelBuilder.Entity("TN.Shared.Domain.Entities.Students.Parent", b =>
                 {
                     b.Property<string>("Id")
@@ -4739,7 +4728,7 @@ namespace TN.Shared.Infrastructure.Migrations
 
                     b.Property<string>("AcademicYearId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ClassId")
                         .HasColumnType("nvarchar(450)");
@@ -4773,8 +4762,6 @@ namespace TN.Shared.Infrastructure.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("AcademicYearId");
 
                     b.HasIndex("ClassId");
 
@@ -4875,9 +4862,6 @@ namespace TN.Shared.Infrastructure.Migrations
 
                     b.Property<DateTime>("EnrollmentDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<int?>("EnrollmentStatus")
-                        .HasColumnType("int");
 
                     b.Property<string>("FirstName")
                         .IsRequired()
@@ -6383,12 +6367,6 @@ namespace TN.Shared.Infrastructure.Migrations
 
             modelBuilder.Entity("TN.Shared.Domain.Entities.Students.Registrations", b =>
                 {
-                    b.HasOne("TN.Shared.Domain.Entities.Students.AcademicYear", "AcademicYear")
-                        .WithMany("Registrations")
-                        .HasForeignKey("AcademicYearId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.HasOne("TN.Shared.Domain.Entities.Academics.Class", "Class")
                         .WithMany("Registrations")
                         .HasForeignKey("ClassId")
@@ -6399,8 +6377,6 @@ namespace TN.Shared.Infrastructure.Migrations
                         .HasForeignKey("StudentId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.Navigation("AcademicYear");
 
                     b.Navigation("Class");
 
@@ -6948,11 +6924,6 @@ namespace TN.Shared.Infrastructure.Migrations
                     b.Navigation("SalesQuotationDetails");
 
                     b.Navigation("SalesReturnDetails");
-                });
-
-            modelBuilder.Entity("TN.Shared.Domain.Entities.Students.AcademicYear", b =>
-                {
-                    b.Navigation("Registrations");
                 });
 
             modelBuilder.Entity("TN.Shared.Domain.Entities.Students.Parent", b =>

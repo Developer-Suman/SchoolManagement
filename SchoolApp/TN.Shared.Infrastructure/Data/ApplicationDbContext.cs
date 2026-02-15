@@ -92,6 +92,8 @@ namespace TN.Shared.Infrastructure.Data
         #endregion
 
         #region Student
+        public DbSet<AcademicYear> AcademicYears { get; set; }
+        public DbSet<Registrations> Registrations { get; set; }
         public DbSet<StudentData> Students { get; set; }
         public DbSet<Parent> Parents { get; set; }
 
@@ -508,10 +510,36 @@ namespace TN.Shared.Infrastructure.Data
 
             #endregion
 
-        
+
 
 
             #region Student
+
+            #region AcademicYear and Registrations(1:m)
+            builder.Entity<AcademicYear>()
+               .HasMany(p => p.Registrations)
+               .WithOne(p => p.AcademicYear)
+               .HasForeignKey(p => p.AcademicYearId)
+               .OnDelete(DeleteBehavior.Restrict);
+            #endregion
+
+            #region Class and Registrations(1:m)
+            builder.Entity<Class>()
+               .HasMany(p => p.Registrations)
+               .WithOne(p => p.Class)
+               .HasForeignKey(p => p.ClassId)
+               .OnDelete(DeleteBehavior.Restrict);
+            #endregion
+
+            #region Students and Registrations(1:m)
+            builder.Entity<StudentData>()
+               .HasMany(p => p.Registrations)
+               .WithOne(p => p.Student)
+               .HasForeignKey(p => p.StudentId)
+               .OnDelete(DeleteBehavior.Restrict);
+            #endregion
+
+
 
             #region Students and ApplicationUser(1:1)
             builder.Entity<StudentData>()

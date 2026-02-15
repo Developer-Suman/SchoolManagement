@@ -10,6 +10,7 @@ using TN.Shared.Domain.Entities.Academics;
 using TN.Shared.Domain.Entities.Account;
 using TN.Shared.Domain.Entities.OrganizationSetUp;
 using TN.Shared.Domain.Entities.StockCenterEntities;
+using TN.Shared.Domain.Entities.Students;
 using TN.Shared.Domain.IRepository;
 using TN.Shared.Infrastructure.Data;
 using static NV.Payment.Domain.Entities.PaymentMethod;
@@ -65,6 +66,7 @@ namespace TN.Shared.Infrastructure.DataSeed
             await SeedDemoCompany();
             await SeedStockCenter();
             await SeedClasses();
+            await SeedAcademicYear();
 
         }
 
@@ -390,6 +392,33 @@ namespace TN.Shared.Infrastructure.DataSeed
         }
 
         #endregion
+
+        #region AcademicYear
+        private async Task SeedAcademicYear()
+        {
+            if (!await _context.AcademicYears.AnyAsync())
+            {
+                var academicYear = new List<AcademicYear>()
+                {
+                    new AcademicYear("3f1a9c2e-8b4d-4f1a-9c3e-2a7b5e6d9012","2079-2080"),
+                    new AcademicYear("7c8d2a14-5e3b-4c9f-8a21-6d3e7f2b4c10","2080-2081"),
+                    new AcademicYear("a1b3d5f7-9c2e-4a6b-8d1f-3e7c5a9b2d40","2081-2082"),
+                    new AcademicYear("5e9a1c3d-7b2f-4d8a-9c6e-1f3b5a7d2c90","2082-2083"),
+                    new AcademicYear("d4c2b1a9-8e7f-4a3c-9d2b-6f1e3a5c7b80","2083-2084"),
+                    new AcademicYear("9a7c5e3d-1b2f-4d8c-8e6a-3f9b2d1c4a70","2084-2085"),
+                    new AcademicYear("b2e4c6a8-9d1f-4a3b-8c7e-5d2a1f3c6b60","2085-2086"),
+                    new AcademicYear("6d3a1c9e-7f2b-4e8a-9c5d-1a3b7e2f4c50","2086-2087"),
+                    new AcademicYear("c1a3e5d7-8b9f-4a2c-8d6e-3f1b5a7c2d40","2087-2088"),
+                    new AcademicYear("f7e5c3a1-2b9d-4c8a-9e6f-1d3a5b7c8e30","2088-2089"),
+                };
+
+                await _context.AcademicYears.AddRangeAsync(academicYear);
+                await _unitOfWork.SaveChangesAsync();
+            }
+        }
+
+        #endregion
+
 
         #region Province
         private async Task SeedProvince()

@@ -1,6 +1,7 @@
 ﻿using ES.Enrolment.Application.Enrolments.Command.AddInquiry;
 using ES.Enrolment.Application.Enrolments.Command.ConvertApplicant;
 using ES.Enrolment.Application.Enrolments.Command.ConvertStudent;
+using ES.Enrolment.Application.Enrolments.Queries.FilterApplicant;
 using ES.Enrolment.Application.Enrolments.Queries.FilterInquery;
 using System;
 using System.Collections.Generic;
@@ -18,5 +19,6 @@ namespace ES.Enrolment.Application.ServiceInterface
         Task<Result<ConvertApplicantResponse>> ConvertToApplicant(ConvertApplicantCommand convertApplicantCommand);
         Task<Result<ConvertStudentResponse>> ConvertToStudents(ConvertStudentCommand convertStudentCommand);
         Task<Result<PagedResult<FilterInqueryResponse>>> FilterInquery(PaginationRequest paginationRequest, FilterInquiryDTOs filterInquiryDTOs);
+        Task<Result<PagedResult<FilterApplicantResponse>>> FilterApplicant(PaginationRequest paginationRequest, FilterApplicantDTOs filterApplicantDTOs);
     }
 }

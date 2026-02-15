@@ -41,6 +41,7 @@ namespace TN.Shared.Domain.Entities.Academics
             ClassSections = new List<ClassSection>();
             Students = new List<StudentData>();
             AcademicTeamClasses = new List<AcademicTeamClass>();
+            Registrations = new List<Registrations>();
         }
 
         public string Name { get; set; }
@@ -57,5 +58,6 @@ namespace TN.Shared.Domain.Entities.Academics
         public ICollection<ClassSection> ClassSections { get; set; }
         public ICollection<StudentData> Students { get; set; }
         public ICollection<AcademicTeamClass> AcademicTeamClasses { get; set; }
+        public ICollection<Registrations> Registrations { get; set; }
     }
 }
