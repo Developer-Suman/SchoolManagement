@@ -19,6 +19,11 @@ namespace ES.Student.Infrastructure
             #region Inject Dependencies
             //Using Scrutor external package for automatically inject into DI Container
 
+            services.Scan(scan => scan.FromAssembliesOf(typeof(RegistrationServices))
+            .AddClasses(c => c.Where(t => t.Name.EndsWith("Services")))
+            .AsImplementedInterfaces()
+            .WithScopedLifetime());
+
             services.Scan(scan => scan.FromAssembliesOf(typeof(StudentServices))
             .AddClasses(c => c.Where(t => t.Name.EndsWith("Services")))
             .AsImplementedInterfaces()

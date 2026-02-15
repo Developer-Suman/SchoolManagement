@@ -2,6 +2,7 @@
 using ES.Student.Application.Student.Command.AddStudents;
 using ES.Student.Application.Student.Command.UpdateParent;
 using ES.Student.Application.Student.Command.UpdateStudents;
+using ES.Student.Application.Student.Queries.AcademicYear;
 using ES.Student.Application.Student.Queries.FilterParents;
 using ES.Student.Application.Student.Queries.FilterStudents;
 using ES.Student.Application.Student.Queries.GetAllParent;
@@ -24,6 +25,7 @@ namespace ES.Student.Application.ServiceInterface
     public interface IStudentServices
     {
         Task<Result<AddStudentsResponse>> Add(AddStudentsCommand addStudentsCommand);
+        Task<Result<PagedResult<AcademicYearResponse>>> GetAllAcademicYear(PaginationRequest paginationRequest,CancellationToken cancellationToken=default);
         Task<Result<PagedResult<GetAllStudentQueryResponse>>> GetAllStudents(PaginationRequest paginationRequest,CancellationToken cancellationToken=default);
         Task<Result<GetStudentsByIdQueryResponse>> GetStudentById(string id,CancellationToken cancellationToken=default);
          Task<Result<bool>> Delete(string id,CancellationToken cancellationToken);
