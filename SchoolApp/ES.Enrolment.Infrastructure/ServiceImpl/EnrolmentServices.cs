@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using ES.Enrolment.Application.Enrolments.Command.AddInquiry;
 using ES.Enrolment.Application.Enrolments.Command.ConvertApplicant;
+using ES.Enrolment.Application.Enrolments.Command.ConvertStudent;
 using ES.Enrolment.Application.Enrolments.Queries.FilterInquery;
 using ES.Enrolment.Application.Enrolments.Queries.GetAllUserProfile;
 using ES.Enrolment.Application.ServiceInterface;
@@ -17,6 +18,7 @@ using TN.Shared.Domain.Abstractions;
 using TN.Shared.Domain.Entities.Crm.Applicant;
 using TN.Shared.Domain.Entities.Crm.Lead;
 using TN.Shared.Domain.Entities.Crm.Profile;
+using TN.Shared.Domain.Entities.Crm.Students;
 using TN.Shared.Domain.Entities.Finance;
 using TN.Shared.Domain.Entities.OrganizationSetUp;
 using TN.Shared.Domain.ExtensionMethod.Pagination;
@@ -139,6 +141,54 @@ namespace ES.Enrolment.Infrastructure.ServiceImpl
 
                     var resultDTOs = _mapper.Map<ConvertApplicantResponse>(applicant);
                     return Result<ConvertApplicantResponse>.Success(resultDTOs);
+
+                }
+                catch (Exception ex)
+                {
+                    scope.Dispose();
+                    throw new Exception("An error occurred while adding ", ex);
+
+                }
+            }
+        }
+
+        public async Task<Result<ConvertStudentResponse>> ConvertToStudents(ConvertStudentCommand convertStudentCommand)
+        {
+            using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            {
+                try
+                {
+                    var FyId = _fiscalContext.CurrentFiscalYearId;
+                    var schoolId = _tokenService.SchoolId().FirstOrDefault() ?? "";
+                    var userId = _tokenService.GetUserId();
+
+                    var students = new CrmStudent
+                        (
+                        convertStudentCommand.userId,
+                        convertStudentCommand.universityName,
+                        convertStudentCommand.visaId,
+                        true,
+                        schoolId ?? "",
+                        userId,
+                        DateTime.UtcNow,
+                        "",
+                        default
+                        );
+
+                    var profile = await _unitOfWork.BaseRepository<UserProfile>().GetByGuIdAsync(convertStudentCommand.userId);
+
+                    profile.EnrolmentType = EnrolmentType.Student;
+
+
+
+                    await _unitOfWork.BaseRepository<CrmStudent>().AddAsync(students);
+
+
+                    await _unitOfWork.SaveChangesAsync();
+                    scope.Complete();
+
+                    var resultDTOs = _mapper.Map<ConvertStudentResponse>(students);
+                    return Result<ConvertStudentResponse>.Success(resultDTOs);
 
                 }
                 catch (Exception ex)
