@@ -21,19 +21,14 @@ namespace ES.Enrolment.Application.Enrolments.Queries.GetAllUserProfile
            _enrolmentServices= enrolmentServices;
             _mapper = mapper;
         }
-        public async Task<Result<PagedResult<GetAllUserProfileResponse>>> Handle(GetAllUserProfileQuery request, CancellationToken cancellationToken)
+        public async Task<Result<PagedResult<GetAllUserProfileResponse>>> Handle(GetAllUserProfileQuery request,CancellationToken cancellationToken)
         {
             try
             {
-                var results = await _enrolmentServices.UserProfile(request.PaginationRequest, cancellationToken);
-                var resultsDisplay = _mapper.Map<PagedResult<GetAllUserProfileResponse>>(results.Data);
-                return Result<PagedResult<GetAllUserProfileResponse>>.Success(resultsDisplay);
-
-
+                return await _enrolmentServices.UserProfile(request.PaginationRequest, cancellationToken);                return await _enrolmentServices.UserProfile(request.PaginationRequest, cancellationToken);
             }
             catch (Exception ex)
             {
-
                 throw new Exception("An error occured while fetching", ex);
             }
         }
