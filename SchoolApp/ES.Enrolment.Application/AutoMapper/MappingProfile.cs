@@ -3,6 +3,7 @@ using ES.Enrolment.Application.Enrolments.Command.AddInquiry;
 using ES.Enrolment.Application.Enrolments.Command.ConvertApplicant;
 using ES.Enrolment.Application.Enrolments.Command.ConvertStudent;
 using ES.Enrolment.Application.Enrolments.Queries.FilterApplicant;
+using ES.Enrolment.Application.Enrolments.Queries.FilterCRMStudents;
 using ES.Enrolment.Application.Enrolments.Queries.FilterInquery;
 using ES.Enrolment.Application.Enrolments.Queries.GetAllUserProfile;
 using System;
@@ -12,6 +13,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TN.Shared.Domain.Entities.Crm.Applicant;
 using TN.Shared.Domain.Entities.Crm.Lead;
+using TN.Shared.Domain.Entities.Crm.Profile;
 using TN.Shared.Domain.Entities.Crm.Students;
 using TN.Shared.Domain.Entities.Finance;
 using TN.Shared.Domain.ExtensionMethod.Pagination;
@@ -35,6 +37,11 @@ namespace ES.Enrolment.Application.AutoMapper
             #region UserProfile
             CreateMap<GetAllUserProfileResponse, UserProfile>().ReverseMap();
             CreateMap<PagedResult<UserProfile>, PagedResult<GetAllUserProfileResponse>>().ReverseMap();
+            #endregion
+            #region CRM Students
+
+            CreateMap<FilterCRMStudentsResponse, CrmStudent>().ReverseMap();
+            CreateMap<PagedResult<CrmStudent>, PagedResult<FilterCRMStudentsResponse>>().ReverseMap();
 
             #endregion
         }
