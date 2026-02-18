@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TN.Shared.Domain.Entities.OrganizationSetUp;
+using TN.Shared.Domain.Entities.Students;
 using TN.Shared.Domain.Primitive;
 
 namespace TN.Authentication.Domain.Entities
@@ -44,12 +45,15 @@ namespace TN.Authentication.Domain.Entities
             PurchaseSalesReturnNumberType salesReturnNumberType,
             PurchaseSalesQuotationNumberType purchaseQuotationNumberType,
             PurchaseSalesQuotationNumberType salesQuotationNumberType,
-            string? userId
-           
+            string? userId,
+            string? academicYearId,
+            bool? isActive
+
 
 
             ) : base(id)
         {
+            IsActive = isActive;
             ShowTaxInSales = showTaxInSales;
             ShowTaxInPurchase = showTaxInPurchase;
             PurchaseReferences = purchaseReferences;
@@ -76,11 +80,16 @@ namespace TN.Authentication.Domain.Entities
             PurchaseQuotationNumberType = purchaseQuotationNumberType;
             SalesQuotationNumberType = salesQuotationNumberType;
             UserId = userId;
+            AcademicYearId = academicYearId;
             SchoolSettingsFiscalYears = new List<SchoolSettingsFiscalYear>();
 
 
         }
 
+
+        public bool? IsActive { get; set;  }
+        public string? AcademicYearId { get; set; }
+        public AcademicYear? AcademicYear { get; set; }
         public bool ShowTaxInSales { get; set; }
         public bool ShowTaxInPurchase { get; set; }
         public PurchaseReferencesType PurchaseReferences { get; set; } = PurchaseReferencesType.Automatic;
@@ -163,6 +172,20 @@ namespace TN.Authentication.Domain.Entities
             Automatic
 
         }
+
+        public SchoolSettings CreateForNewYear(string newAcademicYearId)
+        {
+            // Use MemberwiseClone to copy all primitive/value fields automatically
+            var newSettings = (SchoolSettings)this.MemberwiseClone();
+
+            newSettings.Id = Guid.NewGuid().ToString();
+            newSettings.AcademicYearId = newAcademicYearId;
+            newSettings.IsActive = true;
+
+            return newSettings;
+        }
+
+        public void Deactivate() => IsActive = false;
 
 
     }

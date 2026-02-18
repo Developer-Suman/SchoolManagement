@@ -1644,6 +1644,19 @@ namespace TN.Shared.Infrastructure.Data
             #endregion
 
             #region Initial SetUp
+
+            #region SchoolSettings and AcademicYear (m:1)
+            builder.Entity<SchoolSettings>(entity =>
+            {
+                entity.HasKey(x => x.Id);
+                entity.HasOne(x => x.AcademicYear)
+                .WithMany(x => x.SchoolSettings)
+                .HasForeignKey(x => x.AcademicYearId)
+                .OnDelete(DeleteBehavior.Cascade);
+            });
+            #endregion
+
+
             #region Organization and Province(m:1)
             builder.Entity<Organization>(entity =>
             {

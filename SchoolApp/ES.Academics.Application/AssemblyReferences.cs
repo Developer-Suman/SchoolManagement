@@ -18,6 +18,7 @@ using ES.Academics.Application.Academics.Command.EvaluteAssignments;
 using ES.Academics.Application.Academics.Command.SubmitAssignments;
 using ES.Academics.Application.Academics.Command.Events.AddEvents;
 using ES.Academics.Application.Academics.Command.Events.UpdateEvents;
+using ES.Academics.Application.Academics.Command.ClosedAcademicYear;
 
 
 namespace ES.Academics.Application
@@ -47,6 +48,7 @@ namespace ES.Academics.Application
             services.AddScoped<IValidator<AddAssignmentsCommand>, AddAssignmentsCommandValidator>();
             services.AddScoped<IValidator<AddEventsCommand>, AddEventsCommandValidator>();
             services.AddScoped<IValidator<UpdateEventsCommand>, UpdateEventsCommandValidator>();
+            services.AddScoped<IValidator<ClosedAcademicYearCommand>, ClosedAcademicYearCommandValidators>();
 
 
 

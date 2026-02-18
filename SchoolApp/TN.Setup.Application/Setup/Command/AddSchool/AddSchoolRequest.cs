@@ -19,6 +19,7 @@ namespace TN.Setup.Application.Setup.Command.AddSchool
             string institutionId,
             bool isDeleted,
             string? fiscalYearId,
+            string? academicYearId,
             BillNumberGenerationType billNumberGenerationTypeForPurchase,
             BillNumberGenerationType billNumberGenerationTypeForSales
 

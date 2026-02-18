@@ -42,8 +42,9 @@ namespace ES.Academics.Infrastructure.ServiceImpl
         private readonly IDateConvertHelper _dateConverter;
         private readonly FiscalContext _fiscalContext;
         private readonly IHelperMethodServices _helperMethodServices;
+        private readonly IStudentsPromotion _studentsPromotion;
 
-        public EventsServices (IDateConvertHelper dateConverter, IHelperMethodServices helperMethodServices, IGetUserScopedData getUserScopedData, FiscalContext fiscalContext, ITokenService tokenService, IUnitOfWork unitOfWork, IMemoryCacheRepository memoryCacheRepository, IMapper mapper)
+        public EventsServices (IDateConvertHelper dateConverter,IStudentsPromotion studentsPromotion, IHelperMethodServices helperMethodServices, IGetUserScopedData getUserScopedData, FiscalContext fiscalContext, ITokenService tokenService, IUnitOfWork unitOfWork, IMemoryCacheRepository memoryCacheRepository, IMapper mapper)
         {
             _helperMethodServices = helperMethodServices;
             _dateConverter = dateConverter;
@@ -53,6 +54,7 @@ namespace ES.Academics.Infrastructure.ServiceImpl
             _unitOfWork = unitOfWork;
             _memoryCacheRepository = memoryCacheRepository;
             _fiscalContext = fiscalContext;
+            _studentsPromotion = studentsPromotion;
         }
         public async Task<Result<AddEventsResponse>> Add(AddEventsCommand addEventsCommand)
         {
@@ -132,6 +134,8 @@ namespace ES.Academics.Infrastructure.ServiceImpl
         {
             try
             {
+
+                var currentAcademicYearId = await _studentsPromotion.GetCurrentAcademicYear();
 
                 var (events, currentSchoolId, institutionId, userRole, isSuperAdmin) =
                     await _getUserScopedData.GetUserScopedData<Events>();

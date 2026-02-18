@@ -12,6 +12,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TN.Shared.Domain.Entities.Crm.Applicant;
 using TN.Shared.Domain.Entities.Crm.Lead;
+using TN.Shared.Domain.Entities.Crm.Profile;
 using TN.Shared.Domain.Entities.Crm.Students;
 using TN.Shared.Domain.Entities.Finance;
 using TN.Shared.Domain.ExtensionMethod.Pagination;

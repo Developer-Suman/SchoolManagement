@@ -8,6 +8,7 @@ namespace ES.Enrolment.Application.Enrolments.Queries.FilterApplicant
 {
     public record FilterApplicantResponse
     (
+        string userId,
         string passportNo,
             string targetCountry,
             bool isActive,

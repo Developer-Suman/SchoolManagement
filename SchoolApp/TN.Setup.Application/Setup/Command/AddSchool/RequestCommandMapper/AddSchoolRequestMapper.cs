@@ -32,6 +32,7 @@ namespace TN.Setup.Application.Setup.Command.AddSchool.RequestCommandMapper
                        addSchoolRequest.institutionId,
                         addSchoolRequest.isDeleted,
                         addSchoolRequest.fiscalYearId,
+                        addSchoolRequest.academicYearId,
                         addSchoolRequest.billNumberGenerationTypeForPurchase,
                         addSchoolRequest.billNumberGenerationTypeForSales
                         
