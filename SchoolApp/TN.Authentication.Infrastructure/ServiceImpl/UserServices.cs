@@ -978,6 +978,8 @@ namespace TN.Authentication.Infrastructure.ServiceImpl
 
                     await _authenticationServices.AssignRoles(user, Role.DemoUserRole);
 
+                    var testAcademicYear = "3f1a9c2e-8b4d-4f1a-9c3e-2a7b5e6d9012";
+
                     var (FiscalYearId,FyName) = await _fiscalYearService.GetFiscalYearIdForDateAsync(DateTime.Now);
 
                     var schoolSettingsId = Guid.NewGuid().ToString();
@@ -1010,7 +1012,9 @@ namespace TN.Authentication.Infrastructure.ServiceImpl
                         PurchaseSalesReturnNumberType.Automatic,
                         PurchaseSalesQuotationNumberType.Automatic,
                         PurchaseSalesQuotationNumberType.Automatic,
-                        user.Id
+                        user.Id,
+                        testAcademicYear,
+                        true
                         );
 
                     await _unitOfWork.BaseRepository<SchoolSettings>().AddAsync(schoolSettings);

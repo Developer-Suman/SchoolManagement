@@ -14,6 +14,8 @@ using ES.Academics.Application.Academics.Command.AddSeatPlanning;
 using ES.Academics.Application.Academics.Command.AddSeatPlanning.RequestCommandMapper;
 using ES.Academics.Application.Academics.Command.AddSubject;
 using ES.Academics.Application.Academics.Command.AddSubject.RequestCommandMapper;
+using ES.Academics.Application.Academics.Command.ClosedAcademicYear;
+using ES.Academics.Application.Academics.Command.ClosedAcademicYear.RequestCommandMapper;
 using ES.Academics.Application.Academics.Command.DeleteExam;
 using ES.Academics.Application.Academics.Command.DeleteSchoolClass;
 using ES.Academics.Application.Academics.Command.DeleteSubject;
@@ -92,6 +94,30 @@ namespace TN.Web.Controllers.Academics.v1
             _authorizationService = authorizationService;
 
         }
+
+        #region ClosedAcademicYear
+        #region ClosedAcademicYear
+        [HttpPost("ClosedAcademicYear")]
+
+        public async Task<IActionResult> ClosedAcademicYear([FromBody] ClosedAcademicYearRequest request)
+        {
+            //Mapping command and request
+            var command = request.ToCommand();
+            var closedAcademicYear = await _mediator.Send(command);
+            #region Switch Statement
+            return closedAcademicYear switch
+            {
+                { IsSuccess: true, Data: not null } => CreatedAtAction(nameof(ClosedAcademicYear), closedAcademicYear.Data),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = closedAcademicYear.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(closedAcademicYear.Errors),
+                _ => BadRequest("Invalid Fields ")
+
+            };
+
+            #endregion
+        }
+        #endregion
+        #endregion
 
         #region Events
         #region AddEvents

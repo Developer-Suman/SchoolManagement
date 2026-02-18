@@ -216,12 +216,6 @@ namespace TN.Setup.Infrastructure.ServiceImpl
 
         public async Task<FiscalYears?> GetCurrentFiscalYearFromSettingsAsync()
         {
-
-   
-
-
-
-
             var schoolId = _tokenService.SchoolId().FirstOrDefault();
 
             var settingsList = await _unitOfWork.BaseRepository<SchoolSettings>()

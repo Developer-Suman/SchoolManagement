@@ -112,7 +112,9 @@ namespace TN.Setup.Infrastructure.ServiceImpl
                         SchoolSettings.PurchaseSalesReturnNumberType.Automatic,
                         SchoolSettings.PurchaseSalesQuotationNumberType.Automatic,
                         SchoolSettings.PurchaseSalesQuotationNumberType.Automatic,
-                        null
+                        null,
+                        addSchoolCommand.academicYearId,
+                        true
 
 
                         );

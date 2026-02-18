@@ -10,6 +10,7 @@ namespace ES.Enrolment.Application.Enrolments.Queries.FilterInquery
 {
     public record FilterInqueryResponse
     (
+        string userId,
         string fullName,
         string email,
          DateTime dateOfBirth,

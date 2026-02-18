@@ -240,7 +240,7 @@ namespace ES.Enrolment.Infrastructure.ServiceImpl
                 var responseList = filteredResult
                 .OrderByDescending(x => x.CreatedAt)
                 .Select(i => new FilterApplicantResponse(
-
+                    i.Profile.Id,
                     i.PassportNumber,
                     i.TargetCountry,
                     i.IsActive,
@@ -433,7 +433,7 @@ namespace ES.Enrolment.Infrastructure.ServiceImpl
                 var responseList = filteredResult
                 .OrderByDescending(x => x.CreatedAt)
                 .Select(i => new FilterInqueryResponse(
-
+                    i.Profile.Id,
                     i.Profile.FullName,
                     i.Profile.Email,
                     i.DateOfBirth,
@@ -498,10 +498,11 @@ namespace ES.Enrolment.Infrastructure.ServiceImpl
             try
             {
 
-                var (enrolmentType, currentSchoolId, institutionId, userRole, isSuperAdmin) =
+                var (feeType, currentSchoolId, institutionId, userRole, isSuperAdmin) =
                     await _getUserScopedData.GetUserScopedData<UserProfile>();
 
-                var finalQuery = enrolmentType.AsNoTracking();
+                var finalQuery = feeType.Where(x => x.CrmApplicantDetails.SchoolId == currentSchoolId || x.CrmLeadDetails.SchoolId == currentSchoolId || x.CrmStudentDetails.SchoolId == currentSchoolId).AsNoTracking();
+
 
 
                 var pagedResult = await finalQuery.ToPagedResultAsync(
