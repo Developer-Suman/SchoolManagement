@@ -7,6 +7,7 @@ using ES.Enrolment.Application.Enrolments.Command.ConvertApplicant.RequestComman
 using ES.Enrolment.Application.Enrolments.Command.ConvertStudent;
 using ES.Enrolment.Application.Enrolments.Command.ConvertStudent.RequestCommandMapper;
 using ES.Enrolment.Application.Enrolments.Queries.FilterApplicant;
+using ES.Enrolment.Application.Enrolments.Queries.FilterCRMStudents;
 using ES.Enrolment.Application.Enrolments.Queries.FilterInquery;
 using ES.Enrolment.Application.Enrolments.Queries.GetAllUserProfile;
 using ES.Finances.Application.Finance.Queries.Fee.Feetype;
@@ -39,6 +40,29 @@ namespace TN.Web.Controllers.Enrolments.v1
             _mediator = mediator;
         }
 
+        #region FilterCRMStudents
+        [HttpGet("FilterCRMStudents")]
+        public async Task<IActionResult> FilterCRMStudents([FromQuery] FilterCRMStudentsDTOs filterCRMStudentsDTOs, [FromQuery] PaginationRequest paginationRequest)
+        {
+            var query = new FilterCRMStudentsQuery(paginationRequest, filterCRMStudentsDTOs);
+            var filterCRMStudents = await _mediator.Send(query);
+            #region Switch Statement
+            return filterCRMStudents switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(filterCRMStudents.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = filterCRMStudents.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(filterCRMStudents.Errors),
+                _ => BadRequest("Invalid page and pageSize Fields")
+            };
+            #endregion
+
+        }
+
+        #endregion
+
         #region FilterApplicants
         [HttpGet("FilterApplicants")]
         public async Task<IActionResult> GetFilterApplicants([FromQuery] FilterApplicantDTOs filterApplicantDTOs, [FromQuery] PaginationRequest paginationRequest)
@@ -61,8 +85,6 @@ namespace TN.Web.Controllers.Enrolments.v1
         }
 
         #endregion
-
-
 
         #region FilterInquery
         [HttpGet("FilterInquery")]
@@ -156,7 +178,7 @@ namespace TN.Web.Controllers.Enrolments.v1
         #region UserProfile
         #region GetAllUserProfile
         [HttpGet("GetAllUserProfile")]
-        public async Task<IActionResult> GetAllUserProfile([FromQuery] PaginationRequest paginationRequest)
+        public async Task<IActionResult> UserProfile([FromQuery] PaginationRequest paginationRequest)
         {
             var query = new GetAllUserProfileQuery(paginationRequest);
             var result = await _mediator.Send(query);

@@ -3,6 +3,7 @@ using ES.Enrolment.Application.Enrolments.Command.AddInquiry;
 using ES.Enrolment.Application.Enrolments.Command.ConvertApplicant;
 using ES.Enrolment.Application.Enrolments.Command.ConvertStudent;
 using ES.Enrolment.Application.Enrolments.Queries.FilterApplicant;
+using ES.Enrolment.Application.Enrolments.Queries.FilterCRMStudents;
 using ES.Enrolment.Application.Enrolments.Queries.FilterInquery;
 using ES.Enrolment.Application.Enrolments.Queries.GetAllUserProfile;
 using ES.Enrolment.Application.ServiceInterface;
@@ -295,6 +296,105 @@ namespace ES.Enrolment.Infrastructure.ServiceImpl
             }
         }
 
+        public async Task<Result<PagedResult<FilterCRMStudentsResponse>>> FilterCRMStudents(PaginationRequest paginationRequest, FilterCRMStudentsDTOs filterCRMStudentsDTOs)
+        {
+            try
+            {
+                var fyId = _fiscalContext.CurrentFiscalYearId;
+                var userId = _tokenService.GetUserId();
+
+                var (crmStudent, schoolId, institutionId, userRole, isSuperAdmin) = await _getUserScopedData.GetUserScopedData<CrmStudent>();
+
+                var schoolIds = await _unitOfWork.BaseRepository<School>()
+                    .GetConditionalFilterType(
+                        x => x.InstitutionId == institutionId,
+                        query => query.Select(c => c.Id)
+                    );
+
+                var data = crmStudent.ToList();
+
+                var filter = isSuperAdmin
+                    ? crmStudent.Include(x => x.Profile)
+                    : crmStudent.Include(x => x.Profile)
+               .Where(x => x.SchoolId == _tokenService.SchoolId().FirstOrDefault() || x.SchoolId == "");
+
+
+                var data1 = filter.ToList();
+
+
+                var (startUtc, endUtc) = await _dateConverter.GetDateRangeUtc(filterCRMStudentsDTOs.startDate, filterCRMStudentsDTOs.endDate);
+
+                var filteredResult = filter
+                 .Where(x =>
+                       (string.IsNullOrEmpty(filterCRMStudentsDTOs.userId) || x.Profile.Id == filterCRMStudentsDTOs.userId) &&
+                     x.CreatedAt >= startUtc &&
+                         x.CreatedAt <= endUtc &&
+                         x.IsActive
+                 )
+                 .OrderByDescending(x => x.CreatedAt) // newest first
+                 .ToList();
+
+
+
+
+                var responseList = filteredResult
+                .OrderByDescending(x => x.CreatedAt)
+                .Select(i => new FilterCRMStudentsResponse(
+                    i.Profile.Id,
+                    i.UniversityName,
+                    i.VisaId,
+                    i.IsActive,
+                    i.SchoolId,
+                    i.CreatedBy,
+                    i.CreatedAt,
+                    i.ModifiedBy,
+                    i.ModifiedAt
+
+
+                ))
+                .ToList();
+
+                PagedResult<FilterCRMStudentsResponse> finalResponseList;
+
+                if (paginationRequest.IsPagination)
+                {
+
+                    int pageIndex = paginationRequest.pageIndex <= 0 ? 1 : paginationRequest.pageIndex;
+                    int pageSize = paginationRequest.pageSize <= 0 ? 10 : paginationRequest.pageSize;
+
+                    int totalItems = responseList.Count();
+
+                    var pagedItems = responseList
+                        .Skip((pageIndex - 1) * pageSize)
+                        .Take(pageSize)
+                        .ToList();
+
+                    finalResponseList = new PagedResult<FilterCRMStudentsResponse>
+                    {
+                        Items = pagedItems,
+                        TotalItems = totalItems,
+                        PageIndex = pageIndex,
+                        pageSize = pageSize
+                    };
+                }
+                else
+                {
+                    finalResponseList = new PagedResult<FilterCRMStudentsResponse>
+                    {
+                        Items = responseList.ToList(),
+                        TotalItems = responseList.Count(),
+                        PageIndex = 1,
+                        pageSize = responseList.Count()
+                    };
+                }
+                return Result<PagedResult<FilterCRMStudentsResponse>>.Success(finalResponseList);
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"An error occurred while fetching result: {ex.Message}", ex);
+            }
+        }
         public async Task<Result<PagedResult<FilterInqueryResponse>>> FilterInquery(PaginationRequest paginationRequest, FilterInquiryDTOs filterInquiryDTOs)
         {
             try
@@ -402,6 +502,7 @@ namespace ES.Enrolment.Infrastructure.ServiceImpl
                     await _getUserScopedData.GetUserScopedData<UserProfile>();
 
                 var finalQuery = feeType.Where(x => x.CrmApplicantDetails.SchoolId == currentSchoolId || x.CrmLeadDetails.SchoolId == currentSchoolId || x.CrmStudentDetails.SchoolId == currentSchoolId).AsNoTracking();
+
 
 
                 var pagedResult = await finalQuery.ToPagedResultAsync(
