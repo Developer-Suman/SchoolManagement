@@ -2,10 +2,14 @@
 using ES.Enrolment.Application.Enrolments.Command.AddInquiry;
 using ES.Enrolment.Application.Enrolments.Command.ConvertApplicant;
 using ES.Enrolment.Application.Enrolments.Command.ConvertStudent;
+using ES.Enrolment.Application.Enrolments.Queries.ApplicantsById;
+using ES.Enrolment.Application.Enrolments.Queries.CRMStudentsById;
 using ES.Enrolment.Application.Enrolments.Queries.FilterApplicant;
 using ES.Enrolment.Application.Enrolments.Queries.FilterCRMStudents;
 using ES.Enrolment.Application.Enrolments.Queries.FilterInquery;
 using ES.Enrolment.Application.Enrolments.Queries.GetAllUserProfile;
+using ES.Enrolment.Application.Enrolments.Queries.GetUserProfileByUser;
+using ES.Enrolment.Application.Enrolments.Queries.InqueryById;
 using ES.Enrolment.Application.ServiceInterface;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -17,6 +21,7 @@ using System.Transactions;
 using TN.Authentication.Domain.Entities;
 using TN.Shared.Application.ServiceInterface;
 using TN.Shared.Domain.Abstractions;
+using TN.Shared.Domain.Entities.Certificates;
 using TN.Shared.Domain.Entities.Crm.Applicant;
 using TN.Shared.Domain.Entities.Crm.Lead;
 using TN.Shared.Domain.Entities.Crm.Profile;
@@ -241,6 +246,9 @@ namespace ES.Enrolment.Infrastructure.ServiceImpl
                 .OrderByDescending(x => x.CreatedAt)
                 .Select(i => new FilterApplicantResponse(
                     i.Profile.Id,
+                    i.Profile.FullName,
+                    i.Profile.Email,
+                    i.Profile.EnrolmentType,
                     i.PassportNumber,
                     i.TargetCountry,
                     i.IsActive,
@@ -341,6 +349,9 @@ namespace ES.Enrolment.Infrastructure.ServiceImpl
                 .OrderByDescending(x => x.CreatedAt)
                 .Select(i => new FilterCRMStudentsResponse(
                     i.Profile.Id,
+                    i.Profile.FullName,
+                    i.Profile.Email,
+                    i.Profile.EnrolmentType,
                     i.UniversityName,
                     i.VisaId,
                     i.IsActive,
@@ -436,6 +447,7 @@ namespace ES.Enrolment.Infrastructure.ServiceImpl
                     i.Profile.Id,
                     i.Profile.FullName,
                     i.Profile.Email,
+                    i.Profile.EnrolmentType,
                     i.DateOfBirth,
                     i.Gender,
                     i.ContactNumber,
@@ -490,6 +502,127 @@ namespace ES.Enrolment.Infrastructure.ServiceImpl
             catch (Exception ex)
             {
                 throw new Exception($"An error occurred while fetching result: {ex.Message}", ex);
+            }
+        }
+
+        public async Task<Result<ApplicantsByIdResponse>> GetApplicants(string id, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                var crmApplicants = (await _unitOfWork.BaseRepository<CrmApplicant>()
+                        .GetAllWithIncludeAsync(x => x.Id == id, x => x.Profile))
+                        .FirstOrDefault()
+                        ?? throw new Exception("Lead not found");
+
+                var response = new ApplicantsByIdResponse(
+                    crmApplicants.Profile?.Id ?? "",
+                    crmApplicants.Profile?.FullName ?? "",
+                    crmApplicants.Profile?.Email ?? "",
+                   crmApplicants.Profile?.EnrolmentType ?? default,
+                    crmApplicants.PassportNumber,
+
+                    crmApplicants.TargetCountry,
+                    crmApplicants.IsActive,
+                    crmApplicants.SchoolId,
+                    crmApplicants.CreatedBy,
+                    crmApplicants.CreatedAt,
+                    crmApplicants.ModifiedBy,
+                    crmApplicants.ModifiedAt
+                );
+
+                return Result<ApplicantsByIdResponse>.Success(response);
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while fetching Certificate Template by using Id", ex);
+            }
+        }
+
+        public async Task<Result<CRMStudentsByIdResponse>> GetCRMStudents(string id, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                var crmStudents = (await _unitOfWork.BaseRepository<CrmStudent>()
+                        .GetAllWithIncludeAsync(x => x.Id == id, x => x.Profile))
+                        .FirstOrDefault()
+                        ?? throw new Exception("Lead not found");
+
+                var response = new CRMStudentsByIdResponse(
+                    crmStudents.Profile?.Id ?? "",
+                    crmStudents.Profile?.FullName ?? "",
+                    crmStudents.Profile?.Email ?? "",
+                   crmStudents.Profile?.EnrolmentType ?? default,
+                    crmStudents.UniversityName,
+
+                    crmStudents.VisaId,
+                    crmStudents.IsActive,
+                    crmStudents.SchoolId,
+                    crmStudents.CreatedBy,
+                    crmStudents.CreatedAt,
+                    crmStudents.ModifiedBy,
+                    crmStudents.ModifiedAt
+                );
+
+                return Result<CRMStudentsByIdResponse>.Success(response);
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while fetching Certificate Template by using Id", ex);
+            }
+        }
+
+        public async Task<Result<InqueryByIdResponse>> GetInquiry(string id, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                var crmLead = (await _unitOfWork.BaseRepository<CrmLead>()
+                        .GetAllWithIncludeAsync(x => x.Id == id, x => x.Profile))
+                        .FirstOrDefault()
+                        ?? throw new Exception("Lead not found");
+
+                var response = new InqueryByIdResponse(
+                    crmLead.Profile?.Id ?? "",
+                    crmLead.Profile?.FullName ?? "",
+                    crmLead.Profile?.Email ?? "",
+                   crmLead.Profile?.EnrolmentType ?? default,
+                    crmLead.DateOfBirth,
+              
+                    crmLead.Gender,
+                    crmLead.ContactNumber,
+                    crmLead.PermanentAddress,
+                    crmLead.EducationLevel,
+                    crmLead.CompletionYear,
+                    crmLead.CurrentGpa,
+                    crmLead.PreviousAcademicQualification,
+                    crmLead.Source,
+                    crmLead.FeedBackOrSuggestion
+                );
+
+                return Result<InqueryByIdResponse>.Success(response);
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while fetching Certificate Template by using Id", ex);
+            }
+        }
+
+        public async Task<Result<GetUserProfileByUserResponse>> GetUserProfile(string userId, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                var userProfile = await _unitOfWork.BaseRepository<UserProfile>().GetByGuIdAsync(userId);
+
+                var userProfileResponse = _mapper.Map<GetUserProfileByUserResponse>(userProfile);
+
+                return Result<GetUserProfileByUserResponse>.Success(userProfileResponse);
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while fetching Certificate Template by using Id", ex);
             }
         }
 

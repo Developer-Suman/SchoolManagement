@@ -327,7 +327,7 @@ namespace TN.Web.Controllers.Student.v1
 
         #region StudentsByClass
         [HttpGet("GetStudentByClass/{classId}")]
-        public async Task<IActionResult> GetStudentByClass([FromQuery] string classId, [FromQuery] PaginationRequest paginationRequest)
+        public async Task<IActionResult> GetStudentByClass([FromRoute] string classId, [FromQuery] PaginationRequest paginationRequest)
         {
             var query = new GetStudentByClassQuery(paginationRequest,classId);
             var studentResult = await _mediator.Send(query);

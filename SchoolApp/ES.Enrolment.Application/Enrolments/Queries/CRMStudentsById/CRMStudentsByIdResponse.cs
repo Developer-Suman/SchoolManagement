@@ -5,16 +5,16 @@ using System.Text;
 using System.Threading.Tasks;
 using static TN.Shared.Domain.Enum.EnrolmentTypeEnum;
 
-namespace ES.Enrolment.Application.Enrolments.Queries.FilterApplicant
+namespace ES.Enrolment.Application.Enrolments.Queries.CRMStudentsById
 {
-    public record FilterApplicantResponse
+    public record CRMStudentsByIdResponse
     (
         string userId,
         string fullName,
         string email,
         EnrolmentType enrolmentType,
-        string passportNo,
-            string targetCountry,
+        string universityName,
+            string visaId,
             bool isActive,
             string schoolId,
             string createdBy,
