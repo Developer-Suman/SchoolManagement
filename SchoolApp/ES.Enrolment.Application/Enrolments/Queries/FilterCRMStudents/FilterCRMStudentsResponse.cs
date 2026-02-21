@@ -8,6 +8,7 @@ namespace ES.Enrolment.Application.Enrolments.Queries.FilterCRMStudents
 {
     public record FilterCRMStudentsResponse
     (
+        string userId,
         string universityName,
             string visaId,
             bool isActive,

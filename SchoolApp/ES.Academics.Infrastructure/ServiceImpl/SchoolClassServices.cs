@@ -85,6 +85,7 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                             DateTime.UtcNow,
                             "",
                             default
+                          
                             )).ToList(),
                         schoolId ?? "",
                         true,
@@ -92,7 +93,8 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                         userId,
                         DateTime.UtcNow,
                         "",
-                        default
+                        default,
+                          addLedgerCommand.ClassSymbol
                     );
 
                     await _unitOfWork.BaseRepository<Class>().AddAsync(addSchoolClass);

@@ -92,7 +92,8 @@ namespace TN.Shared.Infrastructure.DataSeed
                     new[]
                     {
                         "Kids Set-Nursary"
-                    }
+                    },
+                    1
                 ),
 
                 CreateClass(
@@ -104,7 +105,7 @@ namespace TN.Shared.Infrastructure.DataSeed
                     new[]
                     {
                         "Kids Set-L.K.G"
-                    }
+                    },2
                 ),
 
                 CreateClass(
@@ -116,7 +117,7 @@ namespace TN.Shared.Infrastructure.DataSeed
                     new[]
                     {
                        "Kids Set-U.K.G"
-                    }
+                    },3
                 ),
                 CreateClass(
                     classId: "a1f3c9b2-5f6d-4c8e-9a41-0c9c9a7b8d12",
@@ -127,7 +128,7 @@ namespace TN.Shared.Infrastructure.DataSeed
                     new[]
                     {
                         "Byakaran", "Nepali", "Serophero", "Math", "English", "G.K", "Science"
-                    }
+                    },4
                 ),
 
                 CreateClass(
@@ -139,7 +140,7 @@ namespace TN.Shared.Infrastructure.DataSeed
                     new[]
                     {
                         "Nepali", "Serophero", "Grammar", "Math", "Byakaran", "English", "Science", "G.K"
-                    }
+                    },5
                 ),
 
                 CreateClass(
@@ -151,7 +152,7 @@ namespace TN.Shared.Infrastructure.DataSeed
                     new[]
                     {
                         "Serophero", "Nepali", "Science", "Math", "English", "Computer", "Grammar", "Byakaran","Drawing", "G.K"
-                    }
+                    },6
                 ),
 
                 CreateClass(
@@ -163,7 +164,7 @@ namespace TN.Shared.Infrastructure.DataSeed
                     new[]
                     {
                         "Samajik", "English", "Nepali", "Science", "Computer", "Math", "Grammar", "Byakaran","Health","G.K","Drawing"
-                    }
+                    },7
                 ),
 
                 CreateClass(
@@ -175,7 +176,7 @@ namespace TN.Shared.Infrastructure.DataSeed
                     new[]
                     {
                         "Science", "Computer", "Nepali", "Samajik", "English", "Grammar", "Byakaran", "Health","Math","G.K"
-                    }
+                    },8
                 ),
 
                 CreateClass(
@@ -187,7 +188,7 @@ namespace TN.Shared.Infrastructure.DataSeed
                     new[]
                     {
                         "English", "Nepali", "Samajik", "Grammar", "Computer","Science","Math","Health","G.K","Byakaran","Opt.Math"
-                    }
+                    },9
                 ),
 
                 CreateClass(
@@ -199,7 +200,7 @@ namespace TN.Shared.Infrastructure.DataSeed
                     new[]
                     {
                         "Samajik", "Nepali", "Science", "English", "Grammar", "Math", "Health","Computer","Opt. Math", "Byakaran"
-                    }
+                    },10
                 ),
 
                 CreateClass(
@@ -211,7 +212,7 @@ namespace TN.Shared.Infrastructure.DataSeed
                     new[]
                     {
                         "Science", "Math", "English", "Nepali", "Grammar", "Opt Math", "Samajik","Computer","Byakaran","Health"
-                    }
+                    },11
                 ),
 
                 CreateClass(
@@ -223,7 +224,7 @@ namespace TN.Shared.Infrastructure.DataSeed
                     new[]
                     {
                         "Science", "Math", "English", "Nepali", "Grammar", "Opt Math", "Samajik", "Account", "Byakaran"
-                    }
+                    },12
                 ),
 
                 CreateClass(
@@ -235,7 +236,7 @@ namespace TN.Shared.Infrastructure.DataSeed
                     new[]
                     {
                         "Science", "Math", "English", "Nepali", "Grammar", "Opt Math", "Samajik","Account"
-                    }
+                    },13
                 )
 
             };
@@ -251,7 +252,8 @@ namespace TN.Shared.Infrastructure.DataSeed
             string schoolId,
             string createdBy,
             DateTime now,
-            string[] subjectNames
+            string[] subjectNames,
+            int classSymbol
         )
                 {
                     var subjects = subjectNames.Select((name, index) =>
@@ -281,7 +283,8 @@ namespace TN.Shared.Infrastructure.DataSeed
                         createdBy: createdBy,
                         createdAt: now,
                         modifiedBy: createdBy,
-                        modifiedAt: now
+                        modifiedAt: now,
+                        classSymbol: classSymbol
                     );
                 }
 

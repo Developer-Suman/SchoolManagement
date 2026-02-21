@@ -24,7 +24,8 @@ namespace TN.Shared.Domain.Entities.Academics
             string createdBy,
             DateTime createdAt,
             string modifiedBy,
-            DateTime modifiedAt
+            DateTime modifiedAt,
+            int? classSymbol
             ) : base(id)
         {
             Name = name;
@@ -35,6 +36,9 @@ namespace TN.Shared.Domain.Entities.Academics
             ModifiedBy = modifiedBy;
             ModifiedAt = modifiedAt;
             IsSeeded = isSeeded;
+            CreatedBy = createdBy;
+            CreatedAt = createdAt;
+            ClassSymbol = classSymbol;
             Sections = new List<Section>();
             FeeStructures = new List<FeeStructure>();
             Subjects = subjects;
@@ -44,6 +48,7 @@ namespace TN.Shared.Domain.Entities.Academics
             Registrations = new List<Registrations>();
         }
 
+        public int? ClassSymbol { get; set; }
         public string Name { get; set; }
         public string SchoolId { get; set; }
         public bool IsActive { get; set; }

@@ -9,6 +9,7 @@ namespace ES.Academics.Application.Academics.Command.AddSchoolClass
     public record AddSchoolClassRequest
     (
         string Name,
+        int ClassSymbol,
         List<AddSubjectDTOs> Subjects
         );
 }
