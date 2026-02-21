@@ -6,6 +6,8 @@ using ES.Enrolment.Application.Enrolments.Queries.FilterApplicant;
 using ES.Enrolment.Application.Enrolments.Queries.FilterCRMStudents;
 using ES.Enrolment.Application.Enrolments.Queries.FilterInquery;
 using ES.Enrolment.Application.Enrolments.Queries.GetAllUserProfile;
+using ES.Enrolment.Application.Enrolments.Queries.GetUserProfileByUser;
+using ES.Enrolment.Application.Enrolments.Queries.InqueryById;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,6 +37,8 @@ namespace ES.Enrolment.Application.AutoMapper
             CreateMap<PagedResult<CrmApplicant>, PagedResult<FilterApplicantResponse>>().ReverseMap();
             #endregion
             #region UserProfile
+            CreateMap<UserProfile, UserProfileResponse>().ReverseMap();
+            CreateMap<GetUserProfileByUserResponse, UserProfile>().ReverseMap();
             CreateMap<GetAllUserProfileResponse, UserProfile>().ReverseMap();
             CreateMap<PagedResult<UserProfile>, PagedResult<GetAllUserProfileResponse>>().ReverseMap();
             #endregion

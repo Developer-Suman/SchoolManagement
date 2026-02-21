@@ -5,9 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 using static TN.Shared.Domain.Enum.EnrolmentTypeEnum;
 
-namespace ES.Enrolment.Application.Enrolments.Queries.FilterApplicant
+namespace ES.Enrolment.Application.Enrolments.Queries.ApplicantsById
 {
-    public record FilterApplicantResponse
+    public record ApplicantsByIdResponse
     (
         string userId,
         string fullName,

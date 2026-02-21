@@ -1,4 +1,5 @@
-﻿using ES.Communication.Application.Communication.Command.AddNotice;
+﻿using ES.Certificate.Application.Certificates.Queries.SchoolAwards.AwardsById;
+using ES.Communication.Application.Communication.Command.AddNotice;
 using ES.Communication.Application.Communication.Queries.FilterNotice;
 using ES.Enrolment.Application.Enrolments.Command.AddInquiry;
 using ES.Enrolment.Application.Enrolments.Command.AddInquiry.RequestCommandMapper;
@@ -6,10 +7,14 @@ using ES.Enrolment.Application.Enrolments.Command.ConvertApplicant;
 using ES.Enrolment.Application.Enrolments.Command.ConvertApplicant.RequestCommandMapper;
 using ES.Enrolment.Application.Enrolments.Command.ConvertStudent;
 using ES.Enrolment.Application.Enrolments.Command.ConvertStudent.RequestCommandMapper;
+using ES.Enrolment.Application.Enrolments.Queries.ApplicantsById;
+using ES.Enrolment.Application.Enrolments.Queries.CRMStudentsById;
 using ES.Enrolment.Application.Enrolments.Queries.FilterApplicant;
 using ES.Enrolment.Application.Enrolments.Queries.FilterCRMStudents;
 using ES.Enrolment.Application.Enrolments.Queries.FilterInquery;
 using ES.Enrolment.Application.Enrolments.Queries.GetAllUserProfile;
+using ES.Enrolment.Application.Enrolments.Queries.GetUserProfileByUser;
+using ES.Enrolment.Application.Enrolments.Queries.InqueryById;
 using ES.Finances.Application.Finance.Queries.Fee.Feetype;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -39,6 +44,96 @@ namespace TN.Web.Controllers.Enrolments.v1
             _logger = logger;
             _mediator = mediator;
         }
+
+        #region ApplicantsById
+        [HttpGet("Applicants/{id}")]
+        public async Task<IActionResult> Applicants([FromRoute] string id)
+        {
+            var query = new ApplicantsByIdQuery(id);
+            var applicantsResult = await _mediator.Send(query);
+            #region Switch Statement
+            return applicantsResult switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(applicantsResult.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = applicantsResult.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(applicantsResult.Errors),
+                _ => BadRequest("Invalid page and pageSize Fields")
+            };
+            #endregion
+
+        }
+        #endregion
+
+        #region CRMStudentsById
+        [HttpGet("CRMStudents/{id}")]
+        public async Task<IActionResult> CRMStudents([FromRoute] string id)
+        {
+            var query = new CRMStudentsByIdQuery(id);
+            var crmStudentsResult = await _mediator.Send(query);
+            #region Switch Statement
+            return crmStudentsResult switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(crmStudentsResult.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = crmStudentsResult.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(crmStudentsResult.Errors),
+                _ => BadRequest("Invalid page and pageSize Fields")
+            };
+            #endregion
+
+        }
+        #endregion
+
+        #region InquiryById
+        [HttpGet("Inquiry/{id}")]
+        public async Task<IActionResult> Inquiry([FromRoute] string id)
+        {
+            var query = new InqueryByIdQuery(id);
+            var inquiryResult = await _mediator.Send(query);
+            #region Switch Statement
+            return inquiryResult switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(inquiryResult.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = inquiryResult.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(inquiryResult.Errors),
+                _ => BadRequest("Invalid page and pageSize Fields")
+            };
+            #endregion
+
+        }
+        #endregion
+
+
+
+        #region UserProfileById
+        [HttpGet("UserProfile/{userId}")]
+        public async Task<IActionResult> UserProfile([FromRoute] string userId)
+        {
+            var query = new GetUserProfileByUserQuery(userId);
+            var userProfileByUserResult = await _mediator.Send(query);
+            #region Switch Statement
+            return userProfileByUserResult switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(userProfileByUserResult.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = userProfileByUserResult.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(userProfileByUserResult.Errors),
+                _ => BadRequest("Invalid page and pageSize Fields")
+            };
+            #endregion
+
+        }
+        #endregion
 
         #region FilterCRMStudents
         [HttpGet("FilterCRMStudents")]
