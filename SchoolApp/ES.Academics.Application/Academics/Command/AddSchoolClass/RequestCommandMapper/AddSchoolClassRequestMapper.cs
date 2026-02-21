@@ -12,6 +12,7 @@ namespace ES.Academics.Application.Academics.Command.AddSchoolClass.RequestComma
         {
             return new AddSchoolClassCommand(
                 request.Name,
+                request.ClassSymbol,
                 request.Subjects
                 );
         }

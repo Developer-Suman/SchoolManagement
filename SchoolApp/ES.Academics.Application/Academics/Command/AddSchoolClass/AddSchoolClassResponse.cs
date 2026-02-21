@@ -15,6 +15,7 @@ namespace ES.Academics.Application.Academics.Command.AddSchoolClass
             string createdBy,
             DateTime createdAt,
             string modifiedBy,
-            DateTime modifiedAt
+            DateTime modifiedAt,
+            int classSymbol
         );
 }
