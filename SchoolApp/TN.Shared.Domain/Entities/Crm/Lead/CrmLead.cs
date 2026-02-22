@@ -62,9 +62,9 @@ namespace TN.Shared.Domain.Entities.Crm.Lead
         public string SchoolId { get; set; }
         public bool IsActive { get; set; }
         public string CreatedBy { get; set; }
-        public DateTime CreatedAt { get; set; } = DateTime.Now;
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public string ModifiedBy { get; set; }
-        public DateTime ModifiedAt { get; set; } = DateTime.Now;
+        public DateTime ModifiedAt { get; set; } = DateTime.UtcNow;
 
         public DateTime DateOfBirth { get; set; }
         public Gender Gender { get;set; }

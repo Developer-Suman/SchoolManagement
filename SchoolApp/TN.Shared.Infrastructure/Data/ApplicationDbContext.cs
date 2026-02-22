@@ -14,6 +14,7 @@ using TN.Shared.Domain.Entities.Account;
 using TN.Shared.Domain.Entities.AuditLogs;
 using TN.Shared.Domain.Entities.Certificates;
 using TN.Shared.Domain.Entities.Communication;
+using TN.Shared.Domain.Entities.Crm.AcademicsPrograms;
 using TN.Shared.Domain.Entities.Crm.Applicant;
 using TN.Shared.Domain.Entities.Crm.Lead;
 using TN.Shared.Domain.Entities.Crm.Profile;
@@ -47,6 +48,13 @@ namespace TN.Shared.Infrastructure.Data
         }
 
         #region CRM
+
+        #region AcademicPrograms
+        public DbSet<Course> Courses { get; set; }
+        public DbSet<Intake> Intakes { get; set; }
+        public DbSet<Requirement> Requirements { get; set; }
+        public DbSet<University> Universities { get; set; }
+        #endregion
 
         #region CrmStudents
         public DbSet<UserProfile> UserProfiles { get; set; }
@@ -266,7 +274,41 @@ namespace TN.Shared.Infrastructure.Data
             base.OnModelCreating(builder);
 
 
-            #region CRM Students
+            #region CRM 
+
+
+            #region AcademicPrograms
+
+            #region Course and Requirements(1:m)
+            builder.Entity<Requirement>()
+               .HasOne(p => p.Course)
+               .WithMany(p => p.Requirements)
+               .HasForeignKey(p => p.CourseId)
+               .OnDelete(DeleteBehavior.Restrict);
+            #endregion
+
+
+
+            #region University and Course(1:m)
+            builder.Entity<Course>()
+               .HasOne(p => p.University)
+               .WithMany(p => p.Courses)
+               .HasForeignKey(p => p.UniversityId)
+               .OnDelete(DeleteBehavior.Restrict);
+            #endregion
+
+
+            #region Course and Intake(1:m)
+            builder.Entity<Intake>()
+               .HasOne(p => p.Course)
+               .WithMany(p => p.Intakes)
+               .HasForeignKey(p => p.CourseId)
+               .OnDelete(DeleteBehavior.Restrict);
+            #endregion
+            #endregion
+
+
+
             #region Lead and UserProfile (1:1)
             builder.Entity<CrmLead>(builder =>
             {
@@ -306,7 +348,7 @@ namespace TN.Shared.Infrastructure.Data
 
             #endregion
 
-            #region FeeStructure and Ledger(1:m)
+            #region FeeStructure and Ledger(m:1)
             builder.Entity<FeeStructure>()
                .HasOne(p => p.Ledger)
                .WithMany(p => p.FeeStructures)

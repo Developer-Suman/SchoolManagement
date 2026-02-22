@@ -12,6 +12,7 @@ namespace ES.Certificate.Application.Certificates.Command.AddCertificateTemplate
         {
             return new AddCertificateTemplateCommand(
                 addCertificateTemplateRequest.templateName,
+                addCertificateTemplateRequest.templateSubject,
                 addCertificateTemplateRequest.templateType,
                 addCertificateTemplateRequest.htmlTemplate,
                 addCertificateTemplateRequest.templateVersion
