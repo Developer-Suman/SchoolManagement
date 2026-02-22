@@ -62,7 +62,7 @@ namespace ES.Certificate.Infrastructure.ServiceImpl
                             newId,
                         schoolId ?? "",
                         addCertificateTemplateCommand.templateName,
-
+                        addCertificateTemplateCommand.templateSubject,
                         addCertificateTemplateCommand.templateType,
                         addCertificateTemplateCommand.htmlTemplate,
 

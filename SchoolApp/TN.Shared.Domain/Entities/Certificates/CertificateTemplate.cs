@@ -19,6 +19,7 @@ namespace TN.Shared.Domain.Entities.Certificates
             string id,
             string schoolId,
             string templateName,
+            string templateSubject,
             string templateType,
             string htmlTemplate,
             bool isActive,
@@ -32,6 +33,7 @@ namespace TN.Shared.Domain.Entities.Certificates
             SchoolId = schoolId;
             TemplateName = templateName;
             TemplateType = templateType;
+            TemplateSubject = templateSubject;
             HtmlTemplate = htmlTemplate;
             IsActive = isActive;
             CreatedAt = createdAt;
@@ -44,6 +46,8 @@ namespace TN.Shared.Domain.Entities.Certificates
 
 
         }
+
+        public string TemplateSubject { get; set; }
         public string CreatedBy { get;set;  }
         public DateTime ModifiedAt { get;set;  }
 

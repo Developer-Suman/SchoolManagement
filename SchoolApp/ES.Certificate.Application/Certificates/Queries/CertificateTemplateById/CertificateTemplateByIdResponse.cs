@@ -11,7 +11,7 @@ namespace ES.Certificate.Application.Certificates.Queries.CertificateTemplateByI
         string id,
             string schoolId,
             string templateName,
-
+            string templateSubject,
             string templateType,
             string htmlTemplate,
             bool isActive,

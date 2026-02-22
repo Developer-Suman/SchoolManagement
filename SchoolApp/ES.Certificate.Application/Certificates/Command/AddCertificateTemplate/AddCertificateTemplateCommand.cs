@@ -11,7 +11,7 @@ namespace ES.Certificate.Application.Certificates.Command.AddCertificateTemplate
     public record AddCertificateTemplateCommand
     (
             string templateName,
-
+            string templateSubject,
             string templateType,
             string htmlTemplate,
             string templateVersion
