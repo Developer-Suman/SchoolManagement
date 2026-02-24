@@ -1,6 +1,8 @@
 
 using Autofac.Core;
 using CS.Certificate.Application;
+using ES.AcademicPrograms.Application;
+using ES.AcademicPrograms.Infrastructure;
 using ES.Academics.Application;
 using ES.Academics.Infrastructure;
 using ES.Attendance.Application;
@@ -233,9 +235,19 @@ try
         .AddCommunicationApplication()
         .AddCommunicationInfrastructure();
 
+
+
+    #region CRM
+
     builder.Services
-        .AddEnrolmentApplication()
-        .AddEnrolmentInfrastructure();
+      .AddAcademicProgramsApplication()
+      .AddAcademicProgramsInfrastructure();
+
+    builder.Services
+      .AddEnrolmentApplication()
+      .AddEnrolmentInfrastructure();
+
+    #endregion
 
     ApplicationBuilderConfig.Inject(builder);
 
