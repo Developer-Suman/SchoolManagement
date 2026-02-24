@@ -31,6 +31,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\ES.AcademicPrograms.Application\ES.AcademicPrograms.Application.csproj" />
+    <ProjectReference Include="..\Es.AcademicPrograms.Infrastructure\ES.AcademicPrograms.Infrastructure.csproj" />
     <ProjectReference Include="..\ES.Academics.Application\ES.Academics.Application.csproj" />
     <ProjectReference Include="..\ES.Academics.Infrastructure\ES.Academics.Infrastructure.csproj" />
     <ProjectReference Include="..\ES.Attendance.Application\ES.Attendance.Application.csproj" />

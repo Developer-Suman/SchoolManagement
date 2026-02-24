@@ -207,6 +207,7 @@ namespace ES.Certificate.Infrastructure.ServiceImpl
                     i.Id,
                     i.SchoolId,
                     i.TemplateName,
+                    i.TemplateSubject,
                     i.TemplateType,
                     i.HtmlTemplate,
                     i.IsActive,

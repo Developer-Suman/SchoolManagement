@@ -25,7 +25,7 @@ namespace ES.Enrolment.Application.Enrolments.Queries.GetAllUserProfile
         {
             try
             {
-                return await _enrolmentServices.UserProfile(request.PaginationRequest, cancellationToken);                return await _enrolmentServices.UserProfile(request.PaginationRequest, cancellationToken);
+                return await _enrolmentServices.UserProfile(request.PaginationRequest, cancellationToken);        
             }
             catch (Exception ex)
             {
