@@ -9,6 +9,7 @@ using TN.Shared.Application.Shared.Queries.GetAllCurrentFiscalYear;
 using TN.Shared.Application.Shared.Queries.GetSelectedFiscalYear;
 using TN.Shared.Domain.Abstractions;
 using TN.Shared.Domain.Entities.OrganizationSetUp;
+using TN.Shared.Domain.Entities.Students;
 using TN.Shared.Domain.ExtensionMethod.Pagination;
 
 namespace TN.Shared.Application.ServiceInterface
@@ -17,6 +18,7 @@ namespace TN.Shared.Application.ServiceInterface
     {
 
         Task<FiscalYears?> GetCurrentFiscalYearFromSettingsAsync();
+        Task<AcademicYear?> GetAcademicYearFromSettingsAsync();
         Task<(string Id, string FyName)> GetFiscalYearIdForDateAsync(DateTime date);
         bool IsDateInFiscalYear(DateTime date, FiscalYears fiscalYear);
 

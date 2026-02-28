@@ -13,5 +13,6 @@ namespace TN.Shared.Application.ServiceInterface.IHelperServices
         bool IsImage(string contentType);
         void CompressFile(string inputFilePath, string outputFilePath);
         bool CompareImage(IFormFile imagePath1, string imagePath2);
+        Task<string> Generate6DigitCode();
     }
 }

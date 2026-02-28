@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TN.Shared.Domain.Entities.Students;
+using static TN.Shared.Domain.Enum.GenderEnum;
 
 namespace ES.Staff.Application.Staff.Queries.AcademicTeamById
 {
@@ -20,7 +21,7 @@ namespace ES.Staff.Application.Staff.Queries.AcademicTeamById
             string modifiedBy = "",
             string imageUrl = "",
             DateTime modifiedAt = default,
-            GenderStatus gender = default,
+            Gender? gender = default,
             string schoolId = "",
             bool isActive = true,
             int? vdcid = 0,

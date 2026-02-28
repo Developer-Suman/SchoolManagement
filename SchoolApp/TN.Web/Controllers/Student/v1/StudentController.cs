@@ -13,6 +13,8 @@ using ES.Student.Application.Student.Command.AddStudents;
 using ES.Student.Application.Student.Command.AddStudents.RequestCommandMapper;
 using ES.Student.Application.Student.Command.DeleteParent;
 using ES.Student.Application.Student.Command.DeleteStudents;
+using ES.Student.Application.Student.Command.ImportExcelForStudent;
+using ES.Student.Application.Student.Command.ImportExcelForStudent.RequestCommandMapper;
 using ES.Student.Application.Student.Command.UpdateParent;
 using ES.Student.Application.Student.Command.UpdateParent.RequestCommandMapper;
 using ES.Student.Application.Student.Command.UpdateStudents;
@@ -35,6 +37,7 @@ using Microsoft.AspNetCore.Mvc;
 using NV.Payment.Application.Payment.Command.AddPayment.RequestCommandMapper;
 using System.Text.Json;
 using TN.Authentication.Domain.Entities;
+using TN.Inventory.Application.Inventory.Command.ImportExcelForItems;
 using TN.Shared.Domain.ExtensionMethod.Pagination;
 using TN.Web.BaseControllers;
 
@@ -55,6 +58,27 @@ namespace TN.Web.Controllers.Student.v1
             _mediator = mediator;
             _logger = logger;
         }
+
+        #region AddStudentExcel
+        [HttpPost("upload-students")]
+
+        public async Task<IActionResult> AddStudentExcel([FromForm] StudentExcelRequest request)
+        {
+            //Mapping command and request
+            var command = request.ToCommand();
+            var addStudentExcelResult = await _mediator.Send(command);
+            #region Switch Statement
+            return addStudentExcelResult switch
+            {
+                { IsSuccess: true, Data: not null } => CreatedAtAction(nameof(AddStudentExcel), addStudentExcelResult.Data),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = addStudentExcelResult.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(addStudentExcelResult.Errors),
+                _ => BadRequest("Invalid Fields for Add ItemExcel")
+            };
+
+            #endregion
+        }
+        #endregion
 
         #region Registration
 

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TN.Shared.Domain.Entities.Students;
+using static TN.Shared.Domain.Enum.GenderEnum;
 
 namespace ES.Staff.Application.Staff.Command.AddAcademicTeam
 {
@@ -22,7 +23,7 @@ namespace ES.Staff.Application.Staff.Command.AddAcademicTeam
             string modifiedBy = "",
 
             DateTime modifiedAt=default,
-            GenderStatus gender=default,
+            Gender? gender =default,
             string schoolId = "",
             bool isActive=true,
             int? vdcid=0,

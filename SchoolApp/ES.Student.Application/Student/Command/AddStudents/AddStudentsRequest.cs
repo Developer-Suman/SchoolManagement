@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TN.Shared.Domain.Entities.Students;
 using TN.Shared.Domain.Static.LowerCase;
+using static TN.Shared.Domain.Enum.GenderEnum;
 
 namespace ES.Student.Application.Student.Command.AddStudents
 {
@@ -15,7 +16,7 @@ namespace ES.Student.Application.Student.Command.AddStudents
         public string? middleName { get; set; }
         public string? lastName { get; set; }
         public string? registrationNumber { get; set; }
-        public GenderStatus genderStatus { get; set; }
+        public Gender genderStatus { get; set; }
         public StudentStatus studentStatus { get; set; }
         public DateTime dateOfBirth { get; set; }
         public string? email { get; set; }
@@ -39,7 +40,7 @@ namespace ES.Student.Application.Student.Command.AddStudents
             string? middleName,
             string lastName,
             string registrationNumber,
-            GenderStatus genderStatus,
+            Gender genderStatus,
             StudentStatus studentStatus,
             DateTime dateOfBirth,
             string? email,

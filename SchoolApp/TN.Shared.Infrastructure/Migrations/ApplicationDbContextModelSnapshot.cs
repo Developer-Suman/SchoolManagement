@@ -2142,6 +2142,9 @@ namespace TN.Shared.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<string>("AcademicYearId")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("ClassId")
                         .HasColumnType("nvarchar(max)");
 
@@ -2158,6 +2161,9 @@ namespace TN.Shared.Infrastructure.Migrations
 
                     b.Property<DateTime>("DueDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("FyId")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
@@ -2216,11 +2222,17 @@ namespace TN.Shared.Infrastructure.Migrations
                     b.Property<string>("StudentId")
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<string>("AcademicYearId")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("CreatedBy")
                         .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FyId")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Id")
@@ -2368,6 +2380,9 @@ namespace TN.Shared.Infrastructure.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<string>("AcademicYearId")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("ChiefGuest")
                         .HasColumnType("nvarchar(max)");
 
@@ -2389,6 +2404,9 @@ namespace TN.Shared.Infrastructure.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("EventsType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FyId")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsActive")
@@ -2432,6 +2450,9 @@ namespace TN.Shared.Infrastructure.Migrations
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("AcademicYearId")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ClassId")
                         .IsRequired()
@@ -2505,6 +2526,9 @@ namespace TN.Shared.Infrastructure.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<string>("AcademicYearId")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -2560,6 +2584,9 @@ namespace TN.Shared.Infrastructure.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<string>("AcademicYearId")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -2569,6 +2596,9 @@ namespace TN.Shared.Infrastructure.Migrations
 
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("FyId")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
@@ -2713,6 +2743,9 @@ namespace TN.Shared.Infrastructure.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<string>("AcademicYearId")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("ClassId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
@@ -2732,6 +2765,9 @@ namespace TN.Shared.Infrastructure.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FyId")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsActive")
@@ -3546,6 +3582,10 @@ namespace TN.Shared.Infrastructure.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<decimal?>("BandScore")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
                     b.Property<string>("CompletionYear")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -3571,6 +3611,9 @@ namespace TN.Shared.Infrastructure.Migrations
                     b.Property<int>("EducationLevel")
                         .HasColumnType("int");
 
+                    b.Property<int?>("EnglishProficiency")
+                        .HasColumnType("int");
+
                     b.Property<string>("FeedBackOrSuggestion")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -3578,8 +3621,14 @@ namespace TN.Shared.Infrastructure.Migrations
                     b.Property<int>("Gender")
                         .HasColumnType("int");
 
+                    b.Property<string>("InstitutionName")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
+
+                    b.Property<string>("LanguageRemarks")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("ModifiedAt")
                         .HasColumnType("datetime2");
@@ -3600,8 +3649,20 @@ namespace TN.Shared.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("SkillOrTrainingName")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Source")
                         .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TrainingEndDate")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TrainingRemarks")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TrainingStartDate")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -4709,7 +4770,7 @@ namespace TN.Shared.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("Gender")
+                    b.Property<int?>("Gender")
                         .HasColumnType("int");
 
                     b.Property<string>("ImageUrl")
@@ -5085,7 +5146,7 @@ namespace TN.Shared.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("Gender")
+                    b.Property<int?>("Gender")
                         .HasColumnType("int");
 
                     b.Property<string>("ImageUrl")
@@ -5161,9 +5222,7 @@ namespace TN.Shared.Infrastructure.Migrations
 
                     b.HasIndex("ProvinceId");
 
-                    b.HasIndex("UserId")
-                        .IsUnique()
-                        .HasFilter("[UserId] IS NOT NULL");
+                    b.HasIndex("UserId");
 
                     b.HasIndex("VdcId");
 
@@ -6707,8 +6766,8 @@ namespace TN.Shared.Infrastructure.Migrations
                         .IsRequired();
 
                     b.HasOne("TN.Authentication.Domain.Entities.ApplicationUser", "Users")
-                        .WithOne("StudentDatas")
-                        .HasForeignKey("TN.Shared.Domain.Entities.Students.StudentData", "UserId");
+                        .WithMany("StudentDatas")
+                        .HasForeignKey("UserId");
 
                     b.HasOne("TN.Authentication.Domain.Entities.Vdc", "Vdc")
                         .WithMany("StudentData")

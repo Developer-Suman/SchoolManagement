@@ -39,6 +39,6 @@ namespace TN.Authentication.Domain.Entities
         //One to One
         // Navigation properties
         public AcademicTeam? AcademicTeams { get; set; }
-        public StudentData? StudentDatas { get; set; }
+        public ICollection<StudentData>? StudentDatas { get; set; } = new List<StudentData>();
     }
 }

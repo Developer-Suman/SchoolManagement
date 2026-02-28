@@ -37,8 +37,10 @@ namespace TN.Shared.Infrastructure.CustomMiddleware.FiscalYearContext
             if (!string.IsNullOrEmpty(schoolId))
             {
                 var fiscalYear = await fiscalYearService.GetCurrentFiscalYearFromSettingsAsync();
+                var academicYear = await fiscalYearService.GetAcademicYearFromSettingsAsync();
                 fiscalContext.CurrentSchoolId = schoolId;
                 fiscalContext.CurrentFiscalYearId = fiscalYear.Id;
+                fiscalContext.CurrentAcademicYearId = academicYear.Id;
             }
 
             await _next(context);

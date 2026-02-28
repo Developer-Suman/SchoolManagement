@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TN.Shared.Domain.Entities.Students;
+using TN.Shared.Domain.Enum;
+using static TN.Shared.Domain.Enum.GenderEnum;
 using static TN.Shared.Domain.Enum.SchoolEnrollment;
 
 namespace ES.Student.Application.Student.Queries.FilterStudents
@@ -15,7 +17,7 @@ namespace ES.Student.Application.Student.Queries.FilterStudents
         string? middleName = "",
         string lastName = "",
         string registrationNumber = "",
-        GenderStatus genderStatus = default,
+        Gender? genderStatus = default,
         StudentStatus studentStatus = default,
         DateTime dateOfBirth = default,
         string? email = "",

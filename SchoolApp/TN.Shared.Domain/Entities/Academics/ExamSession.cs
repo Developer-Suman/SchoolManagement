@@ -25,6 +25,8 @@ namespace TN.Shared.Domain.Entities.Academics
                   DateTime createdAt,
             string modifiedBy,
             DateTime modifiedAt,
+            string? fyId,
+            string? academicYearId,
             List<ExamHall> examHalls
             ): base(id)
         {
@@ -37,11 +39,16 @@ namespace TN.Shared.Domain.Entities.Academics
             ModifiedBy = modifiedBy;
             ModifiedAt = modifiedAt;
             CreatedAt = createdAt;
+            FyId = fyId;
+            AcademicYearId = academicYearId;
 
             SeatAssignments = new List<SeatAssignment>();
 
 
         }
+
+        public string? FyId { get; set; }
+        public string? AcademicYearId { get; set; }
         public string CreatedBy { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public string ModifiedBy { get; set; }

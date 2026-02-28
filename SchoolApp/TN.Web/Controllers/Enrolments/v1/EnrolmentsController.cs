@@ -1,7 +1,4 @@
-﻿using ES.Certificate.Application.Certificates.Queries.SchoolAwards.AwardsById;
-using ES.Communication.Application.Communication.Command.AddNotice;
-using ES.Communication.Application.Communication.Queries.FilterNotice;
-using ES.Enrolment.Application.Enrolments.Command.AddInquiry;
+﻿using ES.Enrolment.Application.Enrolments.Command.AddInquiry;
 using ES.Enrolment.Application.Enrolments.Command.AddInquiry.RequestCommandMapper;
 using ES.Enrolment.Application.Enrolments.Command.ConvertApplicant;
 using ES.Enrolment.Application.Enrolments.Command.ConvertApplicant.RequestCommandMapper;

@@ -8,6 +8,21 @@ namespace TN.Shared.Domain.Enum
 {
     public class HelperEnum
     {
+
+        public enum EnglishProficiency
+        {
+            IELTS = 1,
+            TOEFL = 2,
+            PTE = 3,
+            DET = 4,
+            TOEIC = 5,
+            CELPIP = 6,
+            OET = 7,
+            FCE = 8,
+            CAE = 9,
+            CPE = 10
+        }
+
         public enum NameOfEnglishMonths
         {
             January = 1,

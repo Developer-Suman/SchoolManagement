@@ -3,6 +3,7 @@ using ES.Student.Application.Registration.Command.RegisterStudents;
 using ES.Student.Application.Student.Command.AddAttendances;
 using ES.Student.Application.Student.Command.AddParent;
 using ES.Student.Application.Student.Command.AddStudents;
+using ES.Student.Application.Student.Command.ImportExcelForStudent;
 using ES.Student.Application.Student.Command.UpdateParent;
 using ES.Student.Application.Student.Command.UpdateStudents;
 using FluentValidation;
@@ -30,6 +31,7 @@ namespace ES.Student.Application
             services.AddScoped<IValidator<AddAttendenceCommand>, AddAttendenceCommandValidator>();
             services.AddScoped<IValidator<RegisterStudentsCommand>, RegisterStudentsCommandValidator>();
             services.AddScoped<IValidator<RegisterMultipleStudentsCommand>, RegisterMultipleStudentsCommandValidator>();
+            services.AddScoped<IValidator<StudentExcelCommand>, StudentExcelCommandValidator>();
             return services;
         }
     }

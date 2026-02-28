@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TN.Shared.Domain.Entities.Students;
+using static TN.Shared.Domain.Enum.GenderEnum;
 
 namespace ES.Student.Application.Student.Command.AddStudents
 {
@@ -13,7 +14,7 @@ namespace ES.Student.Application.Student.Command.AddStudents
         string? middleName="",
         string lastName = "",
         string registrationNumber = "",
-        GenderStatus genderStatus = default,
+        Gender genderStatus = default,
         StudentStatus studentStatus = default,
         DateTime dateOfBirth = default,
         string? email = "",

@@ -12,6 +12,7 @@ using TN.Shared.Domain.Abstractions;
 using TN.Shared.Domain.Entities.Account;
 using TN.Shared.Domain.Entities.OrganizationSetUp;
 using TN.Shared.Domain.Entities.Staff;
+using TN.Shared.Domain.Entities.Students;
 using TN.Shared.Domain.ExtensionMethod.Pagination;
 using TN.Shared.Domain.IRepository;
 using TN.Shared.Infrastructure.CustomMiddleware.CustomException;
@@ -212,6 +213,21 @@ namespace TN.Setup.Infrastructure.ServiceImpl
        
 
             
+        }
+
+        public async Task<AcademicYear?> GetAcademicYearFromSettingsAsync()
+        {
+            var schoolId = _tokenService.SchoolId().FirstOrDefault();
+
+            var settingsList = await _unitOfWork.BaseRepository<SchoolSettings>()
+                .GetConditionalAsync(
+                    x => x.SchoolId == schoolId && x.IsActive == true,
+                    null,
+                    x => x.AcademicYear
+                );
+
+            var settings = settingsList.FirstOrDefault();
+            return settings?.AcademicYear;
         }
 
         public async Task<FiscalYears?> GetCurrentFiscalYearFromSettingsAsync()

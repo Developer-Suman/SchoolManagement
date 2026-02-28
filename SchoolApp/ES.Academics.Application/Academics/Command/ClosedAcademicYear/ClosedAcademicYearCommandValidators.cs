@@ -11,7 +11,7 @@ namespace ES.Academics.Application.Academics.Command.ClosedAcademicYear
     {
         public ClosedAcademicYearCommandValidators()
         {
-            RuleFor(x => x.closedAcademicId)
+            RuleFor(x => x.nextAcademicId)
              .NotEmpty();
     
         }

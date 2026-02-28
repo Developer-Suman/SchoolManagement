@@ -9,6 +9,6 @@ namespace ES.Academics.Application.Academics.Command.ClosedAcademicYear
     public record ClosedAcademicYearResponse
     (
         string academicYearId="",
-        string message=""
+        string? message=""
         );
 }

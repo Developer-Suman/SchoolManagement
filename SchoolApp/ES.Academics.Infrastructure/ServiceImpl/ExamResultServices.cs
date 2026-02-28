@@ -31,6 +31,7 @@ using TN.Shared.Application.ServiceInterface;
 using TN.Shared.Domain.Abstractions;
 using TN.Shared.Domain.Entities.Academics;
 using TN.Shared.Domain.Entities.OrganizationSetUp;
+using TN.Shared.Domain.Entities.Students;
 using TN.Shared.Domain.ExtensionMethod.Pagination;
 using TN.Shared.Domain.IRepository;
 
@@ -66,7 +67,9 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                 {
 
                     string newId = Guid.NewGuid().ToString();
-                    var FyId = _fiscalContext.CurrentFiscalYearId;
+                    var fyId = _fiscalContext.CurrentFiscalYearId ?? "";
+                    var academicYearId = _fiscalContext.CurrentAcademicYearId;
+
                     var schoolId = _tokenService.SchoolId().FirstOrDefault() ?? "";
                     var userId = _tokenService.GetUserId();
 
@@ -77,6 +80,8 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                     {
                         return Result<AddExamResultResponse>.Failure("ForbiddenAccess", "Details already in the system");
                     }
+
+                    
 
                     var addExamResult = new ExamResult(
                             newId,
@@ -89,7 +94,8 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                         DateTime.UtcNow,
                         "",
                         default,
-                        _fiscalContext.CurrentFiscalYearId,
+                        fyId,
+                        academicYearId,
                         addExamResultCommand.marksObtained?.Select(e=> new MarksObtained(
                             Guid.NewGuid().ToString(),
                             
@@ -149,13 +155,14 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                 var schoolId = _tokenService.SchoolId().FirstOrDefault();
                 var institutionId = _tokenService.InstitutionId() ?? string.Empty;
                 var isSuperAdmin = _tokenService.GetRole() == Role.SuperAdmin;
+                var academicYearId = _fiscalContext.CurrentAcademicYearId;
 
                 IEnumerable<ExamResult> examResults;
                 if (isSuperAdmin)
                 {
                     examResults = await _unitOfWork.BaseRepository<ExamResult>()
                         .GetConditionalAsync(
-                            x => x.FyId == FyId && x.IsActive,
+                            x => x.FyId == FyId && x.IsActive ,
                             query => query.Include(rm => rm.MarksOtaineds));
                 }
                 else if (!string.IsNullOrEmpty(institutionId) && string.IsNullOrEmpty(schoolId))
@@ -174,7 +181,7 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                 {
                     examResults = await _unitOfWork.BaseRepository<ExamResult>()
                         .GetConditionalAsync(
-                            x => x.FyId == FyId && x.SchoolId == schoolId && x.IsActive,
+                            x => x.FyId == FyId && x.SchoolId == schoolId && x.IsActive && x.AcademicYearId == academicYearId,
                             query => query.Include(j => j.MarksOtaineds));
                 }
 
@@ -232,7 +239,7 @@ namespace ES.Academics.Infrastructure.ServiceImpl
             try
             {
                 var examResults = await _unitOfWork.BaseRepository<ExamResult>().
-                    GetConditionalAsync(x => x.Id == examResultId,
+                    GetConditionalAsync(x => x.Id == examResultId ,
                     query => query.Include(rm => rm.MarksOtaineds)
                     );
 
@@ -274,6 +281,10 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                 var schoolId = _tokenService.SchoolId().FirstOrDefault();
                 var institutionId = _tokenService.InstitutionId() ?? string.Empty;
                 var isSuperAdmin = _tokenService.GetRole() == Role.SuperAdmin;
+                var academicYearId = _fiscalContext.CurrentAcademicYearId;
+
+
+
                 var (startUtc, endUtc) = await _dateConverter.GetDateRangeUtc(filterExamResultDTOs.startDate, filterExamResultDTOs.endDate);
 
 
@@ -312,7 +323,7 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                     examResults = await _unitOfWork.BaseRepository<ExamResult>().GetConditionalAsync(
                         x =>
                             x.FyId == fiscalYearId && x.IsActive &&
-                            x.SchoolId == schoolId &&
+                            x.SchoolId == schoolId && x.AcademicYearId == academicYearId &&
                             x.CreatedAt >= startUtc &&
                             x.CreatedAt <= endUtc &&
                             (string.IsNullOrEmpty(filterExamResultDTOs.studentId) || x.StudentId.Contains(filterExamResultDTOs.studentId)),

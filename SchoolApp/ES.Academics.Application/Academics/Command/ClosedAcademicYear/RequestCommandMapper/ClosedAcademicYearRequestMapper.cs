@@ -12,7 +12,7 @@ namespace ES.Academics.Application.Academics.Command.ClosedAcademicYear.RequestC
         {
             return new ClosedAcademicYearCommand
                 (
-                request.closedAcademicId
+                request.nextAcademicId
                 );
         }
     }

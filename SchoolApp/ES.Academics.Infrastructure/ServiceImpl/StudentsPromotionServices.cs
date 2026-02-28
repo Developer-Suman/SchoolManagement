@@ -57,6 +57,7 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                 try
                 {
                     var schoolId = _tokenService.SchoolId().FirstOrDefault();
+                    var academicYearId = _fiscalContext.CurrentAcademicYearId;
 
                     if (string.IsNullOrEmpty(schoolId))
                         throw new Exception("SchoolId not found in token.");
@@ -68,9 +69,9 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                         .GetSingleAsync(x => x.SchoolId == schoolId && x.IsActive == true);
 
                     #region Update Registrations for New Academic Year
-                    await PromoteStudentsBulk(
+                    var message = await PromoteStudentsBulk(
                         currentYearId: existingSettings.AcademicYearId,
-                        nextYearId: command.closedAcademicId
+                        nextYearId: command.nextAcademicId
                     );
 
                     #endregion
@@ -84,7 +85,7 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                     if (currentSettings == null)
                         throw new Exception("Active school settings not found.");
 
-                    var nextYearSettings = currentSettings.CreateForNewYear(command.closedAcademicId);
+                    var nextYearSettings = currentSettings.CreateForNewYear(command.nextAcademicId);
 
                     currentSettings.Deactivate();
 
@@ -100,48 +101,9 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                     scope.Complete();
 
 
-                    var resultDisplay = new ClosedAcademicYearResponse(nextYearSettings.Id);
+                    var resultDisplay = new ClosedAcademicYearResponse(nextYearSettings.Id, message);
                     return Result<ClosedAcademicYearResponse>.Success(resultDisplay);
 
-
-                    //var newSchoolSettings = new SchoolSettings(
-                    //    Guid.NewGuid().ToString(),
-                    //    existingSettings.ShowTaxInSales,
-                    //    existingSettings.ShowTaxInPurchase,
-                    //    existingSettings.PurchaseReferences,
-                    //    existingSettings.ShowReferenceNumberForSales,
-                    //    existingSettings.ShowExpiredDateInItem,
-                    //    existingSettings.ShowSerialNumberInItem,
-                    //    existingSettings.ShowSerialNumberForPurchase,
-                    //    existingSettings.ShowSerialNumberForSales,
-                    //    existingSettings.JournalReference,
-                    //    existingSettings.InventoryMethod,
-                    //    existingSettings.SchoolId,
-                    //    existingSettings.CurrentFiscalYearId,
-                    //    existingSettings.AllowBackDatedEntry,
-                    //    existingSettings.ReceiptTransactionNumberType,
-                    //    existingSettings.PaymentTransactionNumberType,
-                    //    existingSettings.IncomeTransactionNumberType,
-                    //    existingSettings.ExpensesTransactionNumberType,
-                    //    existingSettings.ShowReturnNumberForPurchase,
-                    //    existingSettings.ShowReturnNumberForSales,
-                    //    existingSettings.ShowQuotationNumberForPurchase,
-                    //    existingSettings.ShowQuotationNumberForSales,
-                    //    existingSettings.PurchaseReturnNumberType,
-                    //    existingSettings.SalesReturnNumberType,
-                    //    existingSettings.PurchaseQuotationNumberType,
-                    //    existingSettings.SalesQuotationNumberType,
-                    //    existingSettings.UserId,
-                    //    command.closedAcademicId // New Academic Year Id
-                    //);
-
-
-
-                    //await _unitOfWork
-                    //    .BaseRepository<SchoolSettings>()
-                    //    .AddAsync(newSchoolSettings);
-
-   
 
                     #endregion
                 }
@@ -173,14 +135,19 @@ namespace ES.Academics.Infrastructure.ServiceImpl
             }
         }
 
-        public async Task PromoteStudentsBulk(string currentYearId, string nextYearId)
+        public async Task<string?> PromoteStudentsBulk(string currentYearId, string nextYearId)
         {
             try
             {
                 var schoolId = _tokenService.SchoolId().FirstOrDefault();
                 var userId = _tokenService.GetUserId();
 
-                // 1️⃣ Get ordered classes
+                if (string.IsNullOrEmpty(schoolId))
+                    return "Invalid school.";
+
+                if (currentYearId == nextYearId)
+                    return "Current year and next year cannot be same.";
+
                 var classes = await _applicationDbContext.Classes
                     .Where(c => c.SchoolId == schoolId)
                     .OrderBy(c => c.ClassSymbol)
@@ -189,11 +156,9 @@ namespace ES.Academics.Infrastructure.ServiceImpl
 
                 if (classes.Count < 2)
                 {
-                    Console.WriteLine("Not enough classes to promote.");
-                    return;
+                    return "Not enough classes to promote.";
                 }
 
-                // 2️⃣ Build class promotion map (CurrentClassId -> NextClassId)
                 var nextClassMap = new Dictionary<string, string>();
 
                 for (int i = 0; i < classes.Count - 1; i++)
@@ -201,7 +166,6 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                     nextClassMap[classes[i].Id] = classes[i + 1].Id;
                 }
 
-                // 3️⃣ Get all current year students
                 var students = await _applicationDbContext.Registrations
                     .Where(r =>
                         r.AcademicYearId == currentYearId &&
@@ -212,11 +176,9 @@ namespace ES.Academics.Infrastructure.ServiceImpl
 
                 if (!students.Any())
                 {
-                    Console.WriteLine("No students found for current academic year.");
-                    return;
+                    return "No students found.";
                 }
 
-                // 4️⃣ Get already promoted students for next year (avoid duplicates)
                 var nextYearStudentIds = await _applicationDbContext.Registrations
                     .Where(r =>
                         r.AcademicYearId == nextYearId &&
@@ -226,16 +188,13 @@ namespace ES.Academics.Infrastructure.ServiceImpl
 
                 var nextYearStudentSet = new HashSet<string>(nextYearStudentIds);
 
-                // 5️⃣ Build new registrations list
                 var newRegistrations = new List<Registrations>();
 
                 foreach (var student in students)
                 {
-                    // Skip if already promoted
                     if (nextYearStudentSet.Contains(student.StudentId))
                         continue;
 
-                    // Skip if no next class (final class students)
                     if (!nextClassMap.TryGetValue(student.ClassId, out var nextClassId))
                         continue;
 
@@ -256,22 +215,19 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                     newRegistrations.Add(newRegistration);
                 }
 
-                // 6️⃣ Bulk insert
-                if (newRegistrations.Any())
-                {
-                    await _applicationDbContext.Registrations.AddRangeAsync(newRegistrations);
-                    var rows = await _applicationDbContext.SaveChangesAsync();
+                if (!newRegistrations.Any())
+                    return "No eligible students found.";
 
-                    Console.WriteLine($"Students promoted: {rows}");
-                }
-                else
-                {
-                    Console.WriteLine("No students eligible for promotion.");
-                }
+                await _unitOfWork.BaseRepository<Registrations>().AddRange(newRegistrations);
+
+                var rows = await _unitOfWork.SaveChangesAsync();
+
+                return $"{rows} students promoted successfully.";
             }
             catch (Exception ex)
             {
-                throw new Exception("An error occurred while promoting students.", ex);
+                Console.WriteLine(ex);
+                return $"Error: {ex.Message}";
             }
         }
 

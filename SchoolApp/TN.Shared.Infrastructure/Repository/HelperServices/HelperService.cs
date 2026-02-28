@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO.Compression;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using TN.Shared.Application.ServiceInterface.IHelperServices;
@@ -74,6 +75,13 @@ namespace TN.Shared.Infrastructure.Repository.HelperServices
 
                 }
             }
+        }
+
+        public async Task<string> Generate6DigitCode()
+        {
+            return RandomNumberGenerator
+                   .GetInt32(0, 1000000)
+                   .ToString("D6");
         }
 
         public bool IsImage(string contentType)

@@ -6,6 +6,7 @@ using TN.Shared.Domain.Entities.Certificates;
 using TN.Shared.Domain.Entities.Finance;
 using TN.Shared.Domain.Enum;
 using TN.Shared.Domain.Primitive;
+using static TN.Shared.Domain.Enum.GenderEnum;
 using static TN.Shared.Domain.Enum.SchoolEnrollment;
 
 namespace TN.Shared.Domain.Entities.Students
@@ -24,7 +25,7 @@ namespace TN.Shared.Domain.Entities.Students
             string? middleName,
             string lastName,
             string registrationNumber,
-            GenderStatus gender,
+            Gender? gender,
             StudentStatus status,
             DateTime dateOfBirth,
             string? email, 
@@ -113,7 +114,7 @@ namespace TN.Shared.Domain.Entities.Students
         public string? ClassSectionId { get; set; }
         public ClassSection? ClassSection { get; set; }
 
-        public GenderStatus Gender { get; set; }
+        public Gender? Gender { get; set; }
         public StudentStatus Status { get; set; }
         public DateTime DateOfBirth { get; set; }
         public string? Email { get; set; }
@@ -152,12 +153,6 @@ namespace TN.Shared.Domain.Entities.Students
 
     }
 
-    public enum GenderStatus
-    {
-        Male,
-        Female,
-        Others
-    }
 
     public enum StudentStatus
     {

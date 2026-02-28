@@ -63,9 +63,10 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                 try
                 {
                     string newId = Guid.NewGuid().ToString();
-                    var FyId = _fiscalContext.CurrentFiscalYearId;
+                    var fyId = _fiscalContext.CurrentFiscalYearId;
                     var schoolId = _tokenService.SchoolId().FirstOrDefault() ?? "";
                     var userId = _tokenService.GetUserId();
+                    var academicYearId = _fiscalContext.CurrentAcademicYearId;
 
                     var addEvents = new Events(
                         newId,
@@ -85,7 +86,9 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                         DateTime.UtcNow,
                         "",
                         default,
-                        true
+                        true,
+                        fyId,
+                        academicYearId
 
 
                     );
@@ -134,13 +137,15 @@ namespace ES.Academics.Infrastructure.ServiceImpl
         {
             try
             {
-
-                var currentAcademicYearId = await _studentsPromotion.GetCurrentAcademicYear();
+                var fyId = _fiscalContext.CurrentFiscalYearId;
+                var academicYearId = _fiscalContext.CurrentAcademicYearId;
 
                 var (events, currentSchoolId, institutionId, userRole, isSuperAdmin) =
                     await _getUserScopedData.GetUserScopedData<Events>();
 
-                var finalQuery = events.Where(x => x.IsActive == true).AsNoTracking();
+                var finalQuery = events.Where(x => x.IsActive == true 
+                && x.AcademicYearId == academicYearId
+                && x.FyId == fyId).AsNoTracking();
 
 
                 var pagedResult = await finalQuery.ToPagedResultAsync(
@@ -189,6 +194,7 @@ namespace ES.Academics.Infrastructure.ServiceImpl
             try
             {
                 var fyId = _fiscalContext.CurrentFiscalYearId;
+                var academicYearId = _fiscalContext.CurrentAcademicYearId;
                 var userId = _tokenService.GetUserId();
 
                 var (events, schoolId, institutionId, userRole, isSuperAdmin) = await _getUserScopedData.GetUserScopedData<Events>();
@@ -201,7 +207,9 @@ namespace ES.Academics.Infrastructure.ServiceImpl
 
                 var filterEventsResult = isSuperAdmin
                     ? events
-                    : events.Where(x => x.SchoolId == _tokenService.SchoolId().FirstOrDefault() || x.SchoolId == "");
+                    : events.Where(x => x.SchoolId == _tokenService.SchoolId().FirstOrDefault() || x.SchoolId == ""
+                    && x.AcademicYearId == academicYearId
+                    && x.FyId == fyId);
 
                 var (startUtc, endUtc) = await _dateConverter.GetDateRangeUtc(filterEventsDTOs.startDate, filterEventsDTOs.endDate);
 

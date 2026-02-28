@@ -29,7 +29,9 @@ namespace TN.Shared.Domain.Entities.Academics
             string createdBy,
             DateTime createdAt,
             string modifiedBy,
-            DateTime? modifiedAt
+            DateTime? modifiedAt,
+            string? fyId,
+            string? academicYearId
             ) : base(id)
         {
             SubjectId = subjectId;
@@ -44,10 +46,14 @@ namespace TN.Shared.Domain.Entities.Academics
             CreatedAt = createdAt;
             ModifiedBy = modifiedBy;
             ModifiedAt = modifiedAt;
+            FyId = fyId;
+            AcademicYearId = academicYearId;
             AssignmentClasses = new List<AssignmentClassSection>();
             AssignmentStudents = new List<AssignmentStudent>();
         }
 
+        public string? FyId { get; set; }
+        public string? AcademicYearId { get; set; }
         public string? ClassId { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }

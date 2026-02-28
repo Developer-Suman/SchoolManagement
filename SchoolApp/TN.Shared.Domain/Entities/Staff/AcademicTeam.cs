@@ -6,7 +6,9 @@ using System.Threading.Tasks;
 using TN.Authentication.Domain.Entities;
 using TN.Shared.Domain.Entities.Academics;
 using TN.Shared.Domain.Entities.Students;
+using TN.Shared.Domain.Enum;
 using TN.Shared.Domain.Primitive;
+using static TN.Shared.Domain.Enum.GenderEnum;
 
 namespace TN.Shared.Domain.Entities.Staff
 {
@@ -31,7 +33,7 @@ namespace TN.Shared.Domain.Entities.Staff
             string modifiedBy,
 
             DateTime modifiedAt,
-            GenderStatus gender,
+            Gender? gender,
             string schoolId,
             bool isActive,
             int? vdcid,
@@ -88,7 +90,7 @@ namespace TN.Shared.Domain.Entities.Staff
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public string ModifiedBy { get; set; }
         public DateTime ModifiedAt { get; set; } = DateTime.Now;
-        public GenderStatus Gender { get; set; }
+        public Gender? Gender { get; set; }
 
 
 

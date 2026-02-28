@@ -22,6 +22,7 @@ namespace TN.Shared.Domain.Entities.Academics
             string name,
             DateTime examDate,
             string fyId,
+            string? academicYearId,
             bool? isfinalExam,
             string schoolId,
             string createdBy,
@@ -38,6 +39,7 @@ namespace TN.Shared.Domain.Entities.Academics
             ExamDate = examDate;
             SchoolId = schoolId;
             FyId = fyId;
+            AcademicYearId = academicYearId;
             CreatedBy = createdBy;
             CreatedAt = createdAt;
             ModifiedBy = modifiedBy;
@@ -48,6 +50,7 @@ namespace TN.Shared.Domain.Entities.Academics
             ExamSubjects = examSubjects;
         }
 
+        public string? AcademicYearId { get; set; }
         public string ClassId { get; set;  }
         public string FyId { get; set; }
         //public FiscalYears FiscalYears { get; set; }

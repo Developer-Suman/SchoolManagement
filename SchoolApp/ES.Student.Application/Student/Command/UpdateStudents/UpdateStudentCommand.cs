@@ -1,11 +1,12 @@
-﻿using System;
+﻿using MediatR;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using MediatR;
 using TN.Shared.Domain.Abstractions;
 using TN.Shared.Domain.Entities.Students;
+using static TN.Shared.Domain.Enum.GenderEnum;
 
 namespace ES.Student.Application.Student.Command.UpdateStudents
 {
@@ -16,7 +17,7 @@ namespace ES.Student.Application.Student.Command.UpdateStudents
         string? middleName,
         string lastName,
         string registrationNumber,
-        GenderStatus genderStatus,
+        Gender genderStatus,
         StudentStatus studentStatus,
         DateTime dateOfBirth,
         string? email,

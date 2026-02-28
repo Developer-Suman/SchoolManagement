@@ -7,6 +7,7 @@ using TN.Shared.Domain.Entities.Crm.Profile;
 using TN.Shared.Domain.Primitive;
 using static TN.Shared.Domain.Enum.EducationLevelEnum;
 using static TN.Shared.Domain.Enum.GenderEnum;
+using static TN.Shared.Domain.Enum.HelperEnum;
 
 namespace TN.Shared.Domain.Entities.Crm.Lead
 {
@@ -29,6 +30,16 @@ namespace TN.Shared.Domain.Entities.Crm.Lead
             string currentGpa,
             string previousAcademicQualification,
 
+            EnglishProficiency? englishProficiency,
+            decimal? bandScore,
+            string? languageRemarks,
+
+            string? skillOrTrainingName,
+            string? institutionName,
+            string? trainingRemarks,
+            string? trainingStartDate,
+            string? trainingEndDate,
+
 
             string source,
             string feedBackOrSuggestion,
@@ -40,6 +51,7 @@ namespace TN.Shared.Domain.Entities.Crm.Lead
             DateTime modifiedAt
           ) : base(id)
         {
+
             DateOfBirth = dateOfBirth;
             Gender = gender;
             ContactNumber = contactNumber;
@@ -48,6 +60,18 @@ namespace TN.Shared.Domain.Entities.Crm.Lead
             CompletionYear = completionYear;
             CurrentGpa = currentGpa;
             PreviousAcademicQualification = previousAcademicQualification;
+            EnglishProficiency = englishProficiency;
+            BandScore = bandScore;
+            LanguageRemarks = languageRemarks;
+
+            SkillOrTrainingName = SkillOrTrainingName;
+            InstitutionName = InstitutionName;
+            TrainingRemarks = trainingRemarks;
+            TrainingStartDate = trainingStartDate;
+            TrainingEndDate = trainingEndDate;
+
+
+
             Source = source;
             FeedBackOrSuggestion = feedBackOrSuggestion;
             IsActive = isActive;
@@ -59,6 +83,15 @@ namespace TN.Shared.Domain.Entities.Crm.Lead
 
         }
 
+        public string? SkillOrTrainingName { get; set; }
+        public string? InstitutionName { get; set; }
+        public string? TrainingRemarks { get; set; }
+        public string? TrainingStartDate { get; set; }
+        public string? TrainingEndDate { get; set; }
+
+        public EnglishProficiency? EnglishProficiency { get; set; }
+        public decimal? BandScore { get; set; }
+        public string? LanguageRemarks { get; set; }
         public string SchoolId { get; set; }
         public bool IsActive { get; set; }
         public string CreatedBy { get; set; }

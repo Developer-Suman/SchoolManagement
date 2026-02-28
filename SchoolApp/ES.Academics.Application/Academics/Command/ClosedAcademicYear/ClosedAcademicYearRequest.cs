@@ -8,6 +8,6 @@ namespace ES.Academics.Application.Academics.Command.ClosedAcademicYear
 {
     public record ClosedAcademicYearRequest
     (
-        string closedAcademicId
+        string nextAcademicId
         );
 }

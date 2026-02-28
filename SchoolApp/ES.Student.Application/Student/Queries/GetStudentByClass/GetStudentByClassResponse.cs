@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TN.Shared.Domain.Entities.Students;
+using TN.Shared.Domain.Enum;
+using static TN.Shared.Domain.Enum.GenderEnum;
 
 namespace ES.Student.Application.Student.Queries.GetStudentByClass
 {
@@ -14,7 +16,7 @@ namespace ES.Student.Application.Student.Queries.GetStudentByClass
         string? middleName = "",
         string lastName = "",
         string admissionNumber = "",
-        GenderStatus genderStatus = default,
+        Gender? genderStatus = default,
         StudentStatus studentStatus = default,
         DateTime dateOfBirth = default,
         string? email = "",

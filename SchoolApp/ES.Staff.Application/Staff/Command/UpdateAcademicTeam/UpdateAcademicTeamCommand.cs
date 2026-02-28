@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TN.Shared.Domain.Abstractions;
 using TN.Shared.Domain.Entities.Students;
+using static TN.Shared.Domain.Enum.GenderEnum;
 
 namespace ES.Staff.Application.Staff.Command.UpdateAcademicTeam
 {
@@ -22,7 +23,7 @@ namespace ES.Staff.Application.Staff.Command.UpdateAcademicTeam
             int districtId,
             int wardNumber,
             string? address,
-            GenderStatus gender,
+            Gender? gender,
             int? vdcid,
             int? municipalityId,
         List<string> rolesId

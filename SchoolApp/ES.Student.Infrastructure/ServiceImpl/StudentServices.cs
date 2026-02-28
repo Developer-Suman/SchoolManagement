@@ -4,6 +4,7 @@ using ES.Certificate.Application.ServiceInterface.IHelperMethod;
 using ES.Student.Application.ServiceInterface;
 using ES.Student.Application.Student.Command.AddParent;
 using ES.Student.Application.Student.Command.AddStudents;
+using ES.Student.Application.Student.Command.ImportExcelForStudent;
 using ES.Student.Application.Student.Command.UpdateParent;
 using ES.Student.Application.Student.Command.UpdateStudents;
 using ES.Student.Application.Student.Queries.AcademicYear;
@@ -18,21 +19,29 @@ using ES.Student.Application.Student.Queries.GetStudentsById;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using OfficeOpenXml;
 using SendGrid.Helpers.Errors.Model;
+using StackExchange.Redis;
 using System.Transactions;
 using TN.Account.Domain.Entities;
 using TN.Authentication.Domain.Entities;
+using TN.Inventory.Application.Inventory.Command.ImportExcelForItems;
+using TN.Inventory.Domain.Entities;
 using TN.Shared.Application.ServiceInterface;
 using TN.Shared.Application.ServiceInterface.IHelperServices;
 using TN.Shared.Domain.Abstractions;
+using TN.Shared.Domain.Entities.Academics;
 using TN.Shared.Domain.Entities.Certificates;
 using TN.Shared.Domain.Entities.Communication;
 using TN.Shared.Domain.Entities.OrganizationSetUp;
 using TN.Shared.Domain.Entities.Staff;
+using TN.Shared.Domain.Entities.StockCenterEntities;
 using TN.Shared.Domain.Entities.Students;
 using TN.Shared.Domain.ExtensionMethod.Pagination;
 using TN.Shared.Domain.IRepository;
 using TN.Shared.Domain.Static.Cache;
+using static TN.Inventory.Domain.Entities.Inventories;
+using static TN.Shared.Domain.Enum.GenderEnum;
 using static TN.Shared.Domain.Enum.SchoolEnrollment;
 
 namespace ES.Student.Infrastructure.ServiceImpl
@@ -46,11 +55,12 @@ namespace ES.Student.Infrastructure.ServiceImpl
         private readonly IDateConvertHelper _dateConverter;
         private readonly FiscalContext _fiscalContext;
         private readonly IHelperMethodServices _helperMethodServices;
+        private readonly IHelperService _helperService;
         private readonly IimageServices _imageServices;
         private readonly IAuthorizationService _authorizationService;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public StudentServices(IHttpContextAccessor httpContextAccessor, IAuthorizationService authorizationService,IUnitOfWork unitOfWork,IMapper mapper,ITokenService tokenService, IGetUserScopedData getUserScopedData,
+        public StudentServices(IHelperService helperService,IHttpContextAccessor httpContextAccessor, IAuthorizationService authorizationService,IUnitOfWork unitOfWork,IMapper mapper,ITokenService tokenService, IGetUserScopedData getUserScopedData,
             IDateConvertHelper dateConvertHelper,FiscalContext fiscalContext, IHelperMethodServices helperMethodServices, IimageServices iimageServices)
         {
             _authorizationService = authorizationService;
@@ -61,6 +71,7 @@ namespace ES.Student.Infrastructure.ServiceImpl
             _imageServices = iimageServices;
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _helperService = helperService;
             _tokenService = tokenService;
             _httpContextAccessor = httpContextAccessor;
         }
@@ -398,6 +409,277 @@ namespace ES.Student.Infrastructure.ServiceImpl
                     throw new Exception("An error occurred while adding parents", ex);
                 }
             }
+        }
+
+
+        private string NormalizeName(string? name)
+        {
+            //if (string.IsNullOrWhiteSpace(name)) return "";
+
+            name = name.Trim().ToLower();
+            name = name.Replace(" ", "");
+            //if (name.EndsWith("s"))
+            //    name = name[..^1];
+
+            return name;
+        }
+        public async Task<Result<StudentExcelResponse>> AddStudentExcel(IFormFile formFile, CancellationToken cancellationToken = default)
+        {
+            Result<StudentExcelResponse> result;
+
+            using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            {
+                try
+                {
+                    var students = new List<StudentData>();
+                    string schoolId = _tokenService.SchoolId().FirstOrDefault() ?? "";
+                    string userId = _tokenService.GetUserId();
+
+                    using var stream = new MemoryStream();
+                    await formFile.CopyToAsync(stream, cancellationToken);
+                    using var package = new ExcelPackage(stream);
+                    var worksheet = package.Workbook.Worksheets.FirstOrDefault();
+
+                    if (worksheet == null)
+                    {
+                        result = Result<StudentExcelResponse>.Failure("Worksheet not found");
+                        return result; // safe to return here because scope hasn't been completed yet
+                    }
+
+                    int rowCount = worksheet.Dimension.Rows;
+                    int colCount = worksheet.Dimension.Columns;
+
+                    Dictionary<string, int> headerMap = new();
+
+                    int headerRow = worksheet.Dimension.Start.Row;
+
+                    for (int col = 1; col <= colCount; col++)
+                    {
+                        var header = worksheet.Cells[headerRow, col].Text?.Trim().ToLower();
+
+                        if (!string.IsNullOrWhiteSpace(header))
+                        {
+                            headerMap[header] = col;
+                        }
+                    }
+
+                    decimal totalStockValue = 0m;
+
+                    for (int row = 2; row <= rowCount; row++)
+                    {
+                        var fullName = worksheet.Cells[row, headerMap["fullname"]].Text?.Trim();
+                        string firstName = "";
+                        string middleName = "";
+                        string lastName = "";
+
+                        if (!string.IsNullOrWhiteSpace(fullName))
+                        {
+                            var nameParts = fullName
+                                .Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+                            if (nameParts.Length == 1)
+                            {
+                                firstName = nameParts[0];
+                            }
+                            else if (nameParts.Length == 2)
+                            {
+                                firstName = nameParts[0];
+                                lastName = nameParts[1];
+                            }
+                            else if (nameParts.Length >= 3)
+                            {
+                                firstName = nameParts[0];
+                                lastName = nameParts[^1]; // last element
+                                middleName = string.Join(" ", nameParts.Skip(1).Take(nameParts.Length - 2));
+                            }
+                        }
+                       
+                        
+                        
+                        var genderText = worksheet.Cells[row, headerMap["gender"]].Text?.Trim();
+
+                        Gender? gender = null;
+
+                        if (!string.IsNullOrWhiteSpace(genderText))
+                        {
+                            if (genderText.Equals("Male", StringComparison.OrdinalIgnoreCase))
+                                gender = Gender.Male;
+
+                            else if (genderText.Equals("Female", StringComparison.OrdinalIgnoreCase))
+                                gender = Gender.Female;
+
+                            else if (genderText.Equals("Others", StringComparison.OrdinalIgnoreCase))
+                                gender = Gender.Others;
+                        }
+
+
+                        var currentClassText = worksheet.Cells[row, headerMap["currentclass"]].Text?.Trim();
+                        var schoolClass = await _unitOfWork.BaseRepository<Class>()
+                            .GetConditionalAsync(i => i.SchoolId == schoolId || i.SchoolId == "");
+
+                        var classLookup = schoolClass
+                                .Where(c => c.ClassSymbol != null)
+                                .ToDictionary(
+                                    c => c.ClassSymbol,
+                                    c => c.Id  
+                                );
+
+
+                        if (!int.TryParse(currentClassText, out int classSymbol) ||
+                            !classLookup.TryGetValue(classSymbol, out var classId))
+                        {
+                            throw new Exception($"Invalid ClassSymbol '{currentClassText}' at row {row}");
+                        }
+
+                        var parents = await _unitOfWork.BaseRepository<Parent>()
+                            .GetConditionalAsync(i => i.SchoolId == schoolId || i.SchoolId == "");
+
+                        var parentsLookup = parents
+                            .Where(p => !string.IsNullOrWhiteSpace(p.FullName))
+                            .GroupBy(p => p.FullName.Trim().ToLower())
+                            .ToDictionary(
+                                g => g.Key,
+                                g => g.First()
+                            );
+
+
+                        var fatherName = worksheet.Cells[row, headerMap["father name"]].Text?.Trim();
+                        var motherName = worksheet.Cells[row, headerMap["mother name"]].Text?.Trim();
+
+                        Parent matchedParent = null;
+
+                        if (!string.IsNullOrWhiteSpace(fatherName) &&
+                            parentsLookup.TryGetValue(fatherName.ToLower(), out var fatherMatch))
+                        {
+                            matchedParent = fatherMatch;
+                        }
+
+                        else if (!string.IsNullOrWhiteSpace(motherName) &&
+                                 parentsLookup.TryGetValue(motherName.ToLower(), out var motherMatch))
+                        {
+                            matchedParent = motherMatch;
+                        }
+                        if (matchedParent == null)
+                        {
+                            var newParent = new Parent
+                            {
+                                Id = Guid.NewGuid().ToString(),
+                                FullName = fatherName ?? motherName ?? "Unknown Parent",
+                                ParentType = fatherName != null ? ParentType.Father : ParentType.Mother,                             
+                                SchoolId = schoolId,
+                                CreatedAt = DateTime.UtcNow,
+                                CreatedBy = userId,
+                                IsActive = true,
+                                PhoneNumber = "",
+                                Email = "",
+                                Address = "",
+                                Occupation = "",
+                                ImageUrl = "",
+                                ModifiedBy="",
+                                ModifiedAt=DateTime.UtcNow,
+                                LedgerId = null
+
+                            };
+
+                            await _unitOfWork.BaseRepository<Parent>().AddAsync(newParent);
+                            await _unitOfWork.SaveChangesAsync();
+                            matchedParent = newParent;
+                            parentsLookup[newParent.FullName.ToLower()] = newParent;
+                        }
+                        var parentId = matchedParent.Id;
+                        string? dateOfBirth = worksheet.Cells[row, headerMap["dob"]].Text?.Trim();
+
+                        var year = worksheet.Cells[row, headerMap["year"]].Text?.Trim();
+                        var academicYear = await _unitOfWork.BaseRepository<AcademicYear>()
+                            .FirstOrDefaultAsync(i =>
+
+                                i.Name.ToLower().Trim() == year.ToLower().Trim()
+                            );
+
+
+
+
+                 
+                        var dateOfBirthInEnglish = await _dateConverter.ConvertToEnglish(dateOfBirth);
+
+                        var newId = Guid.NewGuid().ToString();
+                        var add = new StudentData(
+                            newId,
+                            firstName,
+                            middleName,
+                            lastName,
+                            await _helperService.Generate6DigitCode(),
+                            gender,
+                            StudentStatus.Active,
+                            dateOfBirthInEnglish,
+                            null,
+                            null,
+                            null,
+                            null,
+                            DateTime.UtcNow,
+                            parentId,
+                            null,
+                            1,
+                            1,
+                            1,
+                            userId,
+                            DateTime.UtcNow,
+
+                            "",
+                            null,
+                            default,
+                            schoolId,
+                            true,
+                            null,
+                            null,
+
+                            classId,
+                            userId,
+                            EnrollmentStatus.Active
+
+                        );
+
+                        await _unitOfWork.BaseRepository<StudentData>().AddAsync(add);
+                        await _unitOfWork.SaveChangesAsync();
+
+
+
+                        var registration = new Registrations(
+                            Guid.NewGuid().ToString(),
+                            newId,
+                            classId,
+                            academicYear.Id,
+                            EnrollmentStatus.Active,
+                            schoolId,
+                            true,
+                            userId,
+                            DateTime.UtcNow,
+                            "",
+                            DateTime.UtcNow
+                            );
+
+                        await _unitOfWork.BaseRepository<Registrations>().AddAsync(registration);
+                        await _unitOfWork.SaveChangesAsync();
+
+
+                    }
+
+
+
+
+            
+
+                    scope.Complete();
+
+                    result = Result<StudentExcelResponse>.Success($"{rowCount - 1} Students imported successfully.");
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception($"An error occurred while adding Students: {ex.Message}", ex);
+                }
+            }
+
+            return result;
         }
 
         public async Task<Result<bool>> Delete(string id, CancellationToken cancellationToken)

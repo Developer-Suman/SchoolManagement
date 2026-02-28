@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TN.Shared.Domain.Entities.Students;
+using static TN.Shared.Domain.Enum.GenderEnum;
 
 namespace ES.Student.Application.Student.Command.UpdateStudents
 {
@@ -13,7 +14,7 @@ namespace ES.Student.Application.Student.Command.UpdateStudents
         string? middleName,
         string lastName,
         string registrationNumber,
-        GenderStatus genderStatus,
+        Gender genderStatus,
         StudentStatus studentStatus,
         DateTime dateOfBirth,
         string? email,
