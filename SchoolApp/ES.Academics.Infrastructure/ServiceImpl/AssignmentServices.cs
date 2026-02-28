@@ -55,9 +55,11 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                 try
                 {
 
-                    var FyId = _fiscalContext.CurrentFiscalYearId;
                     var schoolId = _tokenService.SchoolId().FirstOrDefault() ?? "";
                     var userId = _tokenService.GetUserId();
+
+                    var fyId = _fiscalContext.CurrentFiscalYearId;
+                    var academicYearId = _fiscalContext.CurrentAcademicYearId;
 
                     foreach (var studentId in addAssignmentStudentsCommand.studentIds)
                     {
@@ -76,7 +78,9 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                        userId,
                        DateTime.UtcNow,
                        "",
-                       default
+                       default,
+                       fyId,
+                       academicYearId
                    );
 
                         await _unitOfWork.BaseRepository<AssignmentStudent>().AddAsync(addAssignmentStudents);
@@ -155,6 +159,7 @@ namespace ES.Academics.Infrastructure.ServiceImpl
             try
             {
                 var fyId = _fiscalContext.CurrentFiscalYearId;
+                var academicYearId = _fiscalContext.CurrentAcademicYearId;
                 var userId = _tokenService.GetUserId();
 
                 var (assignment, schoolId, institutionId, userRole, isSuperAdmin) = await _getUserScopedData.GetUserScopedData<Assignment>();
@@ -167,7 +172,9 @@ namespace ES.Academics.Infrastructure.ServiceImpl
 
                 var filterExam = isSuperAdmin
                     ? assignment
-                    : assignment.Where(x => x.SchoolId == _tokenService.SchoolId().FirstOrDefault() || x.SchoolId == "");
+                    : assignment.Where(x => x.SchoolId == _tokenService.SchoolId().FirstOrDefault() || x.SchoolId == "" 
+                    && x.FyId == fyId
+                    && x.AcademicYearId == academicYearId);
 
 
                 var filteredResult = filterExam

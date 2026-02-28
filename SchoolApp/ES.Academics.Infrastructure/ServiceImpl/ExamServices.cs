@@ -57,7 +57,8 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                 {
 
                     string newId = Guid.NewGuid().ToString();
-                    var FyId = _fiscalContext.CurrentFiscalYearId;
+                    var fyId = _fiscalContext.CurrentFiscalYearId;
+                    var academicYearId = _fiscalContext.CurrentAcademicYearId;
                     var schoolId = _tokenService.SchoolId().FirstOrDefault() ?? "";
                     var userId = _tokenService.GetUserId();
 
@@ -65,7 +66,8 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                             newId,
                         addExamCommand.name,
                         addExamCommand.examDate,
-                        FyId,
+                        fyId,
+                        academicYearId,
                         addExamCommand.isfinalExam,
                         schoolId ?? "",
                         userId,
@@ -132,10 +134,15 @@ namespace ES.Academics.Infrastructure.ServiceImpl
             try
             {
 
+                var fyId = _fiscalContext.CurrentFiscalYearId;
+                var academicYearId = _fiscalContext.CurrentAcademicYearId;
                 var (exam, currentSchoolId, institutionId, userRole, isSuperAdmin) =
                     await _getUserScopedData.GetUserScopedData<Exam>();
 
-                var finalQuery = exam.Where(x=>x.IsActive == true && x.SchoolId == currentSchoolId).AsNoTracking();
+                var finalQuery = exam.Where(x=>x.IsActive == true 
+                && x.SchoolId == currentSchoolId
+                && x.FyId == fyId
+                && x.AcademicYearId == academicYearId).AsNoTracking();
 
 
                 var pagedResult = await finalQuery.ToPagedResultAsync(
@@ -187,6 +194,7 @@ namespace ES.Academics.Infrastructure.ServiceImpl
             try
             {
                 var fyId = _fiscalContext.CurrentFiscalYearId;
+                var academicYearId = _fiscalContext.CurrentAcademicYearId;
                 var userId = _tokenService.GetUserId();
 
                 var (exam, schoolId, institutionId, userRole, isSuperAdmin) = await _getUserScopedData.GetUserScopedData<Exam>();
@@ -199,7 +207,9 @@ namespace ES.Academics.Infrastructure.ServiceImpl
 
                 var filterExam = isSuperAdmin
                     ? exam
-                    : exam.Include(x=>x.ExamSubjects).Where(x => x.SchoolId == _tokenService.SchoolId().FirstOrDefault() || x.SchoolId == "");
+                    : exam.Include(x=>x.ExamSubjects).Where(x => x.SchoolId == _tokenService.SchoolId().FirstOrDefault() || x.SchoolId == ""
+                    && x.FyId == fyId
+                    && x.AcademicYearId == academicYearId);
 
                 var (startUtc, endUtc) = await _dateConverter.GetDateRangeUtc(filterExamDTOs.startDate, filterExamDTOs.endDate);
 

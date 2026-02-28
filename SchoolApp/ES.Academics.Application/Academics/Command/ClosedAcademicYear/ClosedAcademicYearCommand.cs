@@ -11,6 +11,6 @@ namespace ES.Academics.Application.Academics.Command.ClosedAcademicYear
 {
     public record ClosedAcademicYearCommand
     (
-        string closedAcademicId
+        string nextAcademicId
         ) : IRequest<Result<ClosedAcademicYearResponse>>;
 }

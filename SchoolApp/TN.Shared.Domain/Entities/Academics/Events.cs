@@ -34,7 +34,9 @@ namespace TN.Shared.Domain.Entities.Academics
             DateTime createdAt,
             string modifiedBy,
             DateTime modifiedAt,
-            bool isActive
+            bool isActive,
+            string? fyId,
+            string? academicYearId
 
             ) : base(id)
         {
@@ -55,6 +57,8 @@ namespace TN.Shared.Domain.Entities.Academics
             ModifiedBy = modifiedBy;
             ModifiedAt = modifiedAt;
             IsActive = isActive;
+            FyId = fyId;
+            AcademicYearId = academicYearId;
             StudentsAwards = new List<StudentsAward>();
 
 
@@ -62,6 +66,8 @@ namespace TN.Shared.Domain.Entities.Academics
 
         }
 
+        public string? FyId { get; set; }
+        public string? AcademicYearId { get; set; }
         public string Title { get;set; }
         public string? Description { get;set; }
         public string? EventsType { get; set; }

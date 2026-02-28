@@ -583,12 +583,14 @@ namespace TN.Shared.Infrastructure.Data
 
 
 
-            #region Students and ApplicationUser(1:1)
-            builder.Entity<StudentData>()
-              .HasOne(s => s.Users)
-              .WithOne(u => u.StudentDatas)
-              .HasForeignKey<StudentData>(s => s.UserId);
+            #region ApplicationUser and StudentData(1:m)
+            builder.Entity<ApplicationUser>()
+              .HasMany(s => s.StudentDatas)
+              .WithOne(u => u.Users)
+              .HasForeignKey(s => s.UserId);
             #endregion
+
+
             #region Province and Students(1:m)
             builder.Entity<Province>()
                .HasMany(p => p.StudentData)

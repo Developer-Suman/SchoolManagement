@@ -1,5 +1,6 @@
 ﻿using ES.Student.Application.Student.Command.AddParent;
 using ES.Student.Application.Student.Command.AddStudents;
+using ES.Student.Application.Student.Command.ImportExcelForStudent;
 using ES.Student.Application.Student.Command.UpdateParent;
 using ES.Student.Application.Student.Command.UpdateStudents;
 using ES.Student.Application.Student.Queries.AcademicYear;
@@ -11,6 +12,7 @@ using ES.Student.Application.Student.Queries.GetParentById;
 using ES.Student.Application.Student.Queries.GetStudentByClass;
 using ES.Student.Application.Student.Queries.GetStudentForAttendance;
 using ES.Student.Application.Student.Queries.GetStudentsById;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System;
 using System.Collections.Generic;
@@ -24,6 +26,8 @@ namespace ES.Student.Application.ServiceInterface
 {
     public interface IStudentServices
     {
+
+        Task<Result<StudentExcelResponse>> AddStudentExcel(IFormFile formFile, CancellationToken cancellationToken = default);
         Task<Result<AddStudentsResponse>> Add(AddStudentsCommand addStudentsCommand);
         Task<Result<PagedResult<AcademicYearResponse>>> GetAllAcademicYear(PaginationRequest paginationRequest,CancellationToken cancellationToken=default);
         Task<Result<PagedResult<GetAllStudentQueryResponse>>> GetAllStudents(PaginationRequest paginationRequest,CancellationToken cancellationToken=default);

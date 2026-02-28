@@ -27,7 +27,9 @@ namespace TN.Shared.Domain.Entities.Academics
             string createdBy,
             DateTime createdAt,
             string modifiedBy,
-            DateTime? modifiedAt
+            DateTime? modifiedAt,
+            string? fyId,
+            string? academicYearId
             ) : base(null)
         {
             AssignmentId = assignmentId;
@@ -44,9 +46,13 @@ namespace TN.Shared.Domain.Entities.Academics
             CreatedAt = createdAt;
             ModifiedBy = modifiedBy;
             ModifiedAt = modifiedAt;
+            FyId = fyId;
+            AcademicYearId = academicYearId;
 
         }
 
+        public string? FyId { get; set; }
+        public string? AcademicYearId { get; set; }
         public string? SubmissionText { get; set; }
         public string? SubmissionFileUrl { get; set; }
         public string? TeacherRemarks { get; set; }

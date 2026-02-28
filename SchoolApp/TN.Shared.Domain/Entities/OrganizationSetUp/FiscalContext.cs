@@ -10,5 +10,6 @@ namespace TN.Shared.Domain.Entities.OrganizationSetUp
     {
         public string? CurrentFiscalYearId { get; set; }
         public string? CurrentSchoolId { get; set; }
+        public string? CurrentAcademicYearId { get; set; }
     }
 }

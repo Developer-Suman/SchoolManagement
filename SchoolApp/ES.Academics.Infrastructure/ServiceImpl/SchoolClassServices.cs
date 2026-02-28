@@ -65,7 +65,8 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                 {
 
                     string newId = Guid.NewGuid().ToString();
-                    var FyId = _fiscalContext.CurrentFiscalYearId;
+                    var fyId = _fiscalContext.CurrentFiscalYearId;
+                    var academicYearId = _fiscalContext.CurrentAcademicYearId;
                     var schoolId = _tokenService.SchoolId().FirstOrDefault() ?? "";
                     var userId = _tokenService.GetUserId();
 
@@ -84,8 +85,10 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                             userId,
                             DateTime.UtcNow,
                             "",
-                            default
-                          
+                            default,
+                            fyId,
+                            academicYearId
+
                             )).ToList(),
                         schoolId ?? "",
                         true,

@@ -14,6 +14,6 @@ namespace ES.Academics.Application.ServiceInterface
         Task<Result<ClosedAcademicYearResponse>> CloseAcademicYear(ClosedAcademicYearCommand command);
         Task<string?> GetCurrentAcademicYear();
 
-        Task PromoteStudentsBulk(string currentYearId, string nextYearId);
+        Task<string?> PromoteStudentsBulk(string currentYearId, string nextYearId);
     }
 }

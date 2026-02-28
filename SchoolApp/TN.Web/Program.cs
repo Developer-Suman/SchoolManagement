@@ -259,6 +259,11 @@ try
 
     ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 
+    builder.WebHost.ConfigureKestrel(options =>
+    {
+        options.Limits.MaxRequestBodySize = 100_000_000;
+    });
+
 
     var app = builder.Build();
 

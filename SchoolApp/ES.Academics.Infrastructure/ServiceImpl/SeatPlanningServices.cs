@@ -62,7 +62,8 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                 {
 
                     string newId = Guid.NewGuid().ToString();
-                    var FyId = _fiscalContext.CurrentFiscalYearId;
+                    var fyId = _fiscalContext.CurrentFiscalYearId;
+                    var academicYearId = _fiscalContext.CurrentAcademicYearId;
                     var schoolId = _tokenService.SchoolId().FirstOrDefault() ?? "";
                     var userId = _tokenService.GetUserId();
 
@@ -78,7 +79,10 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                         DateTime.UtcNow,
                         "",
                         default,
-                  
+                        fyId,
+                        academicYearId,
+
+
                         addExamSessionCommand.ExamHallDTOs?.Select(e => new ExamHall(
                             Guid.NewGuid().ToString(),
                             e.hallName,
@@ -290,6 +294,7 @@ namespace ES.Academics.Infrastructure.ServiceImpl
             try
             {
                 var fyId = _fiscalContext.CurrentFiscalYearId;
+                var academicYearId = _fiscalContext.CurrentAcademicYearId;
                 var userId = _tokenService.GetUserId();
 
                 var (examSession, schoolId, institutionId, userRole, isSuperAdmin) = await _getUserScopedData.GetUserScopedData<ExamSession>();
@@ -302,7 +307,10 @@ namespace ES.Academics.Infrastructure.ServiceImpl
 
                 var filterExamSession = isSuperAdmin
                     ? examSession
-                    : examSession.Where(x => x.SchoolId == _tokenService.SchoolId().FirstOrDefault() || x.SchoolId == "");
+                    : examSession.Where(x => x.SchoolId == _tokenService.SchoolId().FirstOrDefault() || x.SchoolId == ""
+                    && x.FyId == fyId
+                    && x.AcademicYearId == academicYearId
+                    );
 
                 var (startUtc, endUtc) = await _dateConverter.GetDateRangeUtc(filterExamSessionDTOs.startDate, filterExamSessionDTOs.endDate);
 
