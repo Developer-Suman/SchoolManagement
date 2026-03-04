@@ -13,7 +13,7 @@ namespace ES.AcademicPrograms.Application.AcademicPrograms.Command.AddUniversity
             return new AddUniversityCommand
                 (
                     request.name,
-                    request.country,
+                    request.countryId,
                     request.descriptions,
                     request.website,
                     request.globalRanking

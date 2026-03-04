@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TN.Shared.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using TN.Shared.Infrastructure.Data;
 namespace TN.Shared.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260228191404_Add Country Table Entity")]
+    partial class AddCountryTableEntity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -3706,60 +3709,6 @@ namespace TN.Shared.Infrastructure.Migrations
                     b.ToTable("Leads");
                 });
 
-            modelBuilder.Entity("TN.Shared.Domain.Entities.Crm.Lead.LeadCountry", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("CountryId")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("LeadId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("LeadId");
-
-                    b.ToTable("LeadCountries");
-                });
-
-            modelBuilder.Entity("TN.Shared.Domain.Entities.Crm.Lead.LeadCourse", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("CourseId")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("LeadUniversityId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("LeadUniversityId");
-
-                    b.ToTable("LeadCourses");
-                });
-
-            modelBuilder.Entity("TN.Shared.Domain.Entities.Crm.Lead.LeadUniversity", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("LeadCountryId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("UniversityId")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("LeadCountryId");
-
-                    b.ToTable("LeadUniversities");
-                });
-
             modelBuilder.Entity("TN.Shared.Domain.Entities.Crm.Profile.UserProfile", b =>
                 {
                     b.Property<string>("Id")
@@ -6439,36 +6388,6 @@ namespace TN.Shared.Infrastructure.Migrations
                     b.Navigation("Profile");
                 });
 
-            modelBuilder.Entity("TN.Shared.Domain.Entities.Crm.Lead.LeadCountry", b =>
-                {
-                    b.HasOne("TN.Shared.Domain.Entities.Crm.Lead.CrmLead", "CrmLead")
-                        .WithMany("AppliedCountries")
-                        .HasForeignKey("LeadId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("CrmLead");
-                });
-
-            modelBuilder.Entity("TN.Shared.Domain.Entities.Crm.Lead.LeadCourse", b =>
-                {
-                    b.HasOne("TN.Shared.Domain.Entities.Crm.Lead.LeadUniversity", "LeadUniversity")
-                        .WithMany("SelectedCourses")
-                        .HasForeignKey("LeadUniversityId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.Navigation("LeadUniversity");
-                });
-
-            modelBuilder.Entity("TN.Shared.Domain.Entities.Crm.Lead.LeadUniversity", b =>
-                {
-                    b.HasOne("TN.Shared.Domain.Entities.Crm.Lead.LeadCountry", "LeadCountry")
-                        .WithMany("SelectedUniversities")
-                        .HasForeignKey("LeadCountryId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.Navigation("LeadCountry");
-                });
-
             modelBuilder.Entity("TN.Shared.Domain.Entities.Crm.Students.CrmStudent", b =>
                 {
                     b.HasOne("TN.Shared.Domain.Entities.Crm.Profile.UserProfile", "Profile")
@@ -7295,21 +7214,6 @@ namespace TN.Shared.Infrastructure.Migrations
             modelBuilder.Entity("TN.Shared.Domain.Entities.Crm.AcademicsPrograms.University", b =>
                 {
                     b.Navigation("Courses");
-                });
-
-            modelBuilder.Entity("TN.Shared.Domain.Entities.Crm.Lead.CrmLead", b =>
-                {
-                    b.Navigation("AppliedCountries");
-                });
-
-            modelBuilder.Entity("TN.Shared.Domain.Entities.Crm.Lead.LeadCountry", b =>
-                {
-                    b.Navigation("SelectedUniversities");
-                });
-
-            modelBuilder.Entity("TN.Shared.Domain.Entities.Crm.Lead.LeadUniversity", b =>
-                {
-                    b.Navigation("SelectedCourses");
                 });
 
             modelBuilder.Entity("TN.Shared.Domain.Entities.Crm.Profile.UserProfile", b =>

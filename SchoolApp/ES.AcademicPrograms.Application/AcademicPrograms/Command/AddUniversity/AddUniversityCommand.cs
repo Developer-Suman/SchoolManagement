@@ -11,7 +11,7 @@ namespace ES.AcademicPrograms.Application.AcademicPrograms.Command.AddUniversity
     public record AddUniversityCommand
     (
         string name,
-            string country,
+            string countryId,
             string? descriptions,
             string? website,
             int globalRanking

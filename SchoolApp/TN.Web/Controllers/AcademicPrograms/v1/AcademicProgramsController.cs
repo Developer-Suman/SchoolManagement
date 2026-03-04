@@ -1,4 +1,6 @@
-﻿using ES.AcademicPrograms.Application.AcademicPrograms.Command.AddCourse;
+﻿using ES.AcademicPrograms.Application.AcademicPrograms.Command.AddCountry;
+using ES.AcademicPrograms.Application.AcademicPrograms.Command.AddCountry.RequestCommandMapper;
+using ES.AcademicPrograms.Application.AcademicPrograms.Command.AddCourse;
 using ES.AcademicPrograms.Application.AcademicPrograms.Command.AddCourse.RequestCommandMapper;
 using ES.AcademicPrograms.Application.AcademicPrograms.Command.AddIntake;
 using ES.AcademicPrograms.Application.AcademicPrograms.Command.AddIntake.RequestCommandMapper;
@@ -6,6 +8,7 @@ using ES.AcademicPrograms.Application.AcademicPrograms.Command.AddRequirements;
 using ES.AcademicPrograms.Application.AcademicPrograms.Command.AddRequirements.RequestCommandMapper;
 using ES.AcademicPrograms.Application.AcademicPrograms.Command.AddUniversity;
 using ES.AcademicPrograms.Application.AcademicPrograms.Command.AddUniversity.RequestCommandMapper;
+using ES.AcademicPrograms.Application.AcademicPrograms.Queries.Country;
 using ES.AcademicPrograms.Application.AcademicPrograms.Queries.Course;
 using ES.AcademicPrograms.Application.AcademicPrograms.Queries.FilterCourse;
 using ES.AcademicPrograms.Application.AcademicPrograms.Queries.FilterIntake;
@@ -41,6 +44,55 @@ namespace TN.Web.Controllers.AcademicPrograms.v1
             _logger = logger;
             _mediator = mediator;
         }
+
+        #region Country
+        #region AddCountry
+        [HttpPost("AddCountry")]
+
+        public async Task<IActionResult> AddCountry([FromBody] AddCountryRequest request)
+        {
+            //Mapping command and request
+            var command = request.ToCommand();
+            var addCountry = await _mediator.Send(command);
+            #region Switch Statement
+            return addCountry switch
+            {
+                { IsSuccess: true, Data: not null } => CreatedAtAction(nameof(AddIntake), addCountry.Data),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = addCountry.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(addCountry.Errors),
+                _ => BadRequest("Invalid Fields ")
+
+            };
+
+            #endregion
+        }
+        #endregion
+
+        #region GetAllCountry
+        [HttpGet("GetAllCountry")]
+        public async Task<IActionResult> Country([FromQuery] PaginationRequest paginationRequest)
+        {
+            var query = new CountryQuery(paginationRequest);
+            var result = await _mediator.Send(query);
+            #region Switch Statement
+            return result switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(result.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { result.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(result.Errors),
+                _ => BadRequest("Invalid page and pageSize Fields")
+            };
+            #endregion
+
+        }
+
+
+        #endregion
+
+        #endregion
 
 
 

@@ -1,4 +1,6 @@
-﻿using ES.AcademicPrograms.Application.AcademicPrograms.Command.AddUniversity;
+﻿using ES.AcademicPrograms.Application.AcademicPrograms.Command.AddCountry;
+using ES.AcademicPrograms.Application.AcademicPrograms.Command.AddUniversity;
+using ES.AcademicPrograms.Application.AcademicPrograms.Queries.Country;
 using ES.AcademicPrograms.Application.AcademicPrograms.Queries.FilterUniversity;
 using System;
 using System.Collections.Generic;
@@ -13,6 +15,8 @@ namespace ES.AcademicPrograms.Application.ServiceInterface
     public interface IUniversityServices
     {
         Task<Result<AddUniversityResponse>> AddUniversity(AddUniversityCommand addUniversityCommand);
+        Task<Result<AddCountryResponse>> AddCountry(AddCountryCommand addCountryCommand);
         Task<Result<PagedResult<FilterUniversityResponse>>> FilterUniversity(PaginationRequest paginationRequest, FilterUniversityDTOs filterUniversityDTOs);
+        Task<Result<PagedResult<CountryResponse>>> GetAllCountry(PaginationRequest paginationRequest);
     }
 }

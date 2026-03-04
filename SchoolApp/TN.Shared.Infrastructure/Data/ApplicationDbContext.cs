@@ -49,7 +49,15 @@ namespace TN.Shared.Infrastructure.Data
 
         #region CRM
 
+        #region Lead
+        public DbSet<LeadCountry> LeadCountries { get; set; }
+        public DbSet<LeadUniversity> LeadUniversities { get; set; }
+        public DbSet<LeadCourse> LeadCourses { get; set; }
+
+        #endregion
+
         #region AcademicPrograms
+        public DbSet<Country> Countries { get; set; }
         public DbSet<Course> Courses { get; set; }
         public DbSet<Intake> Intakes { get; set; }
         public DbSet<Requirement> Requirements { get; set; }
@@ -276,8 +284,55 @@ namespace TN.Shared.Infrastructure.Data
 
             #region CRM 
 
+            #region Lead
+
+            #region Lead and LeadCountry(1:m)
+            builder.Entity<LeadCountry>()
+              .HasOne(p => p.CrmLead)
+              .WithMany(p => p.AppliedCountries)
+              .HasForeignKey(p => p.LeadId)
+              .OnDelete(DeleteBehavior.Restrict);
+
+            #endregion
+
+
+
+            #region LeadCountry and LeadUniversity(1:m)
+            builder.Entity<LeadUniversity>()
+              .HasOne(p => p.LeadCountry)
+              .WithMany(p => p.SelectedUniversities)
+              .HasForeignKey(p => p.LeadCountryId)
+              .OnDelete(DeleteBehavior.Cascade);
+
+            #endregion
+
+
+            #region LeadUniversity and LeadCourse(1:m)
+            builder.Entity<LeadCourse>()
+              .HasOne(p => p.LeadUniversity)
+              .WithMany(p => p.SelectedCourses)
+              .HasForeignKey(p => p.LeadUniversityId)
+              .OnDelete(DeleteBehavior.Cascade);
+
+            #endregion
+
+
+
+
+            #endregion
+
 
             #region AcademicPrograms
+
+            #region Country and University(1:m)
+            builder.Entity<University>()
+               .HasOne(p => p.Country)
+               .WithMany(p => p.Universities)
+               .HasForeignKey(p => p.CountryId)
+               .OnDelete(DeleteBehavior.Restrict);
+            #endregion
+
+
 
             #region Course and Requirements(1:m)
             builder.Entity<Requirement>()

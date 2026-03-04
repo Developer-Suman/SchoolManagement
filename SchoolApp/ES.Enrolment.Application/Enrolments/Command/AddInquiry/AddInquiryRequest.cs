@@ -33,7 +33,19 @@ namespace ES.Enrolment.Application.Enrolments.Command.AddInquiry
             string currentGpa,
             string previousAcademicQualification,
             string source,
-            string feedBackOrSuggestion
+            string feedBackOrSuggestion,
+            List<LeadCountryDto> Countries
 
         );
+
+            public record LeadCountryDto(
+            string countryId, // CountryId
+            List<LeadUniversityDto> Universities
+        );
+
+            public record LeadUniversityDto(
+                string universityId, // UniversityId
+                List<string> CourseIds
+                );
+
 }

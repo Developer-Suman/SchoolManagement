@@ -10,7 +10,7 @@ namespace ES.AcademicPrograms.Application.AcademicPrograms.Queries.FilterUnivers
     (
         string id="",
             string name="",
-            string country="",
+            string countryId ="",
             string? descriptions="",
             string? website = "",
             int globalRanking=0,

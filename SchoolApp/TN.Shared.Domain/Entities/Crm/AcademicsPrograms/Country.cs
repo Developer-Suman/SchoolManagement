@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,21 +7,12 @@ using TN.Shared.Domain.Primitive;
 
 namespace TN.Shared.Domain.Entities.Crm.AcademicsPrograms
 {
-    public class University : Entity
+    public class Country : Entity
     {
-        public University(): base(null)
-        {
-            
-        }
-
-        public University(
-            string id,
+        public Country(
+             string id,
             string name,
-            string? countryId,
-            string? descriptions,
-            string? website,
-            int globalRanking,
-               bool isActive,
+            bool isActive,
             string schoolId,
             string createdBy,
             DateTime createdAt,
@@ -31,33 +21,24 @@ namespace TN.Shared.Domain.Entities.Crm.AcademicsPrograms
             ) : base(id)
         {
             Name = name;
-            CountryId = countryId;
-            Descriptions = descriptions;
-            Website = website;
-            GlobalRanking = globalRanking;
             IsActive = isActive;
             SchoolId = schoolId;
             CreatedBy = createdBy;
-            ModifiedBy = modifiedBy;
             CreatedAt = createdAt;
+            ModifiedBy = modifiedBy;
             ModifiedAt = modifiedAt;
-            Courses = new List<Course>();
-
+            Universities = new List<University>();
 
         }
 
+        public string Name { get; set; }
         public string SchoolId { get; set; }
         public bool IsActive { get; set; }
         public string CreatedBy { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public string ModifiedBy { get; set; }
         public DateTime ModifiedAt { get; set; } = DateTime.UtcNow;
-        public string Name { get; set; } = string.Empty;
-        public string? CountryId { get; set; } = string.Empty;
-        public Country? Country { get; set; }
-        public string? Descriptions { get; set; }
-        public string? Website { get; set; }
-        public int GlobalRanking { get; set; }
-        public ICollection<Course> Courses { get; set; }
+
+        public ICollection<University> Universities { get; set; }
     }
 }

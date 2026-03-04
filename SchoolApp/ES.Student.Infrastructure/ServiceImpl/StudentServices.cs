@@ -1055,11 +1055,16 @@ namespace ES.Student.Infrastructure.ServiceImpl
         {
             try
             {
-
+                var fyId = _fiscalContext.CurrentFiscalYearId;
+                var academicYearId = _fiscalContext.CurrentAcademicYearId;
                 var (studentsData, currentSchoolId, institutionId, userRole, isSuperAdmin) =
                     await _getUserScopedData.GetUserScopedData<Registrations>();
 
-                var finalQuery = studentsData.Include(x=>x.Student).Where(x => x.IsActive == true && x.ClassId == classId).AsNoTracking();
+                var finalQuery = studentsData.Include(x=>x.Student).Where(x => x.IsActive == true 
+                && x.ClassId == classId
+                && x.AcademicYearId == academicYearId
+               
+                ).AsNoTracking();
 
 
                 var pagedResult = await finalQuery.ToPagedResultAsync(
@@ -1070,7 +1075,7 @@ namespace ES.Student.Infrastructure.ServiceImpl
 
                 var mappedItems = pagedResult.Data.Items.Select(x => new GetStudentByClassResponse
                 (
-                    x.Id,
+                    x.StudentId,
                     x.Student.FirstName,
                     x.Student.MiddleName,
                     x.Student.LastName,
