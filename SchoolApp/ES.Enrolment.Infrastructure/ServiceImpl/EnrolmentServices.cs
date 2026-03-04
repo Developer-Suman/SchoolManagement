@@ -99,6 +99,29 @@ namespace ES.Enrolment.Infrastructure.ServiceImpl
                         default
 
                     );
+
+                    foreach (var countryDto in addInquiryCommand.Countries)
+                    {
+                        var leadCountryId = Guid.NewGuid().ToString();
+                        var leadCountry = new LeadCountry(leadCountryId, countryDto.countryId, newId );
+
+                        foreach (var uniDto in countryDto.Universities)
+                        {
+                            var leadUniversityId = Guid.NewGuid().ToString();
+                            var leadUni = new LeadUniversity (leadUniversityId, uniDto.universityId, leadCountryId);
+
+                            foreach (var courseId in uniDto.CourseIds)
+                            {
+                                var leadCourseId = Guid.NewGuid().ToString();
+                                leadUni.SelectedCourses.Add(new LeadCourse(leadCountryId, courseId, leadUniversityId));
+                            }
+                            leadCountry.SelectedUniversities.Add(leadUni);
+                        }
+                        add.AppliedCountries.Add(leadCountry);
+                    }
+
+
+
                     await _unitOfWork.BaseRepository<UserProfile>().AddAsync(profile);
                     await _unitOfWork.BaseRepository<CrmLead>().AddAsync(add);
                  

@@ -1,8 +1,11 @@
 ﻿using AutoMapper;
+using ES.AcademicPrograms.Application.AcademicPrograms.Command.AddCountry;
 using ES.AcademicPrograms.Application.AcademicPrograms.Command.AddUniversity;
+using ES.AcademicPrograms.Application.AcademicPrograms.Queries.Country;
 using ES.AcademicPrograms.Application.AcademicPrograms.Queries.FilterRequirements;
 using ES.AcademicPrograms.Application.AcademicPrograms.Queries.FilterUniversity;
 using ES.AcademicPrograms.Application.ServiceInterface;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,6 +19,7 @@ using TN.Shared.Domain.Entities.Crm.AcademicsPrograms;
 using TN.Shared.Domain.Entities.Crm.Lead;
 using TN.Shared.Domain.Entities.Crm.Profile;
 using TN.Shared.Domain.Entities.OrganizationSetUp;
+using TN.Shared.Domain.Entities.Students;
 using TN.Shared.Domain.ExtensionMethod.Pagination;
 using TN.Shared.Domain.IRepository;
 using static TN.Shared.Domain.Enum.EnrolmentTypeEnum;
@@ -45,6 +49,47 @@ namespace ES.AcademicPrograms.Infrastructure.ServiceImpl
             _fiscalContext = fiscalContext;
         }
 
+        public async Task<Result<AddCountryResponse>> AddCountry(AddCountryCommand addCountryCommand)
+        {
+            using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            {
+                try
+                {
+
+                    string newId = Guid.NewGuid().ToString();
+                    var FyId = _fiscalContext.CurrentFiscalYearId;
+                    var schoolId = _tokenService.SchoolId().FirstOrDefault() ?? "";
+                    var userId = _tokenService.GetUserId();
+
+
+                    var add = new Country(
+                            newId,
+                        addCountryCommand.name,
+                        true,
+                        schoolId ?? "",
+                        userId,
+                        DateTime.UtcNow,
+                        "",
+                        default
+
+                    );
+                    await _unitOfWork.BaseRepository<Country>().AddAsync(add);
+                    await _unitOfWork.SaveChangesAsync();
+                    scope.Complete();
+
+                    var resultDTOs = _mapper.Map<AddCountryResponse>(add);
+                    return Result<AddCountryResponse>.Success(resultDTOs);
+
+                }
+                catch (Exception ex)
+                {
+                    scope.Dispose();
+                    throw new Exception("An error occurred while adding ", ex);
+
+                }
+            }
+        }
+
         public async Task<Result<AddUniversityResponse>> AddUniversity(AddUniversityCommand addUniversityCommand)
         {
             using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
@@ -61,7 +106,7 @@ namespace ES.AcademicPrograms.Infrastructure.ServiceImpl
                     var add = new University(
                             newId,
                         addUniversityCommand.name,
-                        addUniversityCommand.country,
+                        addUniversityCommand.countryId,
                         addUniversityCommand.descriptions,
                         addUniversityCommand.website,
                         addUniversityCommand.globalRanking,
@@ -129,7 +174,7 @@ namespace ES.AcademicPrograms.Infrastructure.ServiceImpl
                 .Select(i => new FilterUniversityResponse(
                     i.Id,
                     i.Name,
-                    i.Country,
+                    i.CountryId,
                     i.Descriptions,
                     i.Website,
                     i.GlobalRanking,
@@ -183,6 +228,41 @@ namespace ES.AcademicPrograms.Infrastructure.ServiceImpl
             catch (Exception ex)
             {
                 throw new Exception($"An error occurred while fetching result: {ex.Message}", ex);
+            }
+        }
+
+        public async Task<Result<PagedResult<CountryResponse>>> GetAllCountry(PaginationRequest paginationRequest)
+        {
+            try
+            {
+
+                var (country, currentSchoolId, institutionId, userRole, isSuperAdmin) =
+                    await _getUserScopedData.GetUserScopedData<Country>();
+
+                var finalQuery = country.Where(x => x.IsActive == true && x.SchoolId == currentSchoolId).AsNoTracking();
+
+
+                var pagedResult = await finalQuery.ToPagedResultAsync(
+                    paginationRequest.pageIndex,
+                    paginationRequest.pageSize,
+                    paginationRequest.IsPagination);
+
+
+                var mappedItems = _mapper.Map<List<CountryResponse>>(pagedResult.Data.Items);
+
+                var response = new PagedResult<CountryResponse>
+                {
+                    Items = mappedItems,
+                    TotalItems = pagedResult.Data.TotalItems,
+                    PageIndex = pagedResult.Data.PageIndex,
+                    pageSize = pagedResult.Data.pageSize
+                };
+
+                return Result<PagedResult<CountryResponse>>.Success(response);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while fetching all Country", ex);
             }
         }
     }

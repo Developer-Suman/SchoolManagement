@@ -32,6 +32,12 @@ namespace ES.Enrolment.Application.Enrolments.Command.AddInquiry
             string currentGpa,
             string previousAcademicQualification,
             string source,
-            string feedBackOrSuggestion
-        ): IRequest<Result<AddInquiryResponse>>;
+            string feedBackOrSuggestion,
+             List<LeadCountryDto> Countries
+        ) : IRequest<Result<AddInquiryResponse>>;
+
+
+
+
+
 }

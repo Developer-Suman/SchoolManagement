@@ -31,7 +31,8 @@ namespace ES.Enrolment.Application.Enrolments.Command.AddInquiry.RequestCommandM
                 request.currentGpa,
                 request.previousAcademicQualification,
                 request.source,
-                request.feedBackOrSuggestion
+                request.feedBackOrSuggestion,
+                request.Countries
 
                 );
         }

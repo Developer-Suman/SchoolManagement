@@ -3,6 +3,7 @@ using ES.Certificate.Application.ServiceInterface.IHelperMethod;
 using ES.Student.Application.ServiceInterface;
 using ES.Student.Application.Student.Command.AddAttendances;
 using ES.Student.Application.Student.Command.AddStudents;
+using ES.Student.Application.Student.Queries.Attendance.AttendanceCountByStudent;
 using ES.Student.Application.Student.Queries.Attendance.AttendanceReport;
 using ES.Student.Application.Student.Queries.FilterAttendances;
 using ES.Student.Application.Student.Queries.FilterParents;
@@ -49,6 +50,54 @@ namespace ES.Student.Infrastructure.ServiceImpl
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _tokenService = tokenService;
+        }
+
+        public async Task<Result<AttendanceCountByStudentResponse>> GetAttendanceCount(AttendanceCountByStudentsDTOs attendanceCountByStudentsDTOs)
+        {
+            try
+            {
+                var fyId = _fiscalContext.CurrentFiscalYearId;
+                var userId = _tokenService.GetUserId();
+
+                var (StudentAttendence, schoolId, institutionId, userRole, isSuperAdmin) = await _getUserScopedData.GetUserScopedData<StudentAttendances>();
+
+                var schoolIds = await _unitOfWork.BaseRepository<School>()
+                    .GetConditionalFilterType(
+                        x => x.InstitutionId == institutionId,
+                        query => query.Select(c => c.Id)
+                    );
+
+                var attendanceFilterData = isSuperAdmin
+                    ? StudentAttendence
+                    : StudentAttendence.Where(x => x.SchoolId == _tokenService.SchoolId().FirstOrDefault() || x.SchoolId == "" 
+                    && x.StudentId == attendanceCountByStudentsDTOs.studentId);
+
+
+                var baseAttendance = attendanceFilterData.Where(x => x.IsActive);
+
+                var response = new AttendanceCountByStudentResponse(
+                    totalRunningDays: baseAttendance.Count(),
+
+                    totalPresentDays: baseAttendance.Count(x =>
+                        x.AttendanceStatus == AttendanceStatus.Present),
+
+                    totalAbsentDays: baseAttendance.Count(x =>
+                        x.AttendanceStatus == AttendanceStatus.Absent),
+
+                    totalLateDays: baseAttendance.Count(x =>
+                        x.AttendanceStatus == AttendanceStatus.Late),
+
+                    totalExcusedDays: baseAttendance.Count(x =>
+                        x.AttendanceStatus == AttendanceStatus.Excused)
+                );
+
+                return Result<AttendanceCountByStudentResponse>.Success(response);
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"An error occurred while fetching Student Attendance: {ex.Message}", ex);
+            }
         }
 
         public async Task<Result<AttendanceReportResponse>> GetAttendanceReport( AttendanceReportDTOs attendanceReportDTOs)

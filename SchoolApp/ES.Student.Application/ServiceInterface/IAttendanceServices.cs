@@ -1,4 +1,5 @@
 ﻿using ES.Student.Application.Student.Command.AddAttendances;
+using ES.Student.Application.Student.Queries.Attendance.AttendanceCountByStudent;
 using ES.Student.Application.Student.Queries.Attendance.AttendanceReport;
 using ES.Student.Application.Student.Queries.FilterAttendances;
 using ES.Student.Application.Student.Queries.FilterStudents;
@@ -17,5 +18,6 @@ namespace ES.Student.Application.ServiceInterface
         Task<Result<IEnumerable<AddAttendanceResponse>>> MarkBulkAsync(AddAttendenceCommand request);
         Task<Result<PagedResult<FilterAttendanceResponse>>> GetFilterStudentAttendance(PaginationRequest paginationRequest, FilterAttendanceDTOs filterAttendanceDTOs);
         Task<Result<AttendanceReportResponse>> GetAttendanceReport(AttendanceReportDTOs attendanceReportDTOs);
+        Task<Result<AttendanceCountByStudentResponse>> GetAttendanceCount(AttendanceCountByStudentsDTOs attendanceCountByStudentsDTOs);
     }
 }

@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
+using ES.AcademicPrograms.Application.AcademicPrograms.Command.AddCountry;
 using ES.AcademicPrograms.Application.AcademicPrograms.Command.AddCourse;
 using ES.AcademicPrograms.Application.AcademicPrograms.Command.AddIntake;
 using ES.AcademicPrograms.Application.AcademicPrograms.Command.AddRequirements;
 using ES.AcademicPrograms.Application.AcademicPrograms.Command.AddUniversity;
+using ES.AcademicPrograms.Application.AcademicPrograms.Queries.Country;
 using ES.AcademicPrograms.Application.AcademicPrograms.Queries.Course;
 using ES.AcademicPrograms.Application.AcademicPrograms.Queries.FilterCourse;
 using ES.AcademicPrograms.Application.AcademicPrograms.Queries.FilterIntake;
@@ -29,6 +31,15 @@ namespace ES.AcademicPrograms.Application.AutoMapper
 
             CreateMap<FilterUniversityResponse, University>().ReverseMap();
             CreateMap<PagedResult<University>, PagedResult<FilterUniversityResponse>>().ReverseMap();
+            #endregion
+
+            #region Country
+
+            CreateMap<Country, AddCountryResponse>().ReverseMap();
+
+
+            CreateMap<CountryResponse, Country>().ReverseMap();
+            CreateMap<PagedResult<Country>, PagedResult<CountryResponse>>().ReverseMap();
             #endregion
 
             #region Course

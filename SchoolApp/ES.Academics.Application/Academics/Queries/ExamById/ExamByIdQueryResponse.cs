@@ -8,12 +8,12 @@ namespace ES.Academics.Application.Academics.Queries.ExamById
 {
     public record ExamByIdQueryResponse
     (
-        string id,
-         string name,
-         DateTime examDate,
-         decimal totalMarks,
-         decimal passingMarks,
-         bool? isfinalExam,
-         string classId
+        string id="",
+         string name="",
+         DateTime examDate= default,
+         decimal totalMarks=0,
+         decimal passingMarks=0,
+         bool? isfinalExam=true,
+         string classId = ""
         );
 }

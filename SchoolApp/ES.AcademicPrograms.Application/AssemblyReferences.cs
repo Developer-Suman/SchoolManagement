@@ -1,4 +1,5 @@
-﻿using ES.AcademicPrograms.Application.AcademicPrograms.Command.AddCourse;
+﻿using ES.AcademicPrograms.Application.AcademicPrograms.Command.AddCountry;
+using ES.AcademicPrograms.Application.AcademicPrograms.Command.AddCourse;
 using ES.AcademicPrograms.Application.AcademicPrograms.Command.AddIntake;
 using ES.AcademicPrograms.Application.AcademicPrograms.Command.AddRequirements;
 using ES.AcademicPrograms.Application.AcademicPrograms.Command.AddUniversity;
@@ -23,6 +24,7 @@ namespace ES.AcademicPrograms.Application
             services.AddScoped<IValidator<AddIntakeCommand>, AddIntakeCommandValidator>();
             services.AddScoped<IValidator<AddRequirementsCommand>, AddRequirementsCommandValidator>();
             services.AddScoped<IValidator<AddCourseCommand>, AddCourseCommandValidator>();
+            services.AddScoped<IValidator<AddCountryCommand>, AddCountryCommandValidator>();
    
             return services;
         }

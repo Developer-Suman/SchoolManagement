@@ -80,6 +80,7 @@ namespace TN.Shared.Domain.Entities.Crm.Lead
             CreatedAt = createdAt;
             ModifiedBy = modifiedBy;
             ModifiedAt = modifiedAt;
+            AppliedCountries = new List<LeadCountry>();
 
         }
 
@@ -111,5 +112,7 @@ namespace TN.Shared.Domain.Entities.Crm.Lead
         public string Source { get; set; }
         public string FeedBackOrSuggestion { get; set; }
         public virtual UserProfile Profile { get; set; }
+
+        public List<LeadCountry> AppliedCountries { get; set; }
     }
 }

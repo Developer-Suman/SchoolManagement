@@ -20,6 +20,7 @@ using ES.Student.Application.Student.Command.UpdateParent.RequestCommandMapper;
 using ES.Student.Application.Student.Command.UpdateStudents;
 using ES.Student.Application.Student.Command.UpdateStudents.RequestCommandMapper;
 using ES.Student.Application.Student.Queries.AcademicYear;
+using ES.Student.Application.Student.Queries.Attendance.AttendanceCountByStudent;
 using ES.Student.Application.Student.Queries.Attendance.AttendanceReport;
 using ES.Student.Application.Student.Queries.FilterAttendances;
 using ES.Student.Application.Student.Queries.FilterParents;
@@ -155,6 +156,30 @@ namespace TN.Web.Controllers.Student.v1
 
         #region Attendance
 
+
+        #region AttendanceCount
+        [HttpGet("AttendanceCount")]
+        public async Task<IActionResult> AttendanceCount([FromQuery] AttendanceCountByStudentsDTOs attendanceCountByStudentsDTOs)
+        {
+            var query = new AttendanceCountByStudentQuery(attendanceCountByStudentsDTOs);
+            var filterAttendanceCount = await _mediator.Send(query);
+            #region Switch Statement
+            return filterAttendanceCount switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(filterAttendanceCount.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = filterAttendanceCount.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(filterAttendanceCount.Errors),
+                _ => BadRequest("Invalid page and pageSize Fields")
+            };
+            #endregion
+
+        }
+
+        #endregion
+
         #region AttendanceReport
         [HttpGet("AttendanceReport")]
         public async Task<IActionResult> AttendanceReport([FromQuery] AttendanceReportDTOs attendanceReportDTOs)
@@ -177,9 +202,6 @@ namespace TN.Web.Controllers.Student.v1
         }
 
         #endregion
-
-
-
 
         #region AddStudentAttendence
         [HttpPost("AddStudentAttendence")]
