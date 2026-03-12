@@ -11,6 +11,6 @@ namespace ES.Staff.Application.Staff.Command.UnAssignedClassToAcademicTeam
     public record UnAssignClassCommand
    (
          string AcademicTeamId,
-        string ClassesId
+        List<string> ClassIds
         ) : IRequest<Result<UnAssignClassResponse>>;
 }

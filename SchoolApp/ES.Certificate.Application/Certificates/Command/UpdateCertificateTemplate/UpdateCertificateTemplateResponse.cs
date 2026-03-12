@@ -15,7 +15,7 @@ namespace ES.Certificate.Application.Certificates.Command.UpdateCertificateTempl
             string templateType,
             string htmlTemplate,
             bool isActive,
-            int templateVersion,
+            string templateVersion,
             DateTime createdAt
         );
 }

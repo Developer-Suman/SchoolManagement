@@ -26,6 +26,7 @@ using ES.Certificate.Application.Certificates.Command.UpdateCertificateTemplate.
 using ES.Certificate.Application.Certificates.Command.UpdateIssuedCertificate;
 using ES.Certificate.Application.Certificates.Command.UpdateIssuedCertificate.RequestCommandMapper;
 using ES.Certificate.Application.Certificates.Queries.CertificateTemplate;
+using ES.Certificate.Application.Certificates.Queries.CertificateTemplateById;
 using ES.Certificate.Application.Certificates.Queries.FilterCertificateTemplate;
 using ES.Certificate.Application.Certificates.Queries.FilterIssuedCertificate;
 using ES.Certificate.Application.Certificates.Queries.GenerateCertificate;
@@ -464,7 +465,7 @@ namespace TN.Web.Controllers.Certificate.v1
         [HttpGet("CertificateTemplate/{certificateTemplateId}")]
         public async Task<IActionResult> GetCertificateTemplateById([FromRoute] string certificateTemplateId)
         {
-            var query = new IssuedCertificateByIdQuery(certificateTemplateId);
+            var query = new CertificateTemplateByIdQuery(certificateTemplateId);
             var certificateTemplateByIdResult = await _mediator.Send(query);
             #region Switch Statement
             return certificateTemplateByIdResult switch

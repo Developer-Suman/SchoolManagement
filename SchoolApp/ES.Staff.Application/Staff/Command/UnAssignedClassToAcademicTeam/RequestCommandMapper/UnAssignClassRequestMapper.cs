@@ -12,7 +12,7 @@ namespace ES.Staff.Application.Staff.Command.UnAssignedClassToAcademicTeam.Reque
         {
             return new UnAssignClassCommand(
                 request.AcademicTeamId,
-                request.ClassesId
+                request.ClassIds
             );
         }
     }

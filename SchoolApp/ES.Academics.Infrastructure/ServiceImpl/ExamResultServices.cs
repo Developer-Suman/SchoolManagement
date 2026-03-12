@@ -406,7 +406,7 @@ namespace ES.Academics.Infrastructure.ServiceImpl
             {
                 var marksSheetResult = await _unitOfWork.BaseRepository<ExamResult>().
                     GetConditionalAsync(x => x.StudentId == marksSheetDTOs.studentId && x.ExamId == marksSheetDTOs.examId,
-                    query => query.Include(rm => rm.MarksOtaineds)
+                    query => query.Include(rm => rm.MarksOtaineds).Include(sd=>sd.Student)
                     );
 
                 var marksSheet = marksSheetResult.FirstOrDefault();
@@ -434,6 +434,7 @@ namespace ES.Academics.Infrastructure.ServiceImpl
 
                 var marksSheetDetails = new MarkSheetByStudentResponse(
                      marksSheet?.ExamId ?? string.Empty,
+                     marksSheet?.Student?.ClassId ?? string.Empty,
                      marksSheet?.StudentId ?? string.Empty,
                      marksSheet?.Remarks ?? string.Empty,
                      marksSheet?.IsActive ?? false,
@@ -516,10 +517,20 @@ namespace ES.Academics.Infrastructure.ServiceImpl
 
                 var schoolId = _tokenService.SchoolId().FirstOrDefault() ?? "";
 
-                var allSubject = await _unitOfWork.BaseRepository<Subject>().
-                    GetConditionalAsync(x => x.ClassId == classId && x.SchoolId == schoolId,
-                    queryModifier => queryModifier.Include(x=>x.ExamSubjects)
-                    );
+                var repo = _unitOfWork.BaseRepository<Subject>();
+
+                // Check if subjects exist for this school
+                var hasSchoolSubjects = (await repo.GetConditionalAsync(
+                    x => x.ClassId == classId && x.SchoolId == schoolId))
+                    .Any();
+
+                var allSubject = hasSchoolSubjects
+                    ? await repo.GetConditionalAsync(
+                        x => x.ClassId == classId && x.SchoolId == schoolId,
+                        query => query.Include(x => x.ExamSubjects))
+                    : await repo.GetConditionalAsync(
+                        x => x.ClassId == classId && x.SchoolId == "",
+                        query => query.Include(x => x.ExamSubjects));
 
                 var subjectResponse = allSubject
                     .Select(subject => new SubjectByClassIdResponse(

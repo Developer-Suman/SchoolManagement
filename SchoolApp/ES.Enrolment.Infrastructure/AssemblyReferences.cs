@@ -16,6 +16,8 @@ namespace ES.Enrolment.Infrastructure
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             #region Inject Dependencies
             services.AddScoped<IEnrolmentServices, EnrolmentServices>();
+            services.AddScoped<ICounselorServices, CounselorServices>();
+            services.AddScoped<IAppointmentServices, AppointmentServices>();
             #endregion
             return services;
         }

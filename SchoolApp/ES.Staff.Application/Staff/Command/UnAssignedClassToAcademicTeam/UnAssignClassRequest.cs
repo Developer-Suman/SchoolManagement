@@ -9,6 +9,6 @@ namespace ES.Staff.Application.Staff.Command.UnAssignedClassToAcademicTeam
     public record UnAssignClassRequest
      (
         string AcademicTeamId,
-        string ClassesId
+        List<string> ClassIds
         );
 }

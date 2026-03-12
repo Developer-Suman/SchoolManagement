@@ -7,6 +7,7 @@ using ES.Staff.Application.Staff.Command.UnAssignedClassToAcademicTeam;
 using ES.Staff.Application.Staff.Command.UpdateAcademicTeam;
 using ES.Staff.Application.Staff.Queries.AcademicTeam;
 using ES.Staff.Application.Staff.Queries.AcademicTeamById;
+using ES.Staff.Application.Staff.Queries.AssignClassDetails;
 using ES.Staff.Application.Staff.Queries.FilterAcademicTeam;
 using System;
 using System.Collections.Generic;
@@ -31,6 +32,11 @@ namespace ES.Staff.Application.AutoMapper
             CreateMap<StaffAttendanceregisterCommand, StaffAttendanceregisterResponse>().ReverseMap();
             #endregion
             #region AssignedAndUnAssign Class
+
+            CreateMap<AssignClassDetailsResponse, AcademicTeamClass>().ReverseMap();
+            CreateMap<PagedResult<AcademicTeamClass>, PagedResult<AssignClassDetailsResponse>>().ReverseMap();
+
+
             CreateMap<UnAssignClassResponse, UnAssignClassCommand>().ReverseMap();
             CreateMap<AssignClassResponse, AssignClassCommand>().ReverseMap();
             #endregion

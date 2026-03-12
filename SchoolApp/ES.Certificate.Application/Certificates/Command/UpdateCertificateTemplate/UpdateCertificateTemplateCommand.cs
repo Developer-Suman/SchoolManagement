@@ -11,7 +11,6 @@ namespace ES.Certificate.Application.Certificates.Command.UpdateCertificateTempl
     public record UpdateCertificateTemplateCommand
     (
         string Id,
-             string schoolId,
             string templateName,
 
             string templateType,

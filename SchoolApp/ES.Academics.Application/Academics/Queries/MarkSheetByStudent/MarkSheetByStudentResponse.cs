@@ -10,6 +10,7 @@ namespace ES.Academics.Application.Academics.Queries.MarkSheetByStudent
     public record MarkSheetByStudentResponse
     (
          string? examId="",
+         string? classId="",
      string studentId="",
      string remarks="",
      bool isActive=true,

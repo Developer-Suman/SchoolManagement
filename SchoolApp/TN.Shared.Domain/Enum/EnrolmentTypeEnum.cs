@@ -12,7 +12,11 @@ namespace TN.Shared.Domain.Enum
         {
             Lead = 1,
             Applicant = 2,
-            Student = 3
+            Student = 3,
+            Counseling = 4,
+            Qualified = 5,
+            Rejected = 6,
+            New = 7
         }
     }
 }

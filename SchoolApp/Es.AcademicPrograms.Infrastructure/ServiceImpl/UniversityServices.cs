@@ -2,8 +2,11 @@
 using ES.AcademicPrograms.Application.AcademicPrograms.Command.AddCountry;
 using ES.AcademicPrograms.Application.AcademicPrograms.Command.AddUniversity;
 using ES.AcademicPrograms.Application.AcademicPrograms.Queries.Country;
+using ES.AcademicPrograms.Application.AcademicPrograms.Queries.CourseByUniversity;
 using ES.AcademicPrograms.Application.AcademicPrograms.Queries.FilterRequirements;
 using ES.AcademicPrograms.Application.AcademicPrograms.Queries.FilterUniversity;
+using ES.AcademicPrograms.Application.AcademicPrograms.Queries.University;
+using ES.AcademicPrograms.Application.AcademicPrograms.Queries.UniversityByCountry;
 using ES.AcademicPrograms.Application.ServiceInterface;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -263,6 +266,118 @@ namespace ES.AcademicPrograms.Infrastructure.ServiceImpl
             catch (Exception ex)
             {
                 throw new Exception("An error occurred while fetching all Country", ex);
+            }
+        }
+
+        public async Task<Result<PagedResult<UniversityResponse>>> GetAllUniversity(PaginationRequest paginationRequest)
+        {
+            try
+            {
+
+                var (university, currentSchoolId, institutionId, userRole, isSuperAdmin) =
+                    await _getUserScopedData.GetUserScopedData<University>();
+
+                var finalQuery = university.Where(x => x.IsActive == true && x.SchoolId == currentSchoolId).AsNoTracking();
+
+
+                var pagedResult = await finalQuery.ToPagedResultAsync(
+                    paginationRequest.pageIndex,
+                    paginationRequest.pageSize,
+                    paginationRequest.IsPagination);
+
+
+                var mappedItems = _mapper.Map<List<UniversityResponse>>(pagedResult.Data.Items);
+
+                var response = new PagedResult<UniversityResponse>
+                {
+                    Items = mappedItems,
+                    TotalItems = pagedResult.Data.TotalItems,
+                    PageIndex = pagedResult.Data.PageIndex,
+                    pageSize = pagedResult.Data.pageSize
+                };
+
+                return Result<PagedResult<UniversityResponse>>.Success(response);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while fetching all Country", ex);
+            }
+        }
+
+        public async Task<Result<PagedResult<CourseByUniversityResponse>>> GetCourseByUniversity(string universityId, PaginationRequest paginationRequest)
+        {
+            try
+            {
+
+                var (course, currentSchoolId, institutionId, userRole, isSuperAdmin) =
+                    await _getUserScopedData.GetUserScopedData<Course>();
+
+                var finalQuery = course.Where(x => x.IsActive == true 
+                && x.SchoolId == currentSchoolId
+                && x.UniversityId == universityId
+                
+                ).AsNoTracking();
+
+
+                var pagedResult = await finalQuery.ToPagedResultAsync(
+                    paginationRequest.pageIndex,
+                    paginationRequest.pageSize,
+                    paginationRequest.IsPagination);
+
+
+                var mappedItems = _mapper.Map<List<CourseByUniversityResponse>>(pagedResult.Data.Items);
+
+                var response = new PagedResult<CourseByUniversityResponse>
+                {
+                    Items = mappedItems,
+                    TotalItems = pagedResult.Data.TotalItems,
+                    PageIndex = pagedResult.Data.PageIndex,
+                    pageSize = pagedResult.Data.pageSize
+                };
+
+                return Result<PagedResult<CourseByUniversityResponse>>.Success(response);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"An error occurred while fetching all courses by {universityId}.", ex);
+            }
+        }
+
+        public async Task<Result<PagedResult<UniversityByCountryResponse>>> GetUniversityByCountry(string countryId, PaginationRequest paginationRequest)
+        {
+            try
+            {
+
+                var (university, currentSchoolId, institutionId, userRole, isSuperAdmin) =
+                    await _getUserScopedData.GetUserScopedData<University>();
+
+                var finalQuery = university.Where(x => x.IsActive == true 
+                && x.SchoolId == currentSchoolId
+                && x.CountryId == countryId
+                ).AsNoTracking();
+
+
+                var pagedResult = await finalQuery.ToPagedResultAsync(
+                    paginationRequest.pageIndex,
+                    paginationRequest.pageSize,
+                    paginationRequest.IsPagination);
+
+
+                var mappedItems = _mapper.Map<List<UniversityByCountryResponse>>(pagedResult.Data.Items);
+
+                var response = new PagedResult<UniversityByCountryResponse>
+                {
+                    Items = mappedItems,
+                    TotalItems = pagedResult.Data.TotalItems,
+                    PageIndex = pagedResult.Data.PageIndex,
+                    pageSize = pagedResult.Data.pageSize
+                };
+
+                return Result<PagedResult<UniversityByCountryResponse>>.Success(response);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while fetching UniversityByCountryId", ex);
             }
         }
     }

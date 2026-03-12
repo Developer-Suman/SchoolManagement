@@ -133,9 +133,15 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                 var (subject, currentSchoolId, institutionId, userRole, isSuperAdmin) =
                     await _getUserScopedData.GetUserScopedData<Subject>();
 
-                var finalQuery = subject.Where(x => x.IsActive == true
-                && (x.FyId == fyId || x.FyId == null)
-                && (x.AcademicYearId == academicYearId || x.AcademicYearId == null)).AsNoTracking();
+                var baseQuery = subject.Where(x => x.IsActive).AsNoTracking();
+
+                var hasFy = baseQuery.Any(x => x.FyId == fyId);
+                var hasAcademicYear = baseQuery.Any(x => x.AcademicYearId == academicYearId);
+
+                var finalQuery = baseQuery.Where(x =>
+                        (hasFy ? x.FyId == fyId : x.FyId == null) &&
+                        (hasAcademicYear ? x.AcademicYearId == academicYearId : x.AcademicYearId == null)
+                    );
 
 
                 var pagedResult = await finalQuery.ToPagedResultAsync(

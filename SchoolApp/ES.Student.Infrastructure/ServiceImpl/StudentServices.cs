@@ -16,6 +16,7 @@ using ES.Student.Application.Student.Queries.GetParentById;
 using ES.Student.Application.Student.Queries.GetStudentByClass;
 using ES.Student.Application.Student.Queries.GetStudentForAttendance;
 using ES.Student.Application.Student.Queries.GetStudentsById;
+using ES.Student.Application.Student.Queries.StudentFromRegistration;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
@@ -434,6 +435,7 @@ namespace ES.Student.Infrastructure.ServiceImpl
                     var students = new List<StudentData>();
                     string schoolId = _tokenService.SchoolId().FirstOrDefault() ?? "";
                     string userId = _tokenService.GetUserId();
+                    var academicYearId = _fiscalContext.CurrentAcademicYearId;
 
                     using var stream = new MemoryStream();
                     await formFile.CopyToAsync(stream, cancellationToken);
@@ -590,11 +592,11 @@ namespace ES.Student.Infrastructure.ServiceImpl
                         string? dateOfBirth = worksheet.Cells[row, headerMap["dob"]].Text?.Trim();
 
                         var year = worksheet.Cells[row, headerMap["year"]].Text?.Trim();
-                        var academicYear = await _unitOfWork.BaseRepository<AcademicYear>()
-                            .FirstOrDefaultAsync(i =>
+                        //var academicYear = await _unitOfWork.BaseRepository<AcademicYear>()
+                        //    .FirstOrDefaultAsync(i =>
 
-                                i.Name.ToLower().Trim() == year.ToLower().Trim()
-                            );
+                        //        i.Name.ToLower().Trim() == year.ToLower().Trim()
+                        //    );
 
 
 
@@ -648,7 +650,7 @@ namespace ES.Student.Infrastructure.ServiceImpl
                             Guid.NewGuid().ToString(),
                             newId,
                             classId,
-                            academicYear.Id,
+                            academicYearId,
                             EnrollmentStatus.Active,
                             schoolId,
                             true,
@@ -1139,8 +1141,10 @@ namespace ES.Student.Infrastructure.ServiceImpl
         public async Task<Result<List<StudentForAttendanceResponse>>> GetStudentForAttendance()
         {
                 var userId = _tokenService.GetUserId();
+            var schoolId = _tokenService.SchoolId().FirstOrDefault();
+            var academicYearId = _fiscalContext.CurrentAcademicYearId;
 
-                var classId = (await _unitOfWork
+            var classId = (await _unitOfWork
                     .BaseRepository<AcademicTeamClass>()
                     .GetConditionalFilterType(
                         x => x.AcademicTeam.UserId == userId,
@@ -1165,19 +1169,19 @@ namespace ES.Student.Infrastructure.ServiceImpl
 
 
             var students = await _unitOfWork
-                    .BaseRepository<StudentData>()
+                    .BaseRepository<Registrations>()
                     .GetConditionalFilterType(
-                        predicate: x => x.IsActive && x.ClassId == classId,
+                        predicate: x => x.IsActive 
+                        && x.ClassId == classId 
+                        && x.SchoolId == schoolId
+                        && x.AcademicYearId == academicYearId,
                         queryModifier: q => q
                             .OrderByDescending(x => x.CreatedAt)
                             .Select(x => new StudentForAttendanceResponse(
-                                x.Id,
+                                x.StudentId,
                                 x.ClassId,
-                                string.Join(" ",
-                                    x.FirstName,
-                                    x.MiddleName,
-                                    x.LastName
-                                )
+                                x.Student.FirstName + " "+ x.Student.MiddleName + " " + x.Student.LastName + " (" + x.Student.RegistrationNumber + ")"
+                                
                             ))
                     );
 
@@ -1293,6 +1297,43 @@ namespace ES.Student.Infrastructure.ServiceImpl
                 {
                     throw new Exception("an error occurred while updating Parents");
                 }
+            }
+        }
+
+        public async Task<Result<PagedResult<StudentFromRegistrationResponse>>> StudentFromRegistration(PaginationRequest paginationRequest, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                var academicYearId = _fiscalContext.CurrentAcademicYearId;
+                var (studentsFromRegistration, currentSchoolId, institutionId, userRole, isSuperAdmin) =
+                    await _getUserScopedData.GetUserScopedData<Registrations>();
+
+                var finalQuery = studentsFromRegistration.Where(x => x.IsActive == true 
+                && x.SchoolId == currentSchoolId
+                && x.AcademicYearId == academicYearId).AsNoTracking();
+
+
+                var pagedResult = await finalQuery.ToPagedResultAsync(
+                    paginationRequest.pageIndex,
+                    paginationRequest.pageSize,
+                    paginationRequest.IsPagination);
+
+
+                var mappedItems = _mapper.Map<List<StudentFromRegistrationResponse>>(pagedResult.Data.Items);
+
+                var response = new PagedResult<StudentFromRegistrationResponse>
+                {
+                    Items = mappedItems,
+                    TotalItems = pagedResult.Data.TotalItems,
+                    PageIndex = pagedResult.Data.PageIndex,
+                    pageSize = pagedResult.Data.pageSize
+                };
+
+                return Result<PagedResult<StudentFromRegistrationResponse>>.Success(response);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while fetching all Students", ex);
             }
         }
     }

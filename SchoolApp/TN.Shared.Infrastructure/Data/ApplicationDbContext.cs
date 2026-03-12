@@ -16,6 +16,7 @@ using TN.Shared.Domain.Entities.Certificates;
 using TN.Shared.Domain.Entities.Communication;
 using TN.Shared.Domain.Entities.Crm.AcademicsPrograms;
 using TN.Shared.Domain.Entities.Crm.Applicant;
+using TN.Shared.Domain.Entities.Crm.Enrollments;
 using TN.Shared.Domain.Entities.Crm.Lead;
 using TN.Shared.Domain.Entities.Crm.Profile;
 using TN.Shared.Domain.Entities.Crm.Students;
@@ -48,6 +49,15 @@ namespace TN.Shared.Infrastructure.Data
         }
 
         #region CRM
+
+
+        #region Counselor
+        public DbSet<Counselor> Counselors { get; set; }
+        #endregion
+
+        #region Appointments
+        public DbSet<Appointment> Appointments { get; set; }    
+        #endregion
 
         #region Lead
         public DbSet<LeadCountry> LeadCountries { get; set; }
@@ -283,6 +293,31 @@ namespace TN.Shared.Infrastructure.Data
 
 
             #region CRM 
+
+            #region Counselor
+
+            #region Counselor and Appointments(1:m)
+            builder.Entity<Appointment>()
+            .HasOne(x => x.Counselor)
+            .WithMany(x => x.Appointments)
+            .HasForeignKey(x => x.CounselorId);
+
+            #endregion
+
+
+            #endregion
+
+            #region Appointments
+            #region Appointment and Lead(1:m)
+
+            builder.Entity<CrmLead>()
+            .HasMany(x => x.Appointments)
+            .WithOne(x => x.CrmLead)
+            .HasForeignKey(x => x.LeadId);
+
+            #endregion
+
+            #endregion
 
             #region Lead
 

@@ -123,7 +123,10 @@ namespace ES.Certificate.Infrastructure.ServiceImpl
                 var (certificateTemplate, currentSchoolId, institutionId, userRole, isSuperAdmin) =
                     await _getUserScopedData.GetUserScopedData<CertificateTemplate>();
 
-                var finalQuery = certificateTemplate.Where(x => x.IsActive == true).AsNoTracking();
+                var finalQuery = certificateTemplate.Where(x => x.IsActive == true
+                && x.SchoolId == currentSchoolId || x.SchoolId == ""
+
+                ).AsNoTracking();
 
 
                 var pagedResult = await finalQuery.ToPagedResultAsync(

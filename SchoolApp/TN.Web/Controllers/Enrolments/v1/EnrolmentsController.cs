@@ -1,4 +1,8 @@
-﻿using ES.Enrolment.Application.Enrolments.Command.AddInquiry;
+﻿using ES.Enrolment.Application.Enrolments.Command.AddAppointment;
+using ES.Enrolment.Application.Enrolments.Command.AddAppointment.RequestCommandMapper;
+using ES.Enrolment.Application.Enrolments.Command.AddCounselor;
+using ES.Enrolment.Application.Enrolments.Command.AddCounselor.RequestCommandMapper;
+using ES.Enrolment.Application.Enrolments.Command.AddInquiry;
 using ES.Enrolment.Application.Enrolments.Command.AddInquiry.RequestCommandMapper;
 using ES.Enrolment.Application.Enrolments.Command.ConvertApplicant;
 using ES.Enrolment.Application.Enrolments.Command.ConvertApplicant.RequestCommandMapper;
@@ -7,11 +11,14 @@ using ES.Enrolment.Application.Enrolments.Command.ConvertStudent.RequestCommandM
 using ES.Enrolment.Application.Enrolments.Queries.ApplicantsById;
 using ES.Enrolment.Application.Enrolments.Queries.CRMStudentsById;
 using ES.Enrolment.Application.Enrolments.Queries.FilterApplicant;
+using ES.Enrolment.Application.Enrolments.Queries.FilterAppointment;
+using ES.Enrolment.Application.Enrolments.Queries.FilterCounselor;
 using ES.Enrolment.Application.Enrolments.Queries.FilterCRMStudents;
 using ES.Enrolment.Application.Enrolments.Queries.FilterInquery;
 using ES.Enrolment.Application.Enrolments.Queries.GetAllUserProfile;
 using ES.Enrolment.Application.Enrolments.Queries.GetUserProfileByUser;
 using ES.Enrolment.Application.Enrolments.Queries.InqueryById;
+using ES.Enrolment.Application.Enrolments.Queries.ScheduleAppointment;
 using ES.Finances.Application.Finance.Queries.Fee.Feetype;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -41,6 +48,129 @@ namespace TN.Web.Controllers.Enrolments.v1
             _logger = logger;
             _mediator = mediator;
         }
+
+
+        #region Appointments
+        #region ScheduleAppointments
+        [HttpGet("ScheduleAppointments")]
+        public async Task<IActionResult> ScheduleAppointments([FromQuery] ScheduleAppointmentDTOs scheduleAppointmentDTOs)
+        {
+            var query = new ScheduleAppointmentQuery(scheduleAppointmentDTOs);
+            var filter = await _mediator.Send(query);
+            #region Switch Statement
+            return filter switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(filter.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = filter.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(filter.Errors),
+                _ => BadRequest("Invalid page and pageSize Fields")
+            };
+            #endregion
+
+        }
+
+        #endregion
+        #region AddAppointment
+        [HttpPost("AddAppointment")]
+
+        public async Task<IActionResult> AddAppointment([FromBody] AddAppointmentRequest request)
+        {
+            //Mapping command and request
+            var command = request.ToCommand();
+            var add = await _mediator.Send(command);
+            #region Switch Statement
+            return add switch
+            {
+                { IsSuccess: true, Data: not null } => CreatedAtAction(nameof(AddAppointment), add.Data),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = add.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(add.Errors),
+                _ => BadRequest("Invalid Fields ")
+
+            };
+
+            #endregion
+        }
+        #endregion
+        #region FilterAppointments
+        [HttpGet("FilterAppointments")]
+        public async Task<IActionResult> FilterAppointments([FromQuery] FilterAppointmentDTOs filterAppointmentDTOs, [FromQuery] PaginationRequest paginationRequest)
+        {
+            var query = new FilterAppointmentQuery(paginationRequest, filterAppointmentDTOs);
+            var filter = await _mediator.Send(query);
+            #region Switch Statement
+            return filter switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(filter.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = filter.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(filter.Errors),
+                _ => BadRequest("Invalid page and pageSize Fields")
+            };
+            #endregion
+
+        }
+
+        #endregion
+
+        #endregion
+
+        #region Counselor
+
+
+        #region FilterCounselor
+        [HttpGet("FilterCounselor")]
+        public async Task<IActionResult> FilterCounselor([FromQuery] FilterCounselorDTOs filterCounselorDTOs, [FromQuery] PaginationRequest paginationRequest)
+        {
+            var query = new FilterCounselorQuery(paginationRequest, filterCounselorDTOs);
+            var filter = await _mediator.Send(query);
+            #region Switch Statement
+            return filter switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(filter.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = filter.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(filter.Errors),
+                _ => BadRequest("Invalid page and pageSize Fields")
+            };
+            #endregion
+
+        }
+
+        #endregion
+
+        #region AddCounselor
+        [HttpPost("AddCounselor")]
+
+        public async Task<IActionResult> AddCounselor([FromBody] AddCounselorRequest request)
+        {
+            //Mapping command and request
+            var command = request.ToCommand();
+            var add = await _mediator.Send(command);
+            #region Switch Statement
+            return add switch
+            {
+                { IsSuccess: true, Data: not null } => CreatedAtAction(nameof(AddCounselor), add.Data),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = add.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(add.Errors),
+                _ => BadRequest("Invalid Fields ")
+
+            };
+
+            #endregion
+        }
+        #endregion
+
+        #endregion
+
+
+      
 
         #region ApplicantsById
         [HttpGet("Applicants/{id}")]
