@@ -6,6 +6,7 @@ using ES.Staff.Application.Staff.Command.UnAssignedClassToAcademicTeam;
 using ES.Staff.Application.Staff.Command.UpdateAcademicTeam;
 using ES.Staff.Application.Staff.Queries.AcademicTeam;
 using ES.Staff.Application.Staff.Queries.AcademicTeamById;
+using ES.Staff.Application.Staff.Queries.AssignClassDetails;
 using ES.Staff.Application.Staff.Queries.FilterAcademicTeam;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -32,6 +33,7 @@ using TN.Shared.Domain.Entities.Students;
 using TN.Shared.Domain.ExtensionMethod.Pagination;
 using TN.Shared.Domain.ICryptography;
 using TN.Shared.Domain.IRepository;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace ES.Staff.Infrastructure.ServiceImpl
@@ -103,7 +105,14 @@ namespace ES.Staff.Infrastructure.ServiceImpl
                     var userId = _tokenService.GetUserId();
                     var schoolId = _tokenService.SchoolId().FirstOrDefault();
 
-                    string imageURL = await _imageServices.AddSingle(addAcademicTeamCommand.teacherImg);
+                    string imageURL = "";
+
+                   
+
+                    if (addAcademicTeamCommand.teacherImg != null)
+                    {
+                        imageURL = await _imageServices.AddSingle(addAcademicTeamCommand.teacherImg);
+                    }
                     if (imageURL is null)
                     {
                         return Result<AddAcademicTeamResponse>.Failure("Image Url are not Created");
@@ -308,7 +317,9 @@ namespace ES.Staff.Infrastructure.ServiceImpl
                 var (academicTeams, currentSchoolId, institutionId, userRole, isSuperAdmin) =
                     await _getUserScopedData.GetUserScopedData<AcademicTeam>();
 
-                var finalQuery = academicTeams.Where(x => x.IsActive == true).AsNoTracking();
+                var finalQuery = academicTeams.Where(x => x.IsActive == true
+                && x.SchoolId == currentSchoolId || x.SchoolId == ""
+                ).AsNoTracking();
 
 
                 var pagedResult = await finalQuery.ToPagedResultAsync(
@@ -332,6 +343,55 @@ namespace ES.Staff.Infrastructure.ServiceImpl
             catch (Exception ex)
             {
                 throw new Exception("An error occurred while fetching all Students", ex);
+            }
+        }
+
+        public async Task<Result<PagedResult<AssignClassDetailsResponse>>> GetAssignClassDetails(PaginationRequest paginationRequest, AssignClassDetailsDTOs assignClassDetailsDTOs)
+        {
+            try
+            {
+                var schoolId = _tokenService.SchoolId().FirstOrDefault();
+
+                var finalQuery = _unitOfWork.BaseRepository<AcademicTeamClass>()
+                   .GetQueryable()
+                   .Include(x => x.Classes)
+                   .AsNoTracking();
+
+                if (!string.IsNullOrEmpty(assignClassDetailsDTOs.AcademicTeamId))
+                {
+                    finalQuery = finalQuery.Where(x => x.AcademicTeamId == assignClassDetailsDTOs.AcademicTeamId);
+                }
+
+                //if (assignClassDetailsDTOs.ClassId != null)
+                //{
+                //    query = query.Where(x => x.ClassId == assignClassDetailsDTOs.ClassId);
+                //}
+
+                //if (assignClassDetailsDTOs.SectionId != null)
+                //{
+                //    query = query.Where(x => x.SectionId == assignClassDetailsDTOs.SectionId);
+                //}
+
+                var groupedQuery = finalQuery
+                      .GroupBy(x => x.AcademicTeamId)
+                      .Select(x => new AssignClassDetailsResponse(
+                          x.Key,
+                          x.Select(c => c.ClassId).ToList()
+                      ));
+
+                var pagedResult = await groupedQuery.ToPagedResultAsync(
+                    paginationRequest.pageIndex,
+                    paginationRequest.pageSize,
+                    paginationRequest.IsPagination);
+
+
+
+
+                return Result<PagedResult<AssignClassDetailsResponse>>.Success(pagedResult.Data);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while fetching", ex);
             }
         }
 
@@ -449,7 +509,7 @@ namespace ES.Staff.Infrastructure.ServiceImpl
                 try
                 {
                     var record = await _unitOfWork.BaseRepository<AcademicTeamClass>()
-                            .FirstOrDefaultAsync(x => x.AcademicTeamId == unAssignClassCommand.AcademicTeamId && x.ClassId == unAssignClassCommand.ClassesId);
+                            .FirstOrDefaultAsync(x => x.AcademicTeamId == unAssignClassCommand.AcademicTeamId && unAssignClassCommand.ClassIds.Contains(x.ClassId));
 
                     if (record == null)
                     {

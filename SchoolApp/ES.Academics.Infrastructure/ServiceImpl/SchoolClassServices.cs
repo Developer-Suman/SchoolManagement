@@ -155,31 +155,41 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                         query => query.Select(c => c.Id)
                     );
 
+
+
                 var filterSchoolClass = isSuperAdmin
                     ? schoolClass
-                    : schoolClass.Where(x => x.SchoolId == _tokenService.SchoolId().FirstOrDefault() || x.SchoolId == "");
+                    : schoolClass.Any(x => x.SchoolId == schoolId)
+                        ? schoolClass.Where(x => x.SchoolId == schoolId)
+                        : schoolClass.Where(x => x.SchoolId == "");
 
-                var (startUtc, endUtc) = await _dateConverter.GetDateRangeUtc(filterSchoolClassDTOs.startDate, filterSchoolClassDTOs.endDate);
 
-                var filteredResult = filterSchoolClass
-                     .Where(x =>
-                         (string.IsNullOrEmpty(filterSchoolClassDTOs.name) || x.Name == filterSchoolClassDTOs.name) &&
-                         x.CreatedAt >= startUtc &&
-                         x.CreatedAt <= endUtc &&
-                         x.IsActive
-                     )
-                     .OrderByDescending(x => x.CreatedAt)
-                     .ToList();
+                IQueryable<Class> query = filterSchoolClass.AsQueryable();
 
-                var responseList = filteredResult
-                .OrderByDescending(x => x.CreatedAt)
-                .Select(i => new FilterSchoolClassQueryResponse(
-                    i.Id,
-                    i.Name
-    
+                if (!string.IsNullOrEmpty(filterSchoolClassDTOs.name))
+                {
+                    query = query.Where(x => x.Name == filterSchoolClassDTOs.name);
+                }
 
-                ))
-                .ToList();
+                if (filterSchoolClassDTOs.startDate != null && filterSchoolClassDTOs.endDate != null)
+                {
+                    var (startUtc, endUtc) = await _dateConverter.GetDateRangeUtc(
+                        filterSchoolClassDTOs.startDate,
+                        filterSchoolClassDTOs.endDate
+                    );
+
+                    query = query.Where(x => x.CreatedAt >= startUtc && x.CreatedAt <= endUtc);
+                }
+
+                query = query.Where(x => x.IsActive)
+               .OrderByDescending(x => x.CreatedAt);
+
+                var responseList = query
+                    .Select(i => new FilterSchoolClassQueryResponse(
+                        i.Id,
+                        i.Name
+                    ))
+                    .ToList();
 
                 PagedResult<FilterSchoolClassQueryResponse> finalResponseList;
 
@@ -232,9 +242,13 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                     await _getUserScopedData.GetUserScopedData<Class>();
 
 
-                var queryable = await _unitOfWork.BaseRepository<Class>()
-                .FindBy(x => (x.IsSeeded == true) ||
-                             (x.IsSeeded == false && x.SchoolId == currentSchoolId && x.IsActive == true));
+                var repo = _unitOfWork.BaseRepository<Class>();
+
+                var hasSchoolClasses = (await repo.FindBy(x => x.SchoolId == currentSchoolId)).Any();
+
+                var queryable = hasSchoolClasses
+                    ? await repo.FindBy(x => x.IsSeeded || (x.SchoolId == currentSchoolId && x.IsActive))
+                    : await repo.FindBy(x => x.IsSeeded || x.SchoolId == "");
 
 
 

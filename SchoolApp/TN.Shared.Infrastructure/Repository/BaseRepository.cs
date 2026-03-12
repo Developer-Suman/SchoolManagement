@@ -244,5 +244,10 @@ namespace TN.Shared.Infrastructure.Repository
             // Return the query without executing it yet (deferred execution)
             return query;
         }
+
+        public IQueryable<TEntity> GetQueryable()
+        {
+            return _dbSet.AsQueryable();
+        }
     }
 }

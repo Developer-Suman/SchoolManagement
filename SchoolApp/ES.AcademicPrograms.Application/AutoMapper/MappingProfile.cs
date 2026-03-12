@@ -6,10 +6,13 @@ using ES.AcademicPrograms.Application.AcademicPrograms.Command.AddRequirements;
 using ES.AcademicPrograms.Application.AcademicPrograms.Command.AddUniversity;
 using ES.AcademicPrograms.Application.AcademicPrograms.Queries.Country;
 using ES.AcademicPrograms.Application.AcademicPrograms.Queries.Course;
+using ES.AcademicPrograms.Application.AcademicPrograms.Queries.CourseByUniversity;
 using ES.AcademicPrograms.Application.AcademicPrograms.Queries.FilterCourse;
 using ES.AcademicPrograms.Application.AcademicPrograms.Queries.FilterIntake;
 using ES.AcademicPrograms.Application.AcademicPrograms.Queries.FilterRequirements;
 using ES.AcademicPrograms.Application.AcademicPrograms.Queries.FilterUniversity;
+using ES.AcademicPrograms.Application.AcademicPrograms.Queries.University;
+using ES.AcademicPrograms.Application.AcademicPrograms.Queries.UniversityByCountry;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,6 +30,17 @@ namespace ES.AcademicPrograms.Application.AutoMapper
         public MappingProfile()
         {
             #region University
+            CreateMap<UniversityResponse, University>().ReverseMap();
+            CreateMap<PagedResult<University>, PagedResult<UniversityResponse>>().ReverseMap();
+
+
+
+            CreateMap<UniversityByCountryResponse, University>().ReverseMap();
+            CreateMap<PagedResult<University>, PagedResult<UniversityByCountryResponse>>().ReverseMap();
+
+            CreateMap<CourseByUniversityResponse, Course>().ReverseMap();
+            CreateMap<PagedResult<Course>, PagedResult<CourseByUniversityResponse>>().ReverseMap();
+
             CreateMap<University, AddUniversityResponse>().ReverseMap();
 
             CreateMap<FilterUniversityResponse, University>().ReverseMap();

@@ -3103,8 +3103,9 @@ namespace TN.Shared.Infrastructure.Migrations
                     b.Property<string>("TemplateType")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("TemplateVersion")
-                        .HasColumnType("int");
+                    b.Property<string>("TemplateVersion")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -3611,6 +3612,107 @@ namespace TN.Shared.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Applicants");
+                });
+
+            modelBuilder.Entity("TN.Shared.Domain.Entities.Crm.Enrollments.Appointment", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("AppointmentDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("AppointmentStatus")
+                        .HasColumnType("int");
+
+                    b.Property<string>("CounselorId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<TimeOnly>("EndTime")
+                        .HasColumnType("time");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("LeadId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("ModifiedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ModifiedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Notes")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SchoolId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<TimeOnly>("StartTime")
+                        .HasColumnType("time");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CounselorId");
+
+                    b.HasIndex("LeadId");
+
+                    b.ToTable("Appointments");
+                });
+
+            modelBuilder.Entity("TN.Shared.Domain.Entities.Crm.Enrollments.Counselor", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ContactNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Email")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("ModifiedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ModifiedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SchoolId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Counselors");
                 });
 
             modelBuilder.Entity("TN.Shared.Domain.Entities.Crm.Lead.CrmLead", b =>
@@ -6428,6 +6530,25 @@ namespace TN.Shared.Infrastructure.Migrations
                     b.Navigation("Profile");
                 });
 
+            modelBuilder.Entity("TN.Shared.Domain.Entities.Crm.Enrollments.Appointment", b =>
+                {
+                    b.HasOne("TN.Shared.Domain.Entities.Crm.Enrollments.Counselor", "Counselor")
+                        .WithMany("Appointments")
+                        .HasForeignKey("CounselorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TN.Shared.Domain.Entities.Crm.Lead.CrmLead", "CrmLead")
+                        .WithMany("Appointments")
+                        .HasForeignKey("LeadId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Counselor");
+
+                    b.Navigation("CrmLead");
+                });
+
             modelBuilder.Entity("TN.Shared.Domain.Entities.Crm.Lead.CrmLead", b =>
                 {
                     b.HasOne("TN.Shared.Domain.Entities.Crm.Profile.UserProfile", "Profile")
@@ -7297,9 +7418,16 @@ namespace TN.Shared.Infrastructure.Migrations
                     b.Navigation("Courses");
                 });
 
+            modelBuilder.Entity("TN.Shared.Domain.Entities.Crm.Enrollments.Counselor", b =>
+                {
+                    b.Navigation("Appointments");
+                });
+
             modelBuilder.Entity("TN.Shared.Domain.Entities.Crm.Lead.CrmLead", b =>
                 {
                     b.Navigation("AppliedCountries");
+
+                    b.Navigation("Appointments");
                 });
 
             modelBuilder.Entity("TN.Shared.Domain.Entities.Crm.Lead.LeadCountry", b =>

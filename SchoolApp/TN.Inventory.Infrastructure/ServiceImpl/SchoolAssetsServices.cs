@@ -558,7 +558,9 @@ namespace TN.Inventory.Infrastructure.ServiceImpl
                 var (contributors, currentSchoolId, institutionId, userRole, isSuperAdmin) =
                     await _getUserScopedData.GetUserScopedData<Contributor>();
 
-                var finalQuery = contributors.Where(x => x.IsActive == true).AsNoTracking();
+                var finalQuery = contributors.Where(x => x.IsActive == true
+                && x.SchoolId == currentSchoolId || x.SchoolId == ""
+                ).AsNoTracking();
 
 
                 var pagedResult = await finalQuery.ToPagedResultAsync(
@@ -593,7 +595,8 @@ namespace TN.Inventory.Infrastructure.ServiceImpl
                 var (schoolItems, currentSchoolId, institutionId, userRole, isSuperAdmin) =
                     await _getUserScopedData.GetUserScopedData<SchoolItem>();
 
-                var finalQuery = schoolItems.Where(x => x.IsActive == true).AsNoTracking();
+                var finalQuery = schoolItems.Where(x => x.IsActive == true
+                && x.SchoolId == currentSchoolId || x.SchoolId == "").AsNoTracking();
 
 
                 var pagedResult = await finalQuery.ToPagedResultAsync(

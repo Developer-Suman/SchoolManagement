@@ -12,7 +12,6 @@ namespace ES.Certificate.Application.Certificates.Command.UpdateCertificateTempl
         {
             return new UpdateCertificateTemplateCommand(
                 Id,
-                request.schoolId,
                 request.templateName,
                 request.templateType,
                 request.htmlTemplate,

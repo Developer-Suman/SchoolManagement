@@ -50,7 +50,7 @@ namespace TN.Shared.Domain.IRepository
         Task<TEntity?> FirstOrDefaultAsync(Expression<Func<TEntity, bool>> predicate = null);
         Task<TEntity?> LastOrDefaultAsync(Expression<Func<TEntity, bool>> predicate = null, Expression<Func<TEntity, object>> orderBy = null);
 
-
+        IQueryable<TEntity> GetQueryable();
 
         Task AddAsync(TEntity entity);
         void Delete(TEntity entity);

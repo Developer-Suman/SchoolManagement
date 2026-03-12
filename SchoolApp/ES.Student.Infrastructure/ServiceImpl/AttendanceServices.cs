@@ -69,7 +69,7 @@ namespace ES.Student.Infrastructure.ServiceImpl
 
                 var attendanceFilterData = isSuperAdmin
                     ? StudentAttendence
-                    : StudentAttendence.Where(x => x.SchoolId == _tokenService.SchoolId().FirstOrDefault() || x.SchoolId == "" 
+                    : StudentAttendence.Where(x => x.SchoolId == _tokenService.SchoolId().FirstOrDefault() 
                     && x.StudentId == attendanceCountByStudentsDTOs.studentId);
 
 
@@ -111,16 +111,18 @@ namespace ES.Student.Infrastructure.ServiceImpl
                     await _getUserScopedData.GetUserScopedData<StudentAttendances>();
 
                 // 1. Initial Filtering
-                var parentsFilterData = isSuperAdmin
+                var FilterData = isSuperAdmin
                     ? StudentAttendence
-                    : StudentAttendence.Where(x => x.SchoolId == _tokenService.SchoolId().FirstOrDefault() || x.SchoolId == "");
+                    : StudentAttendence.Where(x => x.SchoolId == _tokenService.SchoolId().FirstOrDefault()
+                    );
+
 
                 var monthNumber = _helperMethodServices.GetNepaliMonthNumber(attendanceReportDTOs.nameOfMonths.ToString() ?? "");
 
                 // Formatting month to 2 digits ensures "2082-1" becomes "2082-01" for accurate string matching
                 string datePrefix = $"{attendanceReportDTOs.yearName}-{monthNumber:D2}";
 
-                var filteredResult = parentsFilterData
+                var filteredResult = FilterData
                     .Where(x =>
                         (string.IsNullOrEmpty(attendanceReportDTOs.academicTeamId) || x.AcademicTeamId == attendanceReportDTOs.academicTeamId) &&
                         (string.IsNullOrEmpty(attendanceReportDTOs.classId) || x.ClassId == attendanceReportDTOs.classId) &&

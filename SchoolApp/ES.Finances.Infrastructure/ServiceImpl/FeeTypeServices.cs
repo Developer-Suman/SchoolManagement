@@ -70,8 +70,12 @@ namespace ES.Finances.Infrastructure.ServiceImpl
 
                     var existingFeetype = await _unitOfWork.BaseRepository<FeeType>()
                         .FirstOrDefaultAsync(l =>
-                            l.Name == addFeeTypeCommand.name &&
-                            l.FyId == FyId);
+                            l.Name == addFeeTypeCommand.name
+                            && l.FyId == FyId
+                            && (l.SchoolId == schoolId || l.SchoolId == "")
+
+
+                            );
 
                     if (existingFeetype is not null)
                     {
@@ -149,7 +153,8 @@ namespace ES.Finances.Infrastructure.ServiceImpl
                 var (feeType, currentSchoolId, institutionId, userRole, isSuperAdmin) =
                     await _getUserScopedData.GetUserScopedData<FeeType>();
 
-                var finalQuery = feeType.Where(x => x.IsActive == true && x.SchoolId == currentSchoolId).AsNoTracking();
+                var finalQuery = feeType.Where(x => x.IsActive == true 
+                && x.SchoolId == currentSchoolId).AsNoTracking();
 
 
                 var pagedResult = await finalQuery.ToPagedResultAsync(
@@ -195,22 +200,29 @@ namespace ES.Finances.Infrastructure.ServiceImpl
                     ? feetype
                     : feetype.Where(x => x.SchoolId == _tokenService.SchoolId().FirstOrDefault() || x.SchoolId == "");
 
-                var (startUtc, endUtc) = await _dateConverter.GetDateRangeUtc(filterFeeTypeDTOs.startDate, filterFeeTypeDTOs.endDate);
-
-                var filteredResult = filter
-                 .Where(x =>
-                       (string.IsNullOrEmpty(filterFeeTypeDTOs.name) || x.Name == filterFeeTypeDTOs.name) &&
-                     x.CreatedAt >= startUtc &&
-                         x.CreatedAt <= endUtc &&
-                         x.IsActive == true
-                 )
-                 .OrderByDescending(x => x.CreatedAt) // newest first
-                 .ToList();
 
 
+                IQueryable<FeeType> query = filter.AsQueryable();
+
+                if (!string.IsNullOrEmpty(filterFeeTypeDTOs.name))
+                {
+                    query = query.Where(x => x.Name == filterFeeTypeDTOs.name);
+                }
+
+                if (filterFeeTypeDTOs.startDate != null && filterFeeTypeDTOs.endDate != null)
+                {
+                    var (startUtc, endUtc) = await _dateConverter.GetDateRangeUtc(
+                        filterFeeTypeDTOs.startDate,
+                        filterFeeTypeDTOs.endDate
+                    );
+
+                    query = query.Where(x => x.CreatedAt >= startUtc && x.CreatedAt <= endUtc);
+                }
 
 
-                var responseList = filteredResult
+
+
+                var responseList = query
                 .OrderByDescending(x => x.CreatedAt)
                 .Select(i => new FilterFeeTypeResponse(
 

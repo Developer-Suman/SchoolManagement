@@ -16,6 +16,7 @@ using ES.Staff.Application.Staff.Command.UpdateAcademicTeam;
 using ES.Staff.Application.Staff.Command.UpdateAcademicTeam.RequestCommandmapper;
 using ES.Staff.Application.Staff.Queries.AcademicTeam;
 using ES.Staff.Application.Staff.Queries.AcademicTeamById;
+using ES.Staff.Application.Staff.Queries.AssignClassDetails;
 using ES.Staff.Application.Staff.Queries.FilterAcademicTeam;
 using ES.Student.Application.Student.Queries.FilterStudents;
 using ES.Student.Application.Student.Queries.GetAllStudents;
@@ -91,6 +92,30 @@ namespace TN.Web.Controllers.Staff.v1
         #endregion
 
         #region AssignAndUnAssignedClass
+
+        #region AssignClassDetails
+        [HttpGet("AssignClassDetails")]
+        public async Task<IActionResult> AssignClassDetails([FromQuery] AssignClassDetailsDTOs assignClassDetailsDTOs, [FromQuery] PaginationRequest paginationRequest)
+        {
+            var query = new AssignClassDetailsQuery(paginationRequest, assignClassDetailsDTOs);
+            var filter = await _mediator.Send(query);
+            #region Switch Statement
+            return filter switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(filter.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = filter.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(filter.Errors),
+                _ => BadRequest("Invalid page and pageSize Fields")
+            };
+            #endregion
+
+        }
+
+        #endregion
+
 
         #region UnAssignClass
         [HttpPost("UnAssignClass")]

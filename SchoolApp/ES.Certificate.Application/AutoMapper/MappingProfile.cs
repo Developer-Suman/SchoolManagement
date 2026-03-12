@@ -9,6 +9,7 @@ using ES.Certificate.Application.Certificates.Command.Awards.StudentsAwards.Dele
 using ES.Certificate.Application.Certificates.Command.Awards.StudentsAwards.UpdateAwards;
 using ES.Certificate.Application.Certificates.Command.DeleteCertificateTemplate;
 using ES.Certificate.Application.Certificates.Command.DeleteIssuedCertificate;
+using ES.Certificate.Application.Certificates.Command.UpdateCertificateTemplate;
 using ES.Certificate.Application.Certificates.Queries.CertificateTemplate;
 using ES.Certificate.Application.Certificates.Queries.CertificateTemplateById;
 using ES.Certificate.Application.Certificates.Queries.FilterCertificateTemplate;
@@ -104,6 +105,7 @@ namespace ES.Certificate.Application.AutoMapper
 
             #region CertificateTemplate
 
+            CreateMap<CertificateTemplate, UpdateCertificateTemplateCommand>().ReverseMap();
             CreateMap<CertificateTemplate, DeleteCertificateTemplateCommand>().ReverseMap();
 
             CreateMap<CertificateTemplateByIdQuery, CertificateTemplate>().ReverseMap();

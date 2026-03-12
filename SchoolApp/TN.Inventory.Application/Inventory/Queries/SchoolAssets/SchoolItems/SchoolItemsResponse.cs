@@ -9,8 +9,8 @@ namespace TN.Inventory.Application.Inventory.Queries.SchoolAssets.SchoolItems
 {
     public record SchoolItemsResponse
     (
-        string id,
-        string name,
-        ItemStatus itemStatus
+        string id="",
+        string name="",
+        ItemStatus itemStatus=default
         );
 }

@@ -6,6 +6,14 @@ namespace TN.Web.Configs
     {
         public static void Inject(WebApplicationBuilder builder)
         {
+
+            #region TimeConverter
+            builder.Services.AddControllers()
+                 .AddJsonOptions(options =>
+                 {
+                     options.JsonSerializerOptions.Converters.Add(new TimeOnlyJsonConverter());
+                 });
+            #endregion
             #region ConfigureSwaggerForAuthentication
             builder.Services.AddSwaggerGen(
             option =>

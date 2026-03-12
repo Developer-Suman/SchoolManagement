@@ -17,6 +17,7 @@ using ES.Student.Application.Student.Queries.GetAllStudents;
 using ES.Student.Application.Student.Queries.GetParentById;
 using ES.Student.Application.Student.Queries.GetStudentByClass;
 using ES.Student.Application.Student.Queries.GetStudentsById;
+using ES.Student.Application.Student.Queries.StudentFromRegistration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -47,6 +48,13 @@ namespace ES.Student.Application.AutoMapper
             #endregion
 
             #region Registration
+
+            CreateMap<StudentFromRegistrationResponse, Registrations>().ReverseMap();
+            CreateMap<PagedResult<Registrations>, PagedResult<StudentFromRegistrationResponse>>().ReverseMap();
+
+
+
+
             CreateMap<RegisterStudentsCommand, Registrations>().ReverseMap();
             CreateMap<RegisterStudentsResponse, Registrations>().ReverseMap();
 

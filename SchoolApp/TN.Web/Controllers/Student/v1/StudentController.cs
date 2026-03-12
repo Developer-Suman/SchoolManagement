@@ -31,6 +31,7 @@ using ES.Student.Application.Student.Queries.GetParentById;
 using ES.Student.Application.Student.Queries.GetStudentByClass;
 using ES.Student.Application.Student.Queries.GetStudentForAttendance;
 using ES.Student.Application.Student.Queries.GetStudentsById;
+using ES.Student.Application.Student.Queries.StudentFromRegistration;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -82,6 +83,30 @@ namespace TN.Web.Controllers.Student.v1
         #endregion
 
         #region Registration
+
+        #region StudentFromRegistration
+        [HttpGet("StudentFromRegistration")]
+        public async Task<IActionResult> StudentFromRegistration([FromQuery] PaginationRequest paginationRequest)
+        {
+            var query = new StudentFromRegistrationQuery(paginationRequest);
+            var result = await _mediator.Send(query);
+            #region Switch Statement
+            return result switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(result.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { result.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(result.Errors),
+                _ => BadRequest("Invalid page and pageSize Fields")
+            };
+            #endregion
+
+        }
+
+
+        #endregion
 
         #region FilterRegisterStudents
         [HttpGet("FilterRegisterStudents")]

@@ -15,7 +15,7 @@ namespace ES.Certificate.Application.Certificates.Queries.FilterCertificateTempl
             string templateType,
             string htmlTemplate,
             bool isActive,
-            int templateVersion,
+            string templateVersion,
             DateTime createdAt
         );
 }

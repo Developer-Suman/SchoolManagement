@@ -12,6 +12,7 @@ using ES.Student.Application.Student.Queries.GetParentById;
 using ES.Student.Application.Student.Queries.GetStudentByClass;
 using ES.Student.Application.Student.Queries.GetStudentForAttendance;
 using ES.Student.Application.Student.Queries.GetStudentsById;
+using ES.Student.Application.Student.Queries.StudentFromRegistration;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System;
@@ -31,6 +32,7 @@ namespace ES.Student.Application.ServiceInterface
         Task<Result<AddStudentsResponse>> Add(AddStudentsCommand addStudentsCommand);
         Task<Result<PagedResult<AcademicYearResponse>>> GetAllAcademicYear(PaginationRequest paginationRequest,CancellationToken cancellationToken=default);
         Task<Result<PagedResult<GetAllStudentQueryResponse>>> GetAllStudents(PaginationRequest paginationRequest,CancellationToken cancellationToken=default);
+        Task<Result<PagedResult<StudentFromRegistrationResponse>>> StudentFromRegistration(PaginationRequest paginationRequest,CancellationToken cancellationToken=default);
         Task<Result<GetStudentsByIdQueryResponse>> GetStudentById(string id,CancellationToken cancellationToken=default);
          Task<Result<bool>> Delete(string id,CancellationToken cancellationToken);
         Task<Result<UpdateStudentResponse>> Update(string id,UpdateStudentCommand updateStudentCommand);

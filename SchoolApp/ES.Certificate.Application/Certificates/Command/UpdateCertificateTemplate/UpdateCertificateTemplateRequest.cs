@@ -8,7 +8,6 @@ namespace ES.Certificate.Application.Certificates.Command.UpdateCertificateTempl
 {
     public record UpdateCertificateTemplateRequest
     (
-          string schoolId,
             string templateName,
 
             string templateType,

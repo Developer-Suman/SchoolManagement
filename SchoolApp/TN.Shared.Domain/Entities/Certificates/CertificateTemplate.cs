@@ -35,6 +35,7 @@ namespace TN.Shared.Domain.Entities.Certificates
             TemplateType = templateType;
             TemplateSubject = templateSubject;
             HtmlTemplate = htmlTemplate;
+            TemplateVersion = templateVersion;
             IsActive = isActive;
             CreatedAt = createdAt;
             CreatedBy = createdBy;
@@ -59,7 +60,7 @@ namespace TN.Shared.Domain.Entities.Certificates
         public string? TemplateType { get; set; } // e.g., Completion, Merit
         public string HtmlTemplate { get; set; } = default!;
         public bool IsActive { get; set; } = true;
-        public int TemplateVersion { get; set; } = 1;
+        public string TemplateVersion { get; set; }
         public DateTime CreatedAt { get; set; }
 
         public ICollection<IssuedCertificate> IssuedCertificates { get; set; }

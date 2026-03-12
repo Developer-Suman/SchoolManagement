@@ -1,8 +1,12 @@
 ﻿using AutoMapper;
+using ES.Enrolment.Application.Enrolments.Command.AddAppointment;
+using ES.Enrolment.Application.Enrolments.Command.AddCounselor;
 using ES.Enrolment.Application.Enrolments.Command.AddInquiry;
 using ES.Enrolment.Application.Enrolments.Command.ConvertApplicant;
 using ES.Enrolment.Application.Enrolments.Command.ConvertStudent;
 using ES.Enrolment.Application.Enrolments.Queries.FilterApplicant;
+using ES.Enrolment.Application.Enrolments.Queries.FilterAppointment;
+using ES.Enrolment.Application.Enrolments.Queries.FilterCounselor;
 using ES.Enrolment.Application.Enrolments.Queries.FilterCRMStudents;
 using ES.Enrolment.Application.Enrolments.Queries.FilterInquery;
 using ES.Enrolment.Application.Enrolments.Queries.GetAllUserProfile;
@@ -14,6 +18,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TN.Shared.Domain.Entities.Crm.Applicant;
+using TN.Shared.Domain.Entities.Crm.Enrollments;
 using TN.Shared.Domain.Entities.Crm.Lead;
 using TN.Shared.Domain.Entities.Crm.Profile;
 using TN.Shared.Domain.Entities.Crm.Students;
@@ -26,6 +31,20 @@ namespace ES.Enrolment.Application.AutoMapper
     {
         public MappingProfile()
         {
+            #region Counselor
+            CreateMap<Counselor, AddCounselorResponse>().ReverseMap();
+
+            CreateMap<FilterCounselorResponse, Counselor>().ReverseMap();
+            CreateMap<PagedResult<Counselor>, PagedResult<FilterCounselorResponse>>().ReverseMap();
+            #endregion
+
+            #region Appointment
+            CreateMap<Appointment, AddAppointmentResponse>().ReverseMap();
+
+            CreateMap<FilterAppointmentResponse, Appointment>().ReverseMap();
+            CreateMap<PagedResult<Appointment>, PagedResult<FilterAppointmentResponse>>().ReverseMap();
+
+            #endregion
             #region Lead and Applicant
             CreateMap<CrmLead, AddInquiryResponse>().ReverseMap();
             CreateMap<CrmStudent, ConvertStudentResponse>().ReverseMap();

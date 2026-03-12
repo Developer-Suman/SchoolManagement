@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TN.Shared.Domain.Entities.Crm.Enrollments;
 using TN.Shared.Domain.Entities.Crm.Profile;
 using TN.Shared.Domain.Primitive;
 using static TN.Shared.Domain.Enum.EducationLevelEnum;
@@ -81,7 +82,43 @@ namespace TN.Shared.Domain.Entities.Crm.Lead
             ModifiedBy = modifiedBy;
             ModifiedAt = modifiedAt;
             AppliedCountries = new List<LeadCountry>();
+            Appointments = new List<Appointment>();
 
+        }
+
+        public void UpdateLeadInterests(List<LeadCountry> selections, string modifiedBy)
+        {
+            AppliedCountries.Clear();
+
+            foreach (var selection in selections)
+            {
+                var leadCountry = new LeadCountry(
+                    Guid.NewGuid().ToString(),
+                    selection.CountryId,
+                    this.Id);
+
+                foreach (var university in selection.SelectedUniversities)
+                {
+                    var leadUniversity = new LeadUniversity(
+                        Guid.NewGuid().ToString(),
+                        university.Id,
+                        leadCountry.Id);
+
+                    foreach (var course in university.SelectedCourses)
+                    {
+                        leadUniversity.SelectedCourses.Add(new LeadCourse(
+                            Guid.NewGuid().ToString(),
+                            course.Id,
+                            leadUniversity.Id));
+                    }
+
+                    leadCountry.SelectedUniversities.Add(leadUniversity);
+                }
+
+                AppliedCountries.Add(leadCountry);
+            }
+            ModifiedBy = modifiedBy;
+            ModifiedAt = DateTime.UtcNow;
         }
 
         public string? SkillOrTrainingName { get; set; }
@@ -114,5 +151,6 @@ namespace TN.Shared.Domain.Entities.Crm.Lead
         public virtual UserProfile Profile { get; set; }
 
         public List<LeadCountry> AppliedCountries { get; set; }
+        public List<Appointment> Appointments { get; set; }
     }
 }
