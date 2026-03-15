@@ -26,6 +26,7 @@ using TN.Account.Domain.Entities;
 using TN.Authentication.Domain.Entities;
 using TN.Shared.Application.ServiceInterface;
 using TN.Shared.Domain.Abstractions;
+using TN.Shared.Domain.Entities.Academics;
 using TN.Shared.Domain.Entities.Communication;
 using TN.Shared.Domain.Entities.Finance;
 using TN.Shared.Domain.Entities.OrganizationSetUp;
@@ -78,11 +79,11 @@ namespace ES.Finances.Infrastructure.ServiceImpl
                     if (feeStructure == null)
                         throw new Exception("Fee structure not found.");
 
-                    var studentFee = await _unitOfWork.BaseRepository<StudentFee>()
-                        .FirstOrDefaultAsync(x => x.StudentId == addStudentFeeCommand.studentId &&
-                                                  x.ClassId == addStudentFeeCommand.classId);
+                    //var studentFee = await _unitOfWork.BaseRepository<StudentFee>()
+                    //    .FirstOrDefaultAsync(x => x.StudentId == addStudentFeeCommand.studentId &&
+                    //                              x.ClassId == addStudentFeeCommand.classId);
 
-                    decimal currentTotal = studentFee?.TotalAmount ?? feeStructure.Amount;
+                    decimal currentTotal =  feeStructure.Amount;
 
                     decimal discountAmount = feeStructure.Amount * (addStudentFeeCommand.discountPercentage / 100);
 
@@ -103,7 +104,6 @@ namespace ES.Finances.Infrastructure.ServiceImpl
                         tobePaid,
                         true,
                         schoolId,
-                        PaidStatus.Pending,
                         userId,
                         DateTime.UtcNow,
                         "",
@@ -114,6 +114,40 @@ namespace ES.Finances.Infrastructure.ServiceImpl
 
                     var students = await _unitOfWork.BaseRepository<StudentData>()
                        .GetByGuIdAsync(addStudentFeeCommand.studentId);
+
+
+
+                    #region AddLedger
+                    var ledgerId = Guid.NewGuid().ToString();
+                    if (students.LedgerId == null)
+                    {
+                       
+                        var ledger = new Ledger(
+                            ledgerId,
+                            students.FirstName + "" + students.MiddleName + "" + students.LastName,
+                            DateTime.UtcNow,
+                            false,
+                            students.Address,
+                            "",
+                            students.PhoneNumber,
+                            "",
+                            "",
+                            SubLedgerGroupConstants.SundryDebtors,
+                            schoolId,
+                            FyId,
+                            0,
+                            false,
+                            true
+
+
+                            );
+                        await _unitOfWork.BaseRepository<Ledger>().AddAsync(ledger);
+                        await _unitOfWork.SaveChangesAsync();
+                        students.LedgerId = ledgerId;
+                    }
+
+                   
+                    #endregion
 
                     #region Tax part
                     //var taxAmount = (13 / 100) * currentPaid;
@@ -327,41 +361,62 @@ namespace ES.Finances.Infrastructure.ServiceImpl
                     ? studentFee
                     : studentFee.Where(x => x.SchoolId == _tokenService.SchoolId().FirstOrDefault() || x.SchoolId == "");
 
-                var (startUtc, endUtc) = await _dateConverter.GetDateRangeUtc(filterStudentFeeDTOs.startDate, filterStudentFeeDTOs.endDate);
 
-                var filteredResult = filter
-                  .Where(x =>
-                      (string.IsNullOrEmpty(filterStudentFeeDTOs.studentId) || x.StudentId == filterStudentFeeDTOs.studentId) &&
-                      x.CreatedAt >= startUtc &&
-                      x.CreatedAt <= endUtc &&
-                      x.IsActive
-                  )
-                  .GroupBy(x => new { x.StudentId, x.ClassId })
-                  .Select(g => new {
-                      StudentId = g.Key.StudentId,
-                      FeeStructureIds = g.Select(x => $"{x.FeeStructure.FeeType.Name} -> {x.DiscountPercentage}%").ToList(),
-                      TotalAmount = g.Sum(x => x.TotalAmount),
-                      TotalPaid = g.Sum(x => x.PaidAmount),
+                IQueryable<StudentFee> query = filter.AsQueryable();
 
-                      // Calculation (must use g.Sum again here or do it in the next Select)
-                      DueAmount = g.Sum(x => x.TotalAmount) - g.Sum(x => x.PaidAmount),
+                // Student filter
+                if (!string.IsNullOrEmpty(filterStudentFeeDTOs.studentId))
+                {
+                    query = query.Where(x => x.StudentId == filterStudentFeeDTOs.studentId);
+                }
 
-                      LatestDate = g.Max(x => x.CreatedAt),
-                      ClassId = g.Select(x=>x.ClassId)
-                  })
-                  .OrderByDescending(x => x.LatestDate)
-                  .ToList();
+                // Date filter
+                if (filterStudentFeeDTOs.startDate != null && filterStudentFeeDTOs.endDate != null)
+                {
+                    var (startUtc, endUtc) = await _dateConverter.GetDateRangeUtc(
+                        filterStudentFeeDTOs.startDate,
+                        filterStudentFeeDTOs.endDate
+                    );
+
+                    query = query.Where(x => x.CreatedAt >= startUtc && x.CreatedAt <= endUtc);
+                }
+
+                // Active filter
+                query = query.Where(x => x.IsActive);
+
+                // Grouping + projection
+                var filteredResult = query
+                    .GroupBy(x => new { x.StudentId, x.ClassId })
+                    .Select(g => new
+                    {
+                        StudentId = g.Key.StudentId,
+                        ClassId = g.Key.ClassId,
+
+                        FeeStructureIds = g
+                            .Select(x => x.FeeStructure.FeeType.Name + " -> " + x.DiscountPercentage + "%")
+                            .ToList(),
+
+                        TotalAmount = g.Sum(x => x.TotalAmount),
+
+                        TotalPaid = g.Sum(x => x.PaidAmount),
+
+                        DueAmount = g.Sum(x => x.TotalAmount) - g.Sum(x => x.PaidAmount),
+
+                        LatestDate = g.Max(x => x.CreatedAt)
+                    })
+                    .OrderByDescending(x => x.LatestDate)
+                    .ToList();
 
                 var responseList = filteredResult
-                    .Select(i => new FilterStudentFeeResponse(
-                        i.StudentId,
-                        i.FeeStructureIds, 
-                        i.TotalAmount,
-                        i.TotalPaid,
-                        i.DueAmount,
-                        i.ClassId.FirstOrDefault()
-                    ))
-                    .ToList();
+                       .Select(i => new FilterStudentFeeResponse(
+                           i.StudentId,
+                           i.FeeStructureIds,
+                           i.TotalAmount,
+                           i.TotalPaid,
+                           i.DueAmount,
+                           i.ClassId
+                       ))
+                       .ToList();
 
                 PagedResult<FilterStudentFeeResponse> finalResponseList;
 
@@ -429,71 +484,66 @@ namespace ES.Finances.Infrastructure.ServiceImpl
             {
                 string schoolId = _tokenService.SchoolId().FirstOrDefault();
 
-                var query = _unitOfWork.BaseRepository<PaymentsRecords>()
-                .GetAllWithIncludeQueryable(x =>
-                    x.Schoolid == schoolId &&
-                    x.StudentId == studentFeeSummaryDTOs.studentId
-                )
+                // 1. Calculate Net Total Debt
+                var netTotal = await _unitOfWork.BaseRepository<StudentFee>()
+                    .GetAsQueryable()
+                    .Where(x => x.StudentId == studentFeeSummaryDTOs.studentId &&
+                                x.ClassId == studentFeeSummaryDTOs.classId &&
+                                x.IsActive && x.SchoolId == schoolId)
+                    .SumAsync(x => x.TotalAmount - x.DiscountAmount);
 
-                .Include(x => x.StudentFee)
-                .AsNoTracking();
+                // 2. Fetch all payments in ascending order
+                var payments = await _unitOfWork.BaseRepository<PaymentsRecords>()
+                    .GetAsQueryable()
+                    .Where(x => x.StudentId == studentFeeSummaryDTOs.studentId &&
+                                x.StudentFee.ClassId == studentFeeSummaryDTOs.classId &&
+                                x.IsActive && x.Schoolid == schoolId)
+                    .OrderBy(x => x.PaymentDate)
+                    .ToListAsync();
 
-                // 2. Count Total Records at the Database level
-                int totalItems = await query.CountAsync();
+                // 3. Build the list
+                var fullList = new List<StudentFeeSummaryResponse>();
+                decimal currentBalance = netTotal;
 
-                // 3. Apply Pagination and Projection
+                foreach (var p in payments)
+                {
+                    // Capture balance before payment
+                    decimal amountBeforePayment = currentBalance;
+
+                    // Calculate balance after payment
+                    currentBalance -= p.AmountPaid;
+
+                    fullList.Add(new StudentFeeSummaryResponse(
+                        studentFeeSummaryDTOs.classId,
+                        p.AmountPaid,
+                        p.PaymentMethod,
+                        amountBeforePayment, // This will show the balance before payment
+                        currentBalance       // This will show the remaining debt after payment
+                    ));
+                }
+
+                // 4. Reverse to show latest payments first
+                fullList.Reverse();
+
+                // 5. Apply Pagination
                 int pageIndex = paginationRequest.pageIndex <= 0 ? 1 : paginationRequest.pageIndex;
                 int pageSize = paginationRequest.pageSize <= 0 ? 10 : paginationRequest.pageSize;
 
-                List<StudentFeeSummaryResponse> items;
+                var pagedItems = fullList
+                    .Skip((pageIndex - 1) * pageSize)
+                    .Take(pageSize)
+                    .ToList();
 
-                //decimal totalRemaining = await _unitOfWork.BaseRepository<StudentFee>()
-                //      .GetAsQueryable()
-                //      .Where(x => x.StudentId == studentFeeSummaryDTOs.studentId)
-                //      .SumAsync(x => x.TotalAmount - x.PaidAmount - x.DiscountAmount);
-
-                if (paginationRequest.IsPagination)
+                return Result<PagedResult<StudentFeeSummaryResponse>>.Success(new PagedResult<StudentFeeSummaryResponse>
                 {
-                    items = await query
-                        .OrderByDescending(x => x.CreatedAt) // Always sort when paginating!
-                        .Skip((pageIndex - 1) * pageSize)
-                        .Take(pageSize)
-                        .Select(x => new StudentFeeSummaryResponse(
-                            x.StudentFee.ClassId,
-                            x.StudentFee.PaidAmount,
-                            x.PaymentMethod,
-                            x.StudentFee.TotalAmount,
-                            x.StudentFee.TotalAmount - x.StudentFee.PaidAmount
-                        ))
-                        .ToListAsync();
-                }
-                else
-                {
-                    items = await query
-                        .Select(x => new StudentFeeSummaryResponse(
-                            x.StudentFee.ClassId,
-                            x.AmountPaid,
-                            x.PaymentMethod,
-                            x.StudentFee.TotalAmount,
-                             x.StudentFee.TotalAmount - x.StudentFee.PaidAmount
-                        ))
-                        .ToListAsync();
-                    pageSize = items.Count;
-                }
-
-                var finalResponseList = new PagedResult<StudentFeeSummaryResponse>
-                {
-                    Items = items,
-                    TotalItems = totalItems,
+                    Items = pagedItems,
+                    TotalItems = fullList.Count,
                     PageIndex = pageIndex,
-                    pageSize = pageSize
-                };
-
-                return Result<PagedResult<StudentFeeSummaryResponse>>.Success(finalResponseList);
+                    pageSize = pagedItems.Count
+                });
             }
             catch (Exception ex)
             {
-                // Avoid throwing raw exceptions; return a Failure result for better API handling
                 return Result<PagedResult<StudentFeeSummaryResponse>>.Failure($"Error: {ex.Message}");
             }
         }

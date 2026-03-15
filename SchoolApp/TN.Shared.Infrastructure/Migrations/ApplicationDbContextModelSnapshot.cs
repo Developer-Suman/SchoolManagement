@@ -3673,6 +3673,54 @@ namespace TN.Shared.Infrastructure.Migrations
                     b.ToTable("Appointments");
                 });
 
+            modelBuilder.Entity("TN.Shared.Domain.Entities.Crm.Enrollments.ConsultancyClass", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Batch")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<TimeOnly>("EndTime")
+                        .HasColumnType("time");
+
+                    b.Property<int>("EnglishProficiency")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("ModifiedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ModifiedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SchoolId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<TimeOnly>("StartTime")
+                        .HasColumnType("time");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ConsultancyClasses");
+                });
+
             modelBuilder.Entity("TN.Shared.Domain.Entities.Crm.Enrollments.Counselor", b =>
                 {
                     b.Property<string>("Id")
@@ -3713,6 +3761,52 @@ namespace TN.Shared.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Counselors");
+                });
+
+            modelBuilder.Entity("TN.Shared.Domain.Entities.Crm.Enrollments.TrainingRegistration", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ApplicantId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ConsultancyClassId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("ModifiedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ModifiedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("RegisteredAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("SchoolId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ApplicantId");
+
+                    b.HasIndex("ConsultancyClassId");
+
+                    b.ToTable("ClassRegistrations");
                 });
 
             modelBuilder.Entity("TN.Shared.Domain.Entities.Crm.Lead.CrmLead", b =>
@@ -6549,6 +6643,25 @@ namespace TN.Shared.Infrastructure.Migrations
                     b.Navigation("CrmLead");
                 });
 
+            modelBuilder.Entity("TN.Shared.Domain.Entities.Crm.Enrollments.TrainingRegistration", b =>
+                {
+                    b.HasOne("TN.Shared.Domain.Entities.Crm.Applicant.CrmApplicant", "CrmApplicant")
+                        .WithMany("TrainingRegistrations")
+                        .HasForeignKey("ApplicantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TN.Shared.Domain.Entities.Crm.Enrollments.ConsultancyClass", "ConsultancyClass")
+                        .WithMany("TrainingRegistrations")
+                        .HasForeignKey("ConsultancyClassId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ConsultancyClass");
+
+                    b.Navigation("CrmApplicant");
+                });
+
             modelBuilder.Entity("TN.Shared.Domain.Entities.Crm.Lead.CrmLead", b =>
                 {
                     b.HasOne("TN.Shared.Domain.Entities.Crm.Profile.UserProfile", "Profile")
@@ -7416,6 +7529,16 @@ namespace TN.Shared.Infrastructure.Migrations
             modelBuilder.Entity("TN.Shared.Domain.Entities.Crm.AcademicsPrograms.University", b =>
                 {
                     b.Navigation("Courses");
+                });
+
+            modelBuilder.Entity("TN.Shared.Domain.Entities.Crm.Applicant.CrmApplicant", b =>
+                {
+                    b.Navigation("TrainingRegistrations");
+                });
+
+            modelBuilder.Entity("TN.Shared.Domain.Entities.Crm.Enrollments.ConsultancyClass", b =>
+                {
+                    b.Navigation("TrainingRegistrations");
                 });
 
             modelBuilder.Entity("TN.Shared.Domain.Entities.Crm.Enrollments.Counselor", b =>

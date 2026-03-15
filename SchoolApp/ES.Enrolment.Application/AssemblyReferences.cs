@@ -1,8 +1,10 @@
 ﻿using ES.Enrolment.Application.Enrolments.Command.AddAppointment;
 using ES.Enrolment.Application.Enrolments.Command.AddCounselor;
 using ES.Enrolment.Application.Enrolments.Command.AddInquiry;
+using ES.Enrolment.Application.Enrolments.Command.ConsultancyClass;
 using ES.Enrolment.Application.Enrolments.Command.ConvertApplicant;
 using ES.Enrolment.Application.Enrolments.Command.ConvertStudent;
+using ES.Enrolment.Application.Enrolments.Command.TranningRegistration.AddTranningRegistration;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -25,6 +27,8 @@ namespace ES.Enrolment.Application
             services.AddScoped<IValidator<ConvertStudentCommand>, ConvertStudentCommandValidator>();
             services.AddScoped<IValidator<AddCounselorCommand>, AddCounselorCommandValidator>();
             services.AddScoped<IValidator<AddAppointmentCommand>, AddAppointmentCommandValidator>();
+            services.AddScoped<IValidator<AddConsultancyClassCommand>, AddConsultancyClassCommandValidator>();
+            services.AddScoped<IValidator<AddTranningRegistrationCommand>, AddTranningRegistrationCommandValidator>();
             return services;
         }
 

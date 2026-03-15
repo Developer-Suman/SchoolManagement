@@ -68,12 +68,22 @@ namespace ES.Finances.Infrastructure.ServiceImpl
                                  && x.IsPaidStatus != PaidStatus.Paid) // Only get unpaid fees
                         .FirstOrDefaultAsync();
 
+                    var totalPaid = await _unitOfWork.BaseRepository<StudentFee>()
+                        .GetAsQueryable()
+                        .Where(x => x.StudentId == addPaymentsRecordsCommand.studentid
+                                 && x.ClassId == addPaymentsRecordsCommand.classid
+                                  && x.IsPaidStatus != PaidStatus.Paid
+                                 )
+                        .SumAsync(x => x.PaidAmount);
+
+
+
                     if (studentFee == null)
                     {
                         return Result<AddpaymentsRecordsResponse>.Failure("NotFound", "There is no outstanding fee for this student.");
                     }
 
-                    studentFee.PaidAmount += addPaymentsRecordsCommand.amountPaid;
+                    studentFee.PaidAmount = totalPaid - addPaymentsRecordsCommand.amountPaid;
                     _unitOfWork.BaseRepository<StudentFee>().Update(studentFee);
                     await _unitOfWork.SaveChangesAsync();
 
@@ -86,10 +96,15 @@ namespace ES.Finances.Infrastructure.ServiceImpl
                         studentFee.IsPaidStatus = PaidStatus.partiallyPaid;
                     }
 
+                    //decimal totalRemaining = await _unitOfWork.BaseRepository<StudentFee>()
+                    //    .GetAsQueryable()
+                    //    .Where(x => x.StudentId == addPaymentsRecordsCommand.studentid && x.ClassId == addPaymentsRecordsCommand.classid)
+                    //    .SumAsync(x => x.TotalAmount - x.PaidAmount - x.DiscountAmount);
+
                     decimal totalRemaining = await _unitOfWork.BaseRepository<StudentFee>()
-                        .GetAsQueryable()
-                        .Where(x => x.StudentId == addPaymentsRecordsCommand.studentid && x.ClassId == addPaymentsRecordsCommand.classid)
-                        .SumAsync(x => x.TotalAmount - x.PaidAmount - x.DiscountAmount);
+                         .GetAsQueryable()
+                         .Where(x => x.StudentId == addPaymentsRecordsCommand.studentid && x.ClassId == addPaymentsRecordsCommand.classid)
+                         .SumAsync(x=>x.PaidAmount);
 
 
                     //decimal currentTotal = fees.Sum(x => x.TotalAmount);
@@ -113,7 +128,13 @@ namespace ES.Finances.Infrastructure.ServiceImpl
 
                     await _unitOfWork.BaseRepository<PaymentsRecords>().AddAsync(add);
 
-                    var student = await _unitOfWork.BaseRepository<StudentData>().GetByGuIdAsync(studentFee.StudentId);
+                    var studentData = await _unitOfWork.BaseRepository<StudentData>()
+                            .GetConditionalAsync(
+                                x => x.Id == studentFee.StudentId,
+                                query => query.Include(x => x.Ledger)
+                            );
+
+                    var student = studentData.FirstOrDefault();
 
                     #region Journal Entries
                     var newJournalId = Guid.NewGuid().ToString();

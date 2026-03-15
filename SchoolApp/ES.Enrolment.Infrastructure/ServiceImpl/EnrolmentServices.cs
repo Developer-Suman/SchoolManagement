@@ -2,6 +2,7 @@
 using ES.Enrolment.Application.Enrolments.Command.AddInquiry;
 using ES.Enrolment.Application.Enrolments.Command.ConvertApplicant;
 using ES.Enrolment.Application.Enrolments.Command.ConvertStudent;
+using ES.Enrolment.Application.Enrolments.Queries.Applicant;
 using ES.Enrolment.Application.Enrolments.Queries.ApplicantsById;
 using ES.Enrolment.Application.Enrolments.Queries.CRMStudentsById;
 using ES.Enrolment.Application.Enrolments.Queries.FilterApplicant;
@@ -10,6 +11,7 @@ using ES.Enrolment.Application.Enrolments.Queries.FilterInquery;
 using ES.Enrolment.Application.Enrolments.Queries.GetAllUserProfile;
 using ES.Enrolment.Application.Enrolments.Queries.GetUserProfileByUser;
 using ES.Enrolment.Application.Enrolments.Queries.InqueryById;
+using ES.Enrolment.Application.Enrolments.Queries.Inquiry;
 using ES.Enrolment.Application.ServiceInterface;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -358,8 +360,6 @@ namespace ES.Enrolment.Infrastructure.ServiceImpl
                .Where(x => x.SchoolId == _tokenService.SchoolId().FirstOrDefault() || x.SchoolId == "");
 
 
-                var data1 = filter.ToList();
-
 
                 var (startUtc, endUtc) = await _dateConverter.GetDateRangeUtc(filterCRMStudentsDTOs.startDate, filterCRMStudentsDTOs.endDate);
 
@@ -475,6 +475,7 @@ namespace ES.Enrolment.Infrastructure.ServiceImpl
                 var responseList = filteredResult
                 .OrderByDescending(x => x.CreatedAt)
                 .Select(i => new FilterInqueryResponse(
+                    i.Id,
                     i.Profile.Id,
                     i.Profile.FullName,
                     i.Profile.Email,
@@ -533,6 +534,93 @@ namespace ES.Enrolment.Infrastructure.ServiceImpl
             catch (Exception ex)
             {
                 throw new Exception($"An error occurred while fetching result: {ex.Message}", ex);
+            }
+        }
+
+        public async Task<Result<PagedResult<ApplicantResponse>>> GetAllApplicant(PaginationRequest paginationRequest, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+
+                var (crmApplicant, currentSchoolId, institutionId, userRole, isSuperAdmin) =
+                    await _getUserScopedData.GetUserScopedData<CrmApplicant>();
+
+                var finalQuery = crmApplicant.Include(x => x.Profile).Where(x => x.SchoolId == currentSchoolId || x.SchoolId == currentSchoolId
+                && x.IsActive == true).AsNoTracking();
+
+
+
+                var pagedResult = await finalQuery.ToPagedResultAsync(
+                    paginationRequest.pageIndex,
+                    paginationRequest.pageSize,
+                    paginationRequest.IsPagination);
+
+
+                var mappedItems = pagedResult.Data.Items
+                        .Select(x => new ApplicantResponse(
+                            x.Id,
+                            x.Profile.FullName
+                        ))
+                        .ToList();
+
+                var response = new PagedResult<ApplicantResponse>
+                {
+                    Items = mappedItems,
+                    TotalItems = pagedResult.Data.TotalItems,
+                    PageIndex = pagedResult.Data.PageIndex,
+                    pageSize = pagedResult.Data.pageSize
+                };
+
+                return Result<PagedResult<ApplicantResponse>>.Success(response);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while fetching", ex);
+            }
+        }
+
+
+
+        public async Task<Result<PagedResult<InquiryResponse>>> GetAllInquiry(PaginationRequest paginationRequest, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+
+                var (lead, currentSchoolId, institutionId, userRole, isSuperAdmin) =
+                    await _getUserScopedData.GetUserScopedData<CrmLead>();
+
+                var finalQuery = lead.Include(x=>x.Profile).Where(x => x.SchoolId == currentSchoolId || x.SchoolId == currentSchoolId
+                && x.IsActive == true).AsNoTracking();
+
+
+
+                var pagedResult = await finalQuery.ToPagedResultAsync(
+                    paginationRequest.pageIndex,
+                    paginationRequest.pageSize,
+                    paginationRequest.IsPagination);
+
+
+                var mappedItems = pagedResult.Data.Items
+                        .Select(x => new InquiryResponse(
+                            x.Id,
+                            x.Profile.Id,
+                            x.Profile.FullName
+                        ))
+                        .ToList();
+
+                var response = new PagedResult<InquiryResponse>
+                {
+                    Items = mappedItems,
+                    TotalItems = pagedResult.Data.TotalItems,
+                    PageIndex = pagedResult.Data.PageIndex,
+                    pageSize = pagedResult.Data.pageSize
+                };
+
+                return Result<PagedResult<InquiryResponse>>.Success(response);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while fetching", ex);
             }
         }
 

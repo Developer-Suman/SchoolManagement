@@ -1,6 +1,7 @@
 ﻿using ES.Enrolment.Application.Enrolments.Command.AddInquiry;
 using ES.Enrolment.Application.Enrolments.Command.ConvertApplicant;
 using ES.Enrolment.Application.Enrolments.Command.ConvertStudent;
+using ES.Enrolment.Application.Enrolments.Queries.Applicant;
 using ES.Enrolment.Application.Enrolments.Queries.ApplicantsById;
 using ES.Enrolment.Application.Enrolments.Queries.CRMStudentsById;
 using ES.Enrolment.Application.Enrolments.Queries.FilterApplicant;
@@ -9,6 +10,7 @@ using ES.Enrolment.Application.Enrolments.Queries.FilterInquery;
 using ES.Enrolment.Application.Enrolments.Queries.GetAllUserProfile;
 using ES.Enrolment.Application.Enrolments.Queries.GetUserProfileByUser;
 using ES.Enrolment.Application.Enrolments.Queries.InqueryById;
+using ES.Enrolment.Application.Enrolments.Queries.Inquiry;
 using TN.Shared.Domain.Abstractions;
 using TN.Shared.Domain.ExtensionMethod.Pagination;
 
@@ -23,6 +25,8 @@ namespace ES.Enrolment.Application.ServiceInterface
         Task<Result<PagedResult<FilterApplicantResponse>>> FilterApplicant(PaginationRequest paginationRequest, FilterApplicantDTOs filterApplicantDTOs);
         Task<Result<PagedResult<FilterCRMStudentsResponse>>> FilterCRMStudents(PaginationRequest paginationRequest, FilterCRMStudentsDTOs filterCRMStudentsDTOs);
         Task<Result<PagedResult<GetAllUserProfileResponse>>> UserProfile(PaginationRequest paginationRequest, CancellationToken cancellationToken = default);
+        Task<Result<PagedResult<InquiryResponse>>> GetAllInquiry(PaginationRequest paginationRequest, CancellationToken cancellationToken = default);
+        Task<Result<PagedResult<ApplicantResponse>>> GetAllApplicant(PaginationRequest paginationRequest, CancellationToken cancellationToken = default);
 
         Task<Result<GetUserProfileByUserResponse>> GetUserProfile(string userId, CancellationToken cancellationToken = default);
         Task<Result<ApplicantsByIdResponse>> GetApplicants(string id, CancellationToken cancellationToken = default);

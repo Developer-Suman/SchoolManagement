@@ -1,24 +1,34 @@
 ﻿using ES.Enrolment.Application.Enrolments.Command.AddAppointment;
 using ES.Enrolment.Application.Enrolments.Command.AddAppointment.RequestCommandMapper;
+using ES.Enrolment.Application.Enrolments.Command.AddConsultancyClass.RequestCommandMapper;
 using ES.Enrolment.Application.Enrolments.Command.AddCounselor;
 using ES.Enrolment.Application.Enrolments.Command.AddCounselor.RequestCommandMapper;
 using ES.Enrolment.Application.Enrolments.Command.AddInquiry;
 using ES.Enrolment.Application.Enrolments.Command.AddInquiry.RequestCommandMapper;
+using ES.Enrolment.Application.Enrolments.Command.ConsultancyClass;
 using ES.Enrolment.Application.Enrolments.Command.ConvertApplicant;
 using ES.Enrolment.Application.Enrolments.Command.ConvertApplicant.RequestCommandMapper;
 using ES.Enrolment.Application.Enrolments.Command.ConvertStudent;
 using ES.Enrolment.Application.Enrolments.Command.ConvertStudent.RequestCommandMapper;
+using ES.Enrolment.Application.Enrolments.Command.TranningRegistration.AddTranningRegistration;
+using ES.Enrolment.Application.Enrolments.Command.TranningRegistration.AddTranningRegistration.RequestCommandMapper;
+using ES.Enrolment.Application.Enrolments.Queries.Applicant;
 using ES.Enrolment.Application.Enrolments.Queries.ApplicantsById;
+using ES.Enrolment.Application.Enrolments.Queries.ConsultancyClass;
+using ES.Enrolment.Application.Enrolments.Queries.Counselor;
 using ES.Enrolment.Application.Enrolments.Queries.CRMStudentsById;
 using ES.Enrolment.Application.Enrolments.Queries.FilterApplicant;
 using ES.Enrolment.Application.Enrolments.Queries.FilterAppointment;
+using ES.Enrolment.Application.Enrolments.Queries.FilterConsultancyClass;
 using ES.Enrolment.Application.Enrolments.Queries.FilterCounselor;
 using ES.Enrolment.Application.Enrolments.Queries.FilterCRMStudents;
 using ES.Enrolment.Application.Enrolments.Queries.FilterInquery;
 using ES.Enrolment.Application.Enrolments.Queries.GetAllUserProfile;
 using ES.Enrolment.Application.Enrolments.Queries.GetUserProfileByUser;
 using ES.Enrolment.Application.Enrolments.Queries.InqueryById;
+using ES.Enrolment.Application.Enrolments.Queries.Inquiry;
 using ES.Enrolment.Application.Enrolments.Queries.ScheduleAppointment;
+using ES.Enrolment.Application.Enrolments.Queries.TrainingRegistration.FilterTrainingRegistration;
 using ES.Finances.Application.Finance.Queries.Fee.Feetype;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -48,6 +58,135 @@ namespace TN.Web.Controllers.Enrolments.v1
             _logger = logger;
             _mediator = mediator;
         }
+
+
+        #region TrainingRegistration
+
+        #region FilterTrainingRegistration
+        [HttpGet("FilterTrainingRegistration")]
+        public async Task<IActionResult> FilterTrainingRegistration([FromQuery] FilterTrainingRegistrationDTOs filterTrainingRegistrationDTOs, [FromQuery] PaginationRequest paginationRequest)
+        {
+            var query = new FilterTrainingRegistrationQuery(paginationRequest, filterTrainingRegistrationDTOs);
+            var filter = await _mediator.Send(query);
+            #region Switch Statement
+            return filter switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(filter.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = filter.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(filter.Errors),
+                _ => BadRequest("Invalid page and pageSize Fields")
+            };
+            #endregion
+
+        }
+
+        #endregion
+
+        #region AddTrainingRegistration
+        [HttpPost("AddTrainingRegistration")]
+
+        public async Task<IActionResult> AddTrainingRegistration([FromBody] AddTranningRegistrationRequest request)
+        {
+            //Mapping command and request
+            var command = request.ToCommand();
+            var add = await _mediator.Send(command);
+            #region Switch Statement
+            return add switch
+            {
+                { IsSuccess: true, Data: not null } => CreatedAtAction(nameof(AddTrainingRegistration), add.Data),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = add.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(add.Errors),
+                _ => BadRequest("Invalid Fields ")
+
+            };
+
+            #endregion
+        }
+        #endregion
+
+        #endregion
+
+
+
+
+        #region ConsultancyClasss
+        #region AllConsultancyClasss
+        [HttpGet("AllConsultancyClasss")]
+        public async Task<IActionResult> AllConsultancyClasss([FromQuery] PaginationRequest paginationRequest)
+        {
+            var query = new ConsultancyClassQuery(paginationRequest);
+            var result = await _mediator.Send(query);
+            #region Switch Statement
+            return result switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(result.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { result.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(result.Errors),
+                _ => BadRequest("Invalid page and pageSize Fields")
+            };
+            #endregion
+
+        }
+
+
+        #endregion
+
+        #region FilterConsultancyClasss
+        [HttpGet("FilterConsultancyClasss")]
+        public async Task<IActionResult> FilterConsultancyClasss([FromQuery] FilterConsultancyClassDTOs filterConsultancyClassDTOs, [FromQuery] PaginationRequest paginationRequest)
+        {
+            var query = new FilterConsultancyClassQuery(filterConsultancyClassDTOs,paginationRequest);
+            var filter = await _mediator.Send(query);
+            #region Switch Statement
+            return filter switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(filter.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = filter.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(filter.Errors),
+                _ => BadRequest("Invalid page and pageSize Fields")
+            };
+            #endregion
+
+        }
+
+        #endregion
+
+        #region AddConsultancyClass
+        [HttpPost("AddConsultancyClass")]
+
+        public async Task<IActionResult> AddConsultancyClass([FromBody] AddConsultancyClassRequest request)
+        {
+            //Mapping command and request
+            var command = request.ToCommand();
+            var add = await _mediator.Send(command);
+            #region Switch Statement
+            return add switch
+            {
+                { IsSuccess: true, Data: not null } => CreatedAtAction(nameof(AddConsultancyClass), add.Data),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = add.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(add.Errors),
+                _ => BadRequest("Invalid Fields ")
+
+            };
+
+            #endregion
+        }
+        #endregion
+
+        #endregion
+
+
+
+
 
 
         #region Appointments
@@ -120,7 +259,29 @@ namespace TN.Web.Controllers.Enrolments.v1
         #endregion
 
         #region Counselor
+        #region AllCounselor
+        [HttpGet("AllCounselor")]
+        public async Task<IActionResult> AllCounselor([FromQuery] PaginationRequest paginationRequest)
+        {
+            var query = new CounselorQuery(paginationRequest);
+            var result = await _mediator.Send(query);
+            #region Switch Statement
+            return result switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(result.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { result.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(result.Errors),
+                _ => BadRequest("Invalid page and pageSize Fields")
+            };
+            #endregion
 
+        }
+
+
+        #endregion
 
         #region FilterCounselor
         [HttpGet("FilterCounselor")]
@@ -238,7 +399,53 @@ namespace TN.Web.Controllers.Enrolments.v1
         }
         #endregion
 
+        #region AllInquiry
+        [HttpGet("AllInquiry")]
+        public async Task<IActionResult> AllInquiry([FromQuery] PaginationRequest paginationRequest)
+        {
+            var query = new InquiryQuery(paginationRequest);
+            var result = await _mediator.Send(query);
+            #region Switch Statement
+            return result switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(result.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { result.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(result.Errors),
+                _ => BadRequest("Invalid page and pageSize Fields")
+            };
+            #endregion
 
+        }
+
+
+        #endregion
+
+        #region AllApplicant
+        [HttpGet("AllApplicant")]
+        public async Task<IActionResult> AlAllApplicantlInquiry([FromQuery] PaginationRequest paginationRequest)
+        {
+            var query = new ApplicantQuery(paginationRequest);
+            var result = await _mediator.Send(query);
+            #region Switch Statement
+            return result switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(result.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { result.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(result.Errors),
+                _ => BadRequest("Invalid page and pageSize Fields")
+            };
+            #endregion
+
+        }
+
+
+        #endregion
 
         #region UserProfileById
         [HttpGet("UserProfile/{userId}")]

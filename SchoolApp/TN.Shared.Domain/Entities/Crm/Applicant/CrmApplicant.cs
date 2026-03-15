@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TN.Shared.Domain.Entities.Crm.Enrollments;
 using TN.Shared.Domain.Entities.Crm.Profile;
 using TN.Shared.Domain.Primitive;
 
@@ -36,6 +37,7 @@ namespace TN.Shared.Domain.Entities.Crm.Applicant
             ModifiedBy = modifiedBy;
             CreatedAt = createdAt;
             ModifiedAt = modifiedAt;
+            TrainingRegistrations = new List<TrainingRegistration>();
 
         }
         public string SchoolId { get; set; }
@@ -48,6 +50,8 @@ namespace TN.Shared.Domain.Entities.Crm.Applicant
         public string PassportNumber { get; set; }
         public string TargetCountry { get; set; }
         public virtual UserProfile Profile { get; set; }
+
+        public ICollection<TrainingRegistration> TrainingRegistrations { get; private set; }
 
     }
 }
