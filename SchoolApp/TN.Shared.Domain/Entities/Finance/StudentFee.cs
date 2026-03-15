@@ -27,7 +27,6 @@ namespace TN.Shared.Domain.Entities.Finance
             decimal paidAmount,
             bool isActive,
             string schoolid,
-            PaidStatus isPaidStatus,
             string createdBy,
             DateTime createdAt,
             string modifiedBy,
@@ -37,7 +36,7 @@ namespace TN.Shared.Domain.Entities.Finance
             StudentId = studentId;
             ClassId = classId;
             FeeStructureId = feeStructureId;
-            IsPaidStatus = isPaidStatus;
+            IsPaidStatus = PaidStatus.Pending;
             IsActive = isActive;
             SchoolId = schoolid;
             DiscountAmount = discountAmount;
@@ -71,6 +70,16 @@ namespace TN.Shared.Domain.Entities.Finance
         public string ModifiedBy { get; set; }
         public DateTime ModifiedAt { get; set; } = DateTime.Now;
         public ICollection<PaymentsRecords> Payments { get; set; }
+
+        public decimal GetNetTotal() => TotalAmount - DiscountAmount;
+
+        public void UpdatePaymentStatus(decimal currentPaidAmount)
+        {
+            var net = GetNetTotal();
+            if (currentPaidAmount >= net) IsPaidStatus = PaidStatus.Paid;
+            else if (currentPaidAmount > 0) IsPaidStatus = PaidStatus.partiallyPaid;
+            else IsPaidStatus = PaidStatus.Pending;
+        }
 
         public enum PaidStatus
         {

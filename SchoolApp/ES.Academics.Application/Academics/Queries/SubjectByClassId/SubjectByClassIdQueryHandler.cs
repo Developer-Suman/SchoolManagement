@@ -28,7 +28,7 @@ namespace ES.Academics.Application.Academics.Queries.SubjectByClassId
         {
             try
             {
-                var subject = await _examResultServices.GetSubjectByClass(request.classId);
+                var subject = await _examResultServices.GetSubjectByClass(request.SubjectByClassDTOs);
                 var subjectResult = _mapper.Map<List<SubjectByClassIdResponse>>(subject.Data);
                 return Result<List<SubjectByClassIdResponse>>.Success(subjectResult);
 

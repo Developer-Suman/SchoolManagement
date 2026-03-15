@@ -11,7 +11,7 @@ namespace ES.Finances.Application.Finance.Command.Fee.AddStudentFee
         string id="",
             string studentId="",
             string feeStructureId="",
-
+            string classId="",
             decimal discount=0,
             decimal totalAmount=0,
             decimal paidAmount = 0,

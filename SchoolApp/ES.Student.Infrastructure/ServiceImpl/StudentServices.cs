@@ -436,6 +436,7 @@ namespace ES.Student.Infrastructure.ServiceImpl
                     string schoolId = _tokenService.SchoolId().FirstOrDefault() ?? "";
                     string userId = _tokenService.GetUserId();
                     var academicYearId = _fiscalContext.CurrentAcademicYearId;
+                    var fyId = _fiscalContext.CurrentFiscalYearId;
 
                     using var stream = new MemoryStream();
                     await formFile.CopyToAsync(stream, cancellationToken);
@@ -466,18 +467,41 @@ namespace ES.Student.Infrastructure.ServiceImpl
                     }
 
                     decimal totalStockValue = 0m;
+                    var schoolClasses = await _unitOfWork.BaseRepository<Class>()
+                        .GetConditionalAsync(i => i.SchoolId == schoolId || i.SchoolId == "");
+
+                    var classLookup = schoolClasses
+                        .Where(c => c.ClassSymbol != null)
+                        .ToDictionary(c => c.ClassSymbol, c => c.Id);
+
+                    var parents = await _unitOfWork.BaseRepository<Parent>()
+                        .GetConditionalAsync(i => i.SchoolId == schoolId || i.SchoolId == "");
+
+                    var parentsLookup = parents
+                        .Where(p => !string.IsNullOrWhiteSpace(p.FullName))
+                        .GroupBy(p => p.FullName.Trim().ToLower())
+                        .ToDictionary(g => g.Key, g => g.First());
+
+
+                    // ============================
+                    // Start Reading Excel
+                    // ============================
 
                     for (int row = 2; row <= rowCount; row++)
                     {
                         var fullName = worksheet.Cells[row, headerMap["fullname"]].Text?.Trim();
+
                         string firstName = "";
                         string middleName = "";
                         string lastName = "";
 
+                        // ============================
+                        // Split Full Name
+                        // ============================
+
                         if (!string.IsNullOrWhiteSpace(fullName))
                         {
-                            var nameParts = fullName
-                                .Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                            var nameParts = fullName.Split(' ', StringSplitOptions.RemoveEmptyEntries);
 
                             if (nameParts.Length == 1)
                             {
@@ -491,41 +515,30 @@ namespace ES.Student.Infrastructure.ServiceImpl
                             else if (nameParts.Length >= 3)
                             {
                                 firstName = nameParts[0];
-                                lastName = nameParts[^1]; // last element
+                                lastName = nameParts[^1];
                                 middleName = string.Join(" ", nameParts.Skip(1).Take(nameParts.Length - 2));
                             }
                         }
-                       
-                        
-                        
+
+                        // ============================
+                        // Gender
+                        // ============================
+
                         var genderText = worksheet.Cells[row, headerMap["gender"]].Text?.Trim();
 
-                        Gender? gender = null;
-
-                        if (!string.IsNullOrWhiteSpace(genderText))
+                        Gender? gender = genderText?.ToLower() switch
                         {
-                            if (genderText.Equals("Male", StringComparison.OrdinalIgnoreCase))
-                                gender = Gender.Male;
+                            "male" => Gender.Male,
+                            "female" => Gender.Female,
+                            "others" => Gender.Others,
+                            _ => null
+                        };
 
-                            else if (genderText.Equals("Female", StringComparison.OrdinalIgnoreCase))
-                                gender = Gender.Female;
-
-                            else if (genderText.Equals("Others", StringComparison.OrdinalIgnoreCase))
-                                gender = Gender.Others;
-                        }
-
+                        // ============================
+                        // Class Lookup
+                        // ============================
 
                         var currentClassText = worksheet.Cells[row, headerMap["currentclass"]].Text?.Trim();
-                        var schoolClass = await _unitOfWork.BaseRepository<Class>()
-                            .GetConditionalAsync(i => i.SchoolId == schoolId || i.SchoolId == "");
-
-                        var classLookup = schoolClass
-                                .Where(c => c.ClassSymbol != null)
-                                .ToDictionary(
-                                    c => c.ClassSymbol,
-                                    c => c.Id  
-                                );
-
 
                         if (!int.TryParse(currentClassText, out int classSymbol) ||
                             !classLookup.TryGetValue(classSymbol, out var classId))
@@ -533,17 +546,9 @@ namespace ES.Student.Infrastructure.ServiceImpl
                             throw new Exception($"Invalid ClassSymbol '{currentClassText}' at row {row}");
                         }
 
-                        var parents = await _unitOfWork.BaseRepository<Parent>()
-                            .GetConditionalAsync(i => i.SchoolId == schoolId || i.SchoolId == "");
-
-                        var parentsLookup = parents
-                            .Where(p => !string.IsNullOrWhiteSpace(p.FullName))
-                            .GroupBy(p => p.FullName.Trim().ToLower())
-                            .ToDictionary(
-                                g => g.Key,
-                                g => g.First()
-                            );
-
+                        // ============================
+                        // Parent Matching
+                        // ============================
 
                         var fatherName = worksheet.Cells[row, headerMap["father name"]].Text?.Trim();
                         var motherName = worksheet.Cells[row, headerMap["mother name"]].Text?.Trim();
@@ -555,19 +560,23 @@ namespace ES.Student.Infrastructure.ServiceImpl
                         {
                             matchedParent = fatherMatch;
                         }
-
                         else if (!string.IsNullOrWhiteSpace(motherName) &&
                                  parentsLookup.TryGetValue(motherName.ToLower(), out var motherMatch))
                         {
                             matchedParent = motherMatch;
                         }
+
+                        // ============================
+                        // Create Parent if Not Found
+                        // ============================
+
                         if (matchedParent == null)
                         {
                             var newParent = new Parent
                             {
                                 Id = Guid.NewGuid().ToString(),
                                 FullName = fatherName ?? motherName ?? "Unknown Parent",
-                                ParentType = fatherName != null ? ParentType.Father : ParentType.Mother,                             
+                                ParentType = !string.IsNullOrWhiteSpace(fatherName) ? ParentType.Father : ParentType.Mother,
                                 SchoolId = schoolId,
                                 CreatedAt = DateTime.UtcNow,
                                 CreatedBy = userId,
@@ -577,36 +586,36 @@ namespace ES.Student.Infrastructure.ServiceImpl
                                 Address = "",
                                 Occupation = "",
                                 ImageUrl = "",
-                                ModifiedBy="",
-                                ModifiedAt=DateTime.UtcNow,
+                                ModifiedBy = "",
+                                ModifiedAt = DateTime.UtcNow,
                                 LedgerId = null
-
                             };
 
                             await _unitOfWork.BaseRepository<Parent>().AddAsync(newParent);
-                            await _unitOfWork.SaveChangesAsync();
+
                             matchedParent = newParent;
+
                             parentsLookup[newParent.FullName.ToLower()] = newParent;
                         }
+
                         var parentId = matchedParent.Id;
+
+                        // ============================
+                        // Date Conversion
+                        // ============================
+
                         string? dateOfBirth = worksheet.Cells[row, headerMap["dob"]].Text?.Trim();
 
-                        var year = worksheet.Cells[row, headerMap["year"]].Text?.Trim();
-                        //var academicYear = await _unitOfWork.BaseRepository<AcademicYear>()
-                        //    .FirstOrDefaultAsync(i =>
-
-                        //        i.Name.ToLower().Trim() == year.ToLower().Trim()
-                        //    );
-
-
-
-
-                 
                         var dateOfBirthInEnglish = await _dateConverter.ConvertToEnglish(dateOfBirth);
 
-                        var newId = Guid.NewGuid().ToString();
-                        var add = new StudentData(
-                            newId,
+                        // ============================
+                        // Create Student
+                        // ============================
+
+                        var studentId = Guid.NewGuid().ToString();
+
+                        var student = new StudentData(
+                            studentId,
                             firstName,
                             middleName,
                             lastName,
@@ -626,7 +635,6 @@ namespace ES.Student.Infrastructure.ServiceImpl
                             1,
                             userId,
                             DateTime.UtcNow,
-
                             "",
                             null,
                             default,
@@ -634,21 +642,50 @@ namespace ES.Student.Infrastructure.ServiceImpl
                             true,
                             null,
                             null,
-
                             classId,
                             userId,
                             EnrollmentStatus.Active
-
                         );
 
-                        await _unitOfWork.BaseRepository<StudentData>().AddAsync(add);
-                        await _unitOfWork.SaveChangesAsync();
+                        await _unitOfWork.BaseRepository<StudentData>().AddAsync(student);
 
+                        // ============================
+                        // Create Ledger
+                        // ============================
 
+                        var ledgerId = Guid.NewGuid().ToString();
+
+                        var ledgerName = $"{firstName} {middleName} {lastName}".Replace("  ", " ").Trim() + " A/C";
+
+                        var ledger = new Ledger(
+                            ledgerId,
+                            ledgerName,
+                            DateTime.UtcNow,
+                            false,
+                            null,
+                            "",
+                            "",
+                            "",
+                            "",
+                            SubLedgerGroupConstants.SundryDebtors,
+                            schoolId,
+                            fyId,
+                            0,
+                            false,
+                            true
+                        );
+
+                        await _unitOfWork.BaseRepository<Ledger>().AddAsync(ledger);
+
+                        student.LedgerId = ledgerId;
+
+                        // ============================
+                        // Create Registration
+                        // ============================
 
                         var registration = new Registrations(
                             Guid.NewGuid().ToString(),
-                            newId,
+                            studentId,
                             classId,
                             academicYearId,
                             EnrollmentStatus.Active,
@@ -658,18 +695,21 @@ namespace ES.Student.Infrastructure.ServiceImpl
                             DateTime.UtcNow,
                             "",
                             DateTime.UtcNow
-                            );
+                        );
 
                         await _unitOfWork.BaseRepository<Registrations>().AddAsync(registration);
+
+                        // ============================
+                        // Save Once
+                        // ============================
+
                         await _unitOfWork.SaveChangesAsync();
-
-
                     }
 
 
 
 
-            
+
 
                     scope.Complete();
 
@@ -1308,7 +1348,7 @@ namespace ES.Student.Infrastructure.ServiceImpl
                 var (studentsFromRegistration, currentSchoolId, institutionId, userRole, isSuperAdmin) =
                     await _getUserScopedData.GetUserScopedData<Registrations>();
 
-                var finalQuery = studentsFromRegistration.Where(x => x.IsActive == true 
+                var finalQuery = studentsFromRegistration.Include(x=>x.Student).Where(x => x.IsActive == true 
                 && x.SchoolId == currentSchoolId
                 && x.AcademicYearId == academicYearId).AsNoTracking();
 
@@ -1318,8 +1358,29 @@ namespace ES.Student.Infrastructure.ServiceImpl
                     paginationRequest.pageSize,
                     paginationRequest.IsPagination);
 
+                var mappedItems = pagedResult.Data.Items
+                   .Select(x => new StudentFromRegistrationResponse(
+                       x.Student.Id,
+                       x.Student.FirstName,
+                       x.Student.MiddleName,
+                       x.Student.LastName,
+                       x.Student.RegistrationNumber,
+                       x.Student.Gender,
+                       x.Student.Status,
+                       x.Student.DateOfBirth,
+                       x.Student.Email,
+                       x.Student.PhoneNumber,
+                       x.Student.ImageUrl,
+                       x.Student.Address,
+                       x.Student.EnrollmentDate,
+                       x.Student.ParentId,
+                       x.Student.ClassSectionId,
+                       x.Student.ClassId
+                   ))
+                   .ToList();
 
-                var mappedItems = _mapper.Map<List<StudentFromRegistrationResponse>>(pagedResult.Data.Items);
+
+               
 
                 var response = new PagedResult<StudentFromRegistrationResponse>
                 {

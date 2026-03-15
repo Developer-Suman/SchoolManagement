@@ -9,6 +9,7 @@ namespace ES.Finances.Application.Finance.Queries.Fee.StudentFeeSummary
     public record StudentFeeSummaryDTOs
     (
         string? studentId,
+        string? classId,
         string? startDate,
         string? endDate
         );

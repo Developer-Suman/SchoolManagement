@@ -211,23 +211,30 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                     && x.FyId == fyId
                     && x.AcademicYearId == academicYearId);
 
-                var (startUtc, endUtc) = await _dateConverter.GetDateRangeUtc(filterExamDTOs.startDate, filterExamDTOs.endDate);
+                IQueryable<Exam> query = filterExam.AsQueryable();
 
-                var filteredResult = filterExam
-                 .Where(x =>
-                       (string.IsNullOrEmpty(filterExamDTOs.name) || x.Name == filterExamDTOs.name) &&
-                     x.CreatedAt >= startUtc &&
-                         x.CreatedAt <= endUtc &&
-                         x.IsActive
-                 )
-                 .OrderByDescending(x => x.CreatedAt) // newest first
-                 .ToList();
+                if (!string.IsNullOrEmpty(filterExamDTOs.name))
+                {
+                    query = query.Where(x => x.Name == filterExamDTOs.name);
+                }
 
 
 
+                if (filterExamDTOs.startDate != null && filterExamDTOs.endDate != null)
+                {
+                    var (startUtc, endUtc) = await _dateConverter.GetDateRangeUtc(
+                        filterExamDTOs.startDate,
+                        filterExamDTOs.endDate
+                    );
 
-                var responseList = filteredResult
-                .OrderByDescending(x => x.CreatedAt)
+                    query = query.Where(x => x.CreatedAt >= startUtc && x.CreatedAt <= endUtc);
+                }
+
+
+                query = query.Where(x => x.IsActive)
+              .OrderByDescending(x => x.CreatedAt);
+
+                var responseList = query
                 .Select(i => new FilterExamResponse(
                 
                     i.Id,

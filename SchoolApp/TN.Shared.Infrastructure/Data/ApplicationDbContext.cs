@@ -50,6 +50,10 @@ namespace TN.Shared.Infrastructure.Data
 
         #region CRM
 
+        #region Class
+        public DbSet<TrainingRegistration> ClassRegistrations { get; set; }
+        public DbSet<ConsultancyClass> ConsultancyClasses { get; set; }
+        #endregion
 
         #region Counselor
         public DbSet<Counselor> Counselors { get; set; }
@@ -293,6 +297,26 @@ namespace TN.Shared.Infrastructure.Data
 
 
             #region CRM 
+
+            #region Classes
+
+            #region CrmApplicant and TrainingRegistration(1:m)
+            builder.Entity<TrainingRegistration>()
+            .HasOne(x => x.CrmApplicant)
+            .WithMany(x => x.TrainingRegistrations)
+            .HasForeignKey(x => x.ApplicantId);
+
+            #endregion
+
+
+            #region ConsultancyClass and TrainingRegistrations(1:m)
+            builder.Entity<TrainingRegistration>()
+            .HasOne(x => x.ConsultancyClass)
+            .WithMany(x => x.TrainingRegistrations)
+            .HasForeignKey(x => x.ConsultancyClassId);
+
+            #endregion
+            #endregion
 
             #region Counselor
 

@@ -10,6 +10,6 @@ namespace ES.Academics.Application.Academics.Queries.SubjectByClassId
 {
     public record SubjectByClassIdQuery
    (
-        string classId
+        SubjectByClassDTOs SubjectByClassDTOs
         ) : IRequest<Result<List<SubjectByClassIdResponse> >>;
 }

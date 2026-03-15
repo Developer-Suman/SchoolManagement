@@ -18,6 +18,8 @@ namespace ES.Enrolment.Infrastructure
             services.AddScoped<IEnrolmentServices, EnrolmentServices>();
             services.AddScoped<ICounselorServices, CounselorServices>();
             services.AddScoped<IAppointmentServices, AppointmentServices>();
+            services.AddScoped<IConsultancyClassServices, ConsultancyClassServices>();
+            services.AddScoped<ITrainingRegistrationServices, TrainingRegistrationServices>();
             #endregion
             return services;
         }

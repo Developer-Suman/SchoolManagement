@@ -26,7 +26,7 @@ namespace ES.Academics.Application.ServiceInterface
         Task<Result<PagedResult<ExamResultResponse>>> GetAllExamResult(PaginationRequest paginationRequest, CancellationToken cancellationToken = default);
         Task<Result<ExamResultByIdResponse>> GetExamResult(string examResultId, CancellationToken cancellationToken = default);
         Task<Result<MarkSheetByStudentResponse>> GetMarkSheet(MarksSheetDTOs marksSheetDTOs, CancellationToken cancellationToken = default);
-        Task<Result<List<SubjectByClassIdResponse>>> GetSubjectByClass(string classId, CancellationToken cancellationToken = default);
+        Task<Result<List<SubjectByClassIdResponse>>> GetSubjectByClass(SubjectByClassDTOs subjectByClassDTOs, CancellationToken cancellationToken = default);
 
         Task<Result<UpdateExamResultResponse>> Update(string examResultId, UpdateExamResultCommand updateExamResultCommand);
         Task<Result<bool>> Delete(string id, CancellationToken cancellationToken);

@@ -663,10 +663,10 @@ namespace TN.Web.Controllers.Academics.v1
         #region ExamResult
 
         #region SubjectByClassId
-        [HttpGet("SubjectByClass/{classId}")]
-        public async Task<IActionResult> GetSubjectByClass([FromRoute] string classId)
+        [HttpGet("SubjectByClass")]
+        public async Task<IActionResult> GetSubjectByClass([FromQuery] SubjectByClassDTOs subjectByClassDTOs)
         {
-            var query = new SubjectByClassIdQuery(classId);
+            var query = new SubjectByClassIdQuery(subjectByClassDTOs);
             var subjectByClass = await _mediator.Send(query);
             #region Switch Statement
             return subjectByClass switch

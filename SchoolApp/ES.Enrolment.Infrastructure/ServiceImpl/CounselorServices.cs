@@ -1,8 +1,11 @@
 ﻿using AutoMapper;
 using ES.Enrolment.Application.Enrolments.Command.AddAppointment;
 using ES.Enrolment.Application.Enrolments.Command.AddCounselor;
+using ES.Enrolment.Application.Enrolments.Queries.Counselor;
 using ES.Enrolment.Application.Enrolments.Queries.FilterAppointment;
+using ES.Enrolment.Application.Enrolments.Queries.FilterConsultancyClass;
 using ES.Enrolment.Application.Enrolments.Queries.FilterCounselor;
+using ES.Enrolment.Application.Enrolments.Queries.GetAllUserProfile;
 using ES.Enrolment.Application.ServiceInterface;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -15,6 +18,7 @@ using TN.Authentication.Domain.Entities;
 using TN.Shared.Application.ServiceInterface;
 using TN.Shared.Domain.Abstractions;
 using TN.Shared.Domain.Entities.Crm.Enrollments;
+using TN.Shared.Domain.Entities.Crm.Profile;
 using TN.Shared.Domain.Entities.OrganizationSetUp;
 using TN.Shared.Domain.ExtensionMethod.Pagination;
 using TN.Shared.Domain.IRepository;
@@ -85,6 +89,42 @@ namespace ES.Enrolment.Infrastructure.ServiceImpl
             }
         }
 
+        public async Task<Result<PagedResult<CounselorResponse>>> AllCounselor(PaginationRequest paginationRequest, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+
+                var (counselor, currentSchoolId, institutionId, userRole, isSuperAdmin) =
+                    await _getUserScopedData.GetUserScopedData<Counselor>();
+
+                var finalQuery = counselor.Where(x => x.SchoolId == currentSchoolId || x.SchoolId == currentSchoolId).AsNoTracking();
+
+
+
+                var pagedResult = await finalQuery.ToPagedResultAsync(
+                    paginationRequest.pageIndex,
+                    paginationRequest.pageSize,
+                    paginationRequest.IsPagination);
+
+
+                var mappedItems = _mapper.Map<List<CounselorResponse>>(pagedResult.Data.Items);
+
+                var response = new PagedResult<CounselorResponse>
+                {
+                    Items = mappedItems,
+                    TotalItems = pagedResult.Data.TotalItems,
+                    PageIndex = pagedResult.Data.PageIndex,
+                    pageSize = pagedResult.Data.pageSize
+                };
+
+                return Result<PagedResult<CounselorResponse>>.Success(response);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while fetching", ex);
+            }
+        }
+
         public async Task<Result<PagedResult<FilterCounselorResponse>>> FilterCounselor(PaginationRequest paginationRequest, FilterCounselorDTOs filterCounselorDTOs)
         {
             try
@@ -99,28 +139,36 @@ namespace ES.Enrolment.Infrastructure.ServiceImpl
                         x => x.InstitutionId == institutionId,
                         query => query.Select(c => c.Id)
                     );
-                var data = counselor.ToList();
+
                 var filter = isSuperAdmin?
                      counselor
                     :counselor.Where(x => x.SchoolId == schoolId || x.SchoolId == "");
 
 
-                var (startUtc, endUtc) = await _dateConverter.GetDateRangeUtc(filterCounselorDTOs.startDate, filterCounselorDTOs.endDate);
+                IQueryable<Counselor> query = filter.AsQueryable();
 
-                var filteredResult = filter
-                 .Where(x =>
-                       (string.IsNullOrEmpty(filterCounselorDTOs.fullName) || x.FullName == filterCounselorDTOs.fullName) &&
-                     x.CreatedAt >= startUtc &&
-                         x.CreatedAt <= endUtc &&
-                         x.IsActive
-                 )
-                 .OrderByDescending(x => x.CreatedAt) // newest first
-                 .ToList();
+                if (!string.IsNullOrEmpty(filterCounselorDTOs.fullName))
+                {
+                    query = query.Where(x => x.FullName == filterCounselorDTOs.fullName);
+                }
+
+                if (filterCounselorDTOs.startDate != null && filterCounselorDTOs.endDate != null)
+                {
+                    var (startUtc, endUtc) = await _dateConverter.GetDateRangeUtc(
+                        filterCounselorDTOs.startDate,
+                        filterCounselorDTOs.endDate
+                    );
+
+                    query = query.Where(x => x.CreatedAt >= startUtc && x.CreatedAt <= endUtc);
+                }
+
+                query = query.Where(x => x.IsActive)
+               .OrderByDescending(x => x.CreatedAt);
 
 
 
 
-                var responseList = filteredResult
+                var responseList = query
                 .Select(i => new FilterCounselorResponse(
                     i.Id,
                     i.FullName,

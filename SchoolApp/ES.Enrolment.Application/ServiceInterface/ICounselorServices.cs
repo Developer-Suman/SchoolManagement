@@ -1,7 +1,9 @@
 ﻿using ES.Enrolment.Application.Enrolments.Command.AddAppointment;
 using ES.Enrolment.Application.Enrolments.Command.AddCounselor;
+using ES.Enrolment.Application.Enrolments.Queries.Counselor;
 using ES.Enrolment.Application.Enrolments.Queries.FilterAppointment;
 using ES.Enrolment.Application.Enrolments.Queries.FilterCounselor;
+using ES.Enrolment.Application.Enrolments.Queries.GetAllUserProfile;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,5 +18,7 @@ namespace ES.Enrolment.Application.ServiceInterface
     {
         Task<Result<AddCounselorResponse>> AddCounselor(AddCounselorCommand addCounselorCommand);
         Task<Result<PagedResult<FilterCounselorResponse>>> FilterCounselor(PaginationRequest paginationRequest, FilterCounselorDTOs filterCounselorDTOs);
+        Task<Result<PagedResult<CounselorResponse>>> AllCounselor(PaginationRequest paginationRequest, CancellationToken cancellationToken = default);
+
     }
 }

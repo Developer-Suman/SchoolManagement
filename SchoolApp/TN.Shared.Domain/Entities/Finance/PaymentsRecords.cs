@@ -41,6 +41,7 @@ namespace TN.Shared.Domain.Entities.Finance
             CreatedAt = createdAt;
             ModifiedBy = modifiedBy;
             ModifiedAt = modifiedAt;
+
         }
 
         public string StudentId { get; set; }
