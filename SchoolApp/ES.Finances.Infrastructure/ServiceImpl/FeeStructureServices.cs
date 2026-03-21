@@ -20,6 +20,7 @@ using TN.Authentication.Domain.Entities;
 using TN.Shared.Application.ServiceInterface;
 using TN.Shared.Domain.Abstractions;
 using TN.Shared.Domain.Entities.Academics;
+using TN.Shared.Domain.Entities.CocurricularActivities;
 using TN.Shared.Domain.Entities.Communication;
 using TN.Shared.Domain.Entities.Finance;
 using TN.Shared.Domain.Entities.OrganizationSetUp;
@@ -265,22 +266,30 @@ namespace ES.Finances.Infrastructure.ServiceImpl
                     ? feeStructure
                     : feeStructure.Where(x => x.SchoolId == _tokenService.SchoolId().FirstOrDefault() || x.SchoolId == "");
 
-                var (startUtc, endUtc) = await _dateConverter.GetDateRangeUtc(filterFeeStructureDTOs.startDate, filterFeeStructureDTOs.endDate);
+                IQueryable<FeeStructure> query = filter.AsQueryable();
 
-                var filteredResult = filter
-                 .Where(x =>
-                       (string.IsNullOrEmpty(filterFeeStructureDTOs.classId) || x.ClassId == filterFeeStructureDTOs.classId) &&
-                     x.CreatedAt >= startUtc &&
-                         x.CreatedAt <= endUtc &&
-                         x.IsActive
-                 )
-                 .OrderByDescending(x => x.CreatedAt) // newest first
-                 .ToList();
+                if (!string.IsNullOrEmpty(filterFeeStructureDTOs.classId))
+                {
+                    query = query.Where(x => x.ClassId == filterFeeStructureDTOs.classId);
+                }
+
+                if (filterFeeStructureDTOs.startDate != null && filterFeeStructureDTOs.endDate != null)
+                {
+                    var (startUtc, endUtc) = await _dateConverter.GetDateRangeUtc(
+                        filterFeeStructureDTOs.startDate,
+                        filterFeeStructureDTOs.endDate
+                    );
+
+                    query = query.Where(x => x.CreatedAt >= startUtc && x.CreatedAt <= endUtc);
+                }
+
+                query = query.Where(x => x.IsActive)
+               .OrderByDescending(x => x.CreatedAt);
 
 
 
 
-                var responseList = filteredResult
+                var responseList = query
                 .OrderByDescending(x => x.CreatedAt)
                 .Select(i => new FilterFeeStructureResponse(
 

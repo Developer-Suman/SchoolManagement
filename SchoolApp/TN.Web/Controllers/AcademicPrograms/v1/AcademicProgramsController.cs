@@ -17,8 +17,6 @@ using ES.AcademicPrograms.Application.AcademicPrograms.Queries.FilterRequirement
 using ES.AcademicPrograms.Application.AcademicPrograms.Queries.FilterUniversity;
 using ES.AcademicPrograms.Application.AcademicPrograms.Queries.University;
 using ES.AcademicPrograms.Application.AcademicPrograms.Queries.UniversityByCountry;
-using ES.Enrolment.Application.Enrolments.Command.AddInquiry;
-using ES.Enrolment.Application.Enrolments.Queries.FilterInquery;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;

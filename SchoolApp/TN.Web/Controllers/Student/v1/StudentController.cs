@@ -1,4 +1,5 @@
-﻿using ES.Academics.Application.Academics.Queries.FilterSubject;
+﻿using ES.Academics.Application.Academics.Queries.Events.ScheduleEvents;
+using ES.Academics.Application.Academics.Queries.FilterSubject;
 using ES.Communication.Application.Communication.Queries.NoticeDisplay;
 using ES.Student.Application.Registration.Command.RegisterMultipleStudents;
 using ES.Student.Application.Registration.Command.RegisterMultipleStudents.RequestCommandMapper;
@@ -60,6 +61,29 @@ namespace TN.Web.Controllers.Student.v1
             _mediator = mediator;
             _logger = logger;
         }
+
+        #region ScheduleEvents
+        [HttpGet("ScheduleEvents")]
+        public async Task<IActionResult> ScheduleEvents([FromQuery] ScheduleEventsDTOs scheduleEventsDTOs)
+        {
+            var query = new ScheduleEventsQuery(scheduleEventsDTOs);
+            var filter = await _mediator.Send(query);
+            #region Switch Statement
+            return filter switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(filter.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = filter.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(filter.Errors),
+                _ => BadRequest("Invalid page and pageSize Fields")
+            };
+            #endregion
+
+        }
+
+        #endregion
 
         #region AddStudentExcel
         [HttpPost("upload-students")]

@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using ES.Certificate.Application.Certificates.Queries.CertificateTemplate;
 using ES.Certificate.Application.ServiceInterface.IHelperMethod;
+using ES.Student.Application.CocurricularActivities.Queries.FilterActivity;
 using ES.Student.Application.ServiceInterface;
 using ES.Student.Application.Student.Command.AddParent;
 using ES.Student.Application.Student.Command.AddStudents;
@@ -891,26 +892,34 @@ namespace ES.Student.Infrastructure.ServiceImpl
                         query => query.Select(c => c.Id)
                     );
 
-                var parentsFilterData = isSuperAdmin
+                var filter = isSuperAdmin
                     ? parents
                     : parents.Where(x => x.SchoolId == _tokenService.SchoolId().FirstOrDefault() || x.SchoolId == "");
 
-                var (startUtc, endUtc) = await _dateConverter.GetDateRangeUtc(filterParentsDTOs.startDate, filterParentsDTOs.endDate);
+                IQueryable<Parent> query = filter.AsQueryable();
 
-                var filteredResult = parentsFilterData
-                 .Where(x =>
-                       (string.IsNullOrEmpty(filterParentsDTOs.firstName) || x.FullName == filterParentsDTOs.firstName) &&
-                     x.CreatedAt >= startUtc &&
-                         x.CreatedAt <= endUtc &&
-                         x.IsActive == true
-                 )
-                 .OrderByDescending(x => x.CreatedAt) // newest first
-                 .ToList();
+                if (!string.IsNullOrEmpty(filterParentsDTOs.firstName))
+                {
+                    query = query.Where(x => x.FullName == filterParentsDTOs.firstName);
+                }
+
+                if (filterParentsDTOs.startDate != null && filterParentsDTOs.endDate != null)
+                {
+                    var (startUtc, endUtc) = await _dateConverter.GetDateRangeUtc(
+                        filterParentsDTOs.startDate,
+                        filterParentsDTOs.endDate
+                    );
+
+                    query = query.Where(x => x.CreatedAt >= startUtc && x.CreatedAt <= endUtc);
+                }
+
+                query = query.Where(x => x.IsActive)
+               .OrderByDescending(x => x.CreatedAt);
 
 
 
 
-                var responseList = filteredResult
+                var responseList = query
                 .OrderByDescending(x => x.CreatedAt)
                 .Select(i => new FilterParentsResponse(
                     i.Id,
@@ -988,26 +997,34 @@ namespace ES.Student.Infrastructure.ServiceImpl
                         query => query.Select(c => c.Id)
                     );
 
-                var filterStudentsData = isSuperAdmin
+                var filter = isSuperAdmin
                     ? students
                     : students.Where(x => x.SchoolId == _tokenService.SchoolId().FirstOrDefault() || x.SchoolId == "");
 
-                var (startUtc, endUtc) = await _dateConverter.GetDateRangeUtc(filterStudentsDTOs.startDate, filterStudentsDTOs.endDate);
+                IQueryable<StudentData> query = filter.AsQueryable();
 
-                var filteredResult = filterStudentsData
-                 .Where(x =>
-                       (string.IsNullOrEmpty(filterStudentsDTOs.firstName) || x.FirstName == filterStudentsDTOs.firstName) &&
-                     x.CreatedAt >= startUtc &&
-                         x.CreatedAt <= endUtc &&
-                         x.IsActive
-                 )
-                 .OrderByDescending(x => x.CreatedAt) // newest first
-                 .ToList();
+                if (!string.IsNullOrEmpty(filterStudentsDTOs.firstName))
+                {
+                    query = query.Where(x => x.FirstName == filterStudentsDTOs.firstName);
+                }
+
+                if (filterStudentsDTOs.startDate != null && filterStudentsDTOs.endDate != null)
+                {
+                    var (startUtc, endUtc) = await _dateConverter.GetDateRangeUtc(
+                        filterStudentsDTOs.startDate,
+                        filterStudentsDTOs.endDate
+                    );
+
+                    query = query.Where(x => x.CreatedAt >= startUtc && x.CreatedAt <= endUtc);
+                }
+
+                query = query.Where(x => x.IsActive)
+               .OrderByDescending(x => x.CreatedAt);
 
 
 
 
-                var responseList = filteredResult
+                var responseList = query
                 .OrderByDescending(x => x.CreatedAt)
                 .Select(i => new FilterStudentsResponse(
                     i.Id,

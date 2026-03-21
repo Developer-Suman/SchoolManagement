@@ -62,5 +62,12 @@ namespace TN.Shared.Domain.Enum
             NoShow=4
         }
 
+        public enum FollowUpStatus
+        {
+            Scheduled = 1,
+            Completed = 2,
+            Missed = 3
+        }
+
     }
 }

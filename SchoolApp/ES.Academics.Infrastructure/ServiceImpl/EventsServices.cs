@@ -4,6 +4,7 @@ using ES.Academics.Application.Academics.Command.Events.UpdateEvents;
 using ES.Academics.Application.Academics.Queries.Events.Events;
 using ES.Academics.Application.Academics.Queries.Events.EventsById;
 using ES.Academics.Application.Academics.Queries.Events.FilterEvents;
+using ES.Academics.Application.Academics.Queries.Events.ScheduleEvents;
 using ES.Academics.Application.ServiceInterface;
 using ES.Certificate.Application.Certificates.Command.Awards.SchoolAwards.AddAwards;
 using ES.Certificate.Application.Certificates.Command.Awards.SchoolAwards.UpdateAwards;
@@ -25,10 +26,13 @@ using TN.Shared.Application.ServiceInterface;
 using TN.Shared.Domain.Abstractions;
 using TN.Shared.Domain.Entities.Academics;
 using TN.Shared.Domain.Entities.Certificates;
+using TN.Shared.Domain.Entities.Crm.Enrollments;
 using TN.Shared.Domain.Entities.OrganizationSetUp;
 using TN.Shared.Domain.ExtensionMethod.Pagination;
 using TN.Shared.Domain.IRepository;
 using Unity.Injection;
+using static ES.Academics.Application.Academics.Queries.Events.ScheduleEvents.ScheduleEventsResponse;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace ES.Academics.Infrastructure.ServiceImpl
 {
@@ -147,6 +151,8 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                 && x.AcademicYearId == academicYearId
                 && x.FyId == fyId).AsNoTracking();
 
+                var data = events.ToList();
+
 
                 var pagedResult = await finalQuery.ToPagedResultAsync(
                     paginationRequest.pageIndex,
@@ -186,6 +192,64 @@ namespace ES.Academics.Infrastructure.ServiceImpl
             catch (Exception ex)
             {
                 throw new Exception("An error occurred while fetching Event by using Id", ex);
+            }
+        }
+
+        public async Task<Result<ScheduleEventsResponse>> GetEventsSchedule(ScheduleEventsDTOs scheduleEventsDTOs)
+        {
+            try
+            {
+                var fyId = _fiscalContext.CurrentFiscalYearId;
+                var userId = _tokenService.GetUserId();
+
+                var (events, schoolId, institutionId, userRole, isSuperAdmin) =
+                    await _getUserScopedData.GetUserScopedData<Events>();
+
+                // 1. Initial Filtering
+                var query = isSuperAdmin
+                    ? events
+                    : events.Where(x => x.SchoolId == _tokenService.SchoolId().FirstOrDefault());
+
+
+                query = query.Where(x =>
+                      (string.IsNullOrEmpty(scheduleEventsDTOs.title) || x.Title == scheduleEventsDTOs.title)
+                      && x.IsActive
+                  );
+
+                var eventsDictionary = query
+                    .OrderByDescending(x => x.CreatedAt)
+                    .AsEnumerable() // switch to memory for dictionary creation
+                    .ToDictionary(
+                        x => x.EventsDate,
+                        x => new EventsDetails(
+                            id: x.Id,
+                            title: x.Title,
+                            descriptions: x.Description,
+                            eventsType: x.EventsType,
+                            eventsDate: x.EventsDate,
+                            participants: x.Participants,
+                            eventTime: x.EventTime ?? default,
+                            venue: x.Venue,
+                            chiefGuest: x.ChiefGuest,
+                            organizer: x.Organizer,
+                            mentor: x.Mentor
+                        ),
+                        StringComparer.OrdinalIgnoreCase // safer key handling
+                    );
+
+
+                var eventList = new List<EventsListDetails>
+                    {
+                        new EventsListDetails(eventsDictionary)
+                    };
+
+                var finalResponse = new ScheduleEventsResponse(eventList);
+
+                return Result<ScheduleEventsResponse>.Success(finalResponse);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"An error occurred while processing Appointment Schedule: {ex.Message}", ex);
             }
         }
 
@@ -235,7 +299,7 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                     i.EventsType,
                     i.EventsDate,
                     i.Participants,
-                    i.EventTime,
+                    i.EventTime ?? default,
                     i.Venue,
                     i.ChiefGuest,
                     i.Organizer,
@@ -322,7 +386,7 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                             eventsToBeUpdated.EventsType,
                             eventsToBeUpdated.EventsDate,
                             eventsToBeUpdated.Participants,
-                            eventsToBeUpdated.EventTime,
+                            eventsToBeUpdated.EventTime ?? default,
                             eventsToBeUpdated.Venue,
                             eventsToBeUpdated.ChiefGuest,
                             eventsToBeUpdated.Organizer,

@@ -2396,15 +2396,15 @@ namespace TN.Shared.Infrastructure.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("EventTime")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<TimeOnly?>("EventTime")
+                        .HasColumnType("time");
 
                     b.Property<string>("EventsDate")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("EventsType")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int?>("EventsType")
+                        .HasColumnType("int");
 
                     b.Property<string>("FyId")
                         .HasColumnType("nvarchar(max)");
@@ -3303,6 +3303,106 @@ namespace TN.Shared.Infrastructure.Migrations
                     b.ToTable("StudentsAwards");
                 });
 
+            modelBuilder.Entity("TN.Shared.Domain.Entities.CocurricularActivities.Activity", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("ActivityCategory")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ActivityDate")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<TimeOnly>("EndTime")
+                        .HasColumnType("time");
+
+                    b.Property<string>("EventId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("ModifiedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ModifiedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SchoolId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<TimeOnly>("StartTime")
+                        .HasColumnType("time");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EventId");
+
+                    b.ToTable("Activities");
+                });
+
+            modelBuilder.Entity("TN.Shared.Domain.Entities.CocurricularActivities.Participation", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ActivityId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("AwardPosition")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("ModifiedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ModifiedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SchoolId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("StudentId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ActivityId");
+
+                    b.HasIndex("StudentId");
+
+                    b.ToTable("Participations");
+                });
+
             modelBuilder.Entity("TN.Shared.Domain.Entities.Communication.Notice", b =>
                 {
                     b.Property<string>("Id")
@@ -3761,6 +3861,59 @@ namespace TN.Shared.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Counselors");
+                });
+
+            modelBuilder.Entity("TN.Shared.Domain.Entities.Crm.Enrollments.FollowUp", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<TimeOnly>("EndTime")
+                        .HasColumnType("time");
+
+                    b.Property<DateTime>("FollowUpDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("FollowUpStatus")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("LeadId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("ModifiedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ModifiedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Notes")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SchoolId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<TimeOnly>("StartTime")
+                        .HasColumnType("time");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LeadId");
+
+                    b.ToTable("FollowUps");
                 });
 
             modelBuilder.Entity("TN.Shared.Domain.Entities.Crm.Enrollments.TrainingRegistration", b =>
@@ -6570,6 +6723,36 @@ namespace TN.Shared.Infrastructure.Migrations
                     b.Navigation("Students");
                 });
 
+            modelBuilder.Entity("TN.Shared.Domain.Entities.CocurricularActivities.Activity", b =>
+                {
+                    b.HasOne("TN.Shared.Domain.Entities.Academics.Events", "Events")
+                        .WithMany("Activities")
+                        .HasForeignKey("EventId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Events");
+                });
+
+            modelBuilder.Entity("TN.Shared.Domain.Entities.CocurricularActivities.Participation", b =>
+                {
+                    b.HasOne("TN.Shared.Domain.Entities.CocurricularActivities.Activity", "Activity")
+                        .WithMany("Participations")
+                        .HasForeignKey("ActivityId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("TN.Shared.Domain.Entities.Students.StudentData", "StudentData")
+                        .WithMany("Participations")
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Activity");
+
+                    b.Navigation("StudentData");
+                });
+
             modelBuilder.Entity("TN.Shared.Domain.Entities.Crm.AcademicsPrograms.Course", b =>
                 {
                     b.HasOne("TN.Shared.Domain.Entities.Crm.AcademicsPrograms.University", "University")
@@ -6643,18 +6826,29 @@ namespace TN.Shared.Infrastructure.Migrations
                     b.Navigation("CrmLead");
                 });
 
+            modelBuilder.Entity("TN.Shared.Domain.Entities.Crm.Enrollments.FollowUp", b =>
+                {
+                    b.HasOne("TN.Shared.Domain.Entities.Crm.Lead.CrmLead", "CrmLead")
+                        .WithMany("FollowUps")
+                        .HasForeignKey("LeadId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("CrmLead");
+                });
+
             modelBuilder.Entity("TN.Shared.Domain.Entities.Crm.Enrollments.TrainingRegistration", b =>
                 {
                     b.HasOne("TN.Shared.Domain.Entities.Crm.Applicant.CrmApplicant", "CrmApplicant")
                         .WithMany("TrainingRegistrations")
                         .HasForeignKey("ApplicantId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("TN.Shared.Domain.Entities.Crm.Enrollments.ConsultancyClass", "ConsultancyClass")
                         .WithMany("TrainingRegistrations")
                         .HasForeignKey("ConsultancyClassId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("ConsultancyClass");
@@ -7448,6 +7642,8 @@ namespace TN.Shared.Infrastructure.Migrations
 
             modelBuilder.Entity("TN.Shared.Domain.Entities.Academics.Events", b =>
                 {
+                    b.Navigation("Activities");
+
                     b.Navigation("StudentsAwards");
                 });
 
@@ -7514,6 +7710,11 @@ namespace TN.Shared.Infrastructure.Migrations
                     b.Navigation("StudentsAwards");
                 });
 
+            modelBuilder.Entity("TN.Shared.Domain.Entities.CocurricularActivities.Activity", b =>
+                {
+                    b.Navigation("Participations");
+                });
+
             modelBuilder.Entity("TN.Shared.Domain.Entities.Crm.AcademicsPrograms.Country", b =>
                 {
                     b.Navigation("Universities");
@@ -7551,6 +7752,8 @@ namespace TN.Shared.Infrastructure.Migrations
                     b.Navigation("AppliedCountries");
 
                     b.Navigation("Appointments");
+
+                    b.Navigation("FollowUps");
                 });
 
             modelBuilder.Entity("TN.Shared.Domain.Entities.Crm.Lead.LeadCountry", b =>
@@ -7683,6 +7886,8 @@ namespace TN.Shared.Infrastructure.Migrations
                     b.Navigation("ExamResults");
 
                     b.Navigation("IssuedCertificates");
+
+                    b.Navigation("Participations");
 
                     b.Navigation("Registrations");
 

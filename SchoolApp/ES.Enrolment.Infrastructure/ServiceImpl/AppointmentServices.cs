@@ -1,9 +1,8 @@
 ﻿using AutoMapper;
 using Azure.Core;
-using ES.Enrolment.Application.Enrolments.Command.AddAppointment;
-using ES.Enrolment.Application.Enrolments.Queries.FilterApplicant;
-using ES.Enrolment.Application.Enrolments.Queries.FilterAppointment;
-using ES.Enrolment.Application.Enrolments.Queries.ScheduleAppointment;
+using ES.Enrolment.Application.Enrolments.Command.Appointment.AddAppointment;
+using ES.Enrolment.Application.Enrolments.Queries.Appointments.FilterAppointment;
+using ES.Enrolment.Application.Enrolments.Queries.Appointments.ScheduleAppointment;
 using ES.Enrolment.Application.ServiceInterface;
 using Microsoft.EntityFrameworkCore;
 using System;

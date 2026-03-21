@@ -3,6 +3,7 @@ using TN.Account.Domain.Entities;
 using TN.Authentication.Domain.Entities;
 using TN.Shared.Domain.Entities.Academics;
 using TN.Shared.Domain.Entities.Certificates;
+using TN.Shared.Domain.Entities.CocurricularActivities;
 using TN.Shared.Domain.Entities.Finance;
 using TN.Shared.Domain.Enum;
 using TN.Shared.Domain.Primitive;
@@ -91,6 +92,7 @@ namespace TN.Shared.Domain.Entities.Students
             AssignmentStudents= new List<AssignmentStudent>();
             StudentsAwards = new List<StudentsAward>();
             Registrations = new List<Registrations>();
+            Participations = new List<Participation>();
 
         }
 
@@ -150,6 +152,7 @@ namespace TN.Shared.Domain.Entities.Students
         public ICollection<AssignmentStudent> AssignmentStudents { get; set; }
         public ICollection<StudentsAward> StudentsAwards { get; set; }
         public ICollection<Registrations> Registrations { get; set; }
+        public ICollection<Participation> Participations { get; set; }
 
     }
 

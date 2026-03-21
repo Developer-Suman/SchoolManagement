@@ -1,8 +1,7 @@
-﻿using ES.Enrolment.Application.Enrolments.Command.AddAppointment;
-using ES.Enrolment.Application.Enrolments.Command.AddInquiry;
-using ES.Enrolment.Application.Enrolments.Queries.FilterAppointment;
-using ES.Enrolment.Application.Enrolments.Queries.FilterInquery;
-using ES.Enrolment.Application.Enrolments.Queries.ScheduleAppointment;
+﻿
+using ES.Enrolment.Application.Enrolments.Command.Appointment.AddAppointment;
+using ES.Enrolment.Application.Enrolments.Queries.Appointments.FilterAppointment;
+using ES.Enrolment.Application.Enrolments.Queries.Appointments.ScheduleAppointment;
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -1,11 +1,7 @@
 ﻿using AutoMapper;
-using ES.Enrolment.Application.Enrolments.Command.AddAppointment;
-using ES.Enrolment.Application.Enrolments.Command.AddCounselor;
-using ES.Enrolment.Application.Enrolments.Queries.Counselor;
-using ES.Enrolment.Application.Enrolments.Queries.FilterAppointment;
-using ES.Enrolment.Application.Enrolments.Queries.FilterConsultancyClass;
-using ES.Enrolment.Application.Enrolments.Queries.FilterCounselor;
-using ES.Enrolment.Application.Enrolments.Queries.GetAllUserProfile;
+using ES.Enrolment.Application.Enrolments.Command.Counselor.AddCounselor;
+using ES.Enrolment.Application.Enrolments.Queries.Counselors.Counselor;
+using ES.Enrolment.Application.Enrolments.Queries.Counselors.FilterCounselor;
 using ES.Enrolment.Application.ServiceInterface;
 using Microsoft.EntityFrameworkCore;
 using System;

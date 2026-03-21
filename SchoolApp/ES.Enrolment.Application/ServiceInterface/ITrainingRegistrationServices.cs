@@ -1,7 +1,5 @@
 ﻿using ES.Enrolment.Application.Enrolments.Command.ConsultancyClass;
 using ES.Enrolment.Application.Enrolments.Command.TranningRegistration.AddTranningRegistration;
-using ES.Enrolment.Application.Enrolments.Queries.ConsultancyClass;
-using ES.Enrolment.Application.Enrolments.Queries.FilterConsultancyClass;
 using ES.Enrolment.Application.Enrolments.Queries.TrainingRegistration.FilterTrainingRegistration;
 using System;
 using System.Collections.Generic;

@@ -16,9 +16,6 @@ namespace ES.Academics.Application.Academics.Command.Events.AddEvents
                 .MaximumLength(200).WithMessage("Title cannot exceed 200 characters.");
             RuleFor(x => x.descriptions)
                 .MaximumLength(1000).WithMessage("Descriptions cannot exceed 1000 characters.");
-            RuleFor(x => x.eventsType)
-                .NotEmpty().WithMessage("Events type is required.")
-                .MaximumLength(100).WithMessage("Events type cannot exceed 100 characters.");
             //RuleFor(x => x.eventsDate)
             //    .NotEmpty().WithMessage("Events date is required.")
             //    .LessThanOrEqualTo(DateTime.Now).WithMessage("Events date cannot be in the future.");

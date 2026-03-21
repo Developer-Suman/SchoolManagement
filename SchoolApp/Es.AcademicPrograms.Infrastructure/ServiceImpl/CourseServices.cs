@@ -16,6 +16,7 @@ using TN.Shared.Application.ServiceInterface;
 using TN.Shared.Domain.Abstractions;
 using TN.Shared.Domain.Entities.Crm.AcademicsPrograms;
 using TN.Shared.Domain.Entities.Crm.Applicant;
+using TN.Shared.Domain.Entities.Crm.Enrollments;
 using TN.Shared.Domain.Entities.OrganizationSetUp;
 using TN.Shared.Domain.Entities.Staff;
 using TN.Shared.Domain.ExtensionMethod.Pagination;
@@ -111,21 +112,30 @@ namespace ES.AcademicPrograms.Infrastructure.ServiceImpl
                     : course
                .Where(x => x.SchoolId == _tokenService.SchoolId().FirstOrDefault() || x.SchoolId == "");
 
-                var (startUtc, endUtc) = await _dateConverter.GetDateRangeUtc(filterCourseDTOs.startDate, filterCourseDTOs.endDate);
+                IQueryable<Course> query = filter.AsQueryable();
 
-                var filteredResult = filter
-                 .Where(x =>
-                       (string.IsNullOrEmpty(filterCourseDTOs.title) || x.Title == filterCourseDTOs.title) &&
-                     x.CreatedAt >= startUtc &&
-                         x.CreatedAt <= endUtc &&
-                         x.IsActive
-                 )
-                 .ToList();
+                if (!string.IsNullOrEmpty(filterCourseDTOs.title))
+                {
+                    query = query.Where(x => x.Title == filterCourseDTOs.title);
+                }
+
+                if (filterCourseDTOs.startDate != null && filterCourseDTOs.endDate != null)
+                {
+                    var (startUtc, endUtc) = await _dateConverter.GetDateRangeUtc(
+                        filterCourseDTOs.startDate,
+                        filterCourseDTOs.endDate
+                    );
+
+                    query = query.Where(x => x.CreatedAt >= startUtc && x.CreatedAt <= endUtc);
+                }
+
+                query = query.Where(x => x.IsActive)
+               .OrderByDescending(x => x.CreatedAt);
 
 
 
 
-                var responseList = filteredResult
+                var responseList = query
                 .OrderByDescending(x => x.CreatedAt)
                 .Select(i => new FilterCourseResponse(
                     i.Id,

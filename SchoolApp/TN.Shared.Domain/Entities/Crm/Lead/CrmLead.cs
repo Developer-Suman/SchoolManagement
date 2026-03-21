@@ -83,6 +83,7 @@ namespace TN.Shared.Domain.Entities.Crm.Lead
             ModifiedAt = modifiedAt;
             AppliedCountries = new List<LeadCountry>();
             Appointments = new List<Appointment>();
+            FollowUps = new List<FollowUp>();
 
         }
 
@@ -152,5 +153,6 @@ namespace TN.Shared.Domain.Entities.Crm.Lead
 
         public List<LeadCountry> AppliedCountries { get; set; }
         public List<Appointment> Appointments { get; set; }
+        public ICollection<FollowUp> FollowUps { get; set; }
     }
 }

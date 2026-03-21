@@ -53,6 +53,7 @@ namespace TN.Shared.Domain.Entities.Crm.Enrollments
             SchoolId = schoolId;
             AppointmentStatus = appointmentStatus;
 
+
         }
 
         public void Complete(string notes)
@@ -83,6 +84,7 @@ namespace TN.Shared.Domain.Entities.Crm.Enrollments
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public string ModifiedBy { get; set; }
         public DateTime ModifiedAt { get; set; } = DateTime.UtcNow;
+   
     }
 }
 

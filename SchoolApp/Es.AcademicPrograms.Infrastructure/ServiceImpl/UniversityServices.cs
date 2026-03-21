@@ -3,6 +3,7 @@ using ES.AcademicPrograms.Application.AcademicPrograms.Command.AddCountry;
 using ES.AcademicPrograms.Application.AcademicPrograms.Command.AddUniversity;
 using ES.AcademicPrograms.Application.AcademicPrograms.Queries.Country;
 using ES.AcademicPrograms.Application.AcademicPrograms.Queries.CourseByUniversity;
+using ES.AcademicPrograms.Application.AcademicPrograms.Queries.FilterCourse;
 using ES.AcademicPrograms.Application.AcademicPrograms.Queries.FilterRequirements;
 using ES.AcademicPrograms.Application.AcademicPrograms.Queries.FilterUniversity;
 using ES.AcademicPrograms.Application.AcademicPrograms.Queries.University;
@@ -158,21 +159,31 @@ namespace ES.AcademicPrograms.Infrastructure.ServiceImpl
                     : university
                .Where(x => x.SchoolId == _tokenService.SchoolId().FirstOrDefault() || x.SchoolId == "");
 
-                var (startUtc, endUtc) = await _dateConverter.GetDateRangeUtc(filterUniversityDTOs.startDate, filterUniversityDTOs.endDate);
 
-                var filteredResult = filter
-                 .Where(x =>
-                       (string.IsNullOrEmpty(filterUniversityDTOs.name) || x.Name == filterUniversityDTOs.name) &&
-                     x.CreatedAt >= startUtc &&
-                         x.CreatedAt <= endUtc &&
-                         x.IsActive
-                 )
-                 .ToList();
+                IQueryable<University> query = filter.AsQueryable();
+
+                if (!string.IsNullOrEmpty(filterUniversityDTOs.name))
+                {
+                    query = query.Where(x => x.Name == filterUniversityDTOs.name);
+                }
+
+                if (filterUniversityDTOs.startDate != null && filterUniversityDTOs.endDate != null)
+                {
+                    var (startUtc, endUtc) = await _dateConverter.GetDateRangeUtc(
+                        filterUniversityDTOs.startDate,
+                        filterUniversityDTOs.endDate
+                    );
+
+                    query = query.Where(x => x.CreatedAt >= startUtc && x.CreatedAt <= endUtc);
+                }
+
+                query = query.Where(x => x.IsActive)
+               .OrderByDescending(x => x.CreatedAt);
 
 
 
 
-                var responseList = filteredResult
+                var responseList = query
                 .OrderByDescending(x => x.CreatedAt)
                 .Select(i => new FilterUniversityResponse(
                     i.Id,

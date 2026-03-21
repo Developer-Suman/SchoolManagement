@@ -20,6 +20,7 @@ namespace ES.Enrolment.Infrastructure
             services.AddScoped<IAppointmentServices, AppointmentServices>();
             services.AddScoped<IConsultancyClassServices, ConsultancyClassServices>();
             services.AddScoped<ITrainingRegistrationServices, TrainingRegistrationServices>();
+            services.AddScoped<IFollowUpServices, FollowUpServices>();
             #endregion
             return services;
         }
