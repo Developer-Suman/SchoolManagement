@@ -4,6 +4,7 @@ using ES.AcademicPrograms.Application.AcademicPrograms.Command.AddRequirements;
 using ES.AcademicPrograms.Application.AcademicPrograms.Queries.FilterCourse;
 using ES.AcademicPrograms.Application.AcademicPrograms.Queries.FilterIntake;
 using ES.AcademicPrograms.Application.AcademicPrograms.Queries.FilterRequirements;
+using ES.AcademicPrograms.Application.AcademicPrograms.Queries.FilterUniversity;
 using ES.AcademicPrograms.Application.ServiceInterface;
 using System;
 using System.Collections.Generic;
@@ -104,21 +105,29 @@ namespace ES.AcademicPrograms.Infrastructure.ServiceImpl
                     : requirements
                .Where(x => x.SchoolId == _tokenService.SchoolId().FirstOrDefault() || x.SchoolId == "");
 
-                var (startUtc, endUtc) = await _dateConverter.GetDateRangeUtc(filterRequirementsDTOs.startDate, filterRequirementsDTOs.endDate);
+                IQueryable<Requirement> query = filter.AsQueryable();
 
-                var filteredResult = filter
-                 .Where(x =>
-                       (string.IsNullOrEmpty(filterRequirementsDTOs.courseId) || x.CourseId == filterRequirementsDTOs.courseId) &&
-                     x.CreatedAt >= startUtc &&
-                         x.CreatedAt <= endUtc &&
-                         x.IsActive
-                 )
-                 .ToList();
+                if (!string.IsNullOrEmpty(filterRequirementsDTOs.courseId))
+                {
+                    query = query.Where(x => x.CourseId == filterRequirementsDTOs.courseId);
+                }
+
+                if (filterRequirementsDTOs.startDate != null && filterRequirementsDTOs.endDate != null)
+                {
+                    var (startUtc, endUtc) = await _dateConverter.GetDateRangeUtc(
+                        filterRequirementsDTOs.startDate,
+                        filterRequirementsDTOs.endDate
+                    );
+
+                    query = query.Where(x => x.CreatedAt >= startUtc && x.CreatedAt <= endUtc);
+                }
+
+                query = query.Where(x => x.IsActive)
+               .OrderByDescending(x => x.CreatedAt);
 
 
 
-
-                var responseList = filteredResult
+                var responseList = query
                 .OrderByDescending(x => x.CreatedAt)
                 .Select(i => new FilterRequirementsResponse(
                     i.Id,

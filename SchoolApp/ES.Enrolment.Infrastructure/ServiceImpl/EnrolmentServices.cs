@@ -1,17 +1,17 @@
 ﻿using AutoMapper;
-using ES.Enrolment.Application.Enrolments.Command.AddInquiry;
 using ES.Enrolment.Application.Enrolments.Command.ConvertApplicant;
 using ES.Enrolment.Application.Enrolments.Command.ConvertStudent;
-using ES.Enrolment.Application.Enrolments.Queries.Applicant;
-using ES.Enrolment.Application.Enrolments.Queries.ApplicantsById;
-using ES.Enrolment.Application.Enrolments.Queries.CRMStudentsById;
-using ES.Enrolment.Application.Enrolments.Queries.FilterApplicant;
-using ES.Enrolment.Application.Enrolments.Queries.FilterCRMStudents;
-using ES.Enrolment.Application.Enrolments.Queries.FilterInquery;
-using ES.Enrolment.Application.Enrolments.Queries.GetAllUserProfile;
-using ES.Enrolment.Application.Enrolments.Queries.GetUserProfileByUser;
-using ES.Enrolment.Application.Enrolments.Queries.InqueryById;
-using ES.Enrolment.Application.Enrolments.Queries.Inquiry;
+using ES.Enrolment.Application.Enrolments.Command.Enquiry.AddInquiry;
+using ES.Enrolment.Application.Enrolments.Queries.Applicants.Applicant;
+using ES.Enrolment.Application.Enrolments.Queries.Applicants.ApplicantsById;
+using ES.Enrolment.Application.Enrolments.Queries.Applicants.FilterApplicant;
+using ES.Enrolment.Application.Enrolments.Queries.CRMStudents.CRMStudentsById;
+using ES.Enrolment.Application.Enrolments.Queries.CRMStudents.FilterCRMStudents;
+using ES.Enrolment.Application.Enrolments.Queries.Enquiry.FilterInquery;
+using ES.Enrolment.Application.Enrolments.Queries.Enquiry.InqueryById;
+using ES.Enrolment.Application.Enrolments.Queries.Enquiry.Inquiry;
+using ES.Enrolment.Application.Enrolments.Queries.UserProfiles.GetAllUserProfile;
+using ES.Enrolment.Application.Enrolments.Queries.UserProfiles.GetUserProfileById;
 using ES.Enrolment.Application.ServiceInterface;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -736,15 +736,33 @@ namespace ES.Enrolment.Infrastructure.ServiceImpl
             }
         }
 
-        public async Task<Result<GetUserProfileByUserResponse>> GetUserProfile(string userId, CancellationToken cancellationToken = default)
+        public async Task<Result<GetUserProfileByIdResponse>> GetUserProfile(string userId, CancellationToken cancellationToken = default)
         {
             try
             {
-                var userProfile = await _unitOfWork.BaseRepository<UserProfile>().GetByGuIdAsync(userId);
 
-                var userProfileResponse = _mapper.Map<GetUserProfileByUserResponse>(userProfile);
+                // Standard EF Core syntax
+                var userProfile = await _unitOfWork.BaseRepository<UserProfile>()
+                    .GetQueryable() // Assuming your repo has this
+                    .Include(x => x.CrmLeadDetails) // This is what you were typing
+                    .Include(x => x.CrmApplicantDetails)
+                    .Include(x=>x.CrmStudentDetails)
+                    .FirstOrDefaultAsync(x => x.Id == userId);
 
-                return Result<GetUserProfileByUserResponse>.Success(userProfileResponse);
+                var responseList = new GetUserProfileByIdResponse
+                {
+                    id = userProfile.Id,
+                    fullName = userProfile.FullName,
+                    email = userProfile.Email,
+                    enrolmentType = userProfile.EnrolmentType,
+                    genderStatus = userProfile.CrmLeadDetails?.Gender,
+                    dob = userProfile.CrmLeadDetails?.DateOfBirth,
+                    admissionDate = userProfile.CrmApplicantDetails?.CreatedAt
+                };
+
+  
+
+                return Result<GetUserProfileByIdResponse>.Success(responseList);
 
             }
             catch (Exception ex)

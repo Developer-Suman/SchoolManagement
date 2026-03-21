@@ -1,25 +1,27 @@
 ﻿using AutoMapper;
-using ES.Enrolment.Application.Enrolments.Command.AddAppointment;
-using ES.Enrolment.Application.Enrolments.Command.AddCounselor;
-using ES.Enrolment.Application.Enrolments.Command.AddInquiry;
+using ES.Enrolment.Application.Enrolments.Command.Appointment.AddAppointment;
 using ES.Enrolment.Application.Enrolments.Command.ConsultancyClass;
 using ES.Enrolment.Application.Enrolments.Command.ConvertApplicant;
 using ES.Enrolment.Application.Enrolments.Command.ConvertStudent;
+using ES.Enrolment.Application.Enrolments.Command.Counselor.AddCounselor;
+using ES.Enrolment.Application.Enrolments.Command.Enquiry.AddInquiry;
+using ES.Enrolment.Application.Enrolments.Command.FollowUp.AddFollowUp;
 using ES.Enrolment.Application.Enrolments.Command.TranningRegistration.AddTranningRegistration;
-using ES.Enrolment.Application.Enrolments.Queries.Applicant;
-using ES.Enrolment.Application.Enrolments.Queries.ConsultancyClass;
-using ES.Enrolment.Application.Enrolments.Queries.Counselor;
-using ES.Enrolment.Application.Enrolments.Queries.FilterApplicant;
-using ES.Enrolment.Application.Enrolments.Queries.FilterAppointment;
-using ES.Enrolment.Application.Enrolments.Queries.FilterConsultancyClass;
-using ES.Enrolment.Application.Enrolments.Queries.FilterCounselor;
-using ES.Enrolment.Application.Enrolments.Queries.FilterCRMStudents;
-using ES.Enrolment.Application.Enrolments.Queries.FilterInquery;
-using ES.Enrolment.Application.Enrolments.Queries.GetAllUserProfile;
-using ES.Enrolment.Application.Enrolments.Queries.GetUserProfileByUser;
-using ES.Enrolment.Application.Enrolments.Queries.InqueryById;
-using ES.Enrolment.Application.Enrolments.Queries.Inquiry;
+using ES.Enrolment.Application.Enrolments.Queries.Applicants.Applicant;
+using ES.Enrolment.Application.Enrolments.Queries.Applicants.FilterApplicant;
+using ES.Enrolment.Application.Enrolments.Queries.Appointments.FilterAppointment;
+using ES.Enrolment.Application.Enrolments.Queries.ConsultancyClasses.ConsultancyClass;
+using ES.Enrolment.Application.Enrolments.Queries.ConsultancyClasses.FilterConsultancyClass;
+using ES.Enrolment.Application.Enrolments.Queries.Counselors.Counselor;
+using ES.Enrolment.Application.Enrolments.Queries.Counselors.FilterCounselor;
+using ES.Enrolment.Application.Enrolments.Queries.CRMStudents.FilterCRMStudents;
+using ES.Enrolment.Application.Enrolments.Queries.Enquiry.FilterInquery;
+using ES.Enrolment.Application.Enrolments.Queries.Enquiry.InqueryById;
+using ES.Enrolment.Application.Enrolments.Queries.Enquiry.Inquiry;
+using ES.Enrolment.Application.Enrolments.Queries.FollowUp.FilterFollowUp;
 using ES.Enrolment.Application.Enrolments.Queries.TrainingRegistration.FilterTrainingRegistration;
+using ES.Enrolment.Application.Enrolments.Queries.UserProfiles.GetAllUserProfile;
+using ES.Enrolment.Application.Enrolments.Queries.UserProfiles.GetUserProfileById;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -46,7 +48,13 @@ namespace ES.Enrolment.Application.AutoMapper
             CreateMap<PagedResult<TrainingRegistration>, PagedResult<FilterTrainingRegistrationResponse>>().ReverseMap();
             #endregion
 
+            #region FollowUps
+            CreateMap<FollowUp, AddFollowUpResponse>().ReverseMap();
 
+            CreateMap<FilterFollowUpResponse, FollowUp>().ReverseMap();
+            CreateMap<PagedResult<FollowUp>, PagedResult<FilterFollowUpResponse>>().ReverseMap();
+
+            #endregion
 
 
             #region ConsultancyClass
@@ -92,7 +100,7 @@ namespace ES.Enrolment.Application.AutoMapper
             #endregion
             #region UserProfile
             CreateMap<UserProfile, UserProfileResponse>().ReverseMap();
-            CreateMap<GetUserProfileByUserResponse, UserProfile>().ReverseMap();
+            CreateMap<GetUserProfileByIdResponse, UserProfile>().ReverseMap();
             CreateMap<GetAllUserProfileResponse, UserProfile>().ReverseMap();
             CreateMap<PagedResult<UserProfile>, PagedResult<GetAllUserProfileResponse>>().ReverseMap();
             #endregion

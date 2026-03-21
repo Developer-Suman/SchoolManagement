@@ -5,6 +5,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TN.Shared.Domain.Entities.Certificates;
+using TN.Shared.Domain.Entities.CocurricularActivities;
+using TN.Shared.Domain.Enum;
 using TN.Shared.Domain.Primitive;
 
 namespace TN.Shared.Domain.Entities.Academics
@@ -21,10 +23,10 @@ namespace TN.Shared.Domain.Entities.Academics
             string id,
             string title,
             string? descriptions,
-            string eventsType,
+            EventType eventsType,
             string eventsDate,
             string participants,
-            string? eventTime,
+            TimeOnly ? eventTime,
             string venue,
             string? chiefGuest,
             string? organizer,
@@ -60,6 +62,7 @@ namespace TN.Shared.Domain.Entities.Academics
             FyId = fyId;
             AcademicYearId = academicYearId;
             StudentsAwards = new List<StudentsAward>();
+            Activities = new List<Activity>();
 
 
 
@@ -70,10 +73,10 @@ namespace TN.Shared.Domain.Entities.Academics
         public string? AcademicYearId { get; set; }
         public string Title { get;set; }
         public string? Description { get;set; }
-        public string? EventsType { get; set; }
+        public EventType? EventsType { get; set; }
         public string EventsDate { get; set; }
         public string Participants { get; set; }
-        public string? EventTime { get; set; }
+        public TimeOnly? EventTime { get; set; }
         public string Venue { get; set; }
         public string? ChiefGuest { get; set; }
         public string? Organizer { get; set; }
@@ -85,5 +88,6 @@ namespace TN.Shared.Domain.Entities.Academics
         public string ModifiedBy { get; set; }
         public DateTime ModifiedAt { get; set; }
         public ICollection<StudentsAward> StudentsAwards { get; set; }
+        public ICollection<Activity> Activities { get; set; }
     }
 }

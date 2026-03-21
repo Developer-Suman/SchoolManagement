@@ -14,6 +14,7 @@ namespace ES.Finances.Application.Finance.Queries.Fee.StudentFeeSummary
         decimal paidAmount=0,
         PaymentMethods paymentMethod=default,
         decimal totalAmount=0,
-         decimal dueAmount = 0
+         decimal dueAmount = 0,
+         string schoolId=""
         );  
 }

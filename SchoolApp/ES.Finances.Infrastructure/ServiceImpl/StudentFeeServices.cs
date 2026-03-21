@@ -391,6 +391,7 @@ namespace ES.Finances.Infrastructure.ServiceImpl
                     {
                         StudentId = g.Key.StudentId,
                         ClassId = g.Key.ClassId,
+                        SchoolId = g.Select(x=>x.SchoolId).FirstOrDefault(),
 
                         FeeStructureIds = g
                             .Select(x => x.FeeStructure.FeeType.Name + " -> " + x.DiscountPercentage + "%")
@@ -414,7 +415,8 @@ namespace ES.Finances.Infrastructure.ServiceImpl
                            i.TotalAmount,
                            i.TotalPaid,
                            i.DueAmount,
-                           i.ClassId
+                           i.ClassId,
+                           i.SchoolId
                        ))
                        .ToList();
 
@@ -484,7 +486,6 @@ namespace ES.Finances.Infrastructure.ServiceImpl
             {
                 string schoolId = _tokenService.SchoolId().FirstOrDefault();
 
-                // 1. Calculate Net Total Debt
                 var netTotal = await _unitOfWork.BaseRepository<StudentFee>()
                     .GetAsQueryable()
                     .Where(x => x.StudentId == studentFeeSummaryDTOs.studentId &&
@@ -492,7 +493,6 @@ namespace ES.Finances.Infrastructure.ServiceImpl
                                 x.IsActive && x.SchoolId == schoolId)
                     .SumAsync(x => x.TotalAmount - x.DiscountAmount);
 
-                // 2. Fetch all payments in ascending order
                 var payments = await _unitOfWork.BaseRepository<PaymentsRecords>()
                     .GetAsQueryable()
                     .Where(x => x.StudentId == studentFeeSummaryDTOs.studentId &&
@@ -501,31 +501,27 @@ namespace ES.Finances.Infrastructure.ServiceImpl
                     .OrderBy(x => x.PaymentDate)
                     .ToListAsync();
 
-                // 3. Build the list
                 var fullList = new List<StudentFeeSummaryResponse>();
                 decimal currentBalance = netTotal;
 
                 foreach (var p in payments)
                 {
-                    // Capture balance before payment
                     decimal amountBeforePayment = currentBalance;
 
-                    // Calculate balance after payment
                     currentBalance -= p.AmountPaid;
 
                     fullList.Add(new StudentFeeSummaryResponse(
                         studentFeeSummaryDTOs.classId,
                         p.AmountPaid,
                         p.PaymentMethod,
-                        amountBeforePayment, // This will show the balance before payment
-                        currentBalance       // This will show the remaining debt after payment
+                        amountBeforePayment, 
+                        currentBalance  ,
+                        p.Schoolid
                     ));
                 }
 
-                // 4. Reverse to show latest payments first
                 fullList.Reverse();
 
-                // 5. Apply Pagination
                 int pageIndex = paginationRequest.pageIndex <= 0 ? 1 : paginationRequest.pageIndex;
                 int pageSize = paginationRequest.pageSize <= 0 ? 10 : paginationRequest.pageSize;
 

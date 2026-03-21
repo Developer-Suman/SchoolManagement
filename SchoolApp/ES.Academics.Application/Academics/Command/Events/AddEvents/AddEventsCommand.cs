@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TN.Shared.Domain.Abstractions;
+using TN.Shared.Domain.Enum;
 
 namespace ES.Academics.Application.Academics.Command.Events.AddEvents
 {
@@ -12,10 +13,10 @@ namespace ES.Academics.Application.Academics.Command.Events.AddEvents
     (
         string title,
             string? descriptions,
-            string eventsType,
-            string eventsDate,
+            EventType eventsType,
+             string eventsDate,
             string participants,
-            string? eventTime,
+            TimeOnly? eventTime,
             string venue,
             string? chiefGuest,
             string? organizer,

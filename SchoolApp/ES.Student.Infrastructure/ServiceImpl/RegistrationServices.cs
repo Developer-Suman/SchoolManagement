@@ -71,26 +71,34 @@ namespace ES.Student.Infrastructure.ServiceImpl
                         query => query.Select(c => c.Id)
                     );
 
-                var registrationFilterData = isSuperAdmin
+                var filter = isSuperAdmin
                     ? registration
                     : registration.Where(x => x.SchoolId == _tokenService.SchoolId().FirstOrDefault() || x.SchoolId == "");
 
-                var (startUtc, endUtc) = await _dateConverter.GetDateRangeUtc(filterRegisterStudentsDTOs.startDate, filterRegisterStudentsDTOs.endDate);
+                IQueryable<Registrations> query = filter.AsQueryable();
 
-                var filteredResult = registrationFilterData
-                 .Where(x =>
-                       (string.IsNullOrEmpty(filterRegisterStudentsDTOs.academicYearId) || x.AcademicYearId == filterRegisterStudentsDTOs.academicYearId) &&
-                     x.CreatedAt >= startUtc &&
-                         x.CreatedAt <= endUtc &&
-                         x.IsActive == true
-                 )
-                 .OrderByDescending(x => x.CreatedAt) // newest first
-                 .ToList();
+                if (!string.IsNullOrEmpty(filterRegisterStudentsDTOs.academicYearId))
+                {
+                    query = query.Where(x => x.AcademicYearId == filterRegisterStudentsDTOs.academicYearId);
+                }
+
+                if (filterRegisterStudentsDTOs.startDate != null && filterRegisterStudentsDTOs.endDate != null)
+                {
+                    var (startUtc, endUtc) = await _dateConverter.GetDateRangeUtc(
+                        filterRegisterStudentsDTOs.startDate,
+                        filterRegisterStudentsDTOs.endDate
+                    );
+
+                    query = query.Where(x => x.CreatedAt >= startUtc && x.CreatedAt <= endUtc);
+                }
+
+                query = query.Where(x => x.IsActive)
+               .OrderByDescending(x => x.CreatedAt);
 
 
 
 
-                var responseList = filteredResult
+                var responseList = query
                 .OrderByDescending(x => x.CreatedAt)
                 .Select(i => new FilterRegisterStudentsResponse(
                     i.Id,

@@ -1,34 +1,37 @@
-﻿using ES.Enrolment.Application.Enrolments.Command.AddAppointment;
-using ES.Enrolment.Application.Enrolments.Command.AddAppointment.RequestCommandMapper;
-using ES.Enrolment.Application.Enrolments.Command.AddConsultancyClass.RequestCommandMapper;
-using ES.Enrolment.Application.Enrolments.Command.AddCounselor;
-using ES.Enrolment.Application.Enrolments.Command.AddCounselor.RequestCommandMapper;
-using ES.Enrolment.Application.Enrolments.Command.AddInquiry;
-using ES.Enrolment.Application.Enrolments.Command.AddInquiry.RequestCommandMapper;
+﻿using ES.Enrolment.Application.Enrolments.Command.AddConsultancyClass.RequestCommandMapper;
+using ES.Enrolment.Application.Enrolments.Command.AddFollowUp.RequestCommand_Mapper;
+using ES.Enrolment.Application.Enrolments.Command.Appointment.AddAppointment;
+using ES.Enrolment.Application.Enrolments.Command.Appointment.AddAppointment.RequestCommandMapper;
 using ES.Enrolment.Application.Enrolments.Command.ConsultancyClass;
 using ES.Enrolment.Application.Enrolments.Command.ConvertApplicant;
 using ES.Enrolment.Application.Enrolments.Command.ConvertApplicant.RequestCommandMapper;
 using ES.Enrolment.Application.Enrolments.Command.ConvertStudent;
 using ES.Enrolment.Application.Enrolments.Command.ConvertStudent.RequestCommandMapper;
+using ES.Enrolment.Application.Enrolments.Command.Counselor.AddCounselor;
+using ES.Enrolment.Application.Enrolments.Command.Counselor.AddCounselor.RequestCommandMapper;
+using ES.Enrolment.Application.Enrolments.Command.Enquiry.AddInquiry;
+using ES.Enrolment.Application.Enrolments.Command.Enquiry.AddInquiry.RequestCommandMapper;
+using ES.Enrolment.Application.Enrolments.Command.FollowUp.AddFollowUp;
 using ES.Enrolment.Application.Enrolments.Command.TranningRegistration.AddTranningRegistration;
 using ES.Enrolment.Application.Enrolments.Command.TranningRegistration.AddTranningRegistration.RequestCommandMapper;
-using ES.Enrolment.Application.Enrolments.Queries.Applicant;
-using ES.Enrolment.Application.Enrolments.Queries.ApplicantsById;
-using ES.Enrolment.Application.Enrolments.Queries.ConsultancyClass;
-using ES.Enrolment.Application.Enrolments.Queries.Counselor;
-using ES.Enrolment.Application.Enrolments.Queries.CRMStudentsById;
-using ES.Enrolment.Application.Enrolments.Queries.FilterApplicant;
-using ES.Enrolment.Application.Enrolments.Queries.FilterAppointment;
-using ES.Enrolment.Application.Enrolments.Queries.FilterConsultancyClass;
-using ES.Enrolment.Application.Enrolments.Queries.FilterCounselor;
-using ES.Enrolment.Application.Enrolments.Queries.FilterCRMStudents;
-using ES.Enrolment.Application.Enrolments.Queries.FilterInquery;
-using ES.Enrolment.Application.Enrolments.Queries.GetAllUserProfile;
-using ES.Enrolment.Application.Enrolments.Queries.GetUserProfileByUser;
-using ES.Enrolment.Application.Enrolments.Queries.InqueryById;
-using ES.Enrolment.Application.Enrolments.Queries.Inquiry;
-using ES.Enrolment.Application.Enrolments.Queries.ScheduleAppointment;
+using ES.Enrolment.Application.Enrolments.Queries.Applicants.Applicant;
+using ES.Enrolment.Application.Enrolments.Queries.Applicants.ApplicantsById;
+using ES.Enrolment.Application.Enrolments.Queries.Applicants.FilterApplicant;
+using ES.Enrolment.Application.Enrolments.Queries.Appointments.FilterAppointment;
+using ES.Enrolment.Application.Enrolments.Queries.Appointments.ScheduleAppointment;
+using ES.Enrolment.Application.Enrolments.Queries.ConsultancyClasses.ConsultancyClass;
+using ES.Enrolment.Application.Enrolments.Queries.ConsultancyClasses.FilterConsultancyClass;
+using ES.Enrolment.Application.Enrolments.Queries.Counselors.Counselor;
+using ES.Enrolment.Application.Enrolments.Queries.Counselors.FilterCounselor;
+using ES.Enrolment.Application.Enrolments.Queries.CRMStudents.CRMStudentsById;
+using ES.Enrolment.Application.Enrolments.Queries.CRMStudents.FilterCRMStudents;
+using ES.Enrolment.Application.Enrolments.Queries.Enquiry.FilterInquery;
+using ES.Enrolment.Application.Enrolments.Queries.Enquiry.InqueryById;
+using ES.Enrolment.Application.Enrolments.Queries.Enquiry.Inquiry;
+using ES.Enrolment.Application.Enrolments.Queries.FollowUp.FilterFollowUp;
 using ES.Enrolment.Application.Enrolments.Queries.TrainingRegistration.FilterTrainingRegistration;
+using ES.Enrolment.Application.Enrolments.Queries.UserProfiles.GetAllUserProfile;
+using ES.Enrolment.Application.Enrolments.Queries.UserProfiles.GetUserProfileById;
 using ES.Finances.Application.Finance.Queries.Fee.Feetype;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -58,6 +61,54 @@ namespace TN.Web.Controllers.Enrolments.v1
             _logger = logger;
             _mediator = mediator;
         }
+
+
+
+
+        #region AddFollowUp
+        [HttpPost("AddFollowUp")]
+
+        public async Task<IActionResult> AddFollowUp([FromBody] AddFollowUpRequest request)
+        {
+            //Mapping command and request
+            var command = request.ToCommand();
+            var add = await _mediator.Send(command);
+            #region Switch Statement
+            return add switch
+            {
+                { IsSuccess: true, Data: not null } => CreatedAtAction(nameof(AddFollowUp), add.Data),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = add.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(add.Errors),
+                _ => BadRequest("Invalid Fields ")
+
+            };
+
+            #endregion
+        }
+        #endregion
+        #region FilterFollowUps
+        [HttpGet("FilterFollowUps")]
+        public async Task<IActionResult> FilterFollowUps([FromQuery] FilterFollowUpDTOs filterFollowUpDTOs, [FromQuery] PaginationRequest paginationRequest)
+        {
+            var query = new FilterFollowUpQuery(paginationRequest, filterFollowUpDTOs);
+            var filter = await _mediator.Send(query);
+            #region Switch Statement
+            return filter switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(filter.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = filter.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(filter.Errors),
+                _ => BadRequest("Invalid page and pageSize Fields")
+            };
+            #endregion
+
+        }
+
+        #endregion
+
 
 
         #region TrainingRegistration
@@ -448,10 +499,10 @@ namespace TN.Web.Controllers.Enrolments.v1
         #endregion
 
         #region UserProfileById
-        [HttpGet("UserProfile/{userId}")]
-        public async Task<IActionResult> UserProfile([FromRoute] string userId)
+        [HttpGet("UserProfile/{id}")]
+        public async Task<IActionResult> UserProfile([FromRoute] string id)
         {
-            var query = new GetUserProfileByUserQuery(userId);
+            var query = new GetUserProfileByIdQuery(id);
             var userProfileByUserResult = await _mediator.Send(query);
             #region Switch Statement
             return userProfileByUserResult switch

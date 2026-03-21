@@ -1,12 +1,6 @@
 ﻿using AutoMapper;
-using ES.Enrolment.Application.Enrolments.Queries.FilterCounselor;
 using ES.Enrolment.Application.ServiceInterface;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TN.Shared.Domain.Abstractions;
 using TN.Shared.Domain.ExtensionMethod.Pagination;
 

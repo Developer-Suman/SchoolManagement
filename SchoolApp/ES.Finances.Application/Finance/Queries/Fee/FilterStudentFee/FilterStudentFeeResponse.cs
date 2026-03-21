@@ -8,11 +8,12 @@ namespace ES.Finances.Application.Finance.Queries.Fee.FilterStudentFee
 {
     public record FilterStudentFeeResponse
     (
-            string studentId,
-            List<string> feeStructureId,
-            decimal totalAmount,
-            decimal paidAmount,
-            decimal dueAmount,
-            string classId
+            string studentId="",
+            List<string> feeStructureId=default,
+            decimal totalAmount = 0,
+            decimal paidAmount=0,
+            decimal dueAmount=0,
+            string classId="",
+            string? schoolId=""
         );
 }

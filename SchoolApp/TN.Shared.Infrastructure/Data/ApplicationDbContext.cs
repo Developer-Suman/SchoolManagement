@@ -13,6 +13,7 @@ using TN.Shared.Domain.Entities.Academics;
 using TN.Shared.Domain.Entities.Account;
 using TN.Shared.Domain.Entities.AuditLogs;
 using TN.Shared.Domain.Entities.Certificates;
+using TN.Shared.Domain.Entities.CocurricularActivities;
 using TN.Shared.Domain.Entities.Communication;
 using TN.Shared.Domain.Entities.Crm.AcademicsPrograms;
 using TN.Shared.Domain.Entities.Crm.Applicant;
@@ -61,6 +62,7 @@ namespace TN.Shared.Infrastructure.Data
 
         #region Appointments
         public DbSet<Appointment> Appointments { get; set; }    
+        public DbSet<FollowUp> FollowUps { get; set; }    
         #endregion
 
         #region Lead
@@ -85,6 +87,13 @@ namespace TN.Shared.Infrastructure.Data
         public DbSet<CrmStudent> CrmStudents { get; set; }
         #endregion
 
+
+        #endregion
+
+
+        #region Cocirricular Activities
+        public DbSet<Participation> Participations { get; set; }
+        public DbSet<Activity> Activities { get; set; }
 
         #endregion
 
@@ -122,6 +131,7 @@ namespace TN.Shared.Infrastructure.Data
         #endregion
 
         #region Student
+    
         public DbSet<AcademicYear> AcademicYears { get; set; }
         public DbSet<Registrations> Registrations { get; set; }
         public DbSet<StudentData> Students { get; set; }
@@ -304,7 +314,8 @@ namespace TN.Shared.Infrastructure.Data
             builder.Entity<TrainingRegistration>()
             .HasOne(x => x.CrmApplicant)
             .WithMany(x => x.TrainingRegistrations)
-            .HasForeignKey(x => x.ApplicantId);
+            .HasForeignKey(x => x.ApplicantId)
+            .OnDelete(DeleteBehavior.Restrict);
 
             #endregion
 
@@ -313,7 +324,8 @@ namespace TN.Shared.Infrastructure.Data
             builder.Entity<TrainingRegistration>()
             .HasOne(x => x.ConsultancyClass)
             .WithMany(x => x.TrainingRegistrations)
-            .HasForeignKey(x => x.ConsultancyClassId);
+            .HasForeignKey(x => x.ConsultancyClassId)
+            .OnDelete(DeleteBehavior.Restrict);
 
             #endregion
             #endregion
@@ -332,6 +344,7 @@ namespace TN.Shared.Infrastructure.Data
             #endregion
 
             #region Appointments
+
             #region Appointment and Lead(1:m)
 
             builder.Entity<CrmLead>()
@@ -344,6 +357,15 @@ namespace TN.Shared.Infrastructure.Data
             #endregion
 
             #region Lead
+
+            #region Lead and FollowUps(1:m)
+            builder.Entity<FollowUp>()
+            .HasOne(x => x.CrmLead)
+            .WithMany(x => x.FollowUps)
+            .HasForeignKey(x => x.LeadId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+            #endregion
 
             #region Lead and LeadCountry(1:m)
             builder.Entity<LeadCountry>()
@@ -460,6 +482,37 @@ namespace TN.Shared.Infrastructure.Data
             #endregion
 
 
+            #endregion
+
+
+
+            #region Cocirricular Activities
+
+            #region Participation and Activity(m:1)
+            builder.Entity<Participation>()
+               .HasOne(p => p.Activity)
+               .WithMany(p => p.Participations)
+               .HasForeignKey(p => p.ActivityId)
+               .OnDelete(DeleteBehavior.Restrict);
+            #endregion
+
+
+            #region Participation and StudentData(m:1)
+            builder.Entity<Participation>()
+               .HasOne(p => p.StudentData)
+               .WithMany(p => p.Participations)
+               .HasForeignKey(p => p.StudentId)
+               .OnDelete(DeleteBehavior.Restrict);
+            #endregion
+
+
+            #region Activity and Events(m:1)
+            builder.Entity<Activity>()
+               .HasOne(p => p.Events)
+               .WithMany(p => p.Activities)
+               .HasForeignKey(p => p.EventId)
+               .OnDelete(DeleteBehavior.Restrict);
+            #endregion
             #endregion
 
             #region FeeStructure and Ledger(m:1)

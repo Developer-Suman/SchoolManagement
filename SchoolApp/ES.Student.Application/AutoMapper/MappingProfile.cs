@@ -1,4 +1,9 @@
 ﻿using AutoMapper;
+using ES.Student.Application.CocurricularActivities.Command.AddActivity;
+using ES.Student.Application.CocurricularActivities.Command.Addparticipation;
+using ES.Student.Application.CocurricularActivities.Queries.Activity;
+using ES.Student.Application.CocurricularActivities.Queries.FilterActivity;
+using ES.Student.Application.CocurricularActivities.Queries.FilterParticipation;
 using ES.Student.Application.Registration.Command.RegisterMultipleStudents;
 using ES.Student.Application.Registration.Command.RegisterStudents;
 using ES.Student.Application.Registration.Queries.FilterRegisterStudents;
@@ -25,6 +30,8 @@ using System.Text;
 using System.Threading.Tasks;
 using TN.Account.Domain.Entities;
 using TN.Shared.Domain.Entities.Certificates;
+using TN.Shared.Domain.Entities.CocurricularActivities;
+using TN.Shared.Domain.Entities.Crm.Enrollments;
 using TN.Shared.Domain.Entities.Students;
 using TN.Shared.Domain.ExtensionMethod.Pagination;
 
@@ -34,6 +41,24 @@ namespace ES.Student.Application.AutoMapper
     {
         public MappingProfile()
         {
+
+            #region Cocuricular Activities
+            CreateMap<Activity, AddActivityResponse>().ReverseMap();
+
+            CreateMap<ActivityResponse, Activity>().ReverseMap();
+            CreateMap<PagedResult<Activity>, PagedResult<ActivityResponse>>().ReverseMap();
+
+
+            CreateMap<FilterActivityResponse, Activity>().ReverseMap();
+            CreateMap<PagedResult<Activity>, PagedResult<FilterActivityResponse>>().ReverseMap();
+            #endregion
+
+            #region Participation
+            CreateMap<Participation, AddParticipationResponse>().ReverseMap();
+
+            CreateMap<FilterParticipationResponse, Participation>().ReverseMap();
+            CreateMap<PagedResult<Participation>, PagedResult<FilterParticipationResponse>>().ReverseMap();
+            #endregion
 
             #region Attendance
             CreateMap<AddAttendanceResponse, StudentAttendances>().ReverseMap();

@@ -241,7 +241,7 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                     i.Name,
                     i.ExamDate,
                     i.ExamSubjects.Sum(x=>x.FullMarks),
-         
+                    i.SchoolId,
                     i.IsFinalExam,
                     i.ClassId
 

@@ -105,21 +105,32 @@ namespace ES.AcademicPrograms.Infrastructure.ServiceImpl
                     : intake
                .Where(x => x.SchoolId == _tokenService.SchoolId().FirstOrDefault() || x.SchoolId == "");
 
-                var (startUtc, endUtc) = await _dateConverter.GetDateRangeUtc(filterIntakeDTOs.startDate, filterIntakeDTOs.endDate);
 
-                var filteredResult = filter
-                     .Where(x =>
-                         (!filterIntakeDTOs.month.HasValue || x.Months == filterIntakeDTOs.month) &&
-                         x.CreatedAt >= startUtc &&
-                         x.CreatedAt <= endUtc &&
-                         x.IsActive
-                     )
-                     .ToList();
+                IQueryable<Intake> query = filter.AsQueryable();
+
+                if (filterIntakeDTOs.month ==  null)
+                {
+                    query = query.Where(x => x.Months == filterIntakeDTOs.month);
+                }
+
+                if (filterIntakeDTOs.startDate != null && filterIntakeDTOs.endDate != null)
+                {
+                    var (startUtc, endUtc) = await _dateConverter.GetDateRangeUtc(
+                        filterIntakeDTOs.startDate,
+                        filterIntakeDTOs.endDate
+                    );
+
+                    query = query.Where(x => x.CreatedAt >= startUtc && x.CreatedAt <= endUtc);
+                }
+
+                query = query.Where(x => x.IsActive)
+               .OrderByDescending(x => x.CreatedAt);
 
 
 
 
-                var responseList = filteredResult
+
+                var responseList = query
                 .OrderByDescending(x => x.CreatedAt)
                 .Select(i => new FilterIntakeResponse(
                     i.Id,

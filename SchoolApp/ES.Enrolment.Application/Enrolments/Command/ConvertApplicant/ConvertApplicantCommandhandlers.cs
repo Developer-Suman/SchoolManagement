@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using ES.Enrolment.Application.Enrolments.Command.AddInquiry;
 using ES.Enrolment.Application.ServiceInterface;
 using FluentValidation;
 using MediatR;

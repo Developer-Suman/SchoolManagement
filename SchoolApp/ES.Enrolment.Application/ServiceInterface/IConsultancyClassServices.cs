@@ -1,9 +1,7 @@
-﻿using ES.Enrolment.Application.Enrolments.Command.AddCounselor;
+﻿
 using ES.Enrolment.Application.Enrolments.Command.ConsultancyClass;
-using ES.Enrolment.Application.Enrolments.Queries.ConsultancyClass;
-using ES.Enrolment.Application.Enrolments.Queries.Counselor;
-using ES.Enrolment.Application.Enrolments.Queries.FilterConsultancyClass;
-using ES.Enrolment.Application.Enrolments.Queries.FilterCounselor;
+using ES.Enrolment.Application.Enrolments.Queries.ConsultancyClasses.ConsultancyClass;
+using ES.Enrolment.Application.Enrolments.Queries.ConsultancyClasses.FilterConsultancyClass;
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -15,7 +15,7 @@ namespace ES.Academics.Application.Academics.Queries.Events.Events
             string eventsType="",
             string eventsDate="",
             string participants = "",
-            string eventTime="",
+            TimeOnly eventTime=default,
             string venue = "",
             string? chiefGuest = "",
             string? organizer = "",
