@@ -13,6 +13,10 @@ using ES.AcademicPrograms.Application.AcademicPrograms.Queries.FilterRequirement
 using ES.AcademicPrograms.Application.AcademicPrograms.Queries.FilterUniversity;
 using ES.AcademicPrograms.Application.AcademicPrograms.Queries.University;
 using ES.AcademicPrograms.Application.AcademicPrograms.Queries.UniversityByCountry;
+using ES.AcademicPrograms.Application.Documents.Command.AddDocuments;
+using ES.AcademicPrograms.Application.Documents.Command.AddDocumentsType;
+using ES.AcademicPrograms.Application.Documents.Queries.FilterDocuments;
+using ES.AcademicPrograms.Application.Documents.Queries.FilterDocumentsType;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,6 +25,7 @@ using System.Threading.Tasks;
 using TN.Shared.Domain.Entities.Crm.AcademicsPrograms;
 using TN.Shared.Domain.Entities.Crm.Lead;
 using TN.Shared.Domain.Entities.Crm.Profile;
+using TN.Shared.Domain.Entities.Crm.Visa;
 using TN.Shared.Domain.ExtensionMethod.Pagination;
 
 namespace ES.AcademicPrograms.Application.AutoMapper
@@ -29,6 +34,27 @@ namespace ES.AcademicPrograms.Application.AutoMapper
     {
         public MappingProfile()
         {
+
+            #region Documents
+            CreateMap<Document, AddDocumentsResponse>().ReverseMap();
+
+
+            CreateMap<FilterDocumentsResponse, Document>().ReverseMap();
+            CreateMap<PagedResult<Document>, PagedResult<FilterDocumentsResponse>>().ReverseMap();
+
+            #endregion
+
+            #region Documents
+            CreateMap<DocumentType, AddDocumentsTypeResponse>().ReverseMap();
+
+
+            CreateMap<FilterDocumentsTypeResponse, DocumentType>().ReverseMap();
+            CreateMap<PagedResult<DocumentType>, PagedResult<FilterDocumentsTypeResponse>>().ReverseMap();
+
+            #endregion
+
+
+
             #region University
             CreateMap<UniversityResponse, University>().ReverseMap();
             CreateMap<PagedResult<University>, PagedResult<UniversityResponse>>().ReverseMap();

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TN.Shared.Domain.Entities.Crm.Visa;
 using TN.Shared.Domain.Primitive;
 
 namespace TN.Shared.Domain.Entities.Crm.AcademicsPrograms
@@ -28,6 +29,7 @@ namespace TN.Shared.Domain.Entities.Crm.AcademicsPrograms
             ModifiedBy = modifiedBy;
             ModifiedAt = modifiedAt;
             Universities = new List<University>();
+            DocumentTypes = new List<DocumentType>();
 
         }
 
@@ -40,5 +42,6 @@ namespace TN.Shared.Domain.Entities.Crm.AcademicsPrograms
         public DateTime ModifiedAt { get; set; } = DateTime.UtcNow;
 
         public ICollection<University> Universities { get; set; }
+        public ICollection<DocumentType> DocumentTypes { get; set; }
     }
 }

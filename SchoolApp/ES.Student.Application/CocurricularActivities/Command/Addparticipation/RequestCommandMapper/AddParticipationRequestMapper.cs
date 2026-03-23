@@ -14,7 +14,9 @@ namespace ES.Student.Application.CocurricularActivities.Command.Addparticipation
             (
                 request.studentId,
                 request.activityId,
-                request.awardPosition
+                request.awardPosition,
+                request.certificateTitle,
+                request.certificateContent
                 );
                 
         }

@@ -18,6 +18,8 @@ namespace ES.Student.Application.CocurricularActivities.Command.Addparticipation
             string createdBy = "",
             DateTime createdAt = default,
             string modifiedBy = "",
-            DateTime modifiedAt = default
+            DateTime modifiedAt = default,
+              string? certificateTitle="",
+            string? certificateContent=""
         );
 }

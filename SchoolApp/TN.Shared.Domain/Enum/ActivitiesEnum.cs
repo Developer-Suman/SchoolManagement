@@ -20,23 +20,16 @@ namespace TN.Shared.Domain.Enum
 
     public enum AwardPosition
     {
-        // The Classic Winners
         FirstPlace = 1,
         SecondPlace = 2,
         ThirdPlace = 3,
-
-        // High Performance (For Quiz/Sports)
         RunnerUp = 4,
         HonorableMention = 5,
-
-        // Specialized Recognition (For Decoration/Flowering/Creativity)
-        GoldStandard = 6,      // Exceptional quality
-        CreativeExcellence = 7, // Unique approach
-        BestTeamLeader = 8,    // Leadership role
-
-        // Universal Appreciation
-        ActiveParticipant = 9, // Ensures "Every Student" is recognized
-        OutstandingEffort = 10  // For students who worked hard but didn't "win"
+        GoldStandard = 6,     
+        CreativeExcellence = 7, 
+        BestTeamLeader = 8,   
+        ActiveParticipant = 9, 
+        OutstandingEffort = 10 
     }
 
 

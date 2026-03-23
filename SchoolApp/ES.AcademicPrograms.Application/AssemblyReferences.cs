@@ -3,6 +3,8 @@ using ES.AcademicPrograms.Application.AcademicPrograms.Command.AddCourse;
 using ES.AcademicPrograms.Application.AcademicPrograms.Command.AddIntake;
 using ES.AcademicPrograms.Application.AcademicPrograms.Command.AddRequirements;
 using ES.AcademicPrograms.Application.AcademicPrograms.Command.AddUniversity;
+using ES.AcademicPrograms.Application.Documents.Command.AddDocuments;
+using ES.AcademicPrograms.Application.Documents.Command.AddDocumentsType;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -25,6 +27,8 @@ namespace ES.AcademicPrograms.Application
             services.AddScoped<IValidator<AddRequirementsCommand>, AddRequirementsCommandValidator>();
             services.AddScoped<IValidator<AddCourseCommand>, AddCourseCommandValidator>();
             services.AddScoped<IValidator<AddCountryCommand>, AddCountryCommandValidator>();
+            services.AddScoped<IValidator<AddDocumentsCommand>, AddDocumentsCommandValidator>();
+            services.AddScoped<IValidator<AddDocumentsTypeCommand>, AddDocumentsTypeCommandValidator>();
    
             return services;
         }

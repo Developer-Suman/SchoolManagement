@@ -12,6 +12,7 @@ namespace ES.Certificate.Application.Certificates.Command.Awards.StudentsAwards.
             string studentId,
             DateTime awardedAt,
             string awardedBy,
+            string? awardTitle,
             string awardDescriptions,
             string schoolId,
             string createdBy,

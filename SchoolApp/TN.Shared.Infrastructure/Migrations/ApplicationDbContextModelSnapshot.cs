@@ -3244,6 +3244,9 @@ namespace TN.Shared.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("AwardTitle")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("AwardedAt")
                         .HasColumnType("datetime2");
 
@@ -3368,6 +3371,12 @@ namespace TN.Shared.Infrastructure.Migrations
 
                     b.Property<int>("AwardPosition")
                         .HasColumnType("int");
+
+                    b.Property<string>("CertificateContent")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CertificateTitle")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -6660,13 +6669,11 @@ namespace TN.Shared.Infrastructure.Migrations
 
             modelBuilder.Entity("TN.Shared.Domain.Entities.Certificates.CertificateTemplate", b =>
                 {
-                    b.HasOne("TN.Authentication.Domain.Entities.School", "School")
+                    b.HasOne("TN.Authentication.Domain.Entities.School", null)
                         .WithMany("CertificateTemplates")
                         .HasForeignKey("SchoolId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("School");
                 });
 
             modelBuilder.Entity("TN.Shared.Domain.Entities.Certificates.IssuedCertificate", b =>

@@ -21,6 +21,7 @@ using TN.Shared.Domain.Entities.Crm.Enrollments;
 using TN.Shared.Domain.Entities.Crm.Lead;
 using TN.Shared.Domain.Entities.Crm.Profile;
 using TN.Shared.Domain.Entities.Crm.Students;
+using TN.Shared.Domain.Entities.Crm.Visa;
 using TN.Shared.Domain.Entities.Finance;
 using TN.Shared.Domain.Entities.Inventory;
 using TN.Shared.Domain.Entities.Notification;
@@ -50,6 +51,11 @@ namespace TN.Shared.Infrastructure.Data
         }
 
         #region CRM
+
+        #region Documents
+        public DbSet<Document> Documents { get; set; }
+        public DbSet<DocumentType> DocumentTypes { get; set; }
+        #endregion
 
         #region Class
         public DbSet<TrainingRegistration> ClassRegistrations { get; set; }
@@ -307,6 +313,40 @@ namespace TN.Shared.Infrastructure.Data
 
 
             #region CRM 
+
+            #region Visa
+
+            #region Country and DocumentTypes(1:m)
+            builder.Entity<DocumentType>()
+            .HasOne(x => x.Country)
+            .WithMany(x => x.DocumentTypes)
+            .HasForeignKey(x => x.CountryId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+            #endregion
+
+
+
+            #region DocumentType and Document(1:m)
+            builder.Entity<Document>()
+            .HasOne(x => x.DocumentType)
+            .WithMany(x => x.Documents)
+            .HasForeignKey(x => x.DocumentTypeId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+            #endregion
+
+
+            #region CrmApplicant and Document(1:m)
+            builder.Entity<Document>()
+            .HasOne(x => x.CrmApplicant)
+            .WithMany(x => x.Documents)
+            .HasForeignKey(x => x.ApplicantId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+            #endregion
+
+            #endregion
 
             #region Classes
 
@@ -709,13 +749,7 @@ namespace TN.Shared.Infrastructure.Data
    
 
 
-            #region School and CertificateTemplate(1:m)
-            builder.Entity<School>()
-               .HasMany(p => p.CertificateTemplates)
-               .WithOne(p => p.School)
-               .HasForeignKey(p => p.SchoolId)
-               .OnDelete(DeleteBehavior.Restrict);
-            #endregion
+
 
             #endregion
 

@@ -16,6 +16,7 @@ namespace ES.Certificate.Application.Certificates.Command.Awards.StudentsAwards.
                 request.studentId,
                 request.awardedAt,
                 request.awardedBy,
+                request.awardTitle,
                 request.awardDescriptions,
                 request.certificateTemplateId,
                 request.eventsId,

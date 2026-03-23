@@ -12,6 +12,8 @@ namespace TN.Shared.Domain.Entities.CocurricularActivities
             string studentId,
             string activityId,
             AwardPosition awardPosition,
+            string? certificateTitle,
+            string? certificateContent,
             bool isActive,
             string schoolId,
             string createdBy,
@@ -23,6 +25,8 @@ namespace TN.Shared.Domain.Entities.CocurricularActivities
             StudentId = studentId;
             ActivityId = activityId;
             AwardPosition = awardPosition;
+            CertificateTitle = certificateTitle;
+            CertificateContent = certificateContent;
             IsActive = isActive;
             SchoolId = schoolId;
             CreatedBy = createdBy;
@@ -31,6 +35,8 @@ namespace TN.Shared.Domain.Entities.CocurricularActivities
             ModifiedAt = modifiedAt;
         }
 
+        public string? CertificateTitle { get; set; }
+        public string? CertificateContent { get; set; }
         public string StudentId { get; set; }
         public StudentData StudentData { get; set; }
         public string ActivityId { get; set; }

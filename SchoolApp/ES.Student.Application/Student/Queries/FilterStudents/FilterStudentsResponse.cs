@@ -28,6 +28,7 @@ namespace ES.Student.Application.Student.Queries.FilterStudents
         string? parentId = "",
         string? classSectionId = "",
         string? classId="",
+        string? schoolId="",
         EnrollmentStatus? enrollmentStatus = default
         );
 }
