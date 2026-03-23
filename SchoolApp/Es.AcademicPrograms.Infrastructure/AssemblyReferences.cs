@@ -19,7 +19,7 @@ namespace ES.AcademicPrograms.Infrastructure
             services.AddScoped<IIntakeServices, IntakeServices>();
             services.AddScoped<IRequirementsServices, RequirementsServices>();
             services.AddScoped<IUniversityServices, UniversityServices>();
-            services.AddScoped<IDocumentsServices, IDocumentsServices>();
+            services.AddScoped<IDocumentsServices, DocumentsServices>();
             #endregion
             return services;
         }
