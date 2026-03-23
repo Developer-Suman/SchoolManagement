@@ -58,7 +58,6 @@ namespace TN.Authentication.Domain.Entities
             UserSchools = new List<UserSchool>();
             SchoolSetting = new List<SchoolSettings>();
             IssuedCertificates = new List<IssuedCertificate> ();
-            CertificateTemplates = new List<CertificateTemplate> ();
             BillNumberGenerationTypeForPurchase = billNumberGenerationTypeForPurchase;
             BillNumberGenerationTypeForSales = billNumberGenerationTypeForSales;
 

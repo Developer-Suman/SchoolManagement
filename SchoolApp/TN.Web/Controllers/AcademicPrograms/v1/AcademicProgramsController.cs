@@ -17,6 +17,14 @@ using ES.AcademicPrograms.Application.AcademicPrograms.Queries.FilterRequirement
 using ES.AcademicPrograms.Application.AcademicPrograms.Queries.FilterUniversity;
 using ES.AcademicPrograms.Application.AcademicPrograms.Queries.University;
 using ES.AcademicPrograms.Application.AcademicPrograms.Queries.UniversityByCountry;
+using ES.AcademicPrograms.Application.Documents.Command.AddDocuments;
+using ES.AcademicPrograms.Application.Documents.Command.AddDocuments.RequestCommandMapper;
+using ES.AcademicPrograms.Application.Documents.Command.AddDocumentsType;
+using ES.AcademicPrograms.Application.Documents.Command.AddDocumentsType.RequestCommandMapper;
+using ES.AcademicPrograms.Application.Documents.Queries.DocumentsById;
+using ES.AcademicPrograms.Application.Documents.Queries.FilterDocuments;
+using ES.AcademicPrograms.Application.Documents.Queries.FilterDocumentsType;
+using ES.Certificate.Application.Certificates.Queries.SchoolAwards.AwardsById;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
@@ -45,6 +53,126 @@ namespace TN.Web.Controllers.AcademicPrograms.v1
             _logger = logger;
             _mediator = mediator;
         }
+
+        #region Documents
+        #region AddDocuments
+        [HttpPost("AddDocuments")]
+
+        public async Task<IActionResult> AddDocuments([FromBody] AddDocumentsRequest request)
+        {
+            //Mapping command and request
+            var command = request.ToCommand();
+            var commandResult = await _mediator.Send(command);
+            #region Switch Statement
+            return commandResult switch
+            {
+                { IsSuccess: true, Data: not null } => CreatedAtAction(nameof(AddDocuments), commandResult.Data),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = commandResult.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(commandResult.Errors),
+                _ => BadRequest("Invalid Fields ")
+
+            };
+
+            #endregion
+        }
+        #endregion
+
+        #region DocumentsById
+        [HttpGet("Documents/{documentsId}")]
+        public async Task<IActionResult> DocumentsById([FromRoute] string documentsId)
+        {
+            var query = new DocumentsByIdQuery(documentsId);
+            var queryResult = await _mediator.Send(query);
+            #region Switch Statement
+            return queryResult switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(queryResult.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = queryResult.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(queryResult.Errors),
+                _ => BadRequest("Invalid page and pageSize Fields")
+            };
+            #endregion
+
+        }
+        #endregion
+
+        #region FilterDocuments
+        [HttpGet("FilterDocuments")]
+        public async Task<IActionResult> FilterDocuments([FromQuery] FilterDocumentsDTOs filterDocumentsDTOs, [FromQuery] PaginationRequest paginationRequest)
+        {
+            var query = new FilterDocumentsQuery(paginationRequest, filterDocumentsDTOs);
+            var queryResult = await _mediator.Send(query);
+            #region Switch Statement
+            return queryResult switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(queryResult.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = queryResult.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(queryResult.Errors),
+                _ => BadRequest("Invalid page and pageSize Fields")
+            };
+            #endregion
+
+        }
+
+        #endregion
+
+
+        #endregion
+
+        #region DocumentsType
+        #region AddDocumentsType
+        [HttpPost("AddDocumentsType")]
+
+        public async Task<IActionResult> AddDocumentsType([FromBody] AddDocumentsTypeRequest request)
+        {
+            //Mapping command and request
+            var command = request.ToCommand();
+            var commandResult = await _mediator.Send(command);
+            #region Switch Statement
+            return commandResult switch
+            {
+                { IsSuccess: true, Data: not null } => CreatedAtAction(nameof(AddDocumentsType), commandResult.Data),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = commandResult.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(commandResult.Errors),
+                _ => BadRequest("Invalid Fields ")
+
+            };
+
+            #endregion
+        }
+        #endregion
+
+        #region FilterDocumentsType
+        [HttpGet("FilterDocumentsType")]
+        public async Task<IActionResult> FilterDocumentsType([FromQuery] FilterDocumentsTypeDTOs filterDocumentsTypeDTOs, [FromQuery] PaginationRequest paginationRequest)
+        {
+            var query = new FilterDocumentsTypeQuery(paginationRequest, filterDocumentsTypeDTOs);
+            var queryResult = await _mediator.Send(query);
+            #region Switch Statement
+            return queryResult switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(queryResult.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = queryResult.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(queryResult.Errors),
+                _ => BadRequest("Invalid page and pageSize Fields")
+            };
+            #endregion
+
+        }
+
+        #endregion
+
+
+        #endregion
 
         #region Country
         #region AddCountry

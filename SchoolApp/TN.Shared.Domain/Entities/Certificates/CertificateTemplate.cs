@@ -51,7 +51,6 @@ namespace TN.Shared.Domain.Entities.Certificates
         public string ModifiedBy { get;set; }
 
         public string SchoolId { get; set; }
-        public virtual School School { get; set; }
         public string TemplateName { get; set; } = default!;
         public string? TemplateType { get; set; } // e.g., Completion, Merit
         public string HtmlTemplate { get; set; } = default!;

@@ -8,6 +8,7 @@ using TN.Inventory.Domain.Entities;
 using TN.Setup.Domain.Entities;
 using TN.Shared.Domain.Entities.Academics;
 using TN.Shared.Domain.Entities.Account;
+using TN.Shared.Domain.Entities.Certificates;
 using TN.Shared.Domain.Entities.OrganizationSetUp;
 using TN.Shared.Domain.Entities.StockCenterEntities;
 using TN.Shared.Domain.Entities.Students;
@@ -67,10 +68,28 @@ namespace TN.Shared.Infrastructure.DataSeed
             await SeedStockCenter();
             await SeedClasses();
             await SeedAcademicYear();
+            await CertificateTemplate();
 
         }
 
-        #region Exam
+        #region CertificateTemplate
+        private async Task CertificateTemplate()
+        {
+            if (!await _context.CertificateTemplates.AnyAsync())
+            {
+                var certificateTemplate = new List<CertificateTemplate>()
+                {
+                    new CertificateTemplate("3f9d8c2a-7b6e-4a91-9c3f-2f6d5e8a1b44","","Open Format","...........","openFormat","",true,"1.0",DateTime.UtcNow,"", default,"")
+                };
+
+                await _context.CertificateTemplates.AddRangeAsync(certificateTemplate);
+                await _unitOfWork.SaveChangesAsync();
+            }
+        }
+
+        #endregion
+
+        #region Class
 
         private async Task SeedClasses()
         {

@@ -21,6 +21,7 @@ namespace TN.Shared.Domain.Entities.Certificates
             string id,
             string studentId,
             DateTime awardedAt,
+            string? awardTitle,
             string awardedBy,
             string awardDescriptions,
             string schoolId,
@@ -39,6 +40,7 @@ namespace TN.Shared.Domain.Entities.Certificates
         {
             StudentId = studentId;
             AwardedAt = awardedAt;
+            AwardTitle = awardTitle;
             AwardedBy = awardedBy;
             AwardDescriptions = awardDescriptions;
             SchoolId = schoolId;
@@ -54,6 +56,7 @@ namespace TN.Shared.Domain.Entities.Certificates
 
         }
 
+        public string? AwardTitle { get; set; }
         public string ContentHtml { get; set; }
         public string CertificateTemplateId { get; set; }
 

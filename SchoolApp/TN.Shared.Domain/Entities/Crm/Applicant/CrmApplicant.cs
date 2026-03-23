@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TN.Shared.Domain.Entities.Crm.Enrollments;
 using TN.Shared.Domain.Entities.Crm.Profile;
+using TN.Shared.Domain.Entities.Crm.Visa;
 using TN.Shared.Domain.Primitive;
 
 namespace TN.Shared.Domain.Entities.Crm.Applicant
@@ -38,6 +39,7 @@ namespace TN.Shared.Domain.Entities.Crm.Applicant
             CreatedAt = createdAt;
             ModifiedAt = modifiedAt;
             TrainingRegistrations = new List<TrainingRegistration>();
+            Documents= new List<Document>();
 
         }
         public string SchoolId { get; set; }
@@ -51,7 +53,8 @@ namespace TN.Shared.Domain.Entities.Crm.Applicant
         public string TargetCountry { get; set; }
         public virtual UserProfile Profile { get; set; }
 
-        public ICollection<TrainingRegistration> TrainingRegistrations { get; private set; }
+        public ICollection<TrainingRegistration> TrainingRegistrations { get;set; }
+        public ICollection<Document> Documents  { get;set; }
 
     }
 }

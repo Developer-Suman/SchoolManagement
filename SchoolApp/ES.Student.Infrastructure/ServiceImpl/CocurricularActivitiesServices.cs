@@ -212,6 +212,8 @@ namespace ES.Student.Infrastructure.ServiceImpl
                         addParticipationCommand.studentId,
                         addParticipationCommand.activityId,
                         addParticipationCommand.awardPosition,
+                        addParticipationCommand.certificateTitle,
+                        addParticipationCommand.certificateContent,
                         true,
                         schoolId,
                         userId,
@@ -431,7 +433,9 @@ namespace ES.Student.Infrastructure.ServiceImpl
                     i.CreatedBy,
                     i.CreatedAt,
                     i.ModifiedBy,
-                    i.ModifiedAt
+                    i.ModifiedAt,
+                    i.CertificateTitle,
+                    i.CertificateContent
 
 
                 ))

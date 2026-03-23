@@ -1043,6 +1043,7 @@ namespace ES.Student.Infrastructure.ServiceImpl
                     i.ParentId,
                     i.ClassSectionId,
                     i.ClassId,
+                    i.SchoolId,
                     i.EnrollmentStatus
 
 

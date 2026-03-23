@@ -19,6 +19,7 @@ using TN.Shared.Application.ServiceInterface;
 using TN.Shared.Domain.Abstractions;
 using TN.Shared.Domain.Entities.Academics;
 using TN.Shared.Domain.Entities.Certificates;
+using TN.Shared.Domain.Entities.Crm.Enrollments;
 using TN.Shared.Domain.Entities.OrganizationSetUp;
 using TN.Shared.Domain.ExtensionMethod.Pagination;
 using TN.Shared.Domain.IRepository;
@@ -185,26 +186,35 @@ namespace ES.Certificate.Infrastructure.ServiceImpl
                         query => query.Select(c => c.Id)
                     );
 
-                var filterCertificateTemplate = isSuperAdmin
+                var filter = isSuperAdmin
                     ? certificateTemplate
                     : certificateTemplate.Where(x => x.SchoolId == _tokenService.SchoolId().FirstOrDefault() || x.SchoolId == "");
 
-                var (startUtc, endUtc) = await _dateConverter.GetDateRangeUtc(filterCertificateTemplatesDTOs.startDate, filterCertificateTemplatesDTOs.endDate);
+                IQueryable<CertificateTemplate> query = filter.AsQueryable();
 
-                var filteredResult = filterCertificateTemplate
-                 .Where(x =>
-                       (string.IsNullOrEmpty(filterCertificateTemplatesDTOs.schoolId) || x.SchoolId == filterCertificateTemplatesDTOs.schoolId) &&
-                     x.CreatedAt >= startUtc &&
-                         x.CreatedAt <= endUtc &&
-                         x.IsActive
-                 )
-                 .OrderByDescending(x => x.CreatedAt) // newest first
-                 .ToList();
+                if (!string.IsNullOrEmpty(filterCertificateTemplatesDTOs.schoolId))
+                {
+                    query = query.Where(x => x.SchoolId == filterCertificateTemplatesDTOs.schoolId);
+                }
+
+                if (filterCertificateTemplatesDTOs.startDate != null && filterCertificateTemplatesDTOs.endDate != null)
+                {
+                    var (startUtc, endUtc) = await _dateConverter.GetDateRangeUtc(
+                        filterCertificateTemplatesDTOs.startDate,
+                        filterCertificateTemplatesDTOs.endDate
+                    );
+
+                    query = query.Where(x => x.CreatedAt >= startUtc && x.CreatedAt <= endUtc);
+                }
+
+                query = query.Where(x => x.IsActive)
+               .OrderByDescending(x => x.CreatedAt);
 
 
 
 
-                var responseList = filteredResult
+
+                var responseList = query
                 .OrderByDescending(x => x.CreatedAt)
                 .Select(i => new FilterCertificateTemplateResponse(
                     i.Id,
