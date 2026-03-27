@@ -21,10 +21,16 @@ using ES.AcademicPrograms.Application.Documents.Command.AddDocuments;
 using ES.AcademicPrograms.Application.Documents.Command.AddDocuments.RequestCommandMapper;
 using ES.AcademicPrograms.Application.Documents.Command.AddDocumentsType;
 using ES.AcademicPrograms.Application.Documents.Command.AddDocumentsType.RequestCommandMapper;
-using ES.AcademicPrograms.Application.Documents.Queries.DocumentsById;
-using ES.AcademicPrograms.Application.Documents.Queries.FilterDocuments;
-using ES.AcademicPrograms.Application.Documents.Queries.FilterDocumentsType;
+using ES.AcademicPrograms.Application.Documents.Command.DocumentCheckList.NonRequiredDocuments;
+using ES.AcademicPrograms.Application.Documents.Command.DocumentCheckList.NonRequiredDocuments.RequestCommandMapper;
+using ES.AcademicPrograms.Application.Documents.Command.DocumentCheckList.RequiredDocument;
+using ES.AcademicPrograms.Application.Documents.Command.DocumentCheckList.RequiredDocument.RequestCommandMapper;
+using ES.AcademicPrograms.Application.Documents.Queries.Documents.DocumentsById;
+using ES.AcademicPrograms.Application.Documents.Queries.Documents.FilterDocuments;
+using ES.AcademicPrograms.Application.Documents.Queries.DocumentsType.DocumentsTypes;
+using ES.AcademicPrograms.Application.Documents.Queries.DocumentsType.FilterDocumentsType;
 using ES.Certificate.Application.Certificates.Queries.SchoolAwards.AwardsById;
+using ES.Communication.Application.Communication.Command.PublishNotice;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
@@ -54,11 +60,13 @@ namespace TN.Web.Controllers.AcademicPrograms.v1
             _mediator = mediator;
         }
 
+        
+
         #region Documents
         #region AddDocuments
         [HttpPost("AddDocuments")]
 
-        public async Task<IActionResult> AddDocuments([FromBody] AddDocumentsRequest request)
+        public async Task<IActionResult> AddDocuments([FromForm] AddDocumentsRequest request)
         {
             //Mapping command and request
             var command = request.ToCommand();
@@ -126,6 +134,77 @@ namespace TN.Web.Controllers.AcademicPrograms.v1
         #endregion
 
         #region DocumentsType
+
+        #region RequiredDocType
+        [HttpPost("RequiredDocType")]
+        public async Task<IActionResult> RequiredDocType([FromBody] RequiredDocumentsRequest request)
+        {
+            var command = request.ToCommand();
+            var commandResult = await _mediator.Send(command);
+            #region Switch Statement
+            return commandResult switch
+            {
+                { IsSuccess: true, Data: not null } => CreatedAtAction(nameof(RequiredDocType), commandResult.Data),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = commandResult.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(commandResult.Errors),
+                _ => BadRequest("Invalid Fields")
+            };
+
+            #endregion
+
+        }
+
+        #endregion
+
+
+
+        #region NonRequiredDocType
+        [HttpPost("NonRequiredDocType")]
+        public async Task<IActionResult> NonRequiredDocType([FromBody] NonRequiredDocumentsRequest request)
+        {
+            var command = request.ToCommand();
+            var commandResult = await _mediator.Send(command);
+            #region Switch Statement
+            return commandResult switch
+            {
+                { IsSuccess: true, Data: not null } => CreatedAtAction(nameof(RequiredDocType), commandResult.Data),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = commandResult.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(commandResult.Errors),
+                _ => BadRequest("Invalid Fields")
+            };
+
+            #endregion
+
+        }
+
+        #endregion
+
+
+        #region AllDocumentsType
+        [HttpGet("AllDocumentsType")]
+        public async Task<IActionResult> AllDocumentsType([FromQuery] PaginationRequest paginationRequest)
+        {
+            var query = new DocumentsTypesQuery(paginationRequest);
+            var result = await _mediator.Send(query);
+            #region Switch Statement
+            return result switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(result.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { result.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(result.Errors),
+                _ => BadRequest("Invalid page and pageSize Fields")
+            };
+            #endregion
+
+        }
+
+
+        #endregion
+
+
         #region AddDocumentsType
         [HttpPost("AddDocumentsType")]
 

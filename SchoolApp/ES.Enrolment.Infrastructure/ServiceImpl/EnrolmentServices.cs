@@ -102,23 +102,54 @@ namespace ES.Enrolment.Infrastructure.ServiceImpl
 
                     );
 
+
                     foreach (var countryDto in addInquiryCommand.Countries)
                     {
-                        var leadCountryId = Guid.NewGuid().ToString();
-                        var leadCountry = new LeadCountry(leadCountryId, countryDto.countryId, newId );
+                        if (string.IsNullOrEmpty(countryDto.countryId))
+                            continue;
 
+                        var leadCountryId = Guid.NewGuid().ToString();
+
+                        var leadCountry = new LeadCountry(
+                            leadCountryId,
+                            countryDto.countryId,
+                            newId
+                        );
+
+                        // ✅ Handle null Universities
                         foreach (var uniDto in countryDto.Universities)
                         {
-                            var leadUniversityId = Guid.NewGuid().ToString();
-                            var leadUni = new LeadUniversity (leadUniversityId, uniDto.universityId, leadCountryId);
+                            if (string.IsNullOrEmpty(uniDto.universityId))
+                                continue;
 
-                            foreach (var courseId in uniDto.CourseIds)
+                            var leadUniversityId = Guid.NewGuid().ToString();
+
+                            var leadUni = new LeadUniversity(
+                                leadUniversityId,
+                                uniDto.universityId,
+                                leadCountryId
+                            );
+
+                            // ✅ Handle null CourseIds
+                            foreach (var courseId in uniDto.CourseIds ?? new List<string>())
                             {
+                                if (string.IsNullOrEmpty(courseId))
+                                    continue;
+
                                 var leadCourseId = Guid.NewGuid().ToString();
-                                leadUni.SelectedCourses.Add(new LeadCourse(leadCountryId, courseId, leadUniversityId));
+
+                                leadUni.SelectedCourses.Add(
+                                    new LeadCourse(
+                                        leadCourseId,        // ✅ Correct ID
+                                        courseId,
+                                        leadUniversityId
+                                    )
+                                );
                             }
+
                             leadCountry.SelectedUniversities.Add(leadUni);
                         }
+
                         add.AppliedCountries.Add(leadCountry);
                     }
 
@@ -158,7 +189,9 @@ namespace ES.Enrolment.Infrastructure.ServiceImpl
                         (
                         convertApplicantCommand.userId,
                         convertApplicantCommand.passportNo,
-                        convertApplicantCommand.targetCountry, 
+                        convertApplicantCommand.countryId, 
+                        convertApplicantCommand.universityId, 
+                        convertApplicantCommand.courseId, 
                         true,
                         schoolId ?? "",
                         userId,
@@ -171,7 +204,7 @@ namespace ES.Enrolment.Infrastructure.ServiceImpl
 
                     profile.EnrolmentType = EnrolmentType.Applicant;
 
-                   
+
 
                     await _unitOfWork.BaseRepository<CrmApplicant>().AddAsync(applicant);
 
@@ -283,7 +316,9 @@ namespace ES.Enrolment.Infrastructure.ServiceImpl
                     i.Profile.Email,
                     i.Profile.EnrolmentType,
                     i.PassportNumber,
-                    i.TargetCountry,
+                    i.CountryId,
+                    i.UniversityId,
+                    i.CourseId,
                     i.IsActive,
                     i.SchoolId,
                     i.CreatedBy,
@@ -640,7 +675,9 @@ namespace ES.Enrolment.Infrastructure.ServiceImpl
                    crmApplicants.Profile?.EnrolmentType ?? default,
                     crmApplicants.PassportNumber,
 
-                    crmApplicants.TargetCountry,
+                    crmApplicants.CountryId,
+                    crmApplicants.UniversityId,
+                    crmApplicants.CourseId,
                     crmApplicants.IsActive,
                     crmApplicants.SchoolId,
                     crmApplicants.CreatedBy,

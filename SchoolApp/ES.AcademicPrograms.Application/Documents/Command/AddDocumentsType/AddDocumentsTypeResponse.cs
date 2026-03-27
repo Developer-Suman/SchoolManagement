@@ -10,7 +10,6 @@ namespace ES.AcademicPrograms.Application.Documents.Command.AddDocumentsType
     (
         string id = "",
             string name = "",
-            string countryId = "",
             bool isActive = true,
             string schoolId = "",
             string createdBy = "",

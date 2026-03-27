@@ -6,6 +6,7 @@ using ES.AcademicPrograms.Application.AcademicPrograms.Queries.FilterIntake;
 using ES.AcademicPrograms.Application.AcademicPrograms.Queries.FilterRequirements;
 using ES.AcademicPrograms.Application.AcademicPrograms.Queries.FilterUniversity;
 using ES.AcademicPrograms.Application.ServiceInterface;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,7 +16,9 @@ using System.Transactions;
 using TN.Authentication.Domain.Entities;
 using TN.Shared.Application.ServiceInterface;
 using TN.Shared.Domain.Abstractions;
+using TN.Shared.Domain.Entities.Academics;
 using TN.Shared.Domain.Entities.Crm.AcademicsPrograms;
+using TN.Shared.Domain.Entities.Crm.Visa;
 using TN.Shared.Domain.Entities.OrganizationSetUp;
 using TN.Shared.Domain.ExtensionMethod.Pagination;
 using TN.Shared.Domain.IRepository;
@@ -59,7 +62,19 @@ namespace ES.AcademicPrograms.Infrastructure.ServiceImpl
                     var add = new Requirement(
                             newId,
                         addRequirementsCommand.descriptions,
+                        addRequirementsCommand.countryId,
                         addRequirementsCommand.courseId,
+                             addRequirementsCommand.documentsCheckListDTOs?.Select(e => new DocumentChecklist(
+                            Guid.NewGuid().ToString(),
+                            e.documenteTypeId,
+                            newId,
+                            true,
+                            schoolId,
+                            userId,
+                            DateTime.UtcNow,
+                            "",
+                            default
+                        )).ToList() ?? new List<DocumentChecklist>(),
                         true,
                         schoolId ?? "",
                         userId,
@@ -71,6 +86,8 @@ namespace ES.AcademicPrograms.Infrastructure.ServiceImpl
                     await _unitOfWork.BaseRepository<Requirement>().AddAsync(add);
                     await _unitOfWork.SaveChangesAsync();
                     scope.Complete();
+
+
 
                     var resultDTOs = _mapper.Map<AddRequirementsResponse>(add);
                     return Result<AddRequirementsResponse>.Success(resultDTOs);
@@ -105,7 +122,9 @@ namespace ES.AcademicPrograms.Infrastructure.ServiceImpl
                     : requirements
                .Where(x => x.SchoolId == _tokenService.SchoolId().FirstOrDefault() || x.SchoolId == "");
 
-                IQueryable<Requirement> query = filter.AsQueryable();
+                IQueryable<Requirement> query = filter
+                    .Include(x=>x.DocumentChecklists)
+                    .AsQueryable();
 
                 if (!string.IsNullOrEmpty(filterRequirementsDTOs.courseId))
                 {
@@ -128,21 +147,26 @@ namespace ES.AcademicPrograms.Infrastructure.ServiceImpl
 
 
                 var responseList = query
-                .OrderByDescending(x => x.CreatedAt)
-                .Select(i => new FilterRequirementsResponse(
-                    i.Id,
-                    i.Descriptions,
-                    i.CourseId,
-                    i.IsActive,
-                    i.SchoolId,
-                    i.CreatedBy,
-                    i.CreatedAt,
-                    i.ModifiedBy,
-                    i.ModifiedAt
-
-
-                ))
-                .ToList();
+                    .OrderByDescending(x => x.CreatedAt)
+                    .Select(i => new FilterRequirementsResponse(
+                        i.Id,
+                        i.Descriptions,
+                        i.CourseId,
+                        i.CountryId,
+                        i.DocumentChecklists
+                            .Select(x => new DocCheckListDTOs(
+                                x.DocumentTypeId,
+                                x.IsRequired
+                            ))
+                            .ToList(), // <-- moved outside
+                        i.IsActive,
+                        i.SchoolId,
+                        i.CreatedBy,
+                        i.CreatedAt,
+                        i.ModifiedBy,
+                        i.ModifiedAt
+                    ))
+                    .ToList();
 
                 PagedResult<FilterRequirementsResponse> finalResponseList;
 

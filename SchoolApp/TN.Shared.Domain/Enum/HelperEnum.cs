@@ -9,6 +9,12 @@ namespace TN.Shared.Domain.Enum
     public class HelperEnum
     {
 
+        public enum RequiredStatus
+        {
+            Required,
+            NonRequired
+        }
+
         public enum EnglishProficiency
         {
             IELTS = 1,

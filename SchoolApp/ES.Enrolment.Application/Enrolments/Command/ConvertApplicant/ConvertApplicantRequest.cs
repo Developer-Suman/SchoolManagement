@@ -9,7 +9,9 @@ namespace ES.Enrolment.Application.Enrolments.Command.ConvertApplicant
     public record ConvertApplicantRequest
     (
         string userId,
-        string passportNo,
-        string targetCountry
+        string? passportNo,
+        string? countryId,
+        string? universityId,
+        string? courseId
         );
 }

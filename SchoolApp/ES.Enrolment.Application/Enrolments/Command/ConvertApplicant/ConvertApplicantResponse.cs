@@ -12,6 +12,8 @@ namespace ES.Enrolment.Application.Enrolments.Command.ConvertApplicant
    (
         string id="",
            string passportNo="",
-           string targetCountry=""
+           string countryId = "",
+           string universityId = "",
+           string courseId=""
         );
 }

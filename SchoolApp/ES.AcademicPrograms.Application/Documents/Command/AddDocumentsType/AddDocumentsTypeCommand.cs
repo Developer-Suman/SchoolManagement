@@ -10,7 +10,6 @@ namespace ES.AcademicPrograms.Application.Documents.Command.AddDocumentsType
 {
     public record AddDocumentsTypeCommand
     (
-        string name,
-            string countryId
+        string name
         ) : IRequest<Result<AddDocumentsTypeResponse>>;
 }

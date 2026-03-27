@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TN.Shared.Domain.Entities.Crm.Applicant;
 using TN.Shared.Domain.Enum;
 using TN.Shared.Domain.Primitive;
 
@@ -46,6 +47,7 @@ namespace TN.Shared.Domain.Entities.Crm.AcademicsPrograms
 
             Intakes = new List<Intake>();
             Requirements = new List<Requirement>();
+            CrmApplicants = new List<CrmApplicant>();
 
 
         }
@@ -63,5 +65,6 @@ namespace TN.Shared.Domain.Entities.Crm.AcademicsPrograms
         public University University { get; set; }
         public ICollection<Intake> Intakes { get; set; }
         public ICollection<Requirement> Requirements { get; set; }
+        public ICollection<CrmApplicant> CrmApplicants { get; set; }
     }
 }

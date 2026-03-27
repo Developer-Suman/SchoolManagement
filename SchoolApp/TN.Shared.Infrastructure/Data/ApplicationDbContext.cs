@@ -55,6 +55,7 @@ namespace TN.Shared.Infrastructure.Data
         #region Documents
         public DbSet<Document> Documents { get; set; }
         public DbSet<DocumentType> DocumentTypes { get; set; }
+        public DbSet<DocumentChecklist> DocumentChecklists { get; set; }
         #endregion
 
         #region Class
@@ -316,11 +317,25 @@ namespace TN.Shared.Infrastructure.Data
 
             #region Visa
 
-            #region Country and DocumentTypes(1:m)
-            builder.Entity<DocumentType>()
-            .HasOne(x => x.Country)
-            .WithMany(x => x.DocumentTypes)
-            .HasForeignKey(x => x.CountryId)
+
+
+
+            #region DocumentType and DocumentCheckList(1:m)
+            builder.Entity<DocumentChecklist>()
+            .HasOne(x => x.DocumentType)
+            .WithMany(x => x.DocumentChecklists)
+            .HasForeignKey(x => x.DocumentTypeId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+            #endregion
+
+
+
+            #region Requirements and DocumentsCheckList (1:m)
+            builder.Entity<DocumentChecklist>()
+            .HasOne(x => x.Requirement)
+            .WithMany(x => x.DocumentChecklists)
+            .HasForeignKey(x => x.RequirementsId)
             .OnDelete(DeleteBehavior.Restrict);
 
             #endregion
@@ -445,6 +460,16 @@ namespace TN.Shared.Infrastructure.Data
 
             #region AcademicPrograms
 
+            #region Country and Requirements(1:m)
+            builder.Entity<Requirement>()
+               .HasOne(p => p.Country)
+               .WithMany(p => p.Requirements)
+               .HasForeignKey(p => p.CountryId)
+               .OnDelete(DeleteBehavior.Restrict);
+            #endregion
+
+
+
             #region Country and University(1:m)
             builder.Entity<University>()
                .HasOne(p => p.Country)
@@ -483,7 +508,31 @@ namespace TN.Shared.Infrastructure.Data
             #endregion
             #endregion
 
+            #region Country and Applicant(1:m)
+            builder.Entity<CrmApplicant>()
+               .HasOne(p => p.Country)
+               .WithMany(p => p.CrmApplicants)
+               .HasForeignKey(p => p.CountryId)
+               .OnDelete(DeleteBehavior.Restrict);
+            #endregion
 
+
+
+            #region University and Applicant(1:m)
+            builder.Entity<CrmApplicant>()
+               .HasOne(p => p.University)
+               .WithMany(p => p.CrmApplicants)
+               .HasForeignKey(p => p.UniversityId)
+               .OnDelete(DeleteBehavior.Restrict);
+            #endregion
+
+            #region Course and Applicant(1:m)
+            builder.Entity<CrmApplicant>()
+               .HasOne(p => p.Course)
+               .WithMany(p => p.CrmApplicants)
+               .HasForeignKey(p => p.CourseId)
+               .OnDelete(DeleteBehavior.Restrict);
+            #endregion
 
             #region Lead and UserProfile (1:1)
             builder.Entity<CrmLead>(builder =>
