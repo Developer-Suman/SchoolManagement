@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ES.AcademicPrograms.Application.AcademicPrograms.Command.AddRequirements;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,9 +9,11 @@ namespace ES.AcademicPrograms.Application.AcademicPrograms.Queries.FilterRequire
 {
     public record FilterRequirementsResponse
     (
-        string id="",
-            string descriptions="",
-            string courseId="",
+        string id = "",
+            string descriptions = "",
+            string courseId = "",
+            string? countryId="",
+            List<DocCheckListDTOs> DocumentsCheckListDTOs = default,
             bool isActive= true,
             string schoolId="",
             string createdBy = "",

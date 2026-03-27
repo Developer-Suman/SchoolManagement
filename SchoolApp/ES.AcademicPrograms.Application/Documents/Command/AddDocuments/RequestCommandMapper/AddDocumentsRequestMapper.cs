@@ -14,7 +14,7 @@ namespace ES.AcademicPrograms.Application.Documents.Command.AddDocuments.Request
                 (
                 request.applicantId,
                 request.documentTypeId,
-                request.documentStatus
+                request.docFile
                 );
         }
     }

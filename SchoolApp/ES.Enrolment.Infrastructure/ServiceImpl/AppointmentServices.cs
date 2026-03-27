@@ -3,6 +3,7 @@ using Azure.Core;
 using ES.Enrolment.Application.Enrolments.Command.Appointment.AddAppointment;
 using ES.Enrolment.Application.Enrolments.Queries.Appointments.FilterAppointment;
 using ES.Enrolment.Application.Enrolments.Queries.Appointments.ScheduleAppointment;
+using ES.Enrolment.Application.Enrolments.Queries.Appointments.ShowLeadEnquiry;
 using ES.Enrolment.Application.ServiceInterface;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -17,6 +18,7 @@ using TN.Shared.Domain.Abstractions;
 using TN.Shared.Domain.Entities.Certificates;
 using TN.Shared.Domain.Entities.Crm.Applicant;
 using TN.Shared.Domain.Entities.Crm.Enrollments;
+using TN.Shared.Domain.Entities.Crm.Lead;
 using TN.Shared.Domain.Entities.OrganizationSetUp;
 using TN.Shared.Domain.Entities.Students;
 using TN.Shared.Domain.ExtensionMethod.Pagination;
@@ -258,6 +260,60 @@ namespace ES.Enrolment.Infrastructure.ServiceImpl
             catch (Exception ex)
             {
                 throw new Exception($"An error occurred while processing Appointment Schedule: {ex.Message}", ex);
+            }
+        }
+
+        public async Task<Result<ShowLeadEnquiryResponse>> ShowLeadEnqueries(ShowLeadEnquiryDTOs showLeadEnquiryDTOs)
+        {
+            try
+            {
+                var fyId = _fiscalContext.CurrentFiscalYearId;
+                var userId = _tokenService.GetUserId();
+
+                var (crmLead, schoolId, institutionId, userRole, isSuperAdmin) =
+                    await _getUserScopedData.GetUserScopedData<CrmLead>();
+
+                var query = crmLead
+                    .Include(x => x.AppliedCountries)
+                        .ThenInclude(x => x.SelectedUniversities)
+                            .ThenInclude(x => x.SelectedCourses)
+                    .AsQueryable();
+
+                if (!isSuperAdmin)
+                {
+                    var schoolsId = _tokenService.SchoolId().FirstOrDefault();
+
+                    if (string.IsNullOrEmpty(schoolsId))
+                        throw new Exception("Invalid SchoolId");
+
+                    query = query.Where(x => x.SchoolId == schoolsId);
+                }
+
+                var leadDetails = await query
+                    .SelectMany(x => x.AppliedCountries)
+                    .Select(country => new LeadCountryDto(
+                        country.CountryId,
+                        country.SelectedUniversities
+                            .Select(uni => new LeadUniversityDto(
+                                uni.UniversityId,
+                                uni.SelectedCourses
+                                    .Select(course => course.CourseId)
+                                    .ToList()
+                            ))
+                            .ToList()
+                    ))
+                    .ToListAsync();
+
+
+
+                var finalResponse = new ShowLeadEnquiryResponse(leadDetails);
+
+                // ✅ Correct Return Type
+                return Result<ShowLeadEnquiryResponse>.Success(finalResponse);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"An error occurred while  {ex.Message}", ex);
             }
         }
     }

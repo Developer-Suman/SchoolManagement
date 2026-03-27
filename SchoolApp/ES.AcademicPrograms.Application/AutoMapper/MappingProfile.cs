@@ -15,8 +15,11 @@ using ES.AcademicPrograms.Application.AcademicPrograms.Queries.University;
 using ES.AcademicPrograms.Application.AcademicPrograms.Queries.UniversityByCountry;
 using ES.AcademicPrograms.Application.Documents.Command.AddDocuments;
 using ES.AcademicPrograms.Application.Documents.Command.AddDocumentsType;
-using ES.AcademicPrograms.Application.Documents.Queries.FilterDocuments;
-using ES.AcademicPrograms.Application.Documents.Queries.FilterDocumentsType;
+using ES.AcademicPrograms.Application.Documents.Command.DocumentCheckList.NonRequiredDocuments;
+using ES.AcademicPrograms.Application.Documents.Command.DocumentCheckList.RequiredDocument;
+using ES.AcademicPrograms.Application.Documents.Queries.Documents.FilterDocuments;
+using ES.AcademicPrograms.Application.Documents.Queries.DocumentsType.DocumentsTypes;
+using ES.AcademicPrograms.Application.Documents.Queries.DocumentsType.FilterDocumentsType;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -44,9 +47,10 @@ namespace ES.AcademicPrograms.Application.AutoMapper
 
             #endregion
 
-            #region Documents
+            #region DocumentsType
+            CreateMap<DocumentType, RequiredDocumentsResponse>().ReverseMap();
+            CreateMap<DocumentType, NonRequiredDocumentsResponse>().ReverseMap();
             CreateMap<DocumentType, AddDocumentsTypeResponse>().ReverseMap();
-
 
             CreateMap<FilterDocumentsTypeResponse, DocumentType>().ReverseMap();
             CreateMap<PagedResult<DocumentType>, PagedResult<FilterDocumentsTypeResponse>>().ReverseMap();

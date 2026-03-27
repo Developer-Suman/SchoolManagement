@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TN.Shared.Domain.Entities.Crm.AcademicsPrograms;
 using TN.Shared.Domain.Entities.Crm.Enrollments;
 using TN.Shared.Domain.Entities.Crm.Profile;
 using TN.Shared.Domain.Entities.Crm.Visa;
@@ -20,8 +21,10 @@ namespace TN.Shared.Domain.Entities.Crm.Applicant
 
         public CrmApplicant(
             string id,
-            string passportNo,
-            string targetCountry,
+            string? passportNo,
+            string? countryId,
+            string? universityId,
+            string? courseId,
             bool isActive,
             string schoolId,
             string createdBy,
@@ -31,7 +34,9 @@ namespace TN.Shared.Domain.Entities.Crm.Applicant
             ) : base(id)
         {
             PassportNumber = passportNo;
-            TargetCountry = targetCountry;
+            CountryId = countryId;
+            UniversityId = universityId;
+            CourseId = courseId;
             IsActive = isActive;
             SchoolId = schoolId;
             CreatedBy = createdBy;
@@ -49,8 +54,13 @@ namespace TN.Shared.Domain.Entities.Crm.Applicant
         public string ModifiedBy { get; set; }
         public DateTime ModifiedAt { get; set; } = DateTime.Now;
 
-        public string PassportNumber { get; set; }
-        public string TargetCountry { get; set; }
+        public string? PassportNumber { get; set; }
+        public string? CountryId { get; set; }
+        public Country? Country { get; set; }
+        public string? UniversityId { get; set; }
+        public University? University { get; set; }
+        public string? CourseId { get; set; }
+        public Course? Course { get; set; }
         public virtual UserProfile Profile { get; set; }
 
         public ICollection<TrainingRegistration> TrainingRegistrations { get;set; }

@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TN.Shared.Domain.Entities.Crm.Applicant;
 using TN.Shared.Domain.Primitive;
 
 namespace TN.Shared.Domain.Entities.Crm.AcademicsPrograms
@@ -42,6 +43,7 @@ namespace TN.Shared.Domain.Entities.Crm.AcademicsPrograms
             CreatedAt = createdAt;
             ModifiedAt = modifiedAt;
             Courses = new List<Course>();
+            CrmApplicants = new List<CrmApplicant>();
 
 
         }
@@ -59,5 +61,6 @@ namespace TN.Shared.Domain.Entities.Crm.AcademicsPrograms
         public string? Website { get; set; }
         public int GlobalRanking { get; set; }
         public ICollection<Course> Courses { get; set; }
+        public ICollection<CrmApplicant> CrmApplicants { get; set; }
     }
 }

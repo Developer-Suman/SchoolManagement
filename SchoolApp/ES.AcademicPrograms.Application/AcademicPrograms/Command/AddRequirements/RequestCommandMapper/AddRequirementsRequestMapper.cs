@@ -13,7 +13,9 @@ namespace ES.AcademicPrograms.Application.AcademicPrograms.Command.AddRequiremen
             return new AddRequirementsCommand
                 (
                 request.descriptions,
-                request.courseId
+                request.countryId,
+                request.courseId,
+                request.documentsCheckListDTOs
                 );
             
         }

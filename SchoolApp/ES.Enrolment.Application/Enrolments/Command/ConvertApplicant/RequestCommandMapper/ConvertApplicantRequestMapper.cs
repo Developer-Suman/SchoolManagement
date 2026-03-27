@@ -14,7 +14,9 @@ namespace ES.Enrolment.Application.Enrolments.Command.ConvertApplicant.RequestCo
                 (
                 request.userId,
                 request.passportNo,
-                request.targetCountry
+                request.countryId,
+                request.universityId,
+                request.courseId
                 );
         }
     }

@@ -19,6 +19,7 @@ using ES.Enrolment.Application.Enrolments.Queries.Applicants.ApplicantsById;
 using ES.Enrolment.Application.Enrolments.Queries.Applicants.FilterApplicant;
 using ES.Enrolment.Application.Enrolments.Queries.Appointments.FilterAppointment;
 using ES.Enrolment.Application.Enrolments.Queries.Appointments.ScheduleAppointment;
+using ES.Enrolment.Application.Enrolments.Queries.Appointments.ShowLeadEnquiry;
 using ES.Enrolment.Application.Enrolments.Queries.ConsultancyClasses.ConsultancyClass;
 using ES.Enrolment.Application.Enrolments.Queries.ConsultancyClasses.FilterConsultancyClass;
 using ES.Enrolment.Application.Enrolments.Queries.Counselors.Counselor;
@@ -241,6 +242,30 @@ namespace TN.Web.Controllers.Enrolments.v1
 
 
         #region Appointments
+        #region ShowLeadEnqueryDetails
+        [HttpGet("ShowLeadEnqueryDetails")]
+        public async Task<IActionResult> ShowLeadEnqueryDetails([FromQuery] ShowLeadEnquiryDTOs showLeadEnquiryDTOs)
+        {
+            var query = new ShowLeadEnquiryQuery(showLeadEnquiryDTOs);
+            var filter = await _mediator.Send(query);
+            #region Switch Statement
+            return filter switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(filter.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = filter.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(filter.Errors),
+                _ => BadRequest("Invalid page and pageSize Fields")
+            };
+            #endregion
+
+        }
+
+        #endregion
+
+
         #region ScheduleAppointments
         [HttpGet("ScheduleAppointments")]
         public async Task<IActionResult> ScheduleAppointments([FromQuery] ScheduleAppointmentDTOs scheduleAppointmentDTOs)

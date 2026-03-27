@@ -8,7 +8,6 @@ namespace ES.AcademicPrograms.Application.Documents.Command.AddDocumentsType
 {
     public record AddDocumentsTypeRequest
     (
-        string name,
-            string countryId
+        string name
         );
 }

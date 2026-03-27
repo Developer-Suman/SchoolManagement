@@ -19,7 +19,6 @@ namespace TN.Shared.Domain.Entities.Crm.Visa
         public DocumentType(
             string id,
             string name,
-            string countryId,
             bool isActive,
             string schoolId,
             string createdBy,
@@ -30,7 +29,6 @@ namespace TN.Shared.Domain.Entities.Crm.Visa
             ) : base(id)
         {
             Name = name;
-            CountryId = countryId;
             IsActive = isActive;
             SchoolId = schoolId;
             CreatedBy = createdBy;
@@ -40,7 +38,7 @@ namespace TN.Shared.Domain.Entities.Crm.Visa
             ModifiedBy = modifiedBy;
 
             Documents = new List<Document>();
-
+            DocumentChecklists = new List<DocumentChecklist>();
 
         }
 
@@ -51,8 +49,7 @@ namespace TN.Shared.Domain.Entities.Crm.Visa
         public string ModifiedBy { get; set; }
         public DateTime ModifiedAt { get; set; } = DateTime.UtcNow;
         public string Name { get; set;  }
-        public string CountryId { get; set; }
-        public Country Country { get; set; }
         public ICollection<Document> Documents { get; set; }
+        public ICollection<DocumentChecklist> DocumentChecklists { get; set; }
     }
 }

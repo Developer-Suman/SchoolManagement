@@ -13,8 +13,7 @@ namespace ES.AcademicPrograms.Application.Documents.Command.AddDocumentsType.Req
         {
             return new AddDocumentsTypeCommand
                 (
-                request.name,
-                request.countryId
+                request.name
                 );
         }
     }

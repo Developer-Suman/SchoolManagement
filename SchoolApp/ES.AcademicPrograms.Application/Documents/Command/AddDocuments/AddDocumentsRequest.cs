@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,6 +12,6 @@ namespace ES.AcademicPrograms.Application.Documents.Command.AddDocuments
     (
         string applicantId,
             string documentTypeId,
-            DocumentStatus documentStatus
+            IFormFile docFile
         );
 }

@@ -2,6 +2,7 @@
 using ES.Enrolment.Application.Enrolments.Command.Appointment.AddAppointment;
 using ES.Enrolment.Application.Enrolments.Queries.Appointments.FilterAppointment;
 using ES.Enrolment.Application.Enrolments.Queries.Appointments.ScheduleAppointment;
+using ES.Enrolment.Application.Enrolments.Queries.Appointments.ShowLeadEnquiry;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,5 +20,6 @@ namespace ES.Enrolment.Application.ServiceInterface
         Task<Result<PagedResult<FilterAppointmentResponse>>> FilterAppointments(PaginationRequest paginationRequest, FilterAppointmentDTOs filterAppointmentDTOs);
 
         Task<Result<ScheduleAppointmentResponse>> GetAppointmentSchedule(ScheduleAppointmentDTOs scheduleAppointmentDTOs);
+        Task<Result<ShowLeadEnquiryResponse>> ShowLeadEnqueries(ShowLeadEnquiryDTOs showLeadEnquiryDTOs);
     }
 }

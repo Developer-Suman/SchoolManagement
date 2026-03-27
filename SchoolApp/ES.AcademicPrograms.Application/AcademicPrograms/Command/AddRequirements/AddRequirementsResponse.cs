@@ -8,7 +8,9 @@ namespace ES.AcademicPrograms.Application.AcademicPrograms.Command.AddRequiremen
 {
     public record AddRequirementsResponse
     (
-        string descriptions,
-            string courseId
+        string descriptions="",
+        string countryId="",
+            string courseId="",
+            List<DocumentsCheckListDTOs> documentsCheckListDTOs=default
         );
 }
