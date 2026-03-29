@@ -55,7 +55,7 @@ namespace ES.Enrolment.Infrastructure.ServiceImpl
 
                     var add = new FollowUp(
                         newId,
-                        addFollowUpCommand.leadId,
+                        addFollowUpCommand.userId,
                         addFollowUpCommand.startTime,
                         addFollowUpCommand.endTime,
                         addFollowUpCommand.followUpDate,
@@ -109,9 +109,9 @@ namespace ES.Enrolment.Infrastructure.ServiceImpl
 
                 IQueryable<FollowUp> query = filter.AsQueryable();
 
-                if (!string.IsNullOrEmpty(filterFollowUpDTOs.leadId))
+                if (!string.IsNullOrEmpty(filterFollowUpDTOs.userId))
                 {
-                    query = query.Where(x => x.LeadId == filterFollowUpDTOs.leadId);
+                    query = query.Where(x => x.UserId == filterFollowUpDTOs.userId);
                 }
 
                 if (filterFollowUpDTOs.startDate != null && filterFollowUpDTOs.endDate != null)
@@ -132,7 +132,7 @@ namespace ES.Enrolment.Infrastructure.ServiceImpl
                 var responseList = query
                 .Select(i => new FilterFollowUpResponse(
                     i.Id,
-                    i.LeadId,
+                    i.UserId,
                     i.StartTime,
                     i.EndTime,
                     i.FollowUpDate,

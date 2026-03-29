@@ -27,7 +27,7 @@ namespace TN.Setup.Application.Setup.Command.AddSchool.RequestCommandMapper
                         addSchoolRequest.contactNumber,
                        addSchoolRequest.contactPerson,
                        addSchoolRequest.pan,
-                       addSchoolRequest.imageUrl,
+                       addSchoolRequest.logoUrl,
                         addSchoolRequest.isEnabled,
                        addSchoolRequest.institutionId,
                         addSchoolRequest.isDeleted,

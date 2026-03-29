@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TN.Shared.Domain.Entities.Crm.Applicant;
+using TN.Shared.Domain.Entities.Crm.Enrollments;
 using TN.Shared.Domain.Entities.Crm.Lead;
 using TN.Shared.Domain.Entities.Crm.Students;
 using TN.Shared.Domain.Primitive;
@@ -32,6 +33,7 @@ namespace TN.Shared.Domain.Entities.Crm.Profile
             Email = email;
             EnrolmentType = enrolmentType;
             CreatedAt = createdAt;
+            FollowUps = new List<FollowUp>();
 
         }
 
@@ -44,5 +46,6 @@ namespace TN.Shared.Domain.Entities.Crm.Profile
         public virtual CrmLead CrmLeadDetails { get; set; }
         public virtual CrmApplicant CrmApplicantDetails { get; set; }
         public virtual CrmStudent CrmStudentDetails { get; set; }
+        public ICollection<FollowUp> FollowUps { get; set; }
     }
 }

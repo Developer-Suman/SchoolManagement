@@ -14,7 +14,7 @@ namespace TN.Setup.Application.Setup.Command.AddSchool
             string contactNumber = "",
             string contactPerson = "",
             string pan="",
-            string imageUrl = "",
+            string logoUrl = "",
             bool isEnabled = true,
             string institutionId = "",
             DateTime createdDate =default,

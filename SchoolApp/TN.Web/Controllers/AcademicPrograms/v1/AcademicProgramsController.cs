@@ -25,6 +25,8 @@ using ES.AcademicPrograms.Application.Documents.Command.DocumentCheckList.NonReq
 using ES.AcademicPrograms.Application.Documents.Command.DocumentCheckList.NonRequiredDocuments.RequestCommandMapper;
 using ES.AcademicPrograms.Application.Documents.Command.DocumentCheckList.RequiredDocument;
 using ES.AcademicPrograms.Application.Documents.Command.DocumentCheckList.RequiredDocument.RequestCommandMapper;
+using ES.AcademicPrograms.Application.Documents.Command.UploadApplicantDocuments;
+using ES.AcademicPrograms.Application.Documents.Command.UploadApplicantDocuments.RequestCommandMapper;
 using ES.AcademicPrograms.Application.Documents.Queries.Documents.DocumentsById;
 using ES.AcademicPrograms.Application.Documents.Queries.Documents.FilterDocuments;
 using ES.AcademicPrograms.Application.Documents.Queries.DocumentsType.DocumentsTypes;
@@ -60,9 +62,33 @@ namespace TN.Web.Controllers.AcademicPrograms.v1
             _mediator = mediator;
         }
 
-        
+
+
 
         #region Documents
+        #region UploadApplicantDocuments
+        [HttpPost("UploadApplicantDocuments")]
+
+        public async Task<IActionResult> UploadApplicantDocuments([FromForm] UploadApplicantDocumentsRequest request)
+        {
+            //Mapping command and request
+            var command = request.ToCommand();
+            var commandResult = await _mediator.Send(command);
+            #region Switch Statement
+            return commandResult switch
+            {
+                { IsSuccess: true, Data: not null } => CreatedAtAction(nameof(AddDocuments), commandResult.Data),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = commandResult.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(commandResult.Errors),
+                _ => BadRequest("Invalid Fields ")
+
+            };
+
+            #endregion
+        }
+        #endregion
+
+
         #region AddDocuments
         [HttpPost("AddDocuments")]
 

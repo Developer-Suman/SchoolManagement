@@ -1,0 +1,8 @@
+# Use this workspace to collaborate
+workspace:
+  id: 0ef20eca-fa5b-444a-8f55-343523502ee4
+
+localResources:
+  specs:
+    - ..\TN.Web\obj\Debug\net8.0\EndpointInfo\TN.Web.json
+    - ..\TN.Web\obj\Release\net8.0\EndpointInfo\TN.Web.json

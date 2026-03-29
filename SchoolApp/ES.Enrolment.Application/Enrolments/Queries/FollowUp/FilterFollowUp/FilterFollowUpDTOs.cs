@@ -8,7 +8,7 @@ namespace ES.Enrolment.Application.Enrolments.Queries.FollowUp.FilterFollowUp
 {
     public record FilterFollowUpDTOs
     (
-          string? leadId,
+          string? userId,
         string? startDate,
         string? endDate
         );

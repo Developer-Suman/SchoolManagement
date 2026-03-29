@@ -1,5 +1,6 @@
 ﻿
 using MediatR;
+using Microsoft.AspNetCore.Http;
 using TN.Shared.Domain.Abstractions;
 using static TN.Authentication.Domain.Entities.School;
 
@@ -15,7 +16,7 @@ namespace TN.Setup.Application.Setup.Command.AddSchool
             string contactNumber,
             string contactPerson,
             string pan,
-            string imageUrl,
+            IFormFile logoUrl,
             bool isEnabled,
             string institutionId,
             bool isDeleted,

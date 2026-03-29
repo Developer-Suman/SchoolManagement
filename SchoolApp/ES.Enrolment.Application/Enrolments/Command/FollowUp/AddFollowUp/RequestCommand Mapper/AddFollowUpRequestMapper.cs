@@ -13,7 +13,7 @@ namespace ES.Enrolment.Application.Enrolments.Command.AddFollowUp.RequestCommand
         {
             return new AddFollowUpCommand
                 (
-                request.leadId,
+                request.userId,
                 request.startTime,
                 request.endTime,
                 request.followUpDate,
