@@ -10,7 +10,7 @@ namespace ES.Enrolment.Application.Enrolments.Queries.FollowUp.FilterFollowUp
     public record FilterFollowUpResponse
     (
         string id = "",
-            string appointmentId = "",
+            string userId = "",
             TimeOnly startTime = default,
             TimeOnly endTime = default,
             DateTime followUpDate = default,

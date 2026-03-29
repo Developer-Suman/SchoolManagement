@@ -11,9 +11,9 @@ namespace ES.Enrolment.Application.Enrolments.Command.FollowUp.AddFollowUp
     {
         public AddFollowUpCommandValidator()
         {
-            RuleFor(x => x.leadId)
+            RuleFor(x => x.userId)
             .NotEmpty()
-            .WithMessage("LeadId is required.");
+            .WithMessage("UserId is required.");
         }
     }
 }

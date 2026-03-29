@@ -1,4 +1,5 @@
-﻿using ES.Enrolment.Application.Enrolments.Command.Appointment.AddAppointment;
+﻿using ES.AcademicPrograms.Application.Documents.Command.UploadApplicantDocuments;
+using ES.Enrolment.Application.Enrolments.Command.Appointment.AddAppointment;
 using ES.Enrolment.Application.Enrolments.Command.ConsultancyClass;
 using ES.Enrolment.Application.Enrolments.Command.ConvertApplicant;
 using ES.Enrolment.Application.Enrolments.Command.ConvertStudent;
@@ -31,6 +32,7 @@ namespace ES.Enrolment.Application
             services.AddScoped<IValidator<AddConsultancyClassCommand>, AddConsultancyClassCommandValidator>();
             services.AddScoped<IValidator<AddTranningRegistrationCommand>, AddTranningRegistrationCommandValidator>();
             services.AddScoped<IValidator<AddFollowUpCommand>, AddFollowUpCommandValidator>();
+            services.AddScoped<IValidator<UploadApplicantDocumentsCommand>, UploadApplicantDocumentsCommandValidators>();
             return services;
         }
 

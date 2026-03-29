@@ -1,7 +1,7 @@
-﻿using System.Transactions;
-using AutoMapper;
+﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using NV.Payment.Domain.Entities;
+using System.Transactions;
 using TN.Authentication.Domain.Entities;
 using TN.Authentication.Domain.Static.Roles;
 using TN.Purchase.Domain.Entities;
@@ -16,6 +16,7 @@ using TN.Setup.Application.Setup.Queries.School;
 using TN.Setup.Application.Setup.Queries.SchoolById;
 using TN.Setup.Application.Setup.Queries.SchoolByInstitutionId;
 using TN.Shared.Application.ServiceInterface;
+using TN.Shared.Application.ServiceInterface.IHelperServices;
 using TN.Shared.Domain.Abstractions;
 using TN.Shared.Domain.Entities.OrganizationSetUp;
 using TN.Shared.Domain.ExtensionMethod.Pagination;
@@ -34,15 +35,17 @@ namespace TN.Setup.Infrastructure.ServiceImpl
         private readonly ITokenService _tokenService;
         private readonly IGetUserScopedData _getUserScopedData;
         private readonly IFiscalYearService _fiscalYearService;
+        private readonly IimageServices _imageServices;
 
-        public SchoolServices(IFiscalYearService fiscalYearService,IGetUserScopedData getUserScopedData,IDateConvertHelper dateConvertHelper ,IUnitOfWork unitOfWork,IMapper mapper,ITokenService tokenService, IMemoryCacheRepository memoryCacheRepository ) 
+        public SchoolServices(IFiscalYearService fiscalYearService, IimageServices iimageServices,IGetUserScopedData getUserScopedData,IDateConvertHelper dateConvertHelper ,IUnitOfWork unitOfWork,IMapper mapper,ITokenService tokenService, IMemoryCacheRepository memoryCacheRepository ) 
         { 
             _memoryCacheRepository = memoryCacheRepository;
             _dateConvertHelper = dateConvertHelper;
             _unitOfWork =unitOfWork;
             _mapper=mapper;
             _tokenService=tokenService;
-            _getUserScopedData=getUserScopedData;
+            _imageServices = iimageServices;
+            _getUserScopedData =getUserScopedData;
             _fiscalYearService = fiscalYearService;
         }
 
@@ -54,6 +57,12 @@ namespace TN.Setup.Infrastructure.ServiceImpl
                 {
                     string userId = _tokenService.GetUserId();
                     string newId = Guid.NewGuid().ToString();
+
+                    string imageURL = await _imageServices.AddSingle(addSchoolCommand.logoUrl);
+                    if (imageURL is null)
+                    {
+                        return Result<AddSchoolResponse>.Failure("NotFound","Image Url are not Created");
+                    }
                     var schoolData = new School
                     (
                          newId,
@@ -64,7 +73,7 @@ namespace TN.Setup.Infrastructure.ServiceImpl
                           addSchoolCommand.contactNumber,
                           addSchoolCommand.contactPerson,
                           addSchoolCommand.pan,
-                          addSchoolCommand.imageUrl,
+                          imageURL,
                           addSchoolCommand.isEnabled,
                           addSchoolCommand.institutionId,
                           DateTime.UtcNow,

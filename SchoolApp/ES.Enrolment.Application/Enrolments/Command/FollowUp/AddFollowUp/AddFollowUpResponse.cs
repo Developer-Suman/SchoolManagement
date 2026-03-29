@@ -10,7 +10,6 @@ namespace ES.Enrolment.Application.Enrolments.Command.FollowUp.AddFollowUp
     public record AddFollowUpResponse
     (
          string id="",
-            string leadId="",
             TimeOnly startTime=default,
             TimeOnly endTime=default,
             DateTime followUpDate=default,

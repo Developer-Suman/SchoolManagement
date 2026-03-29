@@ -3,6 +3,7 @@ using ES.AcademicPrograms.Application.Documents.Command.AddDocuments;
 using ES.AcademicPrograms.Application.Documents.Command.AddDocumentsType;
 using ES.AcademicPrograms.Application.Documents.Command.DocumentCheckList.NonRequiredDocuments;
 using ES.AcademicPrograms.Application.Documents.Command.DocumentCheckList.RequiredDocument;
+using ES.AcademicPrograms.Application.Documents.Command.UploadApplicantDocuments;
 using ES.AcademicPrograms.Application.Documents.Queries.Documents.DocumentsById;
 using ES.AcademicPrograms.Application.Documents.Queries.Documents.FilterDocuments;
 using ES.AcademicPrograms.Application.Documents.Queries.DocumentsType.FilterDocumentsType;
@@ -19,6 +20,7 @@ namespace ES.AcademicPrograms.Application.ServiceInterface
     public interface IDocumentsServices
     {
         Task<Result<AddDocumentsResponse>> AddDocuments(AddDocumentsCommand addDocumentsCommand);
+        Task<Result<UploadApplicantDocumentsResponse>> UploadApplicantDocuments(UploadApplicantDocumentsCommand uploadApplicantDocumentsCommand);
         Task<Result<PagedResult<FilterDocumentsResponse>>> FilterDocuments(FilterDocumentsDTOs filterDocumentsDTOs,PaginationRequest paginationRequest);
         Task<Result<DocumentsByIdResponse>> DocumentsById(string documentsId, CancellationToken cancellationToken = default);
 

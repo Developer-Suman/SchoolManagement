@@ -415,9 +415,9 @@ namespace TN.Shared.Infrastructure.Data
 
             #region Lead and FollowUps(1:m)
             builder.Entity<FollowUp>()
-            .HasOne(x => x.CrmLead)
+            .HasOne(x => x.UserProfile)
             .WithMany(x => x.FollowUps)
-            .HasForeignKey(x => x.LeadId)
+            .HasForeignKey(x => x.UserId)
             .OnDelete(DeleteBehavior.Restrict);
 
             #endregion

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TN.Shared.Domain.Entities.Crm.Lead;
+using TN.Shared.Domain.Entities.Crm.Profile;
 using TN.Shared.Domain.Primitive;
 using static TN.Shared.Domain.Enum.HelperEnum;
 
@@ -19,7 +20,7 @@ namespace TN.Shared.Domain.Entities.Crm.Enrollments
 
         public FollowUp(
             string id,
-            string leadId,
+            string userId,
             TimeOnly startTime,
             TimeOnly endTime,
             DateTime followUpDate,
@@ -34,7 +35,7 @@ namespace TN.Shared.Domain.Entities.Crm.Enrollments
 
             ) : base(id)
         {
-            LeadId = leadId;
+            UserId = userId;
             StartTime = startTime;
             EndTime = endTime;
             FollowUpDate = followUpDate;
@@ -52,8 +53,8 @@ namespace TN.Shared.Domain.Entities.Crm.Enrollments
         public TimeOnly StartTime { get; set; }
         public TimeOnly EndTime { get; set; }
 
-        public string LeadId { get; set; }
-        public CrmLead CrmLead { get; set; }
+        public string UserId { get; set; }
+        public UserProfile UserProfile { get; set; }
 
         // Follow-up Details
         public DateTime FollowUpDate { get; set; }

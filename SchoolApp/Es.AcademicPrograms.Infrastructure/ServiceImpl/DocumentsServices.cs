@@ -6,6 +6,7 @@ using ES.AcademicPrograms.Application.Documents.Command.AddDocuments;
 using ES.AcademicPrograms.Application.Documents.Command.AddDocumentsType;
 using ES.AcademicPrograms.Application.Documents.Command.DocumentCheckList.NonRequiredDocuments;
 using ES.AcademicPrograms.Application.Documents.Command.DocumentCheckList.RequiredDocument;
+using ES.AcademicPrograms.Application.Documents.Command.UploadApplicantDocuments;
 using ES.AcademicPrograms.Application.Documents.Queries.Documents.DocumentsById;
 using ES.AcademicPrograms.Application.Documents.Queries.Documents.FilterDocuments;
 using ES.AcademicPrograms.Application.Documents.Queries.DocumentsType.FilterDocumentsType;
@@ -24,6 +25,7 @@ using TN.Shared.Domain.Abstractions;
 using TN.Shared.Domain.Entities.Certificates;
 using TN.Shared.Domain.Entities.Communication;
 using TN.Shared.Domain.Entities.Crm.AcademicsPrograms;
+using TN.Shared.Domain.Entities.Crm.Applicant;
 using TN.Shared.Domain.Entities.Crm.Visa;
 using TN.Shared.Domain.Entities.OrganizationSetUp;
 using TN.Shared.Domain.ExtensionMethod.Pagination;
@@ -453,6 +455,76 @@ namespace ES.AcademicPrograms.Infrastructure.ServiceImpl
             catch (Exception ex)
             {
                 throw new Exception("An error occurred while UnAssigning Docs ", ex);
+            }
+        }
+
+        public async Task<Result<UploadApplicantDocumentsResponse>> UploadApplicantDocuments(UploadApplicantDocumentsCommand uploadApplicantDocumentsCommand)
+        {
+            using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            {
+                try
+                {
+
+                    string newId = Guid.NewGuid().ToString();
+                    var FyId = _fiscalContext.CurrentFiscalYearId;
+                    var schoolId = _tokenService.SchoolId().FirstOrDefault() ?? "";
+                    var userId = _tokenService.GetUserId();
+
+
+                    var applicant = await _unitOfWork.BaseRepository<CrmApplicant>()
+                        .GetByGuIdAsync(uploadApplicantDocumentsCommand.applicantId);
+
+                    applicant.Documents ??= new List<Document>();
+
+                    foreach (var doc in uploadApplicantDocumentsCommand.UploadApplicantDocumentsDTOs)
+                    {
+
+                        string docLink = await _imageServices.AddSingle(doc.documents);
+                        if (docLink is null)
+                        {
+                            return Result<UploadApplicantDocumentsResponse>.Failure("Doc Url are not Created");
+                        }
+                        var newDocument = new Document(
+                            Guid.NewGuid().ToString(),
+                            applicant.Id,
+                            doc.documentTypeId,
+                            doc.documentStatus,
+                            docLink,
+                            true,
+                            schoolId ?? "",
+                            userId,
+                            DateTime.UtcNow,
+                            "",
+                            default
+                        );
+
+                        applicant.Documents.Add(newDocument);
+                    }
+
+                    _unitOfWork.BaseRepository<CrmApplicant>().Update(applicant);
+                    await _unitOfWork.SaveChangesAsync();
+                    scope.Complete();
+
+                    var resultDTOs = new UploadApplicantDocumentsResponse
+                       (
+                           applicant.Id,
+                           applicant.Documents?.Select(d => new UploadApplicantDocumentsDTOs
+                           (
+                               d.DocumentTypeId,
+                               d.DocumentStatus,
+                               default  
+                           )).ToList() ?? new List<UploadApplicantDocumentsDTOs>()
+                       );
+
+                    return Result<UploadApplicantDocumentsResponse>.Success(resultDTOs);
+
+                }
+                catch (Exception ex)
+                {
+                    scope.Dispose();
+                    throw new Exception("An error occurred while adding ", ex);
+
+                }
             }
         }
     }

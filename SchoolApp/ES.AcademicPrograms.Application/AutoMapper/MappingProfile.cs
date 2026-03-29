@@ -17,6 +17,7 @@ using ES.AcademicPrograms.Application.Documents.Command.AddDocuments;
 using ES.AcademicPrograms.Application.Documents.Command.AddDocumentsType;
 using ES.AcademicPrograms.Application.Documents.Command.DocumentCheckList.NonRequiredDocuments;
 using ES.AcademicPrograms.Application.Documents.Command.DocumentCheckList.RequiredDocument;
+using ES.AcademicPrograms.Application.Documents.Command.UploadApplicantDocuments;
 using ES.AcademicPrograms.Application.Documents.Queries.Documents.FilterDocuments;
 using ES.AcademicPrograms.Application.Documents.Queries.DocumentsType.DocumentsTypes;
 using ES.AcademicPrograms.Application.Documents.Queries.DocumentsType.FilterDocumentsType;
@@ -26,6 +27,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TN.Shared.Domain.Entities.Crm.AcademicsPrograms;
+using TN.Shared.Domain.Entities.Crm.Applicant;
 using TN.Shared.Domain.Entities.Crm.Lead;
 using TN.Shared.Domain.Entities.Crm.Profile;
 using TN.Shared.Domain.Entities.Crm.Visa;
@@ -39,6 +41,7 @@ namespace ES.AcademicPrograms.Application.AutoMapper
         {
 
             #region Documents
+            CreateMap<CrmApplicant, UploadApplicantDocumentsResponse>().ReverseMap();
             CreateMap<Document, AddDocumentsResponse>().ReverseMap();
 
 

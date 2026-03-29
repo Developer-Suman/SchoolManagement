@@ -9,7 +9,7 @@ namespace ES.Enrolment.Application.Enrolments.Command.FollowUp.AddFollowUp
 {
     public record AddFollowUpRequest
     (
-        string leadId,
+        string userId,
             TimeOnly startTime,
             TimeOnly endTime,
             DateTime followUpDate,

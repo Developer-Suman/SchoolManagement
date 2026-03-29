@@ -598,7 +598,7 @@ namespace TN.Web.Controllers.Setup.v1
         #region AddSchool
         [HttpPost("AddSchool")]
 
-        public async Task<IActionResult> AddSchool([FromBody] AddSchoolRequest request)
+        public async Task<IActionResult> AddSchool([FromForm] AddSchoolRequest request)
         {
             //Mapping command and request
             var command = request.ToCommand();
