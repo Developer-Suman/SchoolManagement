@@ -27,6 +27,7 @@ namespace TN.Reports.Infrastructure
             services.AddScoped<IPartyStatementServices, PartyStatementServices>();
             services.AddScoped<IAnnexReportServices, AnnexReportServices>();
             services.AddScoped<IStockDetailReportService, StockDetailReportService>();
+            services.AddScoped<ISchoolReportServices, SchoolReportServices>();
             #endregion
 
             return services;

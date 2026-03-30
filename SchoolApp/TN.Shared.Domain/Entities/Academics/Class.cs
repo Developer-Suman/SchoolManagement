@@ -1,4 +1,5 @@
 ﻿
+using TN.Shared.Domain.Entities.CocurricularActivities;
 using TN.Shared.Domain.Entities.Finance;
 using TN.Shared.Domain.Entities.Staff;
 using TN.Shared.Domain.Entities.Students;
@@ -46,6 +47,7 @@ namespace TN.Shared.Domain.Entities.Academics
             Students = new List<StudentData>();
             AcademicTeamClasses = new List<AcademicTeamClass>();
             Registrations = new List<Registrations>();
+            ActivityClasses = new List<ActivityClass>();
         }
 
         public int? ClassSymbol { get; set; }
@@ -64,5 +66,6 @@ namespace TN.Shared.Domain.Entities.Academics
         public ICollection<StudentData> Students { get; set; }
         public ICollection<AcademicTeamClass> AcademicTeamClasses { get; set; }
         public ICollection<Registrations> Registrations { get; set; }
+        public ICollection<ActivityClass> ActivityClasses { get; set; }
     }
 }

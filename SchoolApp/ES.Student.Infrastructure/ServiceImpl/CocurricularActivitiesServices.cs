@@ -165,6 +165,7 @@ namespace ES.Student.Infrastructure.ServiceImpl
                     var add = new Activity(
                         newId,
                         addActivityCommand.name,
+                        addActivityCommand.descriptions,
                         addActivityCommand.activityCategory,
                         addActivityCommand.eventId,
                         addActivityCommand.startTime,
@@ -181,6 +182,23 @@ namespace ES.Student.Infrastructure.ServiceImpl
 
                     await _unitOfWork.BaseRepository<Activity>().AddAsync(add);
                     await _unitOfWork.SaveChangesAsync();
+
+                    if (addActivityCommand.classIds != null && addActivityCommand.classIds.Any())
+                    {
+                        var activityClasses = addActivityCommand.classIds
+                            .Select(classId => new ActivityClass
+                            {
+                                ActivityId = add.Id, // or newId
+                                ClassId = classId
+                            })
+                            .ToList();
+
+                        await _unitOfWork.BaseRepository<ActivityClass>().AddRange(activityClasses);
+                        await _unitOfWork.SaveChangesAsync();
+                    }
+
+
+
                     scope.Complete();
 
                     var resultDTOs = _mapper.Map<AddActivityResponse>(add);

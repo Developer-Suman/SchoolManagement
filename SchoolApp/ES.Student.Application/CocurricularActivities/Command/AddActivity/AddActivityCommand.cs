@@ -12,10 +12,12 @@ namespace ES.Student.Application.CocurricularActivities.Command.AddActivity
     public record AddActivityCommand
     (
         string name,
+        string? descriptions,
             ActivityCategory activityCategory,
             string eventId,
             TimeOnly startTime,
             TimeOnly endTime,
-            string activityDate
+            string activityDate,
+            List<string>? classIds
         ) : IRequest<Result<AddActivityResponse>>;
 }
