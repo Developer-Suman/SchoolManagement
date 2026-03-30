@@ -11,6 +11,7 @@ namespace ES.Student.Application.CocurricularActivities.Command.AddActivity
     (
         string id="",
             string name="",
+            string description="",
             ActivityCategory activityCategory=default,
             string eventId = "",
             bool isActive=true,
@@ -18,6 +19,7 @@ namespace ES.Student.Application.CocurricularActivities.Command.AddActivity
             string createdBy = "",
             DateTime createdAt=default,
             string modifiedBy = "",
-            DateTime modifiedAt = default
+            DateTime modifiedAt = default,
+            List<string> ClassIds = default
         );
 }

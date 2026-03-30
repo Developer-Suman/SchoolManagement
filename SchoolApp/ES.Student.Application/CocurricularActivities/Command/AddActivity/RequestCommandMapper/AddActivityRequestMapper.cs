@@ -12,11 +12,13 @@ namespace ES.Student.Application.CocurricularActivities.Command.AddActivity.Requ
         {
             return new AddActivityCommand(
                 request.name,
+                request.descriptions,
                 request.activityCategory,
                 request.eventId,
                 request.startTime,
                 request.endTime,
-                request.activityDate
+                request.activityDate,
+                request.classIds
                 );
         }
     }

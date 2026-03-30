@@ -25,6 +25,7 @@ using TN.Shared.Domain.Entities.Staff;
 using TN.Shared.Domain.Entities.Students;
 using TN.Shared.Domain.ExtensionMethod.Pagination;
 using TN.Shared.Domain.IRepository;
+using static TN.Shared.Domain.Enum.HelperEnum;
 
 namespace ES.Student.Infrastructure.ServiceImpl
 {
@@ -110,17 +111,33 @@ namespace ES.Student.Infrastructure.ServiceImpl
                 var (StudentAttendence, schoolId, institutionId, userRole, isSuperAdmin) =
                     await _getUserScopedData.GetUserScopedData<StudentAttendances>();
 
-                // 1. Initial Filtering
+                var nepaliDate = await _dateConverter.ConvertToNepali(DateTime.UtcNow);
+                var parts = nepaliDate.Split('-');
+
+                string year = parts[0];
+                string month = parts[1];
+                string day = parts[2];
+
+                int.TryParse(parts[1], out int monthNumbers);
+
+                string months = Enum.IsDefined(typeof(NameOfMonths), monthNumbers)
+                ? ((NameOfMonths)monthNumbers).ToString()
+                : string.Empty;
+
+
                 var FilterData = isSuperAdmin
                     ? StudentAttendence
                     : StudentAttendence.Where(x => x.SchoolId == _tokenService.SchoolId().FirstOrDefault()
                     );
 
 
-                var monthNumber = _helperMethodServices.GetNepaliMonthNumber(attendanceReportDTOs.nameOfMonths.ToString() ?? "");
+                var monthName = !string.IsNullOrEmpty(attendanceReportDTOs.nameOfMonths?.ToString())
+                ? attendanceReportDTOs.nameOfMonths.ToString()
+                : months;
+                var monthNumber = _helperMethodServices.GetNepaliMonthNumber(monthName);
 
                 // Formatting month to 2 digits ensures "2082-1" becomes "2082-01" for accurate string matching
-                string datePrefix = $"{attendanceReportDTOs.yearName}-{monthNumber:D2}";
+                string datePrefix = $"{attendanceReportDTOs.yearName ?? year }-{monthNumber:D2}";
 
                 var filteredResult = FilterData
                     .Where(x =>

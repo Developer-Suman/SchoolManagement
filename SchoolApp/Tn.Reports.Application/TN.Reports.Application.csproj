@@ -29,6 +29,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\ES.Student.Application\ES.Student.Application.csproj" />
     <ProjectReference Include="..\TN.Account.Application\TN.Account.Application.csproj" />
     <ProjectReference Include="..\TN.Shared.Domain\TN.Shared.Domain.csproj" />
   </ItemGroup>

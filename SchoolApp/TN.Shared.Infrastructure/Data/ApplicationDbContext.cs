@@ -101,6 +101,7 @@ namespace TN.Shared.Infrastructure.Data
         #region Cocirricular Activities
         public DbSet<Participation> Participations { get; set; }
         public DbSet<Activity> Activities { get; set; }
+        public DbSet<ActivityClass> ActivityClasses { get; set; }
 
         #endregion
 
@@ -576,6 +577,23 @@ namespace TN.Shared.Infrastructure.Data
 
 
             #region Cocirricular Activities
+
+            #region Activity and Class(m:m)
+            builder.Entity<ActivityClass>()
+                .HasKey(ac => new { ac.ActivityId, ac.ClassId });
+
+            builder.Entity<ActivityClass>()
+                .HasOne(ac => ac.Activity)
+                .WithMany(a => a.ActivityClasses)
+                .HasForeignKey(ac => ac.ActivityId);
+
+            builder.Entity<ActivityClass>()
+                .HasOne(ac => ac.Class)
+                .WithMany(c => c.ActivityClasses)
+                .HasForeignKey(ac => ac.ClassId);
+
+
+            #endregion
 
             #region Participation and Activity(m:1)
             builder.Entity<Participation>()

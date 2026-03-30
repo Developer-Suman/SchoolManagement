@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using ES.Student.Application.CocurricularActivities.Queries.Activity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,8 +14,11 @@ using TN.Reports.Application.Parties_Statements.Queries;
 using TN.Reports.Application.PurchaseReport;
 using TN.Reports.Application.SalesReport;
 using TN.Reports.Application.SalesReturn_Report;
+using TN.Reports.Application.SchoolReports.CoCurricularActivityReport;
 using TN.Reports.Application.TradingAccount;
 using TN.Sales.Domain.Entities;
+using TN.Shared.Domain.Entities.CocurricularActivities;
+using TN.Shared.Domain.ExtensionMethod.Pagination;
 
 namespace TN.Reports.Application.AutoMapper
 {
@@ -22,6 +26,11 @@ namespace TN.Reports.Application.AutoMapper
     {
         public MappingProfile()
         {
+
+            #region CoCurricularActivitiesReport
+            CreateMap<CoCurricularActivitiesReportResponse, Activity>().ReverseMap();
+            CreateMap<PagedResult<Activity>, PagedResult<CoCurricularActivitiesReportResponse>>().ReverseMap();
+            #endregion
 
             #region AnnexReport
             //CreateMap<AnnexReportQueryResponse, SalesDetails>().ReverseMap();

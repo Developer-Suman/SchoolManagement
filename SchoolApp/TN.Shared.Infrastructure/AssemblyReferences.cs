@@ -99,6 +99,7 @@ namespace TN.Shared.Infrastructure
             services.AddMemoryCache(); 
 
             services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
+            services.AddScoped<ISpRepository, SpRepository>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<ITokenService, TokenServices>();
             services.AddScoped<ICryptography, Cryptographys>(); 

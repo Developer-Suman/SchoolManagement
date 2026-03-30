@@ -15,6 +15,7 @@ namespace TN.Shared.Domain.Entities.CocurricularActivities
         public Activity(
             string id,
             string name,
+            string? descriptions,
             ActivityCategory activityCategory,
             string eventId,
             TimeOnly startTime,
@@ -29,6 +30,7 @@ namespace TN.Shared.Domain.Entities.CocurricularActivities
             ) : base(id)
         {
             Name = name;
+            Descriptions = descriptions;
             ActivityCategory = activityCategory;
             EventId = eventId;
             StartTime = startTime;
@@ -41,11 +43,13 @@ namespace TN.Shared.Domain.Entities.CocurricularActivities
             CreatedAt = createdAt;
             ModifiedAt = modifiedAt;
             Participations = new List<Participation>();
+            ActivityClasses = new List<ActivityClass>();
 
 
 
         }
 
+        public string? Descriptions { get; set; }
         public TimeOnly StartTime { get; set; }
         public TimeOnly EndTime { get; set; }
         public string ActivityDate { get; set; }
@@ -60,5 +64,6 @@ namespace TN.Shared.Domain.Entities.CocurricularActivities
         public string ModifiedBy { get; set; }
         public DateTime ModifiedAt { get; set; } = DateTime.UtcNow;
         public ICollection<Participation> Participations { get; set; }
+        public ICollection<ActivityClass> ActivityClasses { get; set; }
     }
 }
