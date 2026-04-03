@@ -8,6 +8,14 @@ namespace TN.Shared.Domain.Enum
 {
     public class HelperEnum
     {
+        public enum FeePaidType
+        {
+            OneTime=1,
+            Monthly=2,
+            Quartely=3,
+            Yearly=4,
+            Semester=5
+        }
 
         public enum RequiredStatus
         {

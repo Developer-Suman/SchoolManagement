@@ -12,7 +12,6 @@ namespace ES.Finances.Application.Finance.Queries.Fee.FilterFeeStructure
             decimal amount,
             string classId,
             string fyId,
-            string feeTypeId,
             bool isActive,
             string schoolId,
             string createdBy,

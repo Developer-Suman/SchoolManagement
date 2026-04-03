@@ -12,7 +12,6 @@ namespace ES.Finances.Application.Finance.Command.Fee.UpdateFeeStructure
             decimal amount,
             string classId,
             string fyId,
-            string feeTypeId,
             bool isActive,
             string schoolId,
             string createdBy,

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TN.Shared.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using TN.Shared.Infrastructure.Data;
 namespace TN.Shared.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260402072311_Added new table AssignFeeStatus")]
+    partial class AddednewtableAssignFeeStatus
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -4360,28 +4363,14 @@ namespace TN.Shared.Infrastructure.Migrations
                     b.ToTable("AssignedFeeStatuses");
                 });
 
-            modelBuilder.Entity("TN.Shared.Domain.Entities.Finance.FeeCategory", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("FeeCategories");
-                });
-
             modelBuilder.Entity("TN.Shared.Domain.Entities.Finance.FeeStructure", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
 
                     b.Property<string>("ClassId")
                         .IsRequired()
@@ -4394,7 +4383,8 @@ namespace TN.Shared.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("FeeCategoryId")
+                    b.Property<string>("FeeTypeId")
+                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("FyId")
@@ -4414,6 +4404,9 @@ namespace TN.Shared.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("NameOfMonths")
+                        .HasColumnType("int");
+
                     b.Property<string>("SchoolId")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -4422,49 +4415,13 @@ namespace TN.Shared.Infrastructure.Migrations
 
                     b.HasIndex("ClassId");
 
-                    b.HasIndex("FeeCategoryId");
+                    b.HasIndex("FeeTypeId");
 
                     b.HasIndex("FyId");
 
                     b.HasIndex("LedgerId");
 
                     b.ToTable("FeeStructures");
-                });
-
-            modelBuilder.Entity("TN.Shared.Domain.Entities.Finance.FeeStructureDetails", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<decimal>("Amount")
-                        .HasPrecision(18, 4)
-                        .HasColumnType("decimal(18,4)");
-
-                    b.Property<int>("FeePaidType")
-                        .HasColumnType("int");
-
-                    b.Property<string>("FeeStructureId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("FeeTypeId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("Times")
-                        .HasColumnType("int");
-
-                    b.Property<decimal>("TotalAmount")
-                        .HasPrecision(18, 4)
-                        .HasColumnType("decimal(18,4)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("FeeStructureId");
-
-                    b.HasIndex("FeeTypeId");
-
-                    b.ToTable("FeeStructureDetails");
                 });
 
             modelBuilder.Entity("TN.Shared.Domain.Entities.Finance.FeeType", b =>
@@ -7242,10 +7199,11 @@ namespace TN.Shared.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("TN.Shared.Domain.Entities.Finance.FeeCategory", "FeeCategory")
+                    b.HasOne("TN.Shared.Domain.Entities.Finance.FeeType", "FeeType")
                         .WithMany("FeeStructures")
-                        .HasForeignKey("FeeCategoryId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("FeeTypeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.HasOne("TN.Shared.Domain.Entities.OrganizationSetUp.FiscalYears", "FiscalYears")
                         .WithMany("FeeStructures")
@@ -7260,30 +7218,11 @@ namespace TN.Shared.Infrastructure.Migrations
 
                     b.Navigation("Class");
 
-                    b.Navigation("FeeCategory");
+                    b.Navigation("FeeType");
 
                     b.Navigation("FiscalYears");
 
                     b.Navigation("Ledger");
-                });
-
-            modelBuilder.Entity("TN.Shared.Domain.Entities.Finance.FeeStructureDetails", b =>
-                {
-                    b.HasOne("TN.Shared.Domain.Entities.Finance.FeeStructure", "FeeStructure")
-                        .WithMany("FeeStructureDetails")
-                        .HasForeignKey("FeeStructureId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("TN.Shared.Domain.Entities.Finance.FeeType", "FeeType")
-                        .WithMany("FeeStructureDetails")
-                        .HasForeignKey("FeeTypeId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("FeeStructure");
-
-                    b.Navigation("FeeType");
                 });
 
             modelBuilder.Entity("TN.Shared.Domain.Entities.Finance.PaymentsRecords", b =>
@@ -8148,21 +8087,14 @@ namespace TN.Shared.Infrastructure.Migrations
                     b.Navigation("Documents");
                 });
 
-            modelBuilder.Entity("TN.Shared.Domain.Entities.Finance.FeeCategory", b =>
-                {
-                    b.Navigation("FeeStructures");
-                });
-
             modelBuilder.Entity("TN.Shared.Domain.Entities.Finance.FeeStructure", b =>
                 {
-                    b.Navigation("FeeStructureDetails");
-
                     b.Navigation("StudentFees");
                 });
 
             modelBuilder.Entity("TN.Shared.Domain.Entities.Finance.FeeType", b =>
                 {
-                    b.Navigation("FeeStructureDetails");
+                    b.Navigation("FeeStructures");
                 });
 
             modelBuilder.Entity("TN.Shared.Domain.Entities.Finance.StudentFee", b =>

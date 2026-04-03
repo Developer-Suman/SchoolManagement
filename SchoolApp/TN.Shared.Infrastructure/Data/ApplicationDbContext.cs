@@ -166,9 +166,12 @@ namespace TN.Shared.Infrastructure.Data
         #endregion
 
         #region FeeAndAccounting
+        public DbSet<FeeStructureDetails> FeeStructureDetails { get; set; }
+        public DbSet<FeeCategory> FeeCategories { get; set; }
         public DbSet<FeeStructure> FeeStructures { get; set; }
         public DbSet<FeeType> FeeTypes { get; set; }
         public DbSet<StudentFee> StudentFees { get; set; }
+        public DbSet<AssignedFeeStatus> AssignedFeeStatuses { get; set; }
         public DbSet<PaymentsRecords> PaymentsRecords { get; set; }
 
 
@@ -312,6 +315,8 @@ namespace TN.Shared.Infrastructure.Data
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
+
+            builder.Entity<Exam>().ToTable("Exam");
 
 
             #region CRM 
@@ -1135,6 +1140,45 @@ namespace TN.Shared.Infrastructure.Data
 
             #region FeeAndAccounting
 
+            #region FeeStructureDetails and FeeType(m:1)
+            builder.Entity<FeeType>()
+               .HasMany(p => p.FeeStructureDetails)
+               .WithOne(p => p.FeeType)
+               .HasForeignKey(p => p.FeeTypeId)
+               .OnDelete(DeleteBehavior.Restrict);
+            #endregion
+
+
+
+            #region FeeStructureDetails and FeeStructure(m:1)
+            builder.Entity<FeeStructure>()
+               .HasMany(p => p.FeeStructureDetails)
+               .WithOne(p => p.FeeStructure)
+               .HasForeignKey(p => p.FeeStructureId)
+               .OnDelete(DeleteBehavior.Restrict);
+            #endregion
+
+
+
+            #region FeeStructure and FeeCategory(m:1)
+            builder.Entity<FeeCategory>()
+               .HasMany(p => p.FeeStructures)
+               .WithOne(p => p.FeeCategory)
+               .HasForeignKey(p => p.FeeCategoryId)
+               .OnDelete(DeleteBehavior.Restrict);
+            #endregion
+
+
+            #region AssignedFeeStatus and StudentFee(m:1)
+            builder.Entity<StudentFee>()
+               .HasMany(p => p.AssignedFeeStatus)
+               .WithOne(p => p.StudentFee)
+               .HasForeignKey(p => p.StudentFeeId)
+               .OnDelete(DeleteBehavior.Restrict);
+            #endregion
+
+
+
             #region Class and FeeStructure(1:m)
             builder.Entity<Class>()
                .HasMany(p => p.FeeStructures)
@@ -1148,15 +1192,6 @@ namespace TN.Shared.Infrastructure.Data
                .HasMany(p => p.FeeStructures)
                .WithOne(p => p.FiscalYears)
                .HasForeignKey(p => p.FyId)
-               .OnDelete(DeleteBehavior.Restrict);
-            #endregion
-
-
-            #region FeeType and FeeStructure(1:m)
-            builder.Entity<FeeType>()
-               .HasMany(p => p.FeeStructures)
-               .WithOne(p => p.FeeType)
-               .HasForeignKey(p => p.FeeTypeId)
                .OnDelete(DeleteBehavior.Restrict);
             #endregion
 

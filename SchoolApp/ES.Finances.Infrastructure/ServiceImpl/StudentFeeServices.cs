@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Azure.Core;
 using ES.Finances.Application.Finance.Command.Fee.AddFeeStructure;
 using ES.Finances.Application.Finance.Command.Fee.AddStudentFee;
 using ES.Finances.Application.Finance.Command.Fee.AssignMonthlyFee;
@@ -72,20 +73,36 @@ namespace ES.Finances.Infrastructure.ServiceImpl
                     var FyId = _fiscalContext.CurrentFiscalYearId;
                     var schoolId = _tokenService.SchoolId().FirstOrDefault() ?? throw new Exception("School ID not found.");
                     var userId = _tokenService.GetUserId();
+                    var newId = Guid.NewGuid().ToString();
+
 
                     var feeStructure = await _unitOfWork.BaseRepository<FeeStructure>()
-                        .GetByGuIdAsync(addStudentFeeCommand.feeStructureId);
+                        .GetConditionalAsync(x => x.Id == addStudentFeeCommand.feeStructureId,
+                        query => query
+                            .Include(x => x.StudentFees)
+                            .ThenInclude(d => d.AssignedFeeStatus)
+                        );
+                    var entity = feeStructure.FirstOrDefault();
+                    var existingMonths = entity.StudentFees?
+                        .SelectMany(sf => sf.AssignedFeeStatus)
+                        .Select(a => a.NameOfMonths) // assuming enum stored here
+                        .ToList();
+
+
+                    var newMonths = addStudentFeeCommand.nameOfMonths
+                        .Where(m => !existingMonths.Contains(m))
+                        .ToList();
+
 
                     if (feeStructure == null)
                         throw new Exception("Fee structure not found.");
 
-                    //var studentFee = await _unitOfWork.BaseRepository<StudentFee>()
-                    //    .FirstOrDefaultAsync(x => x.StudentId == addStudentFeeCommand.studentId &&
-                    //                              x.ClassId == addStudentFeeCommand.classId);
 
-                    decimal currentTotal =  feeStructure.Amount;
+                    //var countMonth = newMonths.Count();
 
-                    decimal discountAmount = feeStructure.Amount * (addStudentFeeCommand.discountPercentage / 100);
+                    decimal currentTotal = entity.FeeStructureDetails.Sum(x => x.TotalAmount);
+
+                    decimal discountAmount = entity.FeeStructureDetails.Sum(x => x.TotalAmount) * (addStudentFeeCommand.discountPercentage / 100);
 
                     decimal tobePaid = currentTotal - discountAmount;
 
@@ -93,7 +110,7 @@ namespace ES.Finances.Infrastructure.ServiceImpl
 
 
                     var newRecord = new StudentFee(
-                        Guid.NewGuid().ToString(),
+                        newId,
                         addStudentFeeCommand.studentId,
                         addStudentFeeCommand.feeStructureId,
                         addStudentFeeCommand.classId,
@@ -102,6 +119,12 @@ namespace ES.Finances.Infrastructure.ServiceImpl
                         
                         currentTotal,
                         tobePaid,
+                        addStudentFeeCommand.nameOfMonths.Select(month => new AssignedFeeStatus(
+                        Guid.NewGuid().ToString(),
+                        month.Value,
+                        newId
+                        )).ToList(),
+
                         true,
                         schoolId,
                         userId,
@@ -176,7 +199,7 @@ namespace ES.Finances.Infrastructure.ServiceImpl
                     journalDetails.Add(new JournalEntryDetails(
                         Guid.NewGuid().ToString(),
                         newJournalId,
-                        feeStructure.LedgerId,
+                        entity.LedgerId,
                         0,
                         currentTotal, // Credit the full original amount
                         DateTime.UtcNow,
@@ -279,7 +302,7 @@ namespace ES.Finances.Infrastructure.ServiceImpl
 
                 var feeStructure = await _unitOfWork.BaseRepository<FeeStructure>()
                     .FirstOrDefaultAsync(x =>
-                        x.FeeTypeId == assignMonthlyFeeCommand.feeTypeId &&
+                        x.FeeStructureDetails.FirstOrDefault().FeeTypeId == assignMonthlyFeeCommand.feeTypeId &&
                         x.ClassId == assignMonthlyFeeCommand.classId &&
                         x.IsActive);
 
@@ -312,13 +335,13 @@ namespace ES.Finances.Infrastructure.ServiceImpl
                         {
                                 new AddJournalEntryDetailsRequest(
                                     student.LedgerId,
-                                    feeStructure.Amount,
+                                    feeStructure.FeeStructureDetails.Sum(x=>x.TotalAmount),
                                     0
                                 ),
                                 new AddJournalEntryDetailsRequest(
                                     feeStructure.LedgerId,
                                     0,
-                                    feeStructure.Amount
+                                     feeStructure.FeeStructureDetails.Sum(x=>x.TotalAmount)
                                 )
                                     }
                                 );
@@ -362,7 +385,9 @@ namespace ES.Finances.Infrastructure.ServiceImpl
                     : studentFee.Where(x => x.SchoolId == _tokenService.SchoolId().FirstOrDefault() || x.SchoolId == "");
 
 
-                IQueryable<StudentFee> query = filter.AsQueryable();
+                IQueryable<StudentFee> query = filter
+                    .Include(x=>x.FeeStructure)
+                    .ThenInclude(x=>x.FeeStructureDetails).AsQueryable();
 
                 // Student filter
                 if (!string.IsNullOrEmpty(filterStudentFeeDTOs.studentId))
@@ -394,7 +419,7 @@ namespace ES.Finances.Infrastructure.ServiceImpl
                         SchoolId = g.Select(x=>x.SchoolId).FirstOrDefault(),
 
                         FeeStructureIds = g
-                            .Select(x => x.FeeStructure.FeeType.Name + " -> " + x.DiscountPercentage + "%")
+                            .Select(x => x.FeeStructure.FeeStructureDetails.FirstOrDefault().FeeType.Name + " -> " + x.DiscountPercentage + "%")
                             .ToList(),
 
                         TotalAmount = g.Sum(x => x.TotalAmount),

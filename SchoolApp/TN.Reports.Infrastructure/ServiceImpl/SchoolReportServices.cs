@@ -25,7 +25,6 @@ using TN.Shared.Domain.Entities.OrganizationSetUp;
 using TN.Shared.Domain.Entities.Students;
 using TN.Shared.Domain.ExtensionMethod.Pagination;
 using TN.Shared.Domain.IRepository;
-using TN.Shared.Infrastructure.Migrations;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using static TN.Shared.Domain.Enum.HelperEnum;
 

@@ -27,7 +27,10 @@ using TN.Shared.Domain.Entities.OrganizationSetUp;
 using TN.Shared.Domain.Entities.Students;
 using TN.Shared.Domain.ExtensionMethod.Pagination;
 using TN.Shared.Domain.IRepository;
+using TN.Shared.Domain.Primitive;
 using TN.Shared.Domain.Static.Cache;
+using static Dapper.SqlMapper;
+using static TN.Shared.Domain.Enum.HelperEnum;
 
 namespace ES.Finances.Infrastructure.ServiceImpl
 {
@@ -63,29 +66,28 @@ namespace ES.Finances.Infrastructure.ServiceImpl
                     var schoolId = _tokenService.SchoolId().FirstOrDefault() ?? "";
                     var userId = _tokenService.GetUserId();
 
-                    var feeType = await _unitOfWork.BaseRepository<FeeType>()
-                        .GetByGuIdAsync(
-                            addFeeStructureCommand.feeTypeId
-                        );
+                    //var feeType = await _unitOfWork.BaseRepository<FeeType>()
+                    //    .GetByGuIdAsync(
+                    //        addFeeStructureCommand.feeTypeId
+                    //    );
 
                     var feeStructure = await _unitOfWork.BaseRepository<FeeStructure>()
                        .FirstOrDefaultAsync(
                            x=>x.ClassId == addFeeStructureCommand.classId &&
-                           x.FeeTypeId == addFeeStructureCommand.feeTypeId &&
-                           x.NameOfMonths == addFeeStructureCommand.nameOfMonths &&
                            x.FyId == FyId
                        );
 
-                    if (feeStructure is not null)
-                    {
-                        return Result<AddFeeStructureResponse>.Failure("Conflict", $"Already assigned in the month of {addFeeStructureCommand.nameOfMonths}");
-                    }
+                    //if (feeStructure is not null)
+                    //{
+                    //    return Result<AddFeeStructureResponse>.Failure("Conflict", $"Already assigned in the month of {addFeeStructureCommand.nameOfMonths}");
+                    //}
                     #region AddLedger
 
                     string ledgerId;
 
-                    if (feeStructure != null &&
-                        feeStructure.FeeTypeId == addFeeStructureCommand.feeTypeId)
+                    if (feeStructure != null 
+                        //&& feeStructure.FeeTypeId == addFeeStructureCommand.feeTypeId
+                        )
                     {
                         ledgerId = feeStructure.LedgerId;
                     }
@@ -95,7 +97,7 @@ namespace ES.Finances.Infrastructure.ServiceImpl
 
                         var ledger = new Ledger(
                             ledgerId,
-                            feeType.Name + " A/C",
+                            "FeeType" + " A/C",
                             DateTime.UtcNow,
                             false,
                             "",
@@ -121,12 +123,19 @@ namespace ES.Finances.Infrastructure.ServiceImpl
 
                     var add = new FeeStructure(
                             newId,
-                        addFeeStructureCommand.amount,
                         addFeeStructureCommand.classId,
                         FyId,
                         ledgerId,
-                        addFeeStructureCommand.feeTypeId,
-                        addFeeStructureCommand.nameOfMonths,
+                        addFeeStructureCommand.feeCategoryId,
+                        addFeeStructureCommand.feeStructureDTOs.Select(x => new FeeStructureDetails(
+                            Guid.NewGuid().ToString(),
+                            x.feeTypeId,
+                            newId,
+                            x.amount,
+                            x.times,
+                            x.totalAmount,
+                            x.feePaidType
+                        )).ToList(),
                         true,
                         schoolId ?? "",
                         userId,
@@ -150,7 +159,7 @@ namespace ES.Finances.Infrastructure.ServiceImpl
                                         Guid.NewGuid().ToString(),
                                         newJournalId,
                                         LedgerConstants.FeeReceivable,
-                                        addFeeStructureCommand.amount,
+                                        addFeeStructureCommand.feeStructureDTOs.Sum(x=>x.totalAmount),
                                         0,
                                         DateTime.UtcNow,
                                         schoolId,
@@ -163,7 +172,7 @@ namespace ES.Finances.Infrastructure.ServiceImpl
                                         newJournalId,
                                         ledgerId,
                                         0,
-                                        addFeeStructureCommand.amount,
+                                        addFeeStructureCommand.feeStructureDTOs.Sum(x => x.totalAmount),
                                         DateTime.UtcNow,
                                         schoolId,
                                         FyId,
@@ -294,11 +303,9 @@ namespace ES.Finances.Infrastructure.ServiceImpl
                 .Select(i => new FilterFeeStructureResponse(
 
                     i.Id,
-                    i.Amount,
+                    i.FeeStructureDetails.Sum(x=>x.TotalAmount),
                     i.ClassId,
-                    i.FyId,
-                    i.FeeTypeId,
-                    i.IsActive,
+                    i.FyId,                    i.IsActive,
                     i.SchoolId,
                     i.CreatedBy,
                     i.CreatedAt,
@@ -355,12 +362,36 @@ namespace ES.Finances.Infrastructure.ServiceImpl
         {
             try
             {
+  
+                var feeStructure = await _unitOfWork.BaseRepository<FeeStructure>()
+                    .GetConditionalAsync(x => x.Id == id,
+                    query => query
+                        .Include(x => x.StudentFees)
+                        .ThenInclude(d => d.AssignedFeeStatus)
+                    );
+                var entity = feeStructure.FirstOrDefault();
+                var months = entity.StudentFees?
+                    .SelectMany(sf => sf.AssignedFeeStatus)
+                    .Select(a => a.NameOfMonths) // assuming enum stored here
+                    .ToList();
 
-                var feeStructure = await _unitOfWork.BaseRepository<FeeStructure>().GetByGuIdAsync(id);
+                var response = new FeeStructureByIdResponse
+                    (
+                        entity.Id,
+                          entity.FeeStructureDetails.Sum(x => x.TotalAmount),
+                        entity.ClassId,
+                        entity.FyId,
+                        months,
+                        entity.IsActive,
+                        entity.SchoolId,
+                        entity.CreatedBy,
+                        entity.CreatedAt,
+                        entity.ModifiedBy,
+                        entity.ModifiedAt
+                    );
 
-                var feeStructureResponse = _mapper.Map<FeeStructureByIdResponse>(feeStructure);
 
-                return Result<FeeStructureByIdResponse>.Success(feeStructureResponse);
+                return Result<FeeStructureByIdResponse>.Success(response);
 
             }
             catch (Exception ex)
@@ -431,10 +462,9 @@ namespace ES.Finances.Infrastructure.ServiceImpl
                     var resultResponse = new UpdateFeeStructureResponse
                         (
                         feeStructureId,
-                        feeStrctureToBeUpdated.Amount,
+                        feeStrctureToBeUpdated.FeeStructureDetails.Sum(x=>x.TotalAmount),
                         feeStrctureToBeUpdated.ClassId,
                         feeStrctureToBeUpdated.FyId,
-                        feeStrctureToBeUpdated.FeeTypeId,
                         feeStrctureToBeUpdated.IsActive,
                         feeStrctureToBeUpdated.SchoolId,
                         feeStrctureToBeUpdated.CreatedBy,

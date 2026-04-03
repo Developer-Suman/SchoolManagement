@@ -20,12 +20,12 @@ namespace TN.Shared.Domain.Entities.Finance
         }
         public FeeStructure(
             string id,
-            decimal amount,
             string classId,
             string fyId,
             string? ledgerId,
-            string feeTypeId,
-            NameOfMonths? nameOfMonths,
+            //NameOfMonths? nameOfMonths,
+            string? feeCategoryId,
+            List<FeeStructureDetails> feeStructureDetails,
             bool isActive,
             string schoolId,
             string createdBy,
@@ -34,12 +34,11 @@ namespace TN.Shared.Domain.Entities.Finance
             DateTime modifiedAt
             ) : base(id)
         {
-            NameOfMonths = nameOfMonths;
-            Amount = amount;
+            //NameOfMonths = nameOfMonths;
             ClassId = classId;
             LedgerId = ledgerId;
             FyId = fyId;
-            FeeTypeId = feeTypeId;
+            FeeCategoryId = feeCategoryId;
             IsActive = isActive;
             SchoolId = schoolId;
             CreatedBy = createdBy;
@@ -47,16 +46,16 @@ namespace TN.Shared.Domain.Entities.Finance
             ModifiedBy = modifiedBy;
             ModifiedAt = modifiedAt;
             StudentFees = new List<StudentFee>();
+            FeeStructureDetails = feeStructureDetails;
         }
+        public string? FeeCategoryId { get; set; }
+        public FeeCategory? FeeCategory { get; set; }
 
-        public NameOfMonths? NameOfMonths { get; set; }
+        //public NameOfMonths? NameOfMonths { get; set; }
         public bool IsActive { get; set; }
         public string SchoolId { get;set;  }
-        public decimal Amount { get; set; }
         public string ClassId { get; set; }
         public Class Class { get; set; }
-        public string FeeTypeId { get; set; }
-        public FeeType FeeType { get; set; }
 
         public string? LedgerId { get; set; }
         public Ledger? Ledger { get; set; }
@@ -68,6 +67,7 @@ namespace TN.Shared.Domain.Entities.Finance
         public DateTime ModifiedAt { get; set; } = DateTime.Now;
 
         public ICollection<StudentFee> StudentFees { get; set; }
+        public ICollection<FeeStructureDetails> FeeStructureDetails { get; set; }
 
     }
 }

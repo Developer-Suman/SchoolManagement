@@ -1,6 +1,4 @@
 ﻿using ES.Academics.Application.Academics.Queries.Events.ScheduleEvents;
-using ES.Academics.Application.Academics.Queries.FilterSubject;
-using ES.Communication.Application.Communication.Queries.NoticeDisplay;
 using ES.Student.Application.Registration.Command.RegisterMultipleStudents;
 using ES.Student.Application.Registration.Command.RegisterMultipleStudents.RequestCommandMapper;
 using ES.Student.Application.Registration.Command.RegisterStudents;

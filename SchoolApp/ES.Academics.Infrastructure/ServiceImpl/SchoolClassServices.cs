@@ -70,6 +70,18 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                     var schoolId = _tokenService.SchoolId().FirstOrDefault() ?? "";
                     var userId = _tokenService.GetUserId();
 
+                    var existingClass = await _unitOfWork.BaseRepository<Class>()
+                        .FirstOrDefaultAsync(c =>
+                            c.Name.ToLower() == addLedgerCommand.Name.ToLower() &&
+                            c.ClassSymbol == addLedgerCommand.ClassSymbol &&
+                            c.SchoolId == schoolId &&
+                            c.IsActive == true); 
+
+                    if (existingClass != null)
+                    {
+                        return Result<AddSchoolClassResponse>.Failure("A class with this name and symbol already exists for your school.");
+                    }
+
                     var addSchoolClass = new Class(
                             newId,
                         addLedgerCommand.Name,

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TN.Shared.Domain.Abstractions;
+using static TN.Shared.Domain.Enum.HelperEnum;
 
 namespace ES.Finances.Application.Finance.Command.Fee.AddStudentFee
 {
@@ -13,6 +14,7 @@ namespace ES.Finances.Application.Finance.Command.Fee.AddStudentFee
         string studentId,
             string feeStructureId,
             string classId,
-            decimal discountPercentage
+            decimal discountPercentage,
+            List<NameOfMonths?> nameOfMonths
         ) : IRequest<Result<AddStudentFeeResponse>>;
 }

@@ -12,10 +12,9 @@ namespace ES.Finances.Application.Finance.Command.Fee.AddFeeStructure.RequestCom
         {
             return new AddFeeStructureCommand
                 (
-                request.amount,
                 request.classId,
-                request.feeTypeId,
-                request.nameOfMonths
+                request.feeCategoryId,
+                request.feeStructureDTOs
                 );
         }
     }
