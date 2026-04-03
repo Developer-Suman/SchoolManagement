@@ -11,9 +11,8 @@ namespace ES.Finances.Application.Finance.Command.Fee.AddFeeStructure
 {
     public record AddFeeStructureCommand
     (
-          decimal amount,
-            string classId,
-            string feeTypeId,
-           NameOfMonths? nameOfMonths
+          string classId,
+            string feeCategoryId,
+            List<AddFeeStructureDTOs> feeStructureDTOs
         ) : IRequest<Result<AddFeeStructureResponse>>;
 }

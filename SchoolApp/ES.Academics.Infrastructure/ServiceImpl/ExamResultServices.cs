@@ -287,9 +287,19 @@ namespace ES.Academics.Infrastructure.ServiceImpl
 
 
                 IQueryable<ExamResult> query = _unitOfWork
-                        .BaseRepository<ExamResult>()
-                        .GetQueryable()
-                        .Include(x => x.MarksOtaineds);
+                    .BaseRepository<ExamResult>()
+                    .GetQueryable()
+                    .Include(x => x.Student)
+                        .ThenInclude(s => s.Province)
+                    .Include(x => x.Student)
+                        .ThenInclude(s => s.District)
+                    .Include(x => x.Student)
+                        .ThenInclude(s => s.Municipality)
+                    .Include(x => x.Student)
+                        .ThenInclude(s => s.Vdc)
+                    .Include(x => x.MarksOtaineds);
+
+                var data = await query.ToListAsync();
 
                 query = query.Where(x => x.FyId == fiscalYearId && x.IsActive);
 
@@ -334,6 +344,10 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                         exam.Id,
                         exam.ExamId,
                         exam.StudentId,
+                        exam.Student.District != null ? exam.Student.District.DistrictNameInEnglish : string.Empty,
+                        exam.Student.Province != null ? exam.Student.Province.ProvinceNameInEnglish : string.Empty,
+                        exam.Student.Municipality != null ? exam.Student.Municipality.MunicipalityNameInEnglish : string.Empty,
+                        exam.Student.Vdc != null ? exam.Student.Vdc.VdcNameInEnglish : string.Empty,
                         exam.Remarks,
                         exam.IsActive,
                         exam.SchoolId,

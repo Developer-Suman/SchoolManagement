@@ -14,7 +14,8 @@ namespace ES.Finances.Application.Finance.Command.Fee.AddStudentFee.RequestComma
                 request.studentId,
                 request.feeStructureId,
                 request.classId,
-                request.discountPercentage
+                request.discountPercentage,
+                request.nameOfMonths
                 );
         }
     }

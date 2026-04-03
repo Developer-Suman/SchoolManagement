@@ -36,39 +36,52 @@ namespace TN.Shared.Infrastructure.DataSeed
 
         public async Task Seed()
         {
+            try
+            {
+                await _context.Database.MigrateAsync();
 
-            var rootGroup = new ItemGroup { Id = Guid.NewGuid().ToString(), Name = "Root Group",IsPrimary=true, ItemsGroupId = null };
-            _context.ItemGroups.Add(rootGroup);
-            await _context.SaveChangesAsync();
+                var rootGroup = new ItemGroup { Id = Guid.NewGuid().ToString(), Name = "Root Group", IsPrimary = true, ItemsGroupId = null };
+                _context.ItemGroups.Add(rootGroup);
+                await _context.SaveChangesAsync();
 
-            var childGroup = new ItemGroup { Id = Guid.NewGuid().ToString(), Name = "General", IsPrimary=true, ItemsGroupId = rootGroup.Id };
-            _context.ItemGroups.Add(childGroup);
-            await _context.SaveChangesAsync();
+                var childGroup = new ItemGroup { Id = Guid.NewGuid().ToString(), Name = "General", IsPrimary = true, ItemsGroupId = rootGroup.Id };
+                _context.ItemGroups.Add(childGroup);
+                await _context.SaveChangesAsync();
 
 
-            await SeedProvince();
-            await SeedDistrict();
-            await SeedMunicipality();
-            await SeedVdc();
-            await SeedMaster();
-            await SeedLedgerGroup();
-            await SeedSubLedgerGroup();
-            await SeedUnits();
-            await SeedRole();
-            await SeedModules();
-            await SeedSubModules();
-            await SeedMenus();
-            await SeedLedger();
-            await SeedItemsGroup();
-            await SeedFiscalYear();
-            //await SeedPaymentMethod();
-            await SeedDemoOrganization();
-            await SeedInstitution();
-            await SeedDemoCompany();
-            await SeedStockCenter();
-            await SeedClasses();
-            await SeedAcademicYear();
-            await CertificateTemplate();
+                await SeedProvince();
+                await SeedDistrict();
+                await SeedMunicipality();
+                await SeedVdc();
+                await SeedMaster();
+                await SeedLedgerGroup();
+                await SeedSubLedgerGroup();
+                await SeedUnits();
+                await SeedRole();
+                await SeedModules();
+                await SeedSubModules();
+                await SeedMenus();
+                await SeedLedger();
+                await SeedItemsGroup();
+                await SeedFiscalYear();
+                //await SeedPaymentMethod();
+                await SeedDemoOrganization();
+                await SeedInstitution();
+                await SeedDemoCompany();
+                await SeedStockCenter();
+                await SeedClasses();
+                await SeedAcademicYear();
+                await CertificateTemplate();
+
+            }
+            catch (Exception ex)
+            {
+                // Log ex.InnerException to see the REAL SQL error
+                Console.WriteLine(ex.InnerException?.Message);
+                throw;
+            }
+
+
 
         }
 
@@ -79,7 +92,7 @@ namespace TN.Shared.Infrastructure.DataSeed
             {
                 var certificateTemplate = new List<CertificateTemplate>()
                 {
-                    new CertificateTemplate("3f9d8c2a-7b6e-4a91-9c3f-2f6d5e8a1b44","","Open Format","...........","openFormat","",true,"1.0",DateTime.UtcNow,"", default,"")
+                    new CertificateTemplate("3f9d8c2a-7b6e-4a91-9c3f-2f6d5e8a1b44",null,"Open Format","...........","openFormat","",true,"1.0",DateTime.UtcNow,"", default,"")
                 };
 
                 await _context.CertificateTemplates.AddRangeAsync(certificateTemplate);
@@ -2351,19 +2364,41 @@ namespace TN.Shared.Infrastructure.DataSeed
                 var modules = new List<Modules>()
                  {
 
-                    new Modules("0bbf93db-2989-429e-b278-09b41be5bb4b","Fee and Accounting","4","-","/accounting", true),
-                    new Modules("0d4c0151-3f88-4bf9-addd-8d14be921ec8","Dashboard","1","Home","/dashboard", true),
-                    new Modules("25bc79d7-33ea-42e3-a3d1-70dfe9868ab3","Report","8","-","/report", true),
-                    new Modules("2d173ac3-bcfc-4626-8888-370bd6207e33","Academic Information","3","-","/academic", true),
-                    new Modules("3a742199-322c-44c1-895d-e1e89ced978d","Student Management","1","-","/student", true),
-                    new Modules("6a6c5b5f-8445-4709-8a9a-26a67626ba62","Staff Management","9","-","/staff", true),
-                    new Modules("6cb7aff5-8b4f-4119-b132-91fb0d01dd2b","Parents / Guardian Information","2","_","/parent", true),
-                    new Modules("8c834e6b-2510-48ee-b255-4994ffa49197","User","2","-","/User", true),
-                    new Modules("a1ce024a-c12f-41a7-a7b9-9e92bee29e70","Setup","10","-","/Administration", true),
-                    new Modules("b90bf690-d70f-46ba-a36e-7db6acd4d4f0","Attendance Management","5","-","/attendance", true),
-                    new Modules("b62bcaca-b269-42d2-be33-aed2a9b79b0a","Role","4","-","/Role", true),
-                    new Modules("b9d4dfc3-3094-4db0-b25e-63b841b66664","Exam and Grading","6","-","/exam", false),
-                    new Modules("e02e4bbd-e3ef-46c5-a7ee-60772dc8db87","Class and Section Management","7","-","/class", true)
+                            new Modules("0bbf93db-2989-429e-b278-09b41be5bb4b", "Finance", "4", "-", "/finance", true),
+                            new Modules("0d4c0151-3f88-4bf9-addd-8d14be921ec8", "Dashboard", "1", "Home", "/dashboard", true),
+                            new Modules("2516bbdd-23e7-4945-9555-be4d85676877", "Miscellaneous", "7", "-", "/miscellaneous", false),
+                            new Modules("25bc79d7-33ea-42e3-a3d1-70dfe9868ab3", "Report", "8", "-", "/report", true),
+                            new Modules("2d173ac3-bcfc-4626-8888-370bd6207e33", "Academics", "3", "-", "/academic", false),
+                            new Modules("326a6e37-dc58-46f9-9f53-dcdc8307e622", "crm check", "2", "Home", "/crm", true),
+                            new Modules("3a742199-322c-44c1-895d-e1e89ced978d", "Students", "1", "-", "/student", false),
+                            new Modules("3dcab2aa-18b3-4202-b72f-76960965f8ed", "Notice", "1", "-", null, true),
+                            new Modules("608887a2-54d2-444f-9828-20280883e177", "Applications", "2", "/Factory", "/applications", false),
+                            new Modules("6647a855-629b-4289-abb0-d5d20b107216", "Services", "4", "abc", "/services", true),
+                            new Modules("6a6c5b5f-8445-4709-8a9a-26a67626ba62", "Staff Management", "9", "-", "/staff", true),
+                            new Modules("8192a5a9-6fee-4c79-aeaa-4a217b03eca9", "Dashboard", "1", "Home", "/crm/dashboard", true),
+                            new Modules("8c834e6b-2510-48ee-b255-4994ffa49197", "User", "2", "-", "/User", true),
+                            new Modules("957aa29b-3d6f-4eec-be8f-d5bf71b29495", "Academic Program", "2", "-", "/academicProgram", false),
+                            new Modules("a1ce024a-c12f-41a7-a7b9-9e92bee29e70", "Setup", "10", "-", "/Administration", true),
+                            new Modules("b62bcaca-b269-42d2-be33-aed2a9b79b0a", "Role", "4", "-", "/Role", true),
+                            new Modules("b90bf690-d70f-46ba-a36e-7db6acd4d4f0", "Attendance Management", "5", "-", "/attendance", true),
+                            new Modules("b9d4dfc3-3094-4db0-b25e-63b841b66664", "Exam and Grading", "6", "-", "/exam", false),
+                            new Modules("c76639f5-189e-4361-b917-c59ddedc4832", "Services", "3", "abc", "/services", false),
+                            new Modules("e02e4bbd-e3ef-46c5-a7ee-60772dc8db87", "Class Management", "7", "-", "/class", false),
+                            new Modules("e26231b3-d434-44f3-a58c-3a62d9a8a4b6", "Certificate", "10", "-", "/certificate", true)
+
+                    //new Modules("0bbf93db-2989-429e-b278-09b41be5bb4b","Fee and Accounting","4","-","/accounting", true),
+                    //new Modules("0d4c0151-3f88-4bf9-addd-8d14be921ec8","Dashboard","1","Home","/dashboard", true),
+                    //new Modules("25bc79d7-33ea-42e3-a3d1-70dfe9868ab3","Report","8","-","/report", true),
+                    //new Modules("2d173ac3-bcfc-4626-8888-370bd6207e33","Academic Information","3","-","/academic", true),
+                    //new Modules("3a742199-322c-44c1-895d-e1e89ced978d","Student Management","1","-","/student", true),
+                    //new Modules("6a6c5b5f-8445-4709-8a9a-26a67626ba62","Staff Management","9","-","/staff", true),
+                    //new Modules("6cb7aff5-8b4f-4119-b132-91fb0d01dd2b","Parents / Guardian Information","2","_","/parent", true),
+                    //new Modules("8c834e6b-2510-48ee-b255-4994ffa49197","User","2","-","/User", true),
+                    //new Modules("a1ce024a-c12f-41a7-a7b9-9e92bee29e70","Setup","10","-","/Administration", true),
+                    //new Modules("b90bf690-d70f-46ba-a36e-7db6acd4d4f0","Attendance Management","5","-","/attendance", true),
+                    //new Modules("b62bcaca-b269-42d2-be33-aed2a9b79b0a","Role","4","-","/Role", true),
+                    //new Modules("b9d4dfc3-3094-4db0-b25e-63b841b66664","Exam and Grading","6","-","/exam", false),
+                    //new Modules("e02e4bbd-e3ef-46c5-a7ee-60772dc8db87","Class and Section Management","7","-","/class", true)
                  };
 
                 await _context.Modules.AddRangeAsync(modules);
@@ -2380,14 +2415,53 @@ namespace TN.Shared.Infrastructure.DataSeed
             {
                 var subModules = new List<SubModules>()
                  {
+                    //new SubModules("2af56549-2988-4c7e-b587-c4c8c39a01a5", "Administrative Team", "-", "/administrative", "6a6c5b5f-8445-4709-8a9a-26a67626ba62", "2", true),
+                    //new SubModules("46fdf094-2c42-47e1-b9fe-1beab735ba82", "Role Permission", "-", "role-permission/all-roles-permission", "b62bcaca-b269-42d2-be33-aed2a9b79b0a", "3", true),
+                    //new SubModules("52197ced-2cf3-45c9-a8e0-9c17942e44a3", "Users", "-", "/User/users", "8c834e6b-2510-48ee-b255-4994ffa49197", "3", true),
+                    //new SubModules("6506d801-f911-4f0c-919b-930ffd589a3d", "Roles", "-", "role/all-Roles", "b62bcaca-b269-42d2-be33-aed2a9b79b0a", "4", true),
+                    //new SubModules("65efab5a-7a17-4e90-8482-691a4f2f42c8", "Academic Team", "-", "/academic", "6a6c5b5f-8445-4709-8a9a-26a67626ba62", "1", true),
+                    //new SubModules("76a1029d-24e1-4db4-aa25-ac42ea07d320", "Non-Academic Team", "-", "/nonAcademic", "6a6c5b5f-8445-4709-8a9a-26a67626ba62", "3", true),
+                    //new SubModules("830808d4-ef0b-4654-ae95-ac9b6a392f27", "Settings", "-", "/Setup/settings", "a1ce024a-c12f-41a7-a7b9-9e92bee29e70", "1", true),
+                    //new SubModules("8643b2a1-c892-4467-ac39-85b83fc5399f", "Company", "-", "/Setup/Company", "a1ce024a-c12f-41a7-a7b9-9e92bee29e70", "13", true),
+
+
+                    new SubModules("1019a405-210e-4ee9-ad7c-40c64ddb413b", "Attendance Report", "atd", "/attendanceReport", "25bc79d7-33ea-42e3-a3d1-70dfe9868ab3", "3", true),
+                    new SubModules("11bd0f42-2816-461a-aa7e-50765cd0f135", "Notice", "-", "/notice", "3dcab2aa-18b3-4202-b72f-76960965f8ed", "1", true),
+                    new SubModules("184f4afc-f603-4938-af2e-40fbd094f0ae", "Subject", "-", "/Subject", "2d173ac3-bcfc-4626-8888-370bd6207e33", "1", true),
+                    new SubModules("267275fe-d82d-4a7c-b2fa-c0d2496b7c1a", "Issued Certificate", "-", "/Certificate/IssuedCertificate", "e26231b3-d434-44f3-a58c-3a62d9a8a4b6", "1", true),
+                    new SubModules("2acd1c9f-78cd-48e8-8c38-080b1015b779", "Parents", "-", "/Parent", "3a742199-322c-44c1-895d-e1e89ced978d", "2", true),
                     new SubModules("2af56549-2988-4c7e-b587-c4c8c39a01a5", "Administrative Team", "-", "/administrative", "6a6c5b5f-8445-4709-8a9a-26a67626ba62", "2", true),
-                    new SubModules("46fdf094-2c42-47e1-b9fe-1beab735ba82", "Role Permission", "-", "role-permission/all-roles-permission", "b62bcaca-b269-42d2-be33-aed2a9b79b0a", "3", true),
+                    new SubModules("36c69084-d89d-4334-86bf-fdbd9a9e62ce", "Bhabin", "-", "/Delete", "326a6e37-dc58-46f9-9f53-dcdc8307e622", "2", true),
+                    new SubModules("46cbfccf-48cf-4a87-8602-7dd21e08d4ae", "Exam", "-", "/Exam", "2d173ac3-bcfc-4626-8888-370bd6207e33", "1", true),
+                    new SubModules("46fdf094-2c42-47e1-b9fe-1beab735ba82", "Role Permission", "-", "/Role/RolePermission", "b62bcaca-b269-42d2-be33-aed2a9b79b0a", "3", true),
+                    new SubModules("5031b207-9f0f-43e4-9636-363aa403bad8", "Awards", "-", "/Certificate/Awards", "2516bbdd-23e7-4945-9555-be4d85676877", "3", true),
                     new SubModules("52197ced-2cf3-45c9-a8e0-9c17942e44a3", "Users", "-", "/User/users", "8c834e6b-2510-48ee-b255-4994ffa49197", "3", true),
-                    new SubModules("6506d801-f911-4f0c-919b-930ffd589a3d", "Roles", "-", "role/all-Roles", "b62bcaca-b269-42d2-be33-aed2a9b79b0a", "4", true),
-                    new SubModules("65efab5a-7a17-4e90-8482-691a4f2f42c8", "Academic Team", "-", "/academic", "6a6c5b5f-8445-4709-8a9a-26a67626ba62", "1", true),
+                    new SubModules("5577956f-35f8-4cf8-875a-99402877a967", "Trial Balance", "-", "/trialBalance", "25bc79d7-33ea-42e3-a3d1-70dfe9868ab3", "2", true),
+                    new SubModules("57ced47e-859b-4f1a-9f1c-dc2dbe8b0c13", "JournalEntries", "-", "/journal", "0bbf93db-2989-429e-b278-09b41be5bb4b", "2", true),
+                    new SubModules("6506d801-f911-4f0c-919b-930ffd589a3d", "Roles", "-", "/Role/Roles", "b62bcaca-b269-42d2-be33-aed2a9b79b0a", "4", true),
+                    new SubModules("65efab5a-7a17-4e90-8482-691a4f2f42c8", "Academic Team", "-", "/AcademicStaff", "6a6c5b5f-8445-4709-8a9a-26a67626ba62", "1", true),
+                    new SubModules("6702fc5f-1b3a-4e0f-8e4f-76b660461769", "Visitor", "user", "/visitors", "608887a2-54d2-444f-9828-20280883e177", "1", true),
+                    new SubModules("68164df4-69a9-4b23-bca5-415da8b69f7d", "Curricular Activities", "curricularIcon", "/curricularActivities", "3a742199-322c-44c1-895d-e1e89ced978d", "2", true),
+                    new SubModules("6bac8701-a1ff-4ef4-9e31-95c40d897206", "Chart of Account", "-", "/chartofaccount", "0bbf93db-2989-429e-b278-09b41be5bb4b", "3", true),
+                    new SubModules("6c99affd-ddd5-4277-bca6-35f5928af724", "University", "-", "/university", "957aa29b-3d6f-4eec-be8f-d5bf71b29495", "1", true),
+                    new SubModules("71b806e4-167a-41e2-ade2-ed4c03a46bad", "Certificate Template", "-", "/Certificate/CertificateTemplate", "e26231b3-d434-44f3-a58c-3a62d9a8a4b6", "2", true),
                     new SubModules("76a1029d-24e1-4db4-aa25-ac42ea07d320", "Non-Academic Team", "-", "/nonAcademic", "6a6c5b5f-8445-4709-8a9a-26a67626ba62", "3", true),
+                    new SubModules("779a39c9-0f8e-44a3-bcc4-710a329f471b", "Lead", "-", null, "3a742199-322c-44c1-895d-e1e89ced978d", "2", true),
                     new SubModules("830808d4-ef0b-4654-ae95-ac9b6a392f27", "Settings", "-", "/Setup/settings", "a1ce024a-c12f-41a7-a7b9-9e92bee29e70", "1", true),
-                    new SubModules("8643b2a1-c892-4467-ac39-85b83fc5399f", "Company", "-", "/Setup/Company", "a1ce024a-c12f-41a7-a7b9-9e92bee29e70", "13", true),
+                    new SubModules("8643b2a1-c892-4467-ac39-85b83fc5399f", "School", "-", "/Setup/School", "a1ce024a-c12f-41a7-a7b9-9e92bee29e70", "13", true),
+                    new SubModules("89de5aeb-1602-482d-9a11-4eb4a6cd6261", "Applicants", "-", "/applications", "608887a2-54d2-444f-9828-20280883e177", "4", true),
+                    new SubModules("91a97377-a5ee-4d2c-a38c-a870b56e6a81", "Assets Track", "-", "/miscellaneous", "2516bbdd-23e7-4945-9555-be4d85676877", "1", true),
+                    new SubModules("99879560-4c4e-4122-bcec-5ae73cccc9a4", "Appointment", "apo", "/appointment", "c76639f5-189e-4361-b917-c59ddedc4832", "1", true),
+                    new SubModules("b202dfb4-fcbe-4dbd-9dde-5d6143bb2790", "Applicant", "-", null, "3a742199-322c-44c1-895d-e1e89ced978d", "3", true),
+                    new SubModules("b5ed60fc-d9fa-4914-bfba-e60dd299e379", "Class", "-", "/Class", "2d173ac3-bcfc-4626-8888-370bd6207e33", "1", true),
+                    new SubModules("b6172010-3d45-47f1-96d0-bba2ec301fce", "Classes", "ico", "/classes", "c76639f5-189e-4361-b917-c59ddedc4832", "2", true),
+                    new SubModules("c38443ca-acb3-4940-9162-7ed077097c5d", "Student", "-", "/Student", "3a742199-322c-44c1-895d-e1e89ced978d", "1", true),
+                    new SubModules("cbd0380f-3b50-4a50-8d61-4ae7cb407071", "Ledger", "-", "/Ledger", "0bbf93db-2989-429e-b278-09b41be5bb4b", "1", true),
+                    new SubModules("d4933017-4bed-4afe-8a41-fda9436884c9", "Events", "-", "/miscellaneous/Events", "2516bbdd-23e7-4945-9555-be4d85676877", "2", true),
+                    new SubModules("d50cca13-6e2f-484e-8626-10b94c4e041f", "Ledger Statement", "-", "/ledgerStatement", "25bc79d7-33ea-42e3-a3d1-70dfe9868ab3", "1", true),
+                    new SubModules("e03db3d2-c5a9-413c-a624-7fd3620491cb", "Curricular Activities Report", "car", "/curriuclarActivitiesReport", "25bc79d7-33ea-42e3-a3d1-70dfe9868ab3", "4", true),
+                    new SubModules("f7d424b8-8660-418a-8461-860e6d4713c5", "School Fee", "-", "/schoolFee", "0bbf93db-2989-429e-b278-09b41be5bb4b", "1", true),
+                    new SubModules("fd92beab-e181-4bfc-ba02-cddfbdf49f2a", "Documents", "-", "/documents", "957aa29b-3d6f-4eec-be8f-d5bf71b29495", "2", true)
 
                  };
 
@@ -2406,27 +2480,111 @@ namespace TN.Shared.Infrastructure.DataSeed
             {
                 var menus = new List<Menu>()
                 {
-                        new Menu("1cd83181-70ec-42fb-918a-29f1e5eceaa6", "Delete", "/academic/delete", "-", "65efab5a-7a17-4e90-8482-691a4f2f42c8", 3, true),
-                        new Menu("3726f872-bf8b-4047-80c4-e99d4034e2be", "Edit", "/academic/edit", "-", "65efab5a-7a17-4e90-8482-691a4f2f42c8", 2, true),
-                        new Menu("38b5e29d-a3c8-4383-9b3f-6a79f5389377", "Delete", "User/Delete", "-", "52197ced-2cf3-45c9-a8e0-9c17942e44a3", 1, true),
-                        new Menu("395e8216-69ea-4185-9dde-11b44d0e619b", "Edit", "/administrative/edit", "-", "2af56549-2988-4c7e-b587-c4c8c39a01a5", 2, true),
-                        new Menu("3da68c38-6bc8-4f15-8d07-3274e57230de", "Delete", "delete/rolePermission", "-", "46fdf094-2c42-47e1-b9fe-1beab735ba82", 1, true),
-                        new Menu("428dfd7a-7541-4df2-bb40-8071c553428e", "Assign", "modulePermission/roles", "-", "6506d801-f911-4f0c-919b-930ffd589a3d", 1, true),
-                        new Menu("529bab23-3cf4-499c-acc2-a3fdae8811b9", "Add", "Add/Company", "-", "8643b2a1-c892-4467-ac39-85b83fc5399f", 1, true),
-                        new Menu("567a9575-b871-48c1-bd6e-b9e0a0b59091", "Delete", "delete/roles", "-", "6506d801-f911-4f0c-919b-930ffd589a3d", 1, true),
-                        new Menu("56d1ac2f-6d1c-47f8-a4b1-279d6fa227d1", "Add", "Add/User", "-", "52197ced-2cf3-45c9-a8e0-9c17942e44a3", 1, true),
-                        new Menu("5bff0e61-7b16-40b5-842a-d6259107f37c", "Edit", "edit/roles", "-", "6506d801-f911-4f0c-919b-930ffd589a3d", 1, true),
-                        new Menu("5db70aee-af8f-4a74-90e1-28ae81a560ad", "Edit", "user/", "-", "52197ced-2cf3-45c9-a8e0-9c17942e44a3", 1, true),
-                        new Menu("73e8430c-28ce-41a0-a101-fd01b0e150ec", "Edit", "/nonAcademic/edit", "-", "76a1029d-24e1-4db4-aa25-ac42ea07d320", 2, true),
-                        new Menu("7a9cd2b4-edc3-4c2e-9989-66180c7bb155", "Assign", "assignRoleToUser/rolePermission", "-", "46fdf094-2c42-47e1-b9fe-1beab735ba82", 1, true),
-                        new Menu("7daf643c-41c8-448b-b2bc-c898dfb030ad", "Add", "add/roles", "-", "6506d801-f911-4f0c-919b-930ffd589a3d", 1, true),
-                        new Menu("8c59a722-759d-43b4-a7b5-3103692627a6", "Add", "academic/add", "-", "65efab5a-7a17-4e90-8482-691a4f2f42c8", 1, true),
-                        new Menu("a74ce89d-96c2-498e-836f-3221ad315896", "Add", "/nonAcademic/Add", "-", "76a1029d-24e1-4db4-aa25-ac42ea07d320", 1, true),
-                        new Menu("b42ccb99-5b6b-49e8-ab89-273a26484bd3", "Delete", "/nonAcademic/delete", "-", "76a1029d-24e1-4db4-aa25-ac42ea07d320", 3, true),
-                        new Menu("bc7fe6d9-bee4-4df6-b760-b1e2c83c9788", "Delete", "/administrative/delete", "-", "2af56549-2988-4c7e-b587-c4c8c39a01a5", 3, true),
-                        new Menu("c5383f8f-655d-47a9-a156-08b3a8bf2556", "Assign", "assignRole/User", "-", "52197ced-2cf3-45c9-a8e0-9c17942e44a3", 1, true),
-                        new Menu("d4d18c66-eda4-4e49-ab0a-c8dcf48f1ee7", "Add", "/administrative/add", "-", "2af56549-2988-4c7e-b587-c4c8c39a01a5", 1, true),
-                        new Menu("f75b502d-d524-484b-bd80-4c3fe08941c3", "Edit", "edit/rolePermission", "-", "46fdf094-2c42-47e1-b9fe-1beab735ba82", 1, true),
+                    new Menu("008c7e55-66b9-43de-bd58-9aa585be18f8", "Delete", "delete", "-", "cbd0380f-3b50-4a50-8d61-4ae7cb407071", 3, true),
+                    new Menu("00db5304-0b92-4fab-aa8d-d00eb803f540", "Delete", "delete/roles", "-", "6506d801-f911-4f0c-919b-930ffd589a3d", 3, true),
+                    new Menu("0a5ca9d9-536c-4256-80b2-36be20592d4f", "Add", "/add/class", "-", "b6172010-3d45-47f1-96d0-bba2ec301fce", 1, false),
+                    new Menu("10793db4-b1f0-4ff7-87e7-eddc4560364f", "Edit", "/edit/issuedCertificate", "-", "267275fe-d82d-4a7c-b2fa-c0d2496b7c1a", 2, true),
+                    new Menu("136fdb5e-7fef-4a0a-b226-887baa99aaca", "Delete", "delete/Class", "-", "b5ed60fc-d9fa-4914-bfba-e60dd299e379", 3, true),
+                    new Menu("19220ae2-a134-48a4-aa8b-4d135a3054ac", "Add", "/Add", "-", "d4933017-4bed-4afe-8a41-fda9436884c9", 1, true),
+                    new Menu("1cd83181-70ec-42fb-918a-29f1e5eceaa6", "Delete", "/academic/delete", "-", "65efab5a-7a17-4e90-8482-691a4f2f42c8", 3, true),
+                    new Menu("1fe945ae-efdd-4b7e-b88f-dd1ed5055231", "Delete", "delete/Exam", "-", "46cbfccf-48cf-4a87-8602-7dd21e08d4ae", 3, true),
+                    new Menu("20945b7b-dc4b-4f5a-b72e-3013c2996ca0", "Edit", "edit/Student", "-", "c38443ca-acb3-4940-9162-7ed077097c5d", 2, true),
+                    new Menu("213f31b4-5f0d-4475-ad5d-a80b61738da9", "Add", "add", "-", "57ced47e-859b-4f1a-9f1c-dc2dbe8b0c13", 1, true),
+                    new Menu("233c1c8a-98a5-4424-83f8-aff04abb4ace", "Delete", "delete/Parents", "-", "2acd1c9f-78cd-48e8-8c38-080b1015b779", 3, true),
+                    new Menu("27a228bb-6d1b-49fd-a99d-2feb94735163", "Edit", "edit", "-", "57ced47e-859b-4f1a-9f1c-dc2dbe8b0c13", 2, true),
+                    new Menu("2b8aeeda-d49c-4e82-887c-afbcca707207", "Add", "-", "-", "b202dfb4-fcbe-4dbd-9dde-5d6143bb2790", 1, true),
+                    new Menu("2deffb2f-c999-4835-b3a8-0e5c34f97f3a", "Add", "/add", "-", "6c99affd-ddd5-4277-bca6-35f5928af724", 1, true),
+                    new Menu("34357033-8195-42c4-8d4e-6fc0e6f035f7", "Delete", "/Delete", "-", "d4933017-4bed-4afe-8a41-fda9436884c9", 2, true),
+                    new Menu("3726f872-bf8b-4047-80c4-e99d4034e2be", "Edit", "/academic/edit", "-", "65efab5a-7a17-4e90-8482-691a4f2f42c8", 2, true),
+                    new Menu("38b5e29d-a3c8-4383-9b3f-6a79f5389377", "Delete", "User/Delete", "-", "52197ced-2cf3-45c9-a8e0-9c17942e44a3", 1, true),
+                    new Menu("395e8216-69ea-4185-9dde-11b44d0e619b", "Edit", "/administrative/edit", "-", "2af56549-2988-4c7e-b587-c4c8c39a01a5", 2, true),
+                    new Menu("3a697323-3791-4e6a-9217-88734abe3ac5", "Edit", "edit/Parents", "-", "2acd1c9f-78cd-48e8-8c38-080b1015b779", 2, true),
+                    new Menu("3da68c38-6bc8-4f15-8d07-3274e57230de", "Delete", "delete/rolePermission", "-", "46fdf094-2c42-47e1-b9fe-1beab735ba82", 1, true),
+                    new Menu("424462d5-cd5e-4ab2-b322-9e622af32956", "Delete", "/delete/issuedCertificate", "-", "267275fe-d82d-4a7c-b2fa-c0d2496b7c1a", 3, true),
+                    new Menu("428dfd7a-7541-4df2-bb40-8071c553428e", "Assign", "modulePermission/roles", "-", "6506d801-f911-4f0c-919b-930ffd589a3d", 1, true),
+                    new Menu("47fc63c2-4873-44ed-bf71-de76ce9fb4b2", "Edit", "-", "-", "f7d424b8-8660-418a-8461-860e6d4713c5", 2, true),
+                    new Menu("51199224-4d61-44ea-b0d2-7356dd6e564e", "Delete", "-", "-", "f7d424b8-8660-418a-8461-860e6d4713c5", 3, true),
+                    new Menu("529bab23-3cf4-499c-acc2-a3fdae8811b9", "Add", "Add/Company", "-", "8643b2a1-c892-4467-ac39-85b83fc5399f", 1, true),
+                    new Menu("55a257fa-782e-4880-b4f0-4c233b87b644", "Add", "/classes", "-", "b6172010-3d45-47f1-96d0-bba2ec301fce", 1, false),
+                    new Menu("565dfccd-3eaf-4d48-b80a-15a91220ea38", "Delete", "delete/appointment", "-", "99879560-4c4e-4122-bcec-5ae73cccc9a4", 3, true),
+                    new Menu("567a9575-b871-48c1-bd6e-b9e0a0b59091", "Delete", "delete/roles", "-", "6506d801-f911-4f0c-919b-930ffd589a3d", 1, true),
+                    new Menu("56d1ac2f-6d1c-47f8-a4b1-279d6fa227d1", "Add", "Add/User", "-", "52197ced-2cf3-45c9-a8e0-9c17942e44a3", 1, true),
+                    new Menu("57356802-d166-460e-a1ad-ab5e5708c87d", "Delete", "/Awards/Delete", "-", "5031b207-9f0f-43e4-9636-363aa403bad8", 2, true),
+                    new Menu("5bff0e61-7b16-40b5-842a-d6259107f37c", "Edit", "edit/roles", "-", "6506d801-f911-4f0c-919b-930ffd589a3d", 1, true),
+                    new Menu("5db70aee-af8f-4a74-90e1-28ae81a560ad", "Edit", "user/", "-", "52197ced-2cf3-45c9-a8e0-9c17942e44a3", 1, true),
+                    new Menu("5ea72db1-adde-4f47-befd-a25d718c68ad", "Add", "Add", "-", "cbd0380f-3b50-4a50-8d61-4ae7cb407071", 1, true),
+                    new Menu("6250a884-a6b3-43bf-895a-6cde78148a59", "Add", "add/roles", "-", "6506d801-f911-4f0c-919b-930ffd589a3d", 1, true),
+                    new Menu("65b0abaf-0260-4e1d-aa3d-8b6c9ce21851", "Edit", "edit/roles", "-", "6506d801-f911-4f0c-919b-930ffd589a3d", 2, true),
+                    new Menu("6b7ceffd-9063-4d40-9451-2b5437252f81", "Add", "add/rolePermission", "-", "46fdf094-2c42-47e1-b9fe-1beab735ba82", 1, true),
+                    new Menu("6e4a67b1-73af-4441-b988-02850470db04", "Add", "/add/issuedCertificate", "-", "267275fe-d82d-4a7c-b2fa-c0d2496b7c1a", 1, true),
+                    new Menu("6e822b23-aafa-4279-be56-9b053269702f", "Add", "-", "-", "779a39c9-0f8e-44a3-bcc4-710a329f471b", 1, true),
+                    new Menu("725bbb68-b731-4da8-895d-ae089f1a8bed", "Add", "/applications", "apl", "89de5aeb-1602-482d-9a11-4eb4a6cd6261", 1, true),
+                    new Menu("73e8430c-28ce-41a0-a101-fd01b0e150ec", "Edit", "/nonAcademic/edit", "-", "76a1029d-24e1-4db4-aa25-ac42ea07d320", 2, true),
+                    new Menu("741fda32-d5d2-426d-b9c4-8f1ac16f78e5", "Add", "add/Exam", "-", "46cbfccf-48cf-4a87-8602-7dd21e08d4ae", 1, true),
+                    new Menu("76ffe926-989d-4b2f-98a6-df328f77b587", "Delete", "delete/rolePermission", "-", "46fdf094-2c42-47e1-b9fe-1beab735ba82", 3, true),
+                    new Menu("79bf1646-91ab-4f4e-a12d-5ca1747582b6", "Delete", "delete", "-", "57ced47e-859b-4f1a-9f1c-dc2dbe8b0c13", 3, true),
+                    new Menu("7a9cd2b4-edc3-4c2e-9989-66180c7bb155", "Assign", "assignRoleToUser/rolePermission", "-", "46fdf094-2c42-47e1-b9fe-1beab735ba82", 1, true),
+                    new Menu("7c3cb958-bdb6-483b-8a29-83deb7138064", "Add", "-", "-", "b202dfb4-fcbe-4dbd-9dde-5d6143bb2790", 1, true),
+                    new Menu("7daf643c-41c8-448b-b2bc-c898dfb030ad", "Add", "add/roles", "-", "6506d801-f911-4f0c-919b-930ffd589a3d", 1, true),
+                    new Menu("80ec4313-3550-4063-a758-12b4e84e3f8f", "Edit", "/Edit", "-", "d4933017-4bed-4afe-8a41-fda9436884c9", 3, true),
+                    new Menu("89b817e8-6ba4-44d7-b6b1-9c9e70ab64f1", "Delete", "delete/Subject", "-", "184f4afc-f603-4938-af2e-40fbd094f0ae", 3, true),
+                    new Menu("8c59a722-759d-43b4-a7b5-3103692627a6", "Add", "academic/add", "-", "65efab5a-7a17-4e90-8482-691a4f2f42c8", 1, true),
+                    new Menu("8dbd1683-f4e8-4d18-bbc3-c371ad293478", "Edit", "edit/templateCertificate", "-", "71b806e4-167a-41e2-ade2-ed4c03a46bad", 2, true),
+                    new Menu("9d208925-8430-45b7-a0ee-fce811daaf6c", "Add", "-", "-", "b202dfb4-fcbe-4dbd-9dde-5d6143bb2790", 1, true),
+                    new Menu("9daa1e01-0329-4ef1-8ba0-0f3c05e196fe", "Add", "/crm/documents", "ad", "fd92beab-e181-4bfc-ba02-cddfbdf49f2a", 1, true),
+                    new Menu("a07796db-c14f-4130-9013-838f3a057155", "Add", "-", "-", "b202dfb4-fcbe-4dbd-9dde-5d6143bb2790", 1, true),
+                    new Menu("a29c9b82-2865-4691-b85e-7c11c3fa87d0", "Edit", "edit/Class", "-", "b5ed60fc-d9fa-4914-bfba-e60dd299e379", 2, true),
+                    new Menu("a52a232b-d49a-4b39-8f22-d6a787be336f", "Add", "/curricularActivities/Activity/Add", "-", "68164df4-69a9-4b23-bca5-415da8b69f7d", 1, true),
+                    new Menu("a74ce89d-96c2-498e-836f-3221ad315896", "Add", "/nonAcademic/Add", "-", "76a1029d-24e1-4db4-aa25-ac42ea07d320", 1, true),
+                    new Menu("a8aabdfb-d619-4b98-b04b-6f3fe1723614", "Add", "-", "-", "f7d424b8-8660-418a-8461-860e6d4713c5", 1, true),
+                    new Menu("b185350c-3968-40dc-92ec-c02fbdd875e2", "Delete", "-", "-", "779a39c9-0f8e-44a3-bcc4-710a329f471b", 3, true),
+                    new Menu("b42ccb99-5b6b-49e8-ab89-273a26484bd3", "Delete", "/nonAcademic/delete", "-", "76a1029d-24e1-4db4-aa25-ac42ea07d320", 3, true),
+                    new Menu("b67ead5d-a5f0-4f74-b24c-28f0ff7c2e3a", "Add", "add/Parents", "-", "2acd1c9f-78cd-48e8-8c38-080b1015b779", 1, true),
+                    new Menu("b9a95a5f-3de8-4180-b844-7cd87d15d229", "Delete", "/delete", "-", "6c99affd-ddd5-4277-bca6-35f5928af724", 3, true),
+                    new Menu("bc7fe6d9-bee4-4df6-b760-b1e2c83c9788", "Delete", "/administrative/delete", "-", "2af56549-2988-4c7e-b587-c4c8c39a01a5", 3, true),
+                    new Menu("be403302-1af0-4947-b4c7-5dd2fa955804", "Delete", "delete/Student", "-", "c38443ca-acb3-4940-9162-7ed077097c5d", 3, true),
+                    new Menu("be420583-d0a1-4a64-8a46-0dcb6066531f", "Add", "/add/Class", "-", "b5ed60fc-d9fa-4914-bfba-e60dd299e379", 1, true),
+                    new Menu("c3fc1d64-e24b-4433-9f09-0d35f8ec5846", "Add", "-", "add", "11bd0f42-2816-461a-aa7e-50765cd0f135", 1, true),
+                    new Menu("c5383f8f-655d-47a9-a156-08b3a8bf2556", "Assign", "assignRole/User", "-", "52197ced-2cf3-45c9-a8e0-9c17942e44a3", 1, true),
+                    new Menu("c5444654-69be-48e5-91e2-e748a7ab7eb9", "Edit", "edit", "-", "cbd0380f-3b50-4a50-8d61-4ae7cb407071", 2, true),
+                    new Menu("cbbd23d9-32bb-46b6-86ea-332ca4ca3e70", "Edit", "edit/Exam", "-", "46cbfccf-48cf-4a87-8602-7dd21e08d4ae", 2, true),
+                    new Menu("d2f98d92-3796-4d01-a120-40a47101e04f", "Edit", "-", "-", "b202dfb4-fcbe-4dbd-9dde-5d6143bb2790", 2, true),
+                    new Menu("d4d18c66-eda4-4e49-ab0a-c8dcf48f1ee7", "Add", "/administrative/add", "-", "2af56549-2988-4c7e-b587-c4c8c39a01a5", 1, true),
+                    new Menu("d51f31bb-5781-4fb0-b8c2-5e8a49c5fda0", "Edit", "-", "-", "779a39c9-0f8e-44a3-bcc4-710a329f471b", 2, true),
+                    new Menu("d74e578f-b7b7-4709-95ba-52b8f9aaa5a4", "Delete", "delete/templateCertificate", "-", "71b806e4-167a-41e2-ade2-ed4c03a46bad", 3, true),
+                    new Menu("d84b24e6-07c8-4ee8-ab75-3a0a82326c5e", "Edit", "/edit", "-", "6c99affd-ddd5-4277-bca6-35f5928af724", 2, true),
+                    new Menu("e31d8065-c7df-4a7c-b928-1013aa9c3fbb", "Edit", "edit/rolePermission", "-", "46fdf094-2c42-47e1-b9fe-1beab735ba82", 2, true),
+                    new Menu("e70a91ff-b154-41d1-a23a-adf3e6e9ba37", "Add", "add/subject", "-", "184f4afc-f603-4938-af2e-40fbd094f0ae", 1, true),
+                    new Menu("e9b81880-b595-4aa0-9ead-4d8d51d9840d", "Add", "Add", "-", "5031b207-9f0f-43e4-9636-363aa403bad8", 1, true),
+                    new Menu("eb077667-efe7-414c-bac7-f1096ece708a", "Edit", "edit/subject", "-", "184f4afc-f603-4938-af2e-40fbd094f0ae", 2, true),
+                    new Menu("ec6b4636-0f7a-4ecb-89df-321faf93a633", "Add", "/add/addAppointment", "-", "99879560-4c4e-4122-bcec-5ae73cccc9a4", 1, true),
+                    new Menu("f75b502d-d524-484b-bd80-4c3fe08941c3", "Edit", "edit/rolePermission", "-", "46fdf094-2c42-47e1-b9fe-1beab735ba82", 1, true),
+                    new Menu("f77ce7d6-0b5f-4c61-8f3a-19a23d297703", "Add", "Add/Student", "-", "c38443ca-acb3-4940-9162-7ed077097c5d", 1, true),
+                    new Menu("faba6613-191e-4354-abc8-050f2716559a", "Add", "-", "-", "91a97377-a5ee-4d2c-a38c-a870b56e6a81", 1, true),
+                    new Menu("fbff9548-5f3c-40f8-aa2b-7bad81fdec1e", "Edit", "/edit/appointment", "-", "99879560-4c4e-4122-bcec-5ae73cccc9a4", 2, true),
+                    new Menu("fdd13c54-a395-4f79-8507-25540ff0f7f9", "Delete", "-", "-", "b202dfb4-fcbe-4dbd-9dde-5d6143bb2790", 3, true),
+                    new Menu("ffaea9ba-0a13-4d21-b4d2-dfe4606f5cb5", "Add", "add/templateCertificate", "-", "71b806e4-167a-41e2-ade2-ed4c03a46bad", 1, true)
+                        //new Menu("1cd83181-70ec-42fb-918a-29f1e5eceaa6", "Delete", "/academic/delete", "-", "65efab5a-7a17-4e90-8482-691a4f2f42c8", 3, true),
+                        //new Menu("3726f872-bf8b-4047-80c4-e99d4034e2be", "Edit", "/academic/edit", "-", "65efab5a-7a17-4e90-8482-691a4f2f42c8", 2, true),
+                        //new Menu("38b5e29d-a3c8-4383-9b3f-6a79f5389377", "Delete", "User/Delete", "-", "52197ced-2cf3-45c9-a8e0-9c17942e44a3", 1, true),
+                        //new Menu("395e8216-69ea-4185-9dde-11b44d0e619b", "Edit", "/administrative/edit", "-", "2af56549-2988-4c7e-b587-c4c8c39a01a5", 2, true),
+                        //new Menu("3da68c38-6bc8-4f15-8d07-3274e57230de", "Delete", "delete/rolePermission", "-", "46fdf094-2c42-47e1-b9fe-1beab735ba82", 1, true),
+                        //new Menu("428dfd7a-7541-4df2-bb40-8071c553428e", "Assign", "modulePermission/roles", "-", "6506d801-f911-4f0c-919b-930ffd589a3d", 1, true),
+                        //new Menu("529bab23-3cf4-499c-acc2-a3fdae8811b9", "Add", "Add/Company", "-", "8643b2a1-c892-4467-ac39-85b83fc5399f", 1, true),
+                        //new Menu("567a9575-b871-48c1-bd6e-b9e0a0b59091", "Delete", "delete/roles", "-", "6506d801-f911-4f0c-919b-930ffd589a3d", 1, true),
+                        //new Menu("56d1ac2f-6d1c-47f8-a4b1-279d6fa227d1", "Add", "Add/User", "-", "52197ced-2cf3-45c9-a8e0-9c17942e44a3", 1, true),
+                        //new Menu("5bff0e61-7b16-40b5-842a-d6259107f37c", "Edit", "edit/roles", "-", "6506d801-f911-4f0c-919b-930ffd589a3d", 1, true),
+                        //new Menu("5db70aee-af8f-4a74-90e1-28ae81a560ad", "Edit", "user/", "-", "52197ced-2cf3-45c9-a8e0-9c17942e44a3", 1, true),
+                        //new Menu("73e8430c-28ce-41a0-a101-fd01b0e150ec", "Edit", "/nonAcademic/edit", "-", "76a1029d-24e1-4db4-aa25-ac42ea07d320", 2, true),
+                        //new Menu("7a9cd2b4-edc3-4c2e-9989-66180c7bb155", "Assign", "assignRoleToUser/rolePermission", "-", "46fdf094-2c42-47e1-b9fe-1beab735ba82", 1, true),
+                        //new Menu("7daf643c-41c8-448b-b2bc-c898dfb030ad", "Add", "add/roles", "-", "6506d801-f911-4f0c-919b-930ffd589a3d", 1, true),
+                        //new Menu("8c59a722-759d-43b4-a7b5-3103692627a6", "Add", "academic/add", "-", "65efab5a-7a17-4e90-8482-691a4f2f42c8", 1, true),
+                        //new Menu("a74ce89d-96c2-498e-836f-3221ad315896", "Add", "/nonAcademic/Add", "-", "76a1029d-24e1-4db4-aa25-ac42ea07d320", 1, true),
+                        //new Menu("b42ccb99-5b6b-49e8-ab89-273a26484bd3", "Delete", "/nonAcademic/delete", "-", "76a1029d-24e1-4db4-aa25-ac42ea07d320", 3, true),
+                        //new Menu("bc7fe6d9-bee4-4df6-b760-b1e2c83c9788", "Delete", "/administrative/delete", "-", "2af56549-2988-4c7e-b587-c4c8c39a01a5", 3, true),
+                        //new Menu("c5383f8f-655d-47a9-a156-08b3a8bf2556", "Assign", "assignRole/User", "-", "52197ced-2cf3-45c9-a8e0-9c17942e44a3", 1, true),
+                        //new Menu("d4d18c66-eda4-4e49-ab0a-c8dcf48f1ee7", "Add", "/administrative/add", "-", "2af56549-2988-4c7e-b587-c4c8c39a01a5", 1, true),
+                        //new Menu("f75b502d-d524-484b-bd80-4c3fe08941c3", "Edit", "edit/rolePermission", "-", "46fdf094-2c42-47e1-b9fe-1beab735ba82", 1, true),
 
                 };
 

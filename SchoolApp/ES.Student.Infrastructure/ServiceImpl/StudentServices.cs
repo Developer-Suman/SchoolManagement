@@ -21,6 +21,7 @@ using ES.Student.Application.Student.Queries.StudentFromRegistration;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using OfficeOpenXml;
 using SendGrid.Helpers.Errors.Model;
 using StackExchange.Redis;
@@ -93,6 +94,7 @@ namespace ES.Student.Infrastructure.ServiceImpl
                         string.IsNullOrWhiteSpace(addStudentsCommand.classSectionId)
                             ? null
                             : addStudentsCommand.classSectionId;
+
 
                     var nullableClassId = string.IsNullOrWhiteSpace(addStudentsCommand.classId)
                         ? null
@@ -205,8 +207,8 @@ namespace ES.Student.Infrastructure.ServiceImpl
                          true,
                          nullablevdcId,
                          nullableMunicipalityId,
-                         nullableClassId,
-                         "",
+                         addStudentsCommand.classId,
+                         userId,
                          !string.IsNullOrEmpty(nullableClassId)
                             ? EnrollmentStatus.Enrolled
                             : EnrollmentStatus.Added
@@ -472,8 +474,9 @@ namespace ES.Student.Infrastructure.ServiceImpl
                         .GetConditionalAsync(i => i.SchoolId == schoolId || i.SchoolId == "");
 
                     var classLookup = schoolClasses
-                        .Where(c => c.ClassSymbol != null)
-                        .ToDictionary(c => c.ClassSymbol, c => c.Id);
+                        .Where(c => c.ClassSymbol != null && c.IsActive)
+                        .GroupBy(c => c.ClassSymbol)
+                        .ToDictionary(g => g.Key, g => g.First().Id);
 
                     var parents = await _unitOfWork.BaseRepository<Parent>()
                         .GetConditionalAsync(i => i.SchoolId == schoolId || i.SchoolId == "");
@@ -546,6 +549,7 @@ namespace ES.Student.Infrastructure.ServiceImpl
                         {
                             throw new Exception($"Invalid ClassSymbol '{currentClassText}' at row {row}");
                         }
+
 
                         // ============================
                         // Parent Matching

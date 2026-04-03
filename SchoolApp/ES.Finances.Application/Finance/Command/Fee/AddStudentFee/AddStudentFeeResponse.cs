@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static TN.Shared.Domain.Enum.HelperEnum;
 
 namespace ES.Finances.Application.Finance.Command.Fee.AddStudentFee
 {
@@ -15,6 +16,7 @@ namespace ES.Finances.Application.Finance.Command.Fee.AddStudentFee
             decimal discount=0,
             decimal totalAmount=0,
             decimal paidAmount = 0,
+              List<NameOfMonths?> nameOfMonths = default,
             bool isActive=true,
             string schoolid = "",
             string createdBy = "",

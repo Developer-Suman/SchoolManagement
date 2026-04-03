@@ -39,7 +39,7 @@ namespace TN.Shared.Domain.Entities.Finance
             ModifiedBy = modifiedBy;
             ModifiedAt = modifiedAt;
             FyId = fyId;
-            FeeStructures = new List<FeeStructure>();
+            FeeStructureDetails = new List<FeeStructureDetails>();
         }
 
      
@@ -53,9 +53,6 @@ namespace TN.Shared.Domain.Entities.Finance
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public string ModifiedBy { get; set; }
         public DateTime ModifiedAt { get; set; } = DateTime.Now;
-        public ICollection<FeeStructure> FeeStructures
-        {
-            get; set;
-        }
+        public ICollection<FeeStructureDetails> FeeStructureDetails { get; set; }
     }
 }
