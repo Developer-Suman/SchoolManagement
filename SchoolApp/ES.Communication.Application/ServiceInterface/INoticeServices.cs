@@ -1,6 +1,7 @@
 ﻿using ES.Communication.Application.Communication.Command.AddNotice;
 using ES.Communication.Application.Communication.Command.PublishNotice;
 using ES.Communication.Application.Communication.Command.UnPublishNotice;
+using ES.Communication.Application.Communication.Command.UpdateNotice;
 using ES.Communication.Application.Communication.Queries.FilterNotice;
 using ES.Communication.Application.Communication.Queries.NoticeById;
 using ES.Communication.Application.Communication.Queries.NoticeDisplay;
@@ -17,6 +18,8 @@ namespace ES.Communication.Application.ServiceInterface
 {
     public interface INoticeServices
     {
+        Task<Result<bool>> DeleteNotice(string noticeId);
+        Task<Result<UpdateNoticeResponse>> Update(string NoticeId, UpdateNoticeCommand updateNoticeCommand);
         Task<Result<AddNoticeResponse>> Add(AddNoticeCommand addNoticeCommand);
         Task<Result<List<NoticeDisplayResponse>>> GetNoticeDisplay();
         Task<Result<PublishNoticeResponse>> PublishNotice(string noticeId);

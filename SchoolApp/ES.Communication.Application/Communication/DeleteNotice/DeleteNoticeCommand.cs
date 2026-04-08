@@ -1,0 +1,13 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using MediatR;
+using TN.Shared.Domain.Abstractions;
+
+namespace ES.Communication.Application.Communication.DeleteNotice
+{
+    public record DeleteNoticeCommand(string id) : IRequest<Result<bool>>;
+ 
+}

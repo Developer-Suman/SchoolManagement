@@ -1,4 +1,5 @@
-﻿using ES.Certificate.Application.Certificates.Command.AddCertificateTemplate;
+﻿using System.Text.Json;
+using ES.Certificate.Application.Certificates.Command.AddCertificateTemplate;
 using ES.Certificate.Application.Certificates.Queries.FilterCertificateTemplate;
 using ES.Certificate.Application.Certificates.Queries.IssuedCertificateById;
 using ES.Communication.Application.Communication.Command.AddNotice;
@@ -7,9 +8,14 @@ using ES.Communication.Application.Communication.Command.PublishNotice;
 using ES.Communication.Application.Communication.Command.PublishNotice.RequestCommandMapper;
 using ES.Communication.Application.Communication.Command.UnPublishNotice;
 using ES.Communication.Application.Communication.Command.UnPublishNotice.RequestCommandMapper;
+using ES.Communication.Application.Communication.Command.UpdateNotice;
+using ES.Communication.Application.Communication.Command.UpdateNotice.RequestCommandMapper;
+using ES.Communication.Application.Communication.DeleteNotice;
 using ES.Communication.Application.Communication.Queries.FilterNotice;
 using ES.Communication.Application.Communication.Queries.NoticeById;
 using ES.Communication.Application.Communication.Queries.NoticeDisplay;
+using ES.Finances.Application.Finance.Command.Fee.DeleteFeeType;
+using ES.Finances.Application.Finance.Command.Fee.UpdateFeeType;
 using ES.Staff.Application.Staff.Command.AssignClassToAcademicTeam;
 using ES.Staff.Application.Staff.Command.UnAssignedClassToAcademicTeam;
 using MediatR;
@@ -18,7 +24,6 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using System.Text.Json;
 using TN.Authentication.Domain.Entities;
 using TN.Shared.Domain.ExtensionMethod.Pagination;
 using TN.Web.BaseControllers;
@@ -41,6 +46,50 @@ namespace TN.Web.Controllers.Communication.v1
         }
 
         #region Notice
+
+        #region DeleteNotice
+        [HttpDelete("DeleteNotice/{id}")]
+
+        public async Task<IActionResult> DeleteNotice([FromRoute] string id, CancellationToken cancellationToken)
+        {
+            var command = new DeleteNoticeCommand(id);
+            var deleteResult = await _mediator.Send(command);
+            #region Switch Statement
+            return deleteResult switch
+            {
+                { IsSuccess: true, Data: true } => NoContent(),
+                { IsSuccess: true, Message: not null } => new JsonResult(new { Message = deleteResult.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(deleteResult.Errors),
+                _ => BadRequest("Invalid Fields")
+            };
+
+            #endregion
+        }
+        #endregion
+
+        #region UpdateNotice
+        [HttpPatch("UpdateNotice/{Id}")]
+
+        public async Task<IActionResult> UpdateNotice([FromRoute] string Id, [FromBody] UpdateNoticeRequest request)
+        {
+            //Mapping command and request
+            var command = request.ToCommand(Id);
+            var update = await _mediator.Send(command);
+            #region Switch Statement
+            return update switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(update.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = update.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(update.Errors),
+                _ => BadRequest("Invalid Fields for Update")
+            };
+
+            #endregion
+        }
+        #endregion  
 
         #region DisplayNotice
         [HttpGet("DisplayNotice")]

@@ -2,6 +2,7 @@
 using ES.Communication.Application.Communication.Command.AddNotice;
 using ES.Communication.Application.Communication.Command.PublishNotice;
 using ES.Communication.Application.Communication.Command.UnPublishNotice;
+using ES.Communication.Application.Communication.Command.UpdateNotice;
 using ES.Communication.Application.Communication.Queries.FilterNotice;
 using ES.Communication.Application.Communication.Queries.NoticeById;
 using System;
@@ -27,6 +28,7 @@ namespace ES.Communication.Application.AutoMapper
 
             #region Attendance
             CreateMap<AddNoticeResponse, Notice>().ReverseMap();
+            CreateMap<UpdateNoticeResponse, Notice>().ReverseMap();
             CreateMap<NoticeByIdResponse, Notice>().ReverseMap();
             CreateMap<FilterNoticeResponse, Notice>().ReverseMap();
             CreateMap<PagedResult<Notice>, PagedResult<FilterNoticeResponse>>().ReverseMap();
