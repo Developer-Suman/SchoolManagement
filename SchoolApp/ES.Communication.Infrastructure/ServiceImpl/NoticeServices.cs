@@ -1,19 +1,27 @@
-﻿using AutoMapper;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Transactions;
+using AutoMapper;
+using ES.Certificate.Application.Certificates.Command.AddIssuedCertificate;
 using ES.Certificate.Application.ServiceInterface.IHelperMethod;
 using ES.Communication.Application.Communication.Command.AddNotice;
 using ES.Communication.Application.Communication.Command.PublishNotice;
 using ES.Communication.Application.Communication.Command.UnPublishNotice;
+using ES.Communication.Application.Communication.Command.UpdateNotice;
 using ES.Communication.Application.Communication.Queries.FilterNotice;
 using ES.Communication.Application.Communication.Queries.NoticeById;
 using ES.Communication.Application.Communication.Queries.NoticeDisplay;
 using ES.Communication.Application.ServiceInterface;
-using System.Transactions;
 using TN.Authentication.Domain.Entities;
 using TN.Shared.Application.ServiceInterface;
 using TN.Shared.Application.ServiceInterface.IHelperServices;
 using TN.Shared.Domain.Abstractions;
 using TN.Shared.Domain.Entities.Certificates;
 using TN.Shared.Domain.Entities.Communication;
+using TN.Shared.Domain.Entities.Finance;
 using TN.Shared.Domain.Entities.OrganizationSetUp;
 using TN.Shared.Domain.Entities.Students;
 using TN.Shared.Domain.ExtensionMethod.Pagination;
@@ -86,6 +94,30 @@ namespace ES.Communication.Infrastructure.ServiceImpl
                     throw new Exception("An error occurred while adding Notice ", ex);
 
                 }
+            }
+        }
+
+        public async Task<Result<bool>> DeleteNotice(string noticeId)
+        {
+            try
+            {
+                var notice = await _unitOfWork.BaseRepository<Notice>().GetByGuIdAsync(noticeId);
+
+                if (notice is null)
+                {
+                    return Result<bool>.Failure("NotFound", "Notice not found");
+                }
+
+                notice.IsActive = false;
+
+                _unitOfWork.BaseRepository<Notice>().Update(notice);
+
+                return Result<bool>.Success(true);
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while deleting notice", ex);
             }
         }
 
@@ -280,5 +312,49 @@ namespace ES.Communication.Infrastructure.ServiceImpl
                 throw new Exception("An error occurred while Unpublishing Notice ", ex);
             }
         }
+
+        public async Task<Result<UpdateNoticeResponse>> Update(string NoticeId, UpdateNoticeCommand updateNoticeCommand)
+        {
+            using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            {
+                try
+                {
+                    if (NoticeId == null)
+                    {
+                        return Result<UpdateNoticeResponse>.Failure("NotFound", "Please provide valid NoticeId");
+                    }
+
+                    var noticeToBeUpdated = await _unitOfWork.BaseRepository<Notice>().GetByGuIdAsync(NoticeId);
+                    if (noticeToBeUpdated is null)
+                    {
+                        return Result<UpdateNoticeResponse>.Failure("NotFound", "Notice not Found");
+                    }
+                    noticeToBeUpdated.ModifiedAt = DateTime.UtcNow;
+                    _mapper.Map(updateNoticeCommand, noticeToBeUpdated);
+                    await _unitOfWork.SaveChangesAsync();
+                    scope.Complete();
+
+                    var resultResponse = new UpdateNoticeResponse
+                        (
+                            noticeToBeUpdated.Title,
+                            noticeToBeUpdated.ContentHtml,
+                            noticeToBeUpdated.ShortDescription,
+                            noticeToBeUpdated.CreatedAt ?? default,
+                            noticeToBeUpdated.CreatedBy,
+                            noticeToBeUpdated.ModifiedAt ?? default,
+                            noticeToBeUpdated.ModifiedBy,
+                            noticeToBeUpdated.SchoolId,
+                            noticeToBeUpdated.IsActive
+                        );
+
+                    return Result<UpdateNoticeResponse>.Success(resultResponse);
+
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception("An error occurred while updating notice", ex);
+                }
+            }
+    }
     }
 }

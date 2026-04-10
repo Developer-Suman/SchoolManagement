@@ -1,4 +1,5 @@
 ﻿using ES.Communication.Application.Communication.Command.AddNotice;
+using ES.Communication.Application.Communication.Command.UpdateNotice;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -17,6 +18,7 @@ namespace ES.Communication.Application
 
             //Fluent Validator
             services.AddScoped<IValidator<AddNoticeCommand>, AddNoticeCommandValidator>();
+            services.AddScoped<IValidator<UpdateNoticeCommand>, UpdateNoticeCommandValidator>();
 
 
             return services;
