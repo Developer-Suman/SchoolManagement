@@ -24,14 +24,18 @@ using TN.Inventory.Application.Inventory.Command.SchoolAssets.UpdateSchoolItemHi
 using TN.Inventory.Application.Inventory.Command.SchoolAssets.UpdateSchoolItems;
 using TN.Inventory.Application.Inventory.Command.SchoolAssets.UpdateSchoolItems.RequestCommandMapper;
 using TN.Inventory.Application.Inventory.Command.UpdateConversionFactor;
+using TN.Inventory.Application.Inventory.Queries.SchoolAssets.ContributorById;
 using TN.Inventory.Application.Inventory.Queries.SchoolAssets.Contributors;
 using TN.Inventory.Application.Inventory.Queries.SchoolAssets.FilterContributors;
 using TN.Inventory.Application.Inventory.Queries.SchoolAssets.FilterSchoolItems;
 using TN.Inventory.Application.Inventory.Queries.SchoolAssets.FilterSchoolItemsHistory;
 using TN.Inventory.Application.Inventory.Queries.SchoolAssets.SchoolAssetsReport;
 using TN.Inventory.Application.Inventory.Queries.SchoolAssets.SchoolItems;
+using TN.Inventory.Application.Inventory.Queries.SchoolAssets.SchoolItemsById;
+using TN.Inventory.Application.Inventory.Queries.SchoolAssets.SchoolItemsHistoryById;
 using TN.Sales.Application.Sales.Command.AddSalesDetails;
 using TN.Sales.Application.Sales.Command.AddSalesItems;
+using TN.Sales.Application.Sales.Queries.SalesDetailsById;
 using TN.Shared.Domain.ExtensionMethod.Pagination;
 using TN.Web.BaseControllers;
 using TN.Web.Controllers.Sales.v1;
@@ -78,6 +82,31 @@ namespace TN.Web.Controllers.SchoolAssets.v1
         #endregion
 
         #region SchoolItemshistory
+
+
+        #region SchoolItemshistoryById
+        [HttpGet("SchoolItemshistory/{id}")]
+        public async Task<IActionResult> SchoolItemshistory([FromRoute] string id)
+        {
+            var query = new SchoolItemsHistoryByIdQuery(id);
+            var queryResult = await _mediator.Send(query);
+            #region Switch Statement
+            return queryResult switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(queryResult.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { queryResult.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(queryResult.Errors),
+                _ => BadRequest("Invalid page and pageSize Fields")
+            };
+            #endregion
+
+        }
+        #endregion
+
+
 
         #region DeleteSchoolItemHistory
         [HttpDelete("DeleteSchoolItemHistory/{id}")]
@@ -173,6 +202,28 @@ namespace TN.Web.Controllers.SchoolAssets.v1
         #endregion
 
         #region Contributors
+
+        #region ContributorsById
+        [HttpGet("Contributors/{id}")]
+        public async Task<IActionResult> ContributorsById([FromRoute] string id)
+        {
+            var query = new ContributorByIdQuery(id);
+            var queryResult = await _mediator.Send(query);
+            #region Switch Statement
+            return queryResult switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(queryResult.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { queryResult.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(queryResult.Errors),
+                _ => BadRequest("Invalid page and pageSize Fields")
+            };
+            #endregion
+
+        }
+        #endregion
 
         #region DeleteContributors
         [HttpDelete("DeleteContributors/{id}")]
@@ -294,6 +345,29 @@ namespace TN.Web.Controllers.SchoolAssets.v1
         #endregion
 
         #region SchoolItems
+
+        #region SchoolItemsById
+        [HttpGet("SchoolItems/{id}")]
+        public async Task<IActionResult> SchoolItems([FromRoute] string id)
+        {
+            var query = new SchoolItemsByIdQuery(id);
+            var queryResult = await _mediator.Send(query);
+            #region Switch Statement
+            return queryResult switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(queryResult.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { queryResult.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(queryResult.Errors),
+                _ => BadRequest("Invalid page and pageSize Fields")
+            };
+            #endregion
+
+        }
+        #endregion
+
 
         #region DeleteSchoolItems
         [HttpDelete("DeleteSchoolItems/{id}")]

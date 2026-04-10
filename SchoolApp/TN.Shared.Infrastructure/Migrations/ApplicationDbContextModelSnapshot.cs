@@ -2007,6 +2007,9 @@ namespace TN.Shared.Infrastructure.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("IconUrl")
                         .HasColumnType("nvarchar(max)");
 
@@ -4341,35 +4344,41 @@ namespace TN.Shared.Infrastructure.Migrations
                     b.ToTable("DocumentTypes");
                 });
 
-            modelBuilder.Entity("TN.Shared.Domain.Entities.Finance.AssignedFeeStatus", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int?>("NameOfMonths")
-                        .HasColumnType("int");
-
-                    b.Property<string>("StudentFeeId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("StudentFeeId");
-
-                    b.ToTable("AssignedFeeStatuses");
-                });
-
             modelBuilder.Entity("TN.Shared.Domain.Entities.Finance.FeeCategory", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("FyId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("ModifiedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ModifiedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SchoolId")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -4437,6 +4446,10 @@ namespace TN.Shared.Infrastructure.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<decimal>("Amount")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<decimal?>("DiscountAmount")
                         .HasPrecision(18, 4)
                         .HasColumnType("decimal(18,4)");
 
@@ -4540,6 +4553,9 @@ namespace TN.Shared.Infrastructure.Migrations
                     b.Property<int>("PaymentMethod")
                         .HasColumnType("int");
 
+                    b.Property<string>("ReceiptNumber")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Reference")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -4627,6 +4643,46 @@ namespace TN.Shared.Infrastructure.Migrations
                     b.HasIndex("StudentId");
 
                     b.ToTable("StudentFees");
+                });
+
+            modelBuilder.Entity("TN.Shared.Domain.Entities.Finance.StudentFeeDetail", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<decimal?>("DiscountAmount")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<int>("FeePaidType")
+                        .HasColumnType("int");
+
+                    b.Property<string>("FeeTypeId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("StudentFeeId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("Times")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("TotalAmount")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FeeTypeId");
+
+                    b.HasIndex("StudentFeeId");
+
+                    b.ToTable("StudentFeeDetails");
                 });
 
             modelBuilder.Entity("TN.Shared.Domain.Entities.Inventory.BatchNumber", b =>
@@ -7223,17 +7279,6 @@ namespace TN.Shared.Infrastructure.Migrations
                     b.Navigation("Requirement");
                 });
 
-            modelBuilder.Entity("TN.Shared.Domain.Entities.Finance.AssignedFeeStatus", b =>
-                {
-                    b.HasOne("TN.Shared.Domain.Entities.Finance.StudentFee", "StudentFee")
-                        .WithMany("AssignedFeeStatus")
-                        .HasForeignKey("StudentFeeId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("StudentFee");
-                });
-
             modelBuilder.Entity("TN.Shared.Domain.Entities.Finance.FeeStructure", b =>
                 {
                     b.HasOne("TN.Shared.Domain.Entities.Academics.Class", "Class")
@@ -7314,6 +7359,25 @@ namespace TN.Shared.Infrastructure.Migrations
                     b.Navigation("FeeStructure");
 
                     b.Navigation("Student");
+                });
+
+            modelBuilder.Entity("TN.Shared.Domain.Entities.Finance.StudentFeeDetail", b =>
+                {
+                    b.HasOne("TN.Shared.Domain.Entities.Finance.FeeType", "FeeType")
+                        .WithMany("StudentFeeDetails")
+                        .HasForeignKey("FeeTypeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("TN.Shared.Domain.Entities.Finance.StudentFee", "StudentFee")
+                        .WithMany("StudentFeeDetails")
+                        .HasForeignKey("StudentFeeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("FeeType");
+
+                    b.Navigation("StudentFee");
                 });
 
             modelBuilder.Entity("TN.Shared.Domain.Entities.Inventory.BatchNumber", b =>
@@ -8163,13 +8227,15 @@ namespace TN.Shared.Infrastructure.Migrations
             modelBuilder.Entity("TN.Shared.Domain.Entities.Finance.FeeType", b =>
                 {
                     b.Navigation("FeeStructureDetails");
+
+                    b.Navigation("StudentFeeDetails");
                 });
 
             modelBuilder.Entity("TN.Shared.Domain.Entities.Finance.StudentFee", b =>
                 {
-                    b.Navigation("AssignedFeeStatus");
-
                     b.Navigation("Payments");
+
+                    b.Navigation("StudentFeeDetails");
                 });
 
             modelBuilder.Entity("TN.Shared.Domain.Entities.Inventory.StockTransferDetails", b =>

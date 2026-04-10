@@ -15,6 +15,7 @@ namespace ES.Finances.Infrastructure
             services.AddScoped<IFeeStructureServices, FeeStructureServices>();
             services.AddScoped<IStudentFeeServices, StudentFeeServices>();
             services.AddScoped<IPaymentRecordsServices, PaymentsRecordsServices>();
+            services.AddScoped<IFeeCategoryServices, FeeCategoryServices>();
 
             services.Scan(scan => scan.FromAssembliesOf(typeof(FeeTypeServices))
             .AddClasses(c => c.Where(t => t.Name.EndsWith("Services")))

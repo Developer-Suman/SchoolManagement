@@ -21,6 +21,7 @@ using TN.Authentication.Domain.Entities;
 using TN.Shared.Application.ServiceInterface;
 using TN.Shared.Domain.Abstractions;
 using TN.Shared.Domain.Entities.Academics;
+using TN.Shared.Domain.Entities.Communication;
 using TN.Shared.Domain.Entities.OrganizationSetUp;
 using TN.Shared.Domain.ExtensionMethod.Pagination;
 using TN.Shared.Domain.IRepository;
@@ -184,28 +185,35 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                         query => query.Select(c => c.Id)
                     );
 
-                var filterExam = isSuperAdmin
+                var filter = isSuperAdmin
                     ? subject
                     : subject.Where(x => (x.SchoolId == _tokenService.SchoolId().FirstOrDefault() || x.SchoolId == "")
                     && (x.FyId == fyId || x.FyId == null)
                     && (x.AcademicYearId == academicYearId || x.AcademicYearId == null)
                     );
 
-                var (startUtc, endUtc) = await _dateConverter.GetDateRangeUtc(filterSubjectDTOs.startDate, filterSubjectDTOs.endDate);
+                IQueryable<Subject> query = filter.AsQueryable();
 
-                var filteredResult = filterExam
-                 .Where(x =>
-                       (string.IsNullOrEmpty(filterSubjectDTOs.name) || x.Name == filterSubjectDTOs.name) &&
-                     x.CreatedAt >= startUtc &&
-                         x.CreatedAt <= endUtc &&
-                         x.IsActive
-                 )
-                 .OrderByDescending(x => x.CreatedAt) // newest first
-                 .ToList();
+                if (!string.IsNullOrEmpty(filterSubjectDTOs.name))
+                {
+                    query = query.Where(x => x.Name == filterSubjectDTOs.name);
+                }
+
+                if (filterSubjectDTOs.startDate != null && filterSubjectDTOs.endDate != null)
+                {
+                    var (startUtc, endUtc) = await _dateConverter.GetDateRangeUtc(
+                        filterSubjectDTOs.startDate,
+                        filterSubjectDTOs.endDate
+                    );
+
+                    query = query.Where(x => x.CreatedAt >= startUtc && x.CreatedAt <= endUtc);
+                }
+
+                query = query.Where(x => x.IsActive)
+               .OrderByDescending(x => x.CreatedAt);
 
 
-                var responseList = filteredResult
-                .OrderByDescending(x => x.CreatedAt)
+                var responseList = query
                 .Select(i => new FilterSubjectResponse(
                     i.Id,
                     i.Name,

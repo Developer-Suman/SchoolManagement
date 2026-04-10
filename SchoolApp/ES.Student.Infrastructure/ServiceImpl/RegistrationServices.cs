@@ -60,6 +60,7 @@ namespace ES.Student.Infrastructure.ServiceImpl
         {
             try
             {
+             
                 var fyId = _fiscalContext.CurrentFiscalYearId;
                 var userId = _tokenService.GetUserId();
 

@@ -2,6 +2,7 @@
 using ES.Certificate.Application.Certificates.Queries.CertificateTemplate;
 using ES.Certificate.Application.ServiceInterface.IHelperMethod;
 using ES.Student.Application.CocurricularActivities.Queries.FilterActivity;
+using ES.Student.Application.Registration.Command.RegisterStudents;
 using ES.Student.Application.ServiceInterface;
 using ES.Student.Application.Student.Command.AddParent;
 using ES.Student.Application.Student.Command.AddStudents;
@@ -89,6 +90,7 @@ namespace ES.Student.Infrastructure.ServiceImpl
                     var userId = _tokenService.GetUserId();
                     var schoolId = _tokenService.SchoolId().FirstOrDefault();
                     var FyId = _fiscalContext.CurrentFiscalYearId;
+                    var academicYearId = _fiscalContext.CurrentAcademicYearId;
 
                     var nullableClassSectionId =
                         string.IsNullOrWhiteSpace(addStudentsCommand.classSectionId)
@@ -277,6 +279,27 @@ namespace ES.Student.Infrastructure.ServiceImpl
 
 
 
+                    #region Register Students
+
+                    var enrollment = new Registrations
+                      (
+                          Guid.NewGuid().ToString(),
+                          newId,
+                          addStudentsCommand.classId,
+                          academicYearId,
+                          EnrollmentStatus.Active,
+                          schoolId,
+                          true,
+                          userId,
+                          DateTime.UtcNow,
+                          "",
+                          default
+                          );
+
+                    await _unitOfWork.BaseRepository<Registrations>().AddAsync(enrollment);
+
+
+                    #endregion
 
 
                     await _unitOfWork.SaveChangesAsync();
@@ -924,7 +947,6 @@ namespace ES.Student.Infrastructure.ServiceImpl
 
 
                 var responseList = query
-                .OrderByDescending(x => x.CreatedAt)
                 .Select(i => new FilterParentsResponse(
                     i.Id,
                     i.FullName,

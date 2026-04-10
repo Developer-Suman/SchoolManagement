@@ -12,12 +12,16 @@ using TN.Inventory.Application.Inventory.Command.SchoolAssets.UpdateSchoolItemHi
 using TN.Inventory.Application.Inventory.Command.SchoolAssets.UpdateSchoolItems;
 using TN.Inventory.Application.Inventory.Command.UpdateConversionFactor;
 using TN.Inventory.Application.Inventory.Queries.FilterItemsByDate;
+using TN.Inventory.Application.Inventory.Queries.SchoolAssets.ContributorById;
 using TN.Inventory.Application.Inventory.Queries.SchoolAssets.Contributors;
 using TN.Inventory.Application.Inventory.Queries.SchoolAssets.FilterContributors;
 using TN.Inventory.Application.Inventory.Queries.SchoolAssets.FilterSchoolItems;
 using TN.Inventory.Application.Inventory.Queries.SchoolAssets.FilterSchoolItemsHistory;
 using TN.Inventory.Application.Inventory.Queries.SchoolAssets.SchoolAssetsReport;
 using TN.Inventory.Application.Inventory.Queries.SchoolAssets.SchoolItems;
+using TN.Inventory.Application.Inventory.Queries.SchoolAssets.SchoolItemsById;
+using TN.Inventory.Application.Inventory.Queries.SchoolAssets.SchoolItemsHistoryById;
+using TN.Inventory.Application.Inventory.Queries.StockCentersById;
 using TN.Shared.Domain.Abstractions;
 using TN.Shared.Domain.ExtensionMethod.Pagination;
 
@@ -40,6 +44,12 @@ namespace TN.Inventory.Application.ServiceInterface
         Task<Result<bool>> DeleteSchoolItems(string id, CancellationToken cancellationToken = default);
         Task<Result<bool>> DeleteSchoolItemHistory(string id, CancellationToken cancellationToken = default);
         Task<Result<bool>> DeleteContributors(string id, CancellationToken cancellationToken = default);
+
+        Task<Result<SchoolItemsHistoryByIdResponse>> GetSchoolItemsHistoryById(string id, CancellationToken cancellationToken = default);
+
+        Task<Result<SchoolItemsByIdResponse>> GetSchoolItemById(string id, CancellationToken cancellationToken = default);
+
+        Task<Result<ContributorByIdResponse>> GetContributorById(string id, CancellationToken cancellationToken = default);
 
     }
 }

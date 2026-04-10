@@ -18,7 +18,7 @@ namespace TN.Account.Domain.Entities
         public JournalEntryDetails(
             string id,
             string journalEntryId,
-            string ledgerId,
+            string? ledgerId,
             decimal debitAmount,
             decimal creditAmount,
             DateTime transactionDate,

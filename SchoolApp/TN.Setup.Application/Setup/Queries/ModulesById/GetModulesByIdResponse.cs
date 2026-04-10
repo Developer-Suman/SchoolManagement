@@ -6,6 +6,7 @@ namespace TN.Setup.Application.Setup.Queries.ModulesById
     (
             string Id="",
             string Name = "",
+                string? Description = "",
             string? Rank="",
             string? IconUrl = "",
             string? TargetUrl = "",

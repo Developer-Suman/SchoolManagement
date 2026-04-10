@@ -44,17 +44,17 @@ namespace ES.Finances.Infrastructure.ServiceImpl
         private readonly FiscalContext _fiscalContext;
         private readonly ILedgerService _ledgerService;
 
-        public FeeTypeServices(ILedgerService ledgerService, IDateConvertHelper dateConverter, IGetUserScopedData getUserScopedData, FiscalContext fiscalContext, ITokenService tokenService, IUnitOfWork unitOfWork, IMemoryCacheRepository memoryCacheRepository, IMapper mapper)
-        {
-            _dateConverter = dateConverter;
-            _getUserScopedData = getUserScopedData;
-            _tokenService = tokenService;
-            _mapper = mapper;
-            _unitOfWork = unitOfWork;
-            _memoryCacheRepository = memoryCacheRepository;
-            _ledgerService = ledgerService;
-            _fiscalContext = fiscalContext;
-        }
+            public FeeTypeServices(ILedgerService ledgerService, IDateConvertHelper dateConverter, IGetUserScopedData getUserScopedData, FiscalContext fiscalContext, ITokenService tokenService, IUnitOfWork unitOfWork, IMemoryCacheRepository memoryCacheRepository, IMapper mapper)
+            {
+                _dateConverter = dateConverter;
+                _getUserScopedData = getUserScopedData;
+                _tokenService = tokenService;
+                _mapper = mapper;
+                _unitOfWork = unitOfWork;
+                _memoryCacheRepository = memoryCacheRepository;
+                _ledgerService = ledgerService;
+                _fiscalContext = fiscalContext;
+            }
         public async Task<Result<AddFeeTypeResponse>> Add(AddFeeTypeCommand addFeeTypeCommand)
         {
             using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))

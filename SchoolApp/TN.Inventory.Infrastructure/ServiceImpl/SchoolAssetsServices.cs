@@ -16,19 +16,25 @@ using TN.Inventory.Application.Inventory.Command.SchoolAssets.UpdateContributors
 using TN.Inventory.Application.Inventory.Command.SchoolAssets.UpdateSchoolItemHistory;
 using TN.Inventory.Application.Inventory.Command.SchoolAssets.UpdateSchoolItems;
 using TN.Inventory.Application.Inventory.Command.UpdateConversionFactor;
+using TN.Inventory.Application.Inventory.Queries.SchoolAssets.ContributorById;
 using TN.Inventory.Application.Inventory.Queries.SchoolAssets.Contributors;
 using TN.Inventory.Application.Inventory.Queries.SchoolAssets.FilterContributors;
 using TN.Inventory.Application.Inventory.Queries.SchoolAssets.FilterSchoolItems;
 using TN.Inventory.Application.Inventory.Queries.SchoolAssets.FilterSchoolItemsHistory;
 using TN.Inventory.Application.Inventory.Queries.SchoolAssets.SchoolAssetsReport;
 using TN.Inventory.Application.Inventory.Queries.SchoolAssets.SchoolItems;
+using TN.Inventory.Application.Inventory.Queries.SchoolAssets.SchoolItemsById;
+using TN.Inventory.Application.Inventory.Queries.SchoolAssets.SchoolItemsHistoryById;
+using TN.Inventory.Application.Inventory.Queries.StockCentersById;
 using TN.Inventory.Application.ServiceInterface;
 using TN.Inventory.Domain.Entities;
 using TN.Purchase.Domain.Entities;
 using TN.Shared.Application.ServiceInterface;
 using TN.Shared.Domain.Abstractions;
+using TN.Shared.Domain.Entities.Academics;
 using TN.Shared.Domain.Entities.OrganizationSetUp;
 using TN.Shared.Domain.Entities.SchoolItems;
+using TN.Shared.Domain.Entities.StockCenterEntities;
 using TN.Shared.Domain.Entities.Students;
 using TN.Shared.Domain.ExtensionMethod.Pagination;
 using TN.Shared.Domain.IRepository;
@@ -46,9 +52,11 @@ namespace TN.Inventory.Infrastructure.ServiceImpl
         private readonly IGetUserScopedData _getUserScopedData;
         private readonly IMediator _mediator;
         private readonly FiscalContext _fiscalContext;
+        private readonly IDateConvertHelper _dateConverter;
 
-        public SchoolAssetsServices(IUnitOfWork unitOfWork, FiscalContext fiscalContext, IGetUserScopedData getUserScopedData, IMediator mediator, IMapper mapper, IDateConvertHelper dateConvertHelper, ISerialNumberGenerator serialNumberGenerator, ITokenService tokenService)
+        public SchoolAssetsServices(IDateConvertHelper dateConverter, IUnitOfWork unitOfWork, FiscalContext fiscalContext, IGetUserScopedData getUserScopedData, IMediator mediator, IMapper mapper, IDateConvertHelper dateConvertHelper, ISerialNumberGenerator serialNumberGenerator, ITokenService tokenService)
         {
+            _dateConverter = dateConverter;
             _tokenService = tokenService;
             _getUserScopedData = getUserScopedData;
             _mediator = mediator;
@@ -274,27 +282,34 @@ namespace TN.Inventory.Infrastructure.ServiceImpl
                         query => query.Select(c => c.Id)
                     );
 
-                var contributorsFilter = isSuperAdmin
+                var filter = isSuperAdmin
                     ? contributors
                     : contributors.Where(x => x.SchoolId == _tokenService.SchoolId().FirstOrDefault() || x.SchoolId == "");
 
-                var (startUtc, endUtc) = await _dateConvertHelper.GetDateRangeUtc(filterContributorsDTOs.startDate, filterContributorsDTOs.endDate);
+                IQueryable<Contributor> query = filter.AsQueryable();
 
-                var filteredResult = contributorsFilter
-                 .Where(x =>
-                       (string.IsNullOrEmpty(filterContributorsDTOs.name) || x.Name == filterContributorsDTOs.name) &&
-                     x.CreatedAt >= startUtc &&
-                         x.CreatedAt <= endUtc &&
-                         x.IsActive
-                 )
-                 .OrderByDescending(x => x.CreatedAt) // newest first
-                 .ToList();
+                if (!string.IsNullOrEmpty(filterContributorsDTOs.name))
+                {
+                    query = query.Where(x => x.Name == filterContributorsDTOs.name);
+                }
+
+                if (filterContributorsDTOs.startDate != null && filterContributorsDTOs.endDate != null)
+                {
+                    var (startUtc, endUtc) = await _dateConverter.GetDateRangeUtc(
+                        filterContributorsDTOs.startDate,
+                        filterContributorsDTOs.endDate
+                    );
+
+                    query = query.Where(x => x.CreatedAt >= startUtc && x.CreatedAt <= endUtc);
+                }
+
+                query = query.Where(x => x.IsActive)
+               .OrderByDescending(x => x.CreatedAt);
 
 
 
 
-                var responseList = filteredResult
-                .OrderByDescending(x => x.CreatedAt)
+                var responseList = query
                 .Select(i => new FilterContributorsResponse(
                     i.Id,
                     i.Name,
@@ -370,27 +385,34 @@ namespace TN.Inventory.Infrastructure.ServiceImpl
                         query => query.Select(c => c.Id)
                     );
 
-                var schoolItemsFilter = isSuperAdmin
+                var filter = isSuperAdmin
                     ? schoolItems
                     : schoolItems.Where(x => x.SchoolId == _tokenService.SchoolId().FirstOrDefault() || x.SchoolId == "");
 
-                var (startUtc, endUtc) = await _dateConvertHelper.GetDateRangeUtc(filterSchoolItemsDTOs.startDate, filterSchoolItemsDTOs.endDate);
+                IQueryable<SchoolItem> query = filter.AsQueryable();
 
-                var filteredResult = schoolItemsFilter
-                 .Where(x =>
-                       (string.IsNullOrEmpty(filterSchoolItemsDTOs.name) || x.Name == filterSchoolItemsDTOs.name) &&
-                     x.CreatedAt >= startUtc &&
-                         x.CreatedAt <= endUtc &&
-                         x.IsActive
-                 )
-                 .OrderByDescending(x => x.CreatedAt) // newest first
-                 .ToList();
+                if (!string.IsNullOrEmpty(filterSchoolItemsDTOs.name))
+                {
+                    query = query.Where(x => x.Name == filterSchoolItemsDTOs.name);
+                }
+
+                if (filterSchoolItemsDTOs.startDate != null && filterSchoolItemsDTOs.endDate != null)
+                {
+                    var (startUtc, endUtc) = await _dateConverter.GetDateRangeUtc(
+                        filterSchoolItemsDTOs.startDate,
+                        filterSchoolItemsDTOs.endDate
+                    );
+
+                    query = query.Where(x => x.CreatedAt >= startUtc && x.CreatedAt <= endUtc);
+                }
+
+                query = query.Where(x => x.IsActive)
+               .OrderByDescending(x => x.CreatedAt);
 
 
 
 
-                var responseList = filteredResult
-                .OrderByDescending(x => x.CreatedAt)
+                var responseList = query
                 .Select(i => new FilterSchoolItemsQueryResponse(
                     i.Id,
                     i.Name,
@@ -469,27 +491,34 @@ namespace TN.Inventory.Infrastructure.ServiceImpl
                         query => query.Select(c => c.Id)
                     );
 
-                var schoolItemsHistory = isSuperAdmin
+                var filter = isSuperAdmin
                     ? schoolItemHistory
                     : schoolItemHistory.Where(x => x.SchoolId == _tokenService.SchoolId().FirstOrDefault() || x.SchoolId == "");
 
-                var (startUtc, endUtc) = await _dateConvertHelper.GetDateRangeUtc(filterSchoolItemsHistoryDTOs.startDate, filterSchoolItemsHistoryDTOs.endDate);
+                IQueryable<SchoolItemsHistory> query = filter.AsQueryable();
 
-                var filteredResult = schoolItemsHistory
-                 .Where(x =>
-                       (string.IsNullOrEmpty(filterSchoolItemsHistoryDTOs.schoolItemId) || x.SchoolItemId == filterSchoolItemsHistoryDTOs.schoolItemId) &&
-                     x.CreatedAt >= startUtc &&
-                         x.CreatedAt <= endUtc &&
-                         x.IsActive
-                 )
-                 .OrderByDescending(x => x.CreatedAt) // newest first
-                 .ToList();
+                if (!string.IsNullOrEmpty(filterSchoolItemsHistoryDTOs.schoolItemId))
+                {
+                    query = query.Where(x => x.SchoolItemId == filterSchoolItemsHistoryDTOs.schoolItemId);
+                }
+
+                if (filterSchoolItemsHistoryDTOs.startDate != null && filterSchoolItemsHistoryDTOs.endDate != null)
+                {
+                    var (startUtc, endUtc) = await _dateConverter.GetDateRangeUtc(
+                        filterSchoolItemsHistoryDTOs.startDate,
+                        filterSchoolItemsHistoryDTOs.endDate
+                    );
+
+                    query = query.Where(x => x.CreatedAt >= startUtc && x.CreatedAt <= endUtc);
+                }
+
+                query = query.Where(x => x.IsActive)
+               .OrderByDescending(x => x.CreatedAt);
 
 
 
 
-                var responseList = filteredResult
-                .OrderByDescending(x => x.CreatedAt)
+                var responseList = query
                 .Select(i => new FilterSchoolItemsHistoryResponse(
                     i.Id,
                     i.SchoolItemId,
@@ -620,6 +649,60 @@ namespace TN.Inventory.Infrastructure.ServiceImpl
             catch (Exception ex)
             {
                 throw new Exception("An error occurred while fetching all SchoolItems", ex);
+            }
+        }
+
+        public async Task<Result<ContributorByIdResponse>> GetContributorById(string id, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+
+                var result = await _unitOfWork.BaseRepository<Contributor>().GetByGuIdAsync(id);
+
+                var resultDisplay = _mapper.Map<ContributorByIdResponse>(result);
+
+                return Result<ContributorByIdResponse>.Success(resultDisplay);
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while fetching stock center by using Id", ex);
+            }
+        }
+
+        public async Task<Result<SchoolItemsByIdResponse>> GetSchoolItemById(string id, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+
+                var result = await _unitOfWork.BaseRepository<SchoolItem>().GetByGuIdAsync(id);
+
+                var resultDisplay = _mapper.Map<SchoolItemsByIdResponse>(result);
+
+                return Result<SchoolItemsByIdResponse>.Success(resultDisplay);
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while fetching", ex);
+            }
+        }
+
+        public async Task<Result<SchoolItemsHistoryByIdResponse>> GetSchoolItemsHistoryById(string id, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+
+                var result = await _unitOfWork.BaseRepository<SchoolItemsHistory>().GetByGuIdAsync(id);
+
+                var resultDisplay = _mapper.Map<SchoolItemsHistoryByIdResponse>(result);
+
+                return Result<SchoolItemsHistoryByIdResponse>.Success(resultDisplay);
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while fetching", ex);
             }
         }
 

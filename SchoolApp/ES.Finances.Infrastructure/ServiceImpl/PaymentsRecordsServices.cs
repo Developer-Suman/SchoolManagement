@@ -3,6 +3,7 @@ using ES.Finances.Application.Finance.Command.Fee.AddFeeType;
 using ES.Finances.Application.Finance.Command.Fee.AddStudentFee;
 using ES.Finances.Application.Finance.Command.PaymentRecords.AddpaymentsRecords;
 using ES.Finances.Application.Finance.Queries.Fee.FilterFeetype;
+using ES.Finances.Application.Finance.Queries.Fee.StudentFeeSummary;
 using ES.Finances.Application.Finance.Queries.PaymentsRecords.FilterpaymentsRecords;
 using ES.Finances.Application.Finance.Queries.PaymentsRecords.PaymentsRecordsById;
 using ES.Finances.Application.ServiceInterface;
@@ -38,9 +39,11 @@ namespace ES.Finances.Infrastructure.ServiceImpl
         private readonly IGetUserScopedData _getUserScopedData;
         private readonly IDateConvertHelper _dateConverter;
         private readonly FiscalContext _fiscalContext;
+        private readonly IBillNumberGenerator _billNumberGenerator;
 
-        public PaymentsRecordsServices(IDateConvertHelper dateConverter, IGetUserScopedData getUserScopedData, FiscalContext fiscalContext, ITokenService tokenService, IUnitOfWork unitOfWork, IMemoryCacheRepository memoryCacheRepository, IMapper mapper)
+        public PaymentsRecordsServices(IBillNumberGenerator billNumberGenerator,IDateConvertHelper dateConverter, IGetUserScopedData getUserScopedData, FiscalContext fiscalContext, ITokenService tokenService, IUnitOfWork unitOfWork, IMemoryCacheRepository memoryCacheRepository, IMapper mapper)
         {
+            _billNumberGenerator = billNumberGenerator;
             _dateConverter = dateConverter;
             _getUserScopedData = getUserScopedData;
             _tokenService = tokenService;
@@ -55,11 +58,15 @@ namespace ES.Finances.Infrastructure.ServiceImpl
             {
                 try
                 {
-
+                
                     string newId = Guid.NewGuid().ToString();
                     var FyId = _fiscalContext.CurrentFiscalYearId;
                     var schoolId = _tokenService.SchoolId().FirstOrDefault() ?? "";
                     var userId = _tokenService.GetUserId();
+                    var billReceipt = await _billNumberGenerator.GenerateSchoolReceipt(schoolId);
+
+
+
 
                     var studentFee = await _unitOfWork.BaseRepository<StudentFee>()
                         .GetAsQueryable()
@@ -118,6 +125,7 @@ namespace ES.Finances.Infrastructure.ServiceImpl
                         addPaymentsRecordsCommand.paymentMethod,
                         studentFee.StudentId,
                         addPaymentsRecordsCommand.reference,
+                        billReceipt,
                         true,
                         schoolId ?? "",
                         userId,
@@ -250,6 +258,19 @@ namespace ES.Finances.Infrastructure.ServiceImpl
                  .ToList();
 
 
+                var totalFees = await _unitOfWork.BaseRepository<StudentFee>()
+                    .GetAsQueryable()
+                    .Where(x => x.StudentId == filterPaymentsRecordsDTOs.studentId && x.IsActive && x.SchoolId == schoolId)
+                    .SumAsync(x => x.TotalAmount - x.DiscountAmount);
+
+                var totalPaid = await _unitOfWork.BaseRepository<PaymentsRecords>()
+                    .GetAsQueryable()
+                    .Where(x => x.StudentId == filterPaymentsRecordsDTOs.studentId && x.IsActive && x.Schoolid == schoolId)
+                    .SumAsync(x => x.AmountPaid);
+
+                decimal dueAmount = totalFees - totalPaid;
+
+
 
 
                 var responseList = filteredResult
@@ -260,7 +281,9 @@ namespace ES.Finances.Infrastructure.ServiceImpl
                     i.StudentfeeId,
                     i.AmountPaid,
                     i.PaymentDate,
+                    dueAmount,
                     i.PaymentMethod,
+                    i.ReceiptNumber,
                     i.Reference,
                     i.IsActive,
                     i.Schoolid,

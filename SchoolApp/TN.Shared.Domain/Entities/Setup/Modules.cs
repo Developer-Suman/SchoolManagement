@@ -17,6 +17,7 @@ namespace TN.Setup.Domain.Entities
         public Modules(
             string id,
             string name,
+            string? description,
             string? rank,
             string? iconUrl,
             string? targetUrl,
@@ -24,7 +25,9 @@ namespace TN.Setup.Domain.Entities
             ) : base(id)
         {
             Name = name;
+            Description = description;
             Rank = rank;
+
             IconUrl = iconUrl;
             TargetUrl = targetUrl;
             IsActive = isActive;
@@ -32,6 +35,7 @@ namespace TN.Setup.Domain.Entities
             RoleModules = new List<RoleModule>();
 
         }
+        public string? Description { get; set; }
         public string Name { get; set; }
         public string? Rank { get; set; }
         public string? IconUrl { get; set; }

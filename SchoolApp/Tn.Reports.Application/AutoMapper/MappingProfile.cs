@@ -15,9 +15,12 @@ using TN.Reports.Application.PurchaseReport;
 using TN.Reports.Application.SalesReport;
 using TN.Reports.Application.SalesReturn_Report;
 using TN.Reports.Application.SchoolReports.CoCurricularActivityReport;
+using TN.Reports.Application.SchoolReports.PaymentDetailsReport;
 using TN.Reports.Application.TradingAccount;
 using TN.Sales.Domain.Entities;
 using TN.Shared.Domain.Entities.CocurricularActivities;
+using TN.Shared.Domain.Entities.Finance;
+using TN.Shared.Domain.Entities.Payments;
 using TN.Shared.Domain.ExtensionMethod.Pagination;
 
 namespace TN.Reports.Application.AutoMapper
@@ -26,6 +29,11 @@ namespace TN.Reports.Application.AutoMapper
     {
         public MappingProfile()
         {
+
+            #region PaymentDetailsReport
+            CreateMap<PaymentDetailsReportResponse, PaymentsRecords>().ReverseMap();
+            CreateMap<PagedResult<PaymentsRecords>, PagedResult<PaymentDetailsReportResponse>>().ReverseMap();
+            #endregion
 
             #region CoCurricularActivitiesReport
             CreateMap<CoCurricularActivitiesReportResponse, Activity>().ReverseMap();

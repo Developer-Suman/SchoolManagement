@@ -40,6 +40,7 @@ namespace TN.Shared.Domain.Entities.Finance
             ModifiedAt = modifiedAt;
             FyId = fyId;
             FeeStructureDetails = new List<FeeStructureDetails>();
+            StudentFeeDetails = new List<StudentFeeDetail>();
         }
 
      
@@ -54,5 +55,6 @@ namespace TN.Shared.Domain.Entities.Finance
         public string ModifiedBy { get; set; }
         public DateTime ModifiedAt { get; set; } = DateTime.Now;
         public ICollection<FeeStructureDetails> FeeStructureDetails { get; set; }
+        public ICollection<StudentFeeDetail> StudentFeeDetails { get; set; }
     }
 }

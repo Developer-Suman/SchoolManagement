@@ -9,9 +9,8 @@ namespace ES.Finances.Application.Finance.Queries.Fee.FeeStructureByClass
     public record FeeStructureByClassResponse
     (
             string id,
-            decimal amount,
             string classId,
             string fyId,
-            string feeTypeId
+            string feeCategoryName
         );
 }

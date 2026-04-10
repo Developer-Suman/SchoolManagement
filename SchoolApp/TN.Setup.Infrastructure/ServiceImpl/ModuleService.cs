@@ -59,6 +59,7 @@ namespace TN.Setup.Infrastructure.ServiceImpl
                     var modulesData = new Modules(
                         newId,
                         addModuleCommand.Name,
+                        addModuleCommand.Description,
                         addModuleCommand.Rank,
                         addModuleCommand.IconUrl,
                         addModuleCommand.TargetUrl,

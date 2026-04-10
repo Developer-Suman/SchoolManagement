@@ -10,6 +10,8 @@ namespace TN.Setup.Application.Setup.Queries.Modules
     (
             string Id="",
             string Name="",
+                string? Description="",
+                string? IconUrl="",
             string? Rank="",
             string? TargetUrl = "",
             bool IsActive=true

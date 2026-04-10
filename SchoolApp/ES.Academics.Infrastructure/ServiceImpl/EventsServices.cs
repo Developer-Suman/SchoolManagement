@@ -26,6 +26,7 @@ using TN.Shared.Application.ServiceInterface;
 using TN.Shared.Domain.Abstractions;
 using TN.Shared.Domain.Entities.Academics;
 using TN.Shared.Domain.Entities.Certificates;
+using TN.Shared.Domain.Entities.Communication;
 using TN.Shared.Domain.Entities.Crm.Enrollments;
 using TN.Shared.Domain.Entities.OrganizationSetUp;
 using TN.Shared.Domain.ExtensionMethod.Pagination;
@@ -269,29 +270,36 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                         query => query.Select(c => c.Id)
                     );
 
-                var filterEventsResult = isSuperAdmin
+                var filter = isSuperAdmin
                     ? events
                     : events.Where(x => x.SchoolId == _tokenService.SchoolId().FirstOrDefault() || x.SchoolId == ""
                     && x.AcademicYearId == academicYearId
                     && x.FyId == fyId);
 
-                var (startUtc, endUtc) = await _dateConverter.GetDateRangeUtc(filterEventsDTOs.startDate, filterEventsDTOs.endDate);
+                IQueryable<Events> query = filter.AsQueryable();
 
-                var filteredResult = filterEventsResult
-                 .Where(x =>
-                     //(string.IsNullOrEmpty(filterSchoolAwardsDTOs.templateId) || x.TemplateId == filterIssuedCertificateDTOs.templateId) &&
-                     x.CreatedAt >= startUtc &&
-                         x.CreatedAt <= endUtc &&
-                         x.IsActive
-                 )
-                 .OrderByDescending(x => x.CreatedAt) // newest first
-                 .ToList();
+                if (!string.IsNullOrEmpty(filterEventsDTOs.title))
+                {
+                    query = query.Where(x => x.Title == filterEventsDTOs.title);
+                }
+
+                if (filterEventsDTOs.startDate != null && filterEventsDTOs.endDate != null)
+                {
+                    var (startUtc, endUtc) = await _dateConverter.GetDateRangeUtc(
+                        filterEventsDTOs.startDate,
+                        filterEventsDTOs.endDate
+                    );
+
+                    query = query.Where(x => x.CreatedAt >= startUtc && x.CreatedAt <= endUtc);
+                }
+
+                query = query.Where(x => x.IsActive)
+               .OrderByDescending(x => x.CreatedAt);
 
 
 
 
-                var responseList = filteredResult
-                .OrderByDescending(x => x.CreatedAt)
+                var responseList = query
                 .Select(i => new FilterEventsResponse(
                     i.Id,
                     i.Title,

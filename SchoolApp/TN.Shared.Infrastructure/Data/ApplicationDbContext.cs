@@ -171,7 +171,7 @@ namespace TN.Shared.Infrastructure.Data
         public DbSet<FeeStructure> FeeStructures { get; set; }
         public DbSet<FeeType> FeeTypes { get; set; }
         public DbSet<StudentFee> StudentFees { get; set; }
-        public DbSet<AssignedFeeStatus> AssignedFeeStatuses { get; set; }
+        public DbSet<StudentFeeDetail> StudentFeeDetails { get; set; }
         public DbSet<PaymentsRecords> PaymentsRecords { get; set; }
 
 
@@ -1140,6 +1140,18 @@ namespace TN.Shared.Infrastructure.Data
 
             #region FeeAndAccounting
 
+
+            #region StudentFeeDetails and FeeType(m:1)
+            builder.Entity<FeeType>()
+               .HasMany(p => p.StudentFeeDetails)
+               .WithOne(p => p.FeeType)
+               .HasForeignKey(p => p.FeeTypeId)
+               .OnDelete(DeleteBehavior.Restrict);
+            #endregion
+
+
+
+
             #region FeeStructureDetails and FeeType(m:1)
             builder.Entity<FeeType>()
                .HasMany(p => p.FeeStructureDetails)
@@ -1169,9 +1181,9 @@ namespace TN.Shared.Infrastructure.Data
             #endregion
 
 
-            #region AssignedFeeStatus and StudentFee(m:1)
+            #region StudentFeeDetails and StudentFee(m:1)
             builder.Entity<StudentFee>()
-               .HasMany(p => p.AssignedFeeStatus)
+               .HasMany(p => p.StudentFeeDetails)
                .WithOne(p => p.StudentFee)
                .HasForeignKey(p => p.StudentFeeId)
                .OnDelete(DeleteBehavior.Restrict);

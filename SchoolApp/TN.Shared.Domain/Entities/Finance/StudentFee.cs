@@ -25,7 +25,7 @@ namespace TN.Shared.Domain.Entities.Finance
             decimal discountPercentage,
             decimal totalAmount,
             decimal paidAmount,
-            List<AssignedFeeStatus> assignedFeeStatus,
+            List<StudentFeeDetail> studentFeeDetails,
             bool isActive,
             string schoolid,
             string createdBy,
@@ -49,7 +49,7 @@ namespace TN.Shared.Domain.Entities.Finance
             ModifiedBy = modifiedBy;
             ModifiedAt = modifiedAt;
             Payments = new List<PaymentsRecords>();
-            AssignedFeeStatus = assignedFeeStatus;
+            StudentFeeDetails = studentFeeDetails;
 
         }
 
@@ -72,7 +72,7 @@ namespace TN.Shared.Domain.Entities.Finance
         public string ModifiedBy { get; set; }
         public DateTime ModifiedAt { get; set; } = DateTime.Now;
         public ICollection<PaymentsRecords> Payments { get; set; }
-        public ICollection<AssignedFeeStatus> AssignedFeeStatus { get; set; }
+        public ICollection<StudentFeeDetail> StudentFeeDetails { get; set; }
 
         public decimal GetNetTotal() => TotalAmount - DiscountAmount;
 

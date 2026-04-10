@@ -10,6 +10,7 @@ namespace TN.Setup.Application.Setup.Command.AddModule
     public record AddModuleRequest
     (
       string Name,
+      string? Description,
       string? Rank,
       string? IconUrl,
       string? TargetUrl,

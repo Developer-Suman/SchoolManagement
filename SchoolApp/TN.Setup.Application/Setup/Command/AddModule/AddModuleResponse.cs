@@ -9,6 +9,7 @@ namespace TN.Setup.Application.Setup.Command.AddModule
     public record AddModuleResponse
     (
         string Name,
+        string? Description,
         string? Rank,
         string? IconUrl,
         string? TargetUrl,
