@@ -7,6 +7,7 @@ using TN.Setup.Application.Setup.Command.AddModule;
 using TN.Setup.Application.Setup.Command.AssignModulesToRole;
 using TN.Setup.Application.Setup.Command.UpdateAssignModules;
 using TN.Setup.Application.Setup.Command.UpdateModules;
+using TN.Setup.Application.Setup.Queries.AppNames;
 using TN.Setup.Application.Setup.Queries.Company;
 using TN.Setup.Application.Setup.Queries.DistrictById;
 using TN.Setup.Application.Setup.Queries.GetModulesByRoleId;
@@ -21,13 +22,14 @@ namespace TN.Setup.Application.ServiceInterface
     public interface IModule
     {
         Task<Result<PagedResult<GetAllModulesResponse>>> GetAllModule(PaginationRequest paginationRequest, CancellationToken cancellationToken = default);
+        Task<Result<PagedResult<AppNamesResponse>>> GatAppNames(PaginationRequest paginationRequest, CancellationToken cancellationToken = default);
         Task<Result<AddModuleResponse>> Add(AddModuleCommand addModuleCommand);
         Task<Result<UpdateModulesResponse>> Update(string modulesId, UpdateModulesCommand modulesCommand);
         Task<Result<UpdateAssignModulesResponse>> UpdateAssignModules(UpdateAssignModulesCommand assignModulesCommand);
         Task<Result<bool>> Delete(string modulesId, CancellationToken cancellationToken);
         Task<Result<GetModulesByIdResponse>> GetModulesById(string modulesId, CancellationToken cancellationToken = default);
         Task<Result<AssignModulesToRoleResponse>> AssignModulesToRole(AssignModulesToRoleCommand assignModulesToRoleCommand);
-        Task<Result<List<GetModulesByRoleIdResponse>>> GetModulesByRoleId(string roleId, CancellationToken cancellationToken);
+        Task<Result<List<GetModulesByAppResponse>>> GetModulesByRoleId(string roleId, CancellationToken cancellationToken);
         Task<Result<List<NavigationByUserResponse>>> GetNavigationMenuByUser(string userId);
 
     }

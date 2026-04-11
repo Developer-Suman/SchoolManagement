@@ -56,6 +56,8 @@ using TN.Setup.Application.Setup.Queries.SchoolById;
 using TN.Setup.Application.Setup.Queries.SchoolByInstitutionId;
 using TN.Setup.Application.Setup.Command.DeleteSchool;
 using TN.Setup.Application.Setup.Queries.GetSchoolDetailsBySchoolId;
+using TN.Shared.Domain.Entities.Setup;
+using TN.Setup.Application.Setup.Queries.AppNames;
 
 
 
@@ -96,6 +98,9 @@ namespace TN.Setup.Application.AutoMapper
             #endregion
 
             #region Modules
+
+            CreateMap<AppNamesResponse, AppName>().ReverseMap();
+            CreateMap<PagedResult<AppName>, PagedResult<AppNamesResponse>>().ReverseMap();
 
             CreateMap<GetAllModulesResponse, Modules>().ReverseMap();
             CreateMap<PagedResult<Modules>, PagedResult<GetAllModulesResponse>>().ReverseMap();

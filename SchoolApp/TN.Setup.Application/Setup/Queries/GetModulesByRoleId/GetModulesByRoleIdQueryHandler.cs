@@ -10,7 +10,7 @@ using TN.Shared.Domain.Abstractions;
 
 namespace TN.Setup.Application.Setup.Queries.GetModulesByRoleId
 {
-    public sealed class GetModulesByRoleIdQueryHandler : IRequestHandler<GetModulesByRoleIdQuery, Result<List<GetModulesByRoleIdResponse>>>
+    public sealed class GetModulesByRoleIdQueryHandler : IRequestHandler<GetModulesByRoleIdQuery, Result<List<GetModulesByAppResponse>>>
     {
         private readonly IMapper _mapper;
         private readonly IModule _module;
@@ -21,12 +21,12 @@ namespace TN.Setup.Application.Setup.Queries.GetModulesByRoleId
             _module = module;
             
         }
-        public async Task<Result<List<GetModulesByRoleIdResponse>>> Handle(GetModulesByRoleIdQuery request, CancellationToken cancellationToken)
+        public async Task<Result<List<GetModulesByAppResponse>>> Handle(GetModulesByRoleIdQuery request, CancellationToken cancellationToken)
         {
             try
             {
                 var modulesByRoleId = await _module.GetModulesByRoleId(request.roleId, cancellationToken);
-                return Result<List<GetModulesByRoleIdResponse>>.Success(modulesByRoleId.Data);
+                return Result<List<GetModulesByAppResponse>>.Success(modulesByRoleId.Data);
 
             }catch (Exception ex)
             {

@@ -13,6 +13,7 @@ namespace TN.Setup.Application.Setup.Command.AddModule
         string? Rank,
         string? IconUrl,
         string? TargetUrl,
+        string? appId,
         bool IsActive
         );
 }

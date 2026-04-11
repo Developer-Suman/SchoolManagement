@@ -30,6 +30,7 @@ using TN.Shared.Domain.Entities.Payments;
 using TN.Shared.Domain.Entities.Purchase;
 using TN.Shared.Domain.Entities.Sales;
 using TN.Shared.Domain.Entities.SchoolItems;
+using TN.Shared.Domain.Entities.Setup;
 using TN.Shared.Domain.Entities.Staff;
 using TN.Shared.Domain.Entities.StockCenterEntities;
 using TN.Shared.Domain.Entities.Students;
@@ -202,6 +203,7 @@ namespace TN.Shared.Infrastructure.Data
         #endregion
 
         #region Initial SetUp
+        public DbSet<AppName> AppNames { get; set; }
         public DbSet<ApplicationUser> ApplicationUsers { get; set; }
         public DbSet<Province> Provinces { get; set; }
         public DbSet<District> Districts { get; set; }
@@ -2003,6 +2005,16 @@ namespace TN.Shared.Infrastructure.Data
             #endregion
 
             #region Initial SetUp
+
+            #region Modules and AppName(m:1)
+            builder.Entity<AppName>()
+               .HasMany(p => p.Modules)
+               .WithOne(p => p.AppName)
+               .HasForeignKey(p => p.AppId)
+               .OnDelete(DeleteBehavior.Restrict);
+            #endregion
+
+
 
             #region SchoolSettings and AcademicYear (m:1)
             builder.Entity<SchoolSettings>(entity =>

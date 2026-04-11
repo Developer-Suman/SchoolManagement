@@ -10,6 +10,7 @@ namespace TN.Setup.Application.Setup.Queries.ModulesById
             string? Rank="",
             string? IconUrl = "",
             string? TargetUrl = "",
+            string? appId="",
             bool IsActive=true
 
     );

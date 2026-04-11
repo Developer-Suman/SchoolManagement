@@ -10,7 +10,7 @@ namespace TN.Setup.Application.Setup.Command.AddModule.RequestCommandMapper
     {
         public static AddModuleCommand ToCommand(this AddModuleRequest request)
         {
-            return new AddModuleCommand(request.Name,request.Description ,request.Rank,request.IconUrl, request.TargetUrl, request.isActive);
+            return new AddModuleCommand(request.Name,request.Description ,request.Rank,request.IconUrl, request.TargetUrl, request.appId, request.isActive);
         }
     }
 }

@@ -7,12 +7,14 @@ using TN.Setup.Application.Setup.Command.AddModule;
 using TN.Setup.Application.Setup.Command.AssignModulesToRole;
 using TN.Setup.Application.Setup.Command.UpdateAssignModules;
 using TN.Setup.Application.Setup.Command.UpdateModules;
+using TN.Setup.Application.Setup.Queries.AppNames;
 using TN.Setup.Application.Setup.Queries.GetModulesByRoleId;
 using TN.Setup.Application.Setup.Queries.Modules;
 using TN.Setup.Application.Setup.Queries.ModulesById;
 using TN.Setup.Application.Setup.Queries.NavigationByUser;
 using TN.Setup.Domain.Entities;
 using TN.Shared.Domain.Abstractions;
+using TN.Shared.Domain.Entities.Setup;
 using TN.Shared.Domain.ExtensionMethod.Pagination;
 using TN.Shared.Domain.IRepository;
 using TN.Shared.Infrastructure.Data;
@@ -63,6 +65,7 @@ namespace TN.Setup.Infrastructure.ServiceImpl
                         addModuleCommand.Rank,
                         addModuleCommand.IconUrl,
                         addModuleCommand.TargetUrl,
+                        addModuleCommand.appId,
                         addModuleCommand.isActive
                         );
 
@@ -156,6 +159,24 @@ namespace TN.Setup.Infrastructure.ServiceImpl
     
         }
 
+        public async Task<Result<PagedResult<AppNamesResponse>>> GatAppNames(PaginationRequest paginationRequest, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+
+                var appNames = await _unitOfWork.BaseRepository<AppName>().GetAllAsyncWithPagination();
+                var appNamesPagedResult = await appNames.AsNoTracking().ToPagedResultAsync(paginationRequest.pageIndex, paginationRequest.pageSize, paginationRequest.IsPagination);
+                var appNamesResponse = _mapper.Map<PagedResult<AppNamesResponse>>(appNamesPagedResult.Data);
+
+                return Result<PagedResult<AppNamesResponse>>.Success(appNamesResponse);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while fetching", ex);
+
+            }
+        }
+
         public async Task<Result<PagedResult<GetAllModulesResponse>>> GetAllModule(PaginationRequest paginationRequest, CancellationToken cancellationToken = default)
         {
             try
@@ -208,40 +229,50 @@ namespace TN.Setup.Infrastructure.ServiceImpl
 
         
 
-        public async Task<Result<List<GetModulesByRoleIdResponse>>> GetModulesByRoleId(string roleId, CancellationToken cancellationToken=default)
+        public async Task<Result<List<GetModulesByAppResponse>>> GetModulesByRoleId(string roleId, CancellationToken cancellationToken=default)
         {
             try
             {
-                //var cachekeys = $"GetModulesByRoleId{CacheKeys.Module}";
-                //var cacheData= await _memoryCacheRepository.GetCacheKey<List<GetModulesByRoleIdResponse>>(cachekeys);
-                //if(cacheData is not null) 
-                //{
-                //    return Result<List<GetModulesByRoleIdResponse>>.Success(cacheData);
-                //}
-                
-                //Fetch RolesModules and associated Modules in single query
                 var modulesWithRoles = await _unitOfWork.BaseRepository<RoleModule>()
                     .GetConditionalAsync(
-                    x=>x.RoleId == roleId,
-                    query => query.Include(rm=>rm.Modules).Where(x=>x.IsAssigned==true)
+                        x => x.RoleId == roleId,
+                        query => query
+                            .Include(rm => rm.Modules)
+                            .ThenInclude(m => m.AppName)
+                            .Where(x => x.IsAssigned == true)
                     );
-
                 var resultsDTOs = modulesWithRoles
-                    //.Where(rm => rm.Modules is not null)
-                    .Select(rm => new GetModulesByRoleIdResponse
-                    (
-                        rm.Modules.Id,
-                        rm.Modules.Name,
-                        rm.Modules.TargetUrl,
-                        rm.IsActive
-                        )).ToList();
-                //await _memoryCacheRepository.SetAsync<List<GetModulesByRoleIdResponse>>(cachekeys, resultsDTOs, new Microsoft.Extensions.Caching.Memory.MemoryCacheEntryOptions
-                //{
-                //    AbsoluteExpiration = DateTimeOffset.Now.AddMinutes(30)
+                        .Where(rm => rm.Modules != null)
+                        .GroupBy(rm => new
+                        {
+                            rm.Modules.AppId,
+                            AppName = rm.Modules.AppName != null
+                                ? rm.Modules.AppName.Name
+                                : "Base App"
+                        })
+                        .Select(group => new GetModulesByAppResponse(
+                            group.Key.AppName, // ✅ no First() needed
+                            group.Select(rm => new GetModulesByRoleIdResponse(
+                                rm.Modules.Id,
+                                rm.Modules.Name,
+                                rm.Modules.TargetUrl,
+                                rm.IsActive
+                            )).ToList()
+                        ))
+                        .ToList();
 
-                //}, cancellationToken);
-                 
-                return Result<List<GetModulesByRoleIdResponse>>.Success(resultsDTOs);
+
+                //var resultsDTOs = modulesWithRoles
+                //    //.Where(rm => rm.Modules is not null)
+                //    .Select(rm => new GetModulesByRoleIdResponse
+                //    (
+                //        rm.Modules.Id,
+                //        rm.Modules.Name,
+                //        rm.Modules.TargetUrl,
+                //        rm.IsActive
+                //        )).ToList();
+
+                return Result<List<GetModulesByAppResponse>>.Success(resultsDTOs);
 
             }catch(Exception ex)
             {
