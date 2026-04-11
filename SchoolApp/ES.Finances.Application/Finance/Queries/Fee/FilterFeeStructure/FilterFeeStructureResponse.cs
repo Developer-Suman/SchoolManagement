@@ -9,9 +9,10 @@ namespace ES.Finances.Application.Finance.Queries.Fee.FilterFeeStructure
     public record FilterFeeStructureResponse
     (
         string id,
-            decimal amount,
             string classId,
-            string fyId,
+            decimal? discountAmount,
+            string feeCategoryName,
+            decimal totalAmount,
             bool isActive,
             string schoolId,
             string createdBy,

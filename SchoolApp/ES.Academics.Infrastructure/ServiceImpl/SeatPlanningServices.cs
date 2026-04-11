@@ -305,30 +305,37 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                         query => query.Select(c => c.Id)
                     );
 
-                var filterExamSession = isSuperAdmin
+                var filter = isSuperAdmin
                     ? examSession
                     : examSession.Where(x => x.SchoolId == _tokenService.SchoolId().FirstOrDefault() || x.SchoolId == ""
                     && x.FyId == fyId
                     && x.AcademicYearId == academicYearId
                     );
 
-                var (startUtc, endUtc) = await _dateConverter.GetDateRangeUtc(filterExamSessionDTOs.startDate, filterExamSessionDTOs.endDate);
+                IQueryable<ExamSession> query = filter.AsQueryable();
 
-                var filteredResult = filterExamSession
-                 .Where(x =>
-                       (string.IsNullOrEmpty(filterExamSessionDTOs.name) || x.Name == filterExamSessionDTOs.name) &&
-                     x.CreatedAt >= startUtc &&
-                         x.CreatedAt <= endUtc &&
-                         x.IsActive
-                 )
-                 .OrderByDescending(x => x.CreatedAt) // newest first
-                 .ToList();
+                if (!string.IsNullOrEmpty(filterExamSessionDTOs.name))
+                {
+                    query = query.Where(x => x.Name == filterExamSessionDTOs.name);
+                }
+
+                if (filterExamSessionDTOs.startDate != null && filterExamSessionDTOs.endDate != null)
+                {
+                    var (startUtc, endUtc) = await _dateConverter.GetDateRangeUtc(
+                        filterExamSessionDTOs.startDate,
+                        filterExamSessionDTOs.endDate
+                    );
+
+                    query = query.Where(x => x.CreatedAt >= startUtc && x.CreatedAt <= endUtc);
+                }
+
+                query = query.Where(x => x.IsActive)
+               .OrderByDescending(x => x.CreatedAt);
 
 
 
 
-                var responseList = filteredResult
-                .OrderByDescending(x => x.CreatedAt)
+                var responseList = query
                 .Select(i => new FilterExamSessionResponse(
                     i.Id,
                     i.Name,

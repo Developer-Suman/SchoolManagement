@@ -2,6 +2,7 @@
 using ES.Certificate.Application.Certificates.Queries.CertificateTemplate;
 using ES.Certificate.Application.ServiceInterface.IHelperMethod;
 using ES.Student.Application.CocurricularActivities.Queries.FilterActivity;
+using ES.Student.Application.Registration.Command.RegisterStudents;
 using ES.Student.Application.ServiceInterface;
 using ES.Student.Application.Student.Command.AddParent;
 using ES.Student.Application.Student.Command.AddStudents;
@@ -89,6 +90,7 @@ namespace ES.Student.Infrastructure.ServiceImpl
                     var userId = _tokenService.GetUserId();
                     var schoolId = _tokenService.SchoolId().FirstOrDefault();
                     var FyId = _fiscalContext.CurrentFiscalYearId;
+                    var academicYearId = _fiscalContext.CurrentAcademicYearId;
 
                     var nullableClassSectionId =
                         string.IsNullOrWhiteSpace(addStudentsCommand.classSectionId)
@@ -277,6 +279,27 @@ namespace ES.Student.Infrastructure.ServiceImpl
 
 
 
+                    #region Register Students
+
+                    var enrollment = new Registrations
+                      (
+                          Guid.NewGuid().ToString(),
+                          newId,
+                          addStudentsCommand.classId,
+                          academicYearId,
+                          EnrollmentStatus.Active,
+                          schoolId,
+                          true,
+                          userId,
+                          DateTime.UtcNow,
+                          "",
+                          default
+                          );
+
+                    await _unitOfWork.BaseRepository<Registrations>().AddAsync(enrollment);
+
+
+                    #endregion
 
 
                     await _unitOfWork.SaveChangesAsync();
@@ -487,6 +510,14 @@ namespace ES.Student.Infrastructure.ServiceImpl
                         .ToDictionary(g => g.Key, g => g.First());
 
 
+
+
+               
+
+
+
+
+
                     // ============================
                     // Start Reading Excel
                     // ============================
@@ -544,12 +575,36 @@ namespace ES.Student.Infrastructure.ServiceImpl
 
                         var currentClassText = worksheet.Cells[row, headerMap["currentclass"]].Text?.Trim();
 
-                        if (!int.TryParse(currentClassText, out int classSymbol) ||
+
+                        var classTextToSymbol = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase)
+                            {
+                                { "nursary", 1 },
+                                { "lkg", 2 },
+                                { "ukg", 3 },
+                                { "1", 4 },
+                                { "2", 5 },
+                                { "3", 6 },
+                                { "4", 7 },
+                                { "5", 8 },
+                                { "6", 9 },
+                                { "7", 10 },
+                                { "8", 11 },
+                                { "9", 12 },
+                                { "10", 13 },
+                                { "11", 14 },
+                                { "12", 15 }
+                            };
+
+
+
+
+
+                        if (string.IsNullOrWhiteSpace(currentClassText) ||
+                            !classTextToSymbol.TryGetValue(currentClassText, out int classSymbol) ||
                             !classLookup.TryGetValue(classSymbol, out var classId))
                         {
-                            throw new Exception($"Invalid ClassSymbol '{currentClassText}' at row {row}");
+                            throw new Exception($"Invalid Class '{currentClassText}' at row {row}");
                         }
-
 
                         // ============================
                         // Parent Matching
@@ -617,6 +672,45 @@ namespace ES.Student.Infrastructure.ServiceImpl
                         // Create Student
                         // ============================
 
+
+
+
+
+                        #region Skip Duplicate Data
+
+                        var existingStudents = await _unitOfWork.BaseRepository<StudentData>()
+                       .GetConditionalAsync(s => s.SchoolId == schoolId);
+
+                        var studentLookup = existingStudents
+                            .GroupBy(s => (
+                                Name: (s.FirstName + " " + s.MiddleName + " " + s.LastName)
+                                        .Replace("  ", " ")
+                                        .Trim()
+                                        .ToLower(),
+                                Dob: s.DateOfBirth.Date
+                            ))
+                            .ToDictionary(g => g.Key, g => g.First());
+
+                        var normalizedDob = dateOfBirthInEnglish.Date;
+
+                        var fullNameKey = $"{firstName} {middleName} {lastName}"
+                        .Replace("  ", " ")
+                        .Trim()
+                        .ToLower();
+
+                        var studentKey = (Name: fullNameKey, Dob: normalizedDob);
+
+                        if (studentLookup.ContainsKey(studentKey))
+                            continue;
+
+                        #endregion
+
+
+
+
+
+
+
                         var studentId = Guid.NewGuid().ToString();
 
                         var student = new StudentData(
@@ -653,6 +747,8 @@ namespace ES.Student.Infrastructure.ServiceImpl
                         );
 
                         await _unitOfWork.BaseRepository<StudentData>().AddAsync(student);
+
+                        studentLookup[studentKey] = student;
 
                         // ============================
                         // Create Ledger
@@ -924,7 +1020,6 @@ namespace ES.Student.Infrastructure.ServiceImpl
 
 
                 var responseList = query
-                .OrderByDescending(x => x.CreatedAt)
                 .Select(i => new FilterParentsResponse(
                     i.Id,
                     i.FullName,

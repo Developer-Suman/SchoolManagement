@@ -12,9 +12,11 @@ namespace TN.Setup.Application.Setup.Command.AddModule
     public record AddModuleCommand
         (
           string Name,
+          string? Description,
           string? Rank,
           string? IconUrl,
           string? TargetUrl,
+          string? appId,
           bool isActive
         ) : IRequest<Result<AddModuleResponse>>;
     

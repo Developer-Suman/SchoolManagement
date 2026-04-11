@@ -4,6 +4,7 @@ using TN.Authentication.Domain.Entities;
 using TN.Purchase.Domain.Entities;
 using TN.Sales.Domain.Entities;
 using TN.Shared.Application.ServiceInterface;
+using TN.Shared.Domain.Entities.Finance;
 using TN.Shared.Domain.Entities.OrganizationSetUp;
 using TN.Shared.Domain.Entities.Purchase;
 using TN.Shared.Domain.Entities.Sales;
@@ -184,7 +185,26 @@ namespace TN.Shared.Infrastructure.Repository
             }
         }
 
-    
+        public async Task<string> GenerateSchoolReceipt(string schoolId)
+        {
+            try
+            {
+
+                var company = await _unitOfWork.BaseRepository<School>().GetByGuIdAsync(schoolId);
+
+                string schoolShortName = company.Name.Substring(0, 3).ToUpper();
+                string yearMonth = DateTime.UtcNow.ToString("yyyyMM");
+                string prefix = $"{schoolShortName}/{yearMonth}";
+
+                int lastBillCount = await _unitOfWork.BaseRepository<PaymentsRecords>().CountAsync(p => p.Schoolid == schoolId);
+                return $"FEE-{prefix}-{(lastBillCount + 1):D4}";
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while Generating Journal References", ex);
+            }
+        }
 
         public async Task<string> GenerateTransactionNumber(string schoolId, string transactionNumberType, string fyName)
         {

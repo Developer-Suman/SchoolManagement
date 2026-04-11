@@ -21,6 +21,7 @@ namespace TN.Shared.Domain.Entities.Finance
             PaymentMethods paymentMethod,
             string studentid,
             string reference,
+            string? receiptNumber,
             bool isActive,
             string schoolId,
             string createdBy,
@@ -35,6 +36,7 @@ namespace TN.Shared.Domain.Entities.Finance
             PaymentDate = paymentDate;
             PaymentMethod = paymentMethod;
             Reference = reference;
+            ReceiptNumber = receiptNumber;
             IsActive = isActive;
             Schoolid = schoolId;
             CreatedBy = createdBy;
@@ -44,6 +46,7 @@ namespace TN.Shared.Domain.Entities.Finance
 
         }
 
+        public string? ReceiptNumber { get; set; }
         public string StudentId { get; set; }
         public bool IsActive { get; set; }
         public string Schoolid { get; set; }

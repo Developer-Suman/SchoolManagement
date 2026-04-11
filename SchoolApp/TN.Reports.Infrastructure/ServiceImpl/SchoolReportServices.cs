@@ -15,12 +15,15 @@ using System.Threading.Tasks;
 using TN.Authentication.Domain.Entities;
 using TN.Reports.Application.SchoolReports.AttendanceReport;
 using TN.Reports.Application.SchoolReports.CoCurricularActivityReport;
+using TN.Reports.Application.SchoolReports.PaymentDetailsReport;
+using TN.Reports.Application.SchoolReports.PaymentStatements;
 using TN.Reports.Application.ServiceInterface;
 using TN.Shared.Application.ServiceInterface;
 using TN.Shared.Application.ServiceInterface.IHelperServices;
 using TN.Shared.Domain.Abstractions;
 using TN.Shared.Domain.Entities.Academics;
 using TN.Shared.Domain.Entities.CocurricularActivities;
+using TN.Shared.Domain.Entities.Finance;
 using TN.Shared.Domain.Entities.OrganizationSetUp;
 using TN.Shared.Domain.Entities.Students;
 using TN.Shared.Domain.ExtensionMethod.Pagination;
@@ -273,6 +276,326 @@ namespace TN.Reports.Infrastructure.ServiceImpl
                     };
                 }
                 return Result<PagedResult<CoCurricularActivitiesReportResponse>>.Success(finalResponseList);
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"An error occurred while fetching: {ex.Message}", ex);
+            }
+        }
+
+        public async Task<Result<PagedResult<PaymentDetailsReportResponse>>> PaymentDetails(PaymentsDetailsReportDTOs paymentsDetailsReportDTOs, PaginationRequest paginationRequest)
+        {
+            try
+            {
+                var fyId = _fiscalContext.CurrentFiscalYearId;
+                var academicYearId = _fiscalContext.CurrentAcademicYearId;
+                var userId = _tokenService.GetUserId();
+
+                var (paymentRecords, schoolId, institutionId, userRole, isSuperAdmin) = await _getUserScopedData.GetUserScopedData<PaymentsRecords>();
+
+                var schoolIds = await _unitOfWork.BaseRepository<School>()
+                    .GetConditionalFilterType(
+                        x => x.InstitutionId == institutionId,
+                        query => query.Select(c => c.Id)
+                    );
+
+                var filterPayments = isSuperAdmin
+                    ? paymentRecords
+                    : paymentRecords
+                        .Where(x => x.Schoolid == _tokenService.SchoolId().FirstOrDefault() || x.Schoolid == "");
+                //&& x.Fy == fyId
+                //&& x.AcademicYearId == academicYearId);
+
+
+
+                IQueryable<PaymentsRecords> query = filterPayments.AsQueryable();
+
+                if (!string.IsNullOrEmpty(paymentsDetailsReportDTOs.classId))
+                {
+                    // Step 1: Get student IDs of that class
+                    var studentIds = await _unitOfWork.BaseRepository<StudentData>()
+                        .GetConditionalFilterType(
+                            x => x.ClassId == paymentsDetailsReportDTOs.classId,
+                            q => q.Select(s => s.Id)
+                        );
+
+                    // Step 2: Filter payments using student IDs
+                    query = query.Where(x => studentIds.Contains(x.StudentId));
+                }
+
+
+
+
+
+                if (paymentsDetailsReportDTOs.startDate != null && paymentsDetailsReportDTOs.endDate != null)
+                {
+                    var (startUtc, endUtc) = await _dateConverter.GetDateRangeUtc(
+                        paymentsDetailsReportDTOs.startDate,
+                        paymentsDetailsReportDTOs.endDate
+                    );
+
+                    query = query.Where(x =>
+                        x.CreatedAt >= startUtc && x.CreatedAt <= endUtc);
+                }
+
+                // ✅ GROUP PAYMENTS
+                var paymentsList = await query
+                    .GroupBy(x => x.StudentId)
+                    .Select(g => new
+                    {
+                        StudentId = g.Key,
+                        PaidAmount = g.Sum(x => x.AmountPaid)
+                    })
+                    .ToListAsync();
+
+
+                // ✅ STUDENT FEES QUERY
+                IQueryable<StudentFee> studentFeesQuery = _unitOfWork.BaseRepository<StudentFee>()
+                    .GetAsQueryable()
+                    .Where(x => x.IsActive && x.SchoolId == schoolId);
+
+                if (!string.IsNullOrEmpty(paymentsDetailsReportDTOs.classId))
+                {
+                    studentFeesQuery = studentFeesQuery
+                        .Where(x => x.ClassId == paymentsDetailsReportDTOs.classId);
+                }
+
+                // ✅ GROUP STUDENT FEES
+                var studentFeesList = await studentFeesQuery
+                    .GroupBy(x => x.StudentId)
+                    .Select(g => new
+                    {
+                        StudentId = g.Key,
+                        TotalAmount = g.Sum(x => x.TotalAmount),
+                        DiscountAmount = g.Sum(x => x.DiscountAmount)
+                    })
+                    .ToListAsync();
+
+
+
+                // ✅ DICTIONARY FOR FAST LOOKUP
+                var paymentDict = paymentsList
+                    .ToDictionary(x => x.StudentId, x => x.PaidAmount);
+
+                var responseList = studentFeesList.Select(fee =>
+                {
+                    var paidAmount = paymentDict.ContainsKey(fee.StudentId)
+                        ? paymentDict[fee.StudentId]
+                        : 0;
+
+                    var netTotal = fee.TotalAmount - fee.DiscountAmount;
+                    var dueAmount = netTotal - paidAmount;
+
+                    return new PaymentDetailsReportResponse(
+                        fee.StudentId,
+                        fee.TotalAmount,
+                        paidAmount,
+                        fee.DiscountAmount,
+                        dueAmount
+                    );
+                }).ToList();
+
+
+
+                PagedResult<PaymentDetailsReportResponse> finalResponseList;
+
+                if (paginationRequest.IsPagination)
+                {
+
+                    int pageIndex = paginationRequest.pageIndex <= 0 ? 1 : paginationRequest.pageIndex;
+                    int pageSize = paginationRequest.pageSize <= 0 ? 10 : paginationRequest.pageSize;
+
+                    int totalItems = responseList.Count();
+
+                    var pagedItems = responseList
+                        .Skip((pageIndex - 1) * pageSize)
+                        .Take(pageSize)
+                        .ToList();
+
+                    finalResponseList = new PagedResult<PaymentDetailsReportResponse>
+                    {
+                        Items = pagedItems,
+                        TotalItems = totalItems,
+                        PageIndex = pageIndex,
+                        pageSize = pageSize
+                    };
+                }
+                else
+                {
+                    finalResponseList = new PagedResult<PaymentDetailsReportResponse>
+                    {
+                        Items = responseList.ToList(),
+                        TotalItems = responseList.Count(),
+                        PageIndex = 1,
+                        pageSize = responseList.Count()
+                    };
+                }
+                return Result<PagedResult<PaymentDetailsReportResponse>>.Success(finalResponseList);
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"An error occurred while fetching: {ex.Message}", ex);
+            }
+        }
+
+        public async Task<Result<PagedResult<PaymentStatementsResponse>>> PaymentStatements(PaymentStatementsDTOs paymentStatementsDTOs, PaginationRequest paginationRequest)
+        {
+            try
+            {
+                var fyId = _fiscalContext.CurrentFiscalYearId;
+                var academicYearId = _fiscalContext.CurrentAcademicYearId;
+                var userId = _tokenService.GetUserId();
+
+                var (studentFee, schoolId, institutionId, userRole, isSuperAdmin) = await _getUserScopedData.GetUserScopedData<StudentFee>();
+
+                var schoolIds = await _unitOfWork.BaseRepository<School>()
+                    .GetConditionalFilterType(
+                        x => x.InstitutionId == institutionId,
+                        query => query.Select(c => c.Id)
+                    );
+
+                var filterStudentFee = isSuperAdmin
+                    ? studentFee
+                    : studentFee
+                        .Where(x => x.SchoolId == _tokenService.SchoolId().FirstOrDefault() || x.SchoolId == "");
+                //&& x.Fy == fyId
+                //&& x.AcademicYearId == academicYearId);
+
+                IQueryable<StudentFee> query = filterStudentFee
+                    .Include(x => x.Payments)
+                    .Where(x => x.IsActive)
+                    .AsQueryable();
+
+                if (!string.IsNullOrEmpty(paymentStatementsDTOs.studentId))
+                {
+                    query = query.Where(x => x.StudentId == paymentStatementsDTOs.studentId);
+                }
+
+
+
+                if (paymentStatementsDTOs.startDate != null && paymentStatementsDTOs.endDate != null)
+                {
+                    var (startUtc, endUtc) = await _dateConverter.GetDateRangeUtc(
+                        paymentStatementsDTOs.startDate,
+                        paymentStatementsDTOs.endDate
+                    );
+
+                    query = query.Where(x => x.CreatedAt >= startUtc && x.CreatedAt <= endUtc);
+                }
+
+
+                var studentFees = await query.ToListAsync();
+
+                var responseList = new List<PaymentStatementsResponse>();
+
+                foreach (var fee in studentFees)
+                {
+                    // ✅ Debit Entry (Fee)
+                    responseList.Add(new PaymentStatementsResponse(
+                        schoolId: fee.SchoolId,
+                        studentId: fee.StudentId,
+                        date: fee.CreatedAt,
+                        receiptNumber: null,
+                        debitAmount: fee.GetNetTotal(),
+                        creditAmount: 0,
+                        adjustment: fee.DiscountAmount > 0 ? -fee.DiscountAmount : 0,
+                        balance: 0,
+                        remarks: "Fee Generated"
+                    ));
+
+                    foreach (var payment in fee.Payments.Where(p => p.IsActive))
+                    {
+                        //if (paymentStatementsDTOs.startDate != null && paymentStatementsDTOs.endDate != null)
+                        //{
+                        //    var (startUtc, endUtc) = await _dateConverter.GetDateRangeUtc(
+                        //        paymentStatementsDTOs.startDate,
+                        //        paymentStatementsDTOs.endDate
+                        //    );
+
+                        //    if (payment.PaymentDate < startUtc || payment.PaymentDate > endUtc)
+                        //        continue;
+                        //}
+
+                        responseList.Add(new PaymentStatementsResponse(
+                            schoolId: payment.Schoolid,
+                            studentId: payment.StudentId,
+                            date: payment.PaymentDate,
+                            receiptNumber: payment.ReceiptNumber ?? "",
+                            debitAmount: 0,
+                            creditAmount: payment.AmountPaid,
+                            adjustment: 0,
+                            balance: 0,
+                            remarks: $"Payment via {payment.PaymentMethod}"
+                        ));
+                    }
+                }
+
+                var orderedList = responseList
+                     .OrderBy(x => x.date)
+                     .ThenBy(x => x.debitAmount > 0 ? 0 : 1) // Fee first, then payment (optional)
+                     .ToList();
+
+                decimal? runningBalance = 0;
+
+                var finalList = orderedList
+                .Select(item =>
+                {
+                    var debit = item.debitAmount ?? 0;
+                    var credit = item.creditAmount ?? 0;
+                    var adjustment = item.adjustment ?? 0;
+
+                    // ✅ Calculate running balance
+                    runningBalance += debit - credit + adjustment;
+
+                    // ✅ Create NEW record with updated balance
+                    return item with
+                    {
+                        balance = runningBalance
+                    };
+                })
+                .ToList();
+
+
+
+
+
+
+                PagedResult<PaymentStatementsResponse> finalResponseList;
+
+                if (paginationRequest.IsPagination)
+                {
+
+                    int pageIndex = paginationRequest.pageIndex <= 0 ? 1 : paginationRequest.pageIndex;
+                    int pageSize = paginationRequest.pageSize <= 0 ? 10 : paginationRequest.pageSize;
+
+                    int totalItems = finalList.Count();
+
+                    var pagedItems = finalList
+                        .Skip((pageIndex - 1) * pageSize)
+                        .Take(pageSize)
+                        .ToList();
+
+                    finalResponseList = new PagedResult<PaymentStatementsResponse>
+                    {
+                        Items = pagedItems,
+                        TotalItems = totalItems,
+                        PageIndex = pageIndex,
+                        pageSize = pageSize
+                    };
+                }
+                else
+                {
+                    finalResponseList = new PagedResult<PaymentStatementsResponse>
+                    {
+                        Items = responseList.ToList(),
+                        TotalItems = responseList.Count(),
+                        PageIndex = 1,
+                        pageSize = responseList.Count()
+                    };
+                }
+                return Result<PagedResult<PaymentStatementsResponse>>.Success(finalResponseList);
 
             }
             catch (Exception ex)

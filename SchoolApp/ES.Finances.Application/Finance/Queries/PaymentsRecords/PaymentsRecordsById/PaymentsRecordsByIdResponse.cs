@@ -14,6 +14,7 @@ namespace ES.Finances.Application.Finance.Queries.PaymentsRecords.PaymentsRecord
             decimal amountPaid,
             DateTime paymentDate,
             PaymentMethods paymentMethod,
+            string? receiptNumber,
             string reference,
             bool isActive,
             string schoolId,

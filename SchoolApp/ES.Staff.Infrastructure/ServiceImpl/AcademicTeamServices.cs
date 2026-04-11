@@ -404,39 +404,40 @@ namespace ES.Staff.Infrastructure.ServiceImpl
 
                 var (academicTeam, schoolId, institutionId, userRole, isSuperAdmin) = await _getUserScopedData.GetUserScopedData<AcademicTeam>();
 
-
-
-
-
-
-
                 var schoolIds = await _unitOfWork.BaseRepository<School>()
                     .GetConditionalFilterType(
                         x => x.InstitutionId == institutionId,
                         query => query.Select(c => c.Id)
                     );
 
-                var filterAcademicTeamData = isSuperAdmin
+                var filter = isSuperAdmin
                     ? academicTeam
                     : academicTeam.Include(x=>x.User).Where(x => x.SchoolId == _tokenService.SchoolId().FirstOrDefault() || x.SchoolId == "");
 
-                var (startUtc, endUtc) = await _dateConverter.GetDateRangeUtc(filterAcademicTeamDTOs.startDate, filterAcademicTeamDTOs.endDate);
-
-                var filteredResult = filterAcademicTeamData
-                 .Where(x =>
-                       (string.IsNullOrEmpty(filterAcademicTeamDTOs.fullName) || x.FullName == filterAcademicTeamDTOs.fullName) &&
-                     x.CreatedAt >= startUtc &&
-                         x.CreatedAt <= endUtc &&
-                         x.IsActive
-                 )
-                 .OrderByDescending(x => x.CreatedAt) // newest first
-                 .ToList();
 
 
+                IQueryable<AcademicTeam> query = filter.AsQueryable();
+
+                if (!string.IsNullOrEmpty(filterAcademicTeamDTOs.fullName))
+                {
+                    query = query.Where(x => x.FullName == filterAcademicTeamDTOs.fullName);
+                }
+
+                if (filterAcademicTeamDTOs.startDate != null && filterAcademicTeamDTOs.endDate != null)
+                {
+                    var (startUtc, endUtc) = await _dateConverter.GetDateRangeUtc(
+                        filterAcademicTeamDTOs.startDate,
+                        filterAcademicTeamDTOs.endDate
+                    );
+
+                    query = query.Where(x => x.CreatedAt >= startUtc && x.CreatedAt <= endUtc);
+                }
+
+                query = query.Where(x => x.IsActive)
+               .OrderByDescending(x => x.CreatedAt);
 
 
-                var responseList = filteredResult
-                .OrderByDescending(x => x.CreatedAt)
+                var responseList = query
                 .Select(i => new FilterAcademicTeamResponse(
                     i.Id,
                     i.FullName,

@@ -8,6 +8,8 @@ using System.Text.Json;
 using TN.Authentication.Domain.Entities;
 using TN.Reports.Application.SchoolReports.AttendanceReport;
 using TN.Reports.Application.SchoolReports.CoCurricularActivityReport;
+using TN.Reports.Application.SchoolReports.PaymentDetailsReport;
+using TN.Reports.Application.SchoolReports.PaymentStatements;
 using TN.Shared.Domain.ExtensionMethod.Pagination;
 using TN.Web.BaseControllers;
 using TN.Web.Controllers.Student.v1;
@@ -27,6 +29,58 @@ namespace TN.Web.Controllers.SchoolReport.v1
             _mediator = mediator;
             _logger = logger;
         }
+
+
+        #region PaymentStatements
+        [HttpGet("PaymentStatements")]
+        public async Task<IActionResult> PaymentStatements([FromQuery] PaymentStatementsDTOs paymentStatementsDTOs, [FromQuery] PaginationRequest paginationRequest)
+        {
+            var query = new PaymentStatementsQuery(paginationRequest, paymentStatementsDTOs);
+            var queryResult = await _mediator.Send(query);
+            #region Switch Statement
+            return queryResult switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(queryResult.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = queryResult.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(queryResult.Errors),
+                _ => BadRequest("Invalid page and pageSize Fields")
+            };
+            #endregion
+
+        }
+
+        #endregion
+
+
+
+        #region PaymentDetailsReport
+        [HttpGet("PaymentDetailsReport")]
+        public async Task<IActionResult> PaymentDetailsReport([FromQuery] PaymentsDetailsReportDTOs paymentsDetailsReportDTOs, [FromQuery] PaginationRequest paginationRequest)
+        {
+            var query = new PaymentsDetailsReportQuery(paginationRequest,paymentsDetailsReportDTOs);
+            var queryResult = await _mediator.Send(query);
+            #region Switch Statement
+            return queryResult switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(queryResult.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = queryResult.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(queryResult.Errors),
+                _ => BadRequest("Invalid page and pageSize Fields")
+            };
+            #endregion
+
+        }
+
+        #endregion
+
+
+
 
         #region AttendanceReport
         [HttpGet("AttendanceReport")]

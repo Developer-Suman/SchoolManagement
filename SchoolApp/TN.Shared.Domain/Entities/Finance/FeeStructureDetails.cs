@@ -20,6 +20,7 @@ namespace TN.Shared.Domain.Entities.Finance
             string id,
             string feeTypeId,
             string feeStructureId,
+            decimal? discountAmount,
             decimal amount,
             int times,
             decimal totalAmount,
@@ -27,12 +28,16 @@ namespace TN.Shared.Domain.Entities.Finance
             ) : base(id)
         {
             FeeTypeId = feeTypeId;
+            FeeStructureId = feeStructureId;
+            DiscountAmount = discountAmount;
             Amount = amount;
             Times = times;
             TotalAmount = totalAmount;
             FeePaidType = feePaidType;
             
         }
+
+        public decimal? DiscountAmount { get; set; }
         public int Times { get; set; }
         public string FeeTypeId { get; set; }
         public FeeType FeeType { get; set; }

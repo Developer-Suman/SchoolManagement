@@ -74,13 +74,14 @@ namespace ES.Finances.Infrastructure.ServiceImpl
                     var feeStructure = await _unitOfWork.BaseRepository<FeeStructure>()
                        .FirstOrDefaultAsync(
                            x=>x.ClassId == addFeeStructureCommand.classId &&
+                           x.FeeCategoryId == addFeeStructureCommand.feeCategoryId &&
                            x.FyId == FyId
                        );
 
-                    //if (feeStructure is not null)
-                    //{
-                    //    return Result<AddFeeStructureResponse>.Failure("Conflict", $"Already assigned in the month of {addFeeStructureCommand.nameOfMonths}");
-                    //}
+                    if (feeStructure is not null)
+                    {
+                        return Result<AddFeeStructureResponse>.Failure("Conflict", $"Already added FeeStructure");
+                    }
                     #region AddLedger
 
                     string ledgerId;
@@ -97,7 +98,7 @@ namespace ES.Finances.Infrastructure.ServiceImpl
 
                         var ledger = new Ledger(
                             ledgerId,
-                            "FeeType" + " A/C",
+                            "FeeStructure" + " A/C",
                             DateTime.UtcNow,
                             false,
                             "",
@@ -131,6 +132,7 @@ namespace ES.Finances.Infrastructure.ServiceImpl
                             Guid.NewGuid().ToString(),
                             x.feeTypeId,
                             newId,
+                            x.discountAmount,
                             x.amount,
                             x.times,
                             x.totalAmount,
@@ -275,7 +277,10 @@ namespace ES.Finances.Infrastructure.ServiceImpl
                     ? feeStructure
                     : feeStructure.Where(x => x.SchoolId == _tokenService.SchoolId().FirstOrDefault() || x.SchoolId == "");
 
-                IQueryable<FeeStructure> query = filter.AsQueryable();
+                IQueryable<FeeStructure> query = filter
+                    .Include(x=>x.FeeCategory)
+                    .Include(x=>x.FeeStructureDetails)
+                    .AsQueryable();
 
                 if (!string.IsNullOrEmpty(filterFeeStructureDTOs.classId))
                 {
@@ -303,9 +308,11 @@ namespace ES.Finances.Infrastructure.ServiceImpl
                 .Select(i => new FilterFeeStructureResponse(
 
                     i.Id,
-                    i.FeeStructureDetails.Sum(x=>x.TotalAmount),
                     i.ClassId,
-                    i.FyId,                    i.IsActive,
+                    i.FeeStructureDetails.Sum(x => x.DiscountAmount),
+                    i.FeeCategory.Name,
+                    i.FeeStructureDetails.Sum(x=>x.TotalAmount),
+                    i.IsActive,                  
                     i.SchoolId,
                     i.CreatedBy,
                     i.CreatedAt,
@@ -367,21 +374,27 @@ namespace ES.Finances.Infrastructure.ServiceImpl
                     .GetConditionalAsync(x => x.Id == id,
                     query => query
                         .Include(x => x.StudentFees)
-                        .ThenInclude(d => d.AssignedFeeStatus)
+                        .Include(x=>x.FeeCategory)
+                        .Include(x=>x.FeeStructureDetails)
                     );
                 var entity = feeStructure.FirstOrDefault();
-                var months = entity.StudentFees?
-                    .SelectMany(sf => sf.AssignedFeeStatus)
-                    .Select(a => a.NameOfMonths) // assuming enum stored here
-                    .ToList();
+
 
                 var response = new FeeStructureByIdResponse
                     (
                         entity.Id,
-                          entity.FeeStructureDetails.Sum(x => x.TotalAmount),
                         entity.ClassId,
+                        entity.FeeCategory.Name,
                         entity.FyId,
-                        months,
+                        entity.FeeStructureDetails.Select(x=>new AddFeeStructureDTOs
+                        (
+                            x.FeeTypeId,
+                            x.Amount,
+                            x.DiscountAmount,
+                            x.Times,
+                            x.TotalAmount,
+                            x.FeePaidType
+                            )).ToList(),
                         entity.IsActive,
                         entity.SchoolId,
                         entity.CreatedBy,
@@ -408,10 +421,14 @@ namespace ES.Finances.Infrastructure.ServiceImpl
                 var (feeStructure, currentSchoolId, institutionId, userRole, isSuperAdmin) =
                     await _getUserScopedData.GetUserScopedData<FeeStructure>();
 
-                var finalQuery = feeStructure.Where(
+                var finalQuery = feeStructure
+                    .Include(x=>x.FeeCategory)
+                    .Where(
                     x => x.IsActive == true 
                     && x.SchoolId == currentSchoolId 
                     && x.ClassId == feeStructureByClassDTOs.classId).AsNoTracking();
+
+                var data = finalQuery.ToList();
 
 
                 var pagedResult = await finalQuery.ToPagedResultAsync(
@@ -420,7 +437,15 @@ namespace ES.Finances.Infrastructure.ServiceImpl
                     paginationRequest.IsPagination);
 
 
-                var mappedItems = _mapper.Map<List<FeeStructureByClassResponse>>(pagedResult.Data.Items);
+                var mappedItems = pagedResult.Data.Items
+                        .Select(x => new FeeStructureByClassResponse
+                        (
+                            id: x.Id,
+                            classId: x.ClassId,
+                            fyId: x.FyId,
+                            feeCategoryName: x.FeeCategory?.Name ?? ""
+                        ))
+                        .ToList();
 
                 var response = new PagedResult<FeeStructureByClassResponse>
                 {

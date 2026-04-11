@@ -11,5 +11,5 @@ namespace TN.Setup.Application.Setup.Queries.GetModulesByRoleId
     public record GetModulesByRoleIdQuery
     (
         string roleId
-        ): IRequest<Result<List<GetModulesByRoleIdResponse>>>;
+        ): IRequest<Result<List<GetModulesByAppResponse>>>;
 }

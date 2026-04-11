@@ -10,8 +10,8 @@ namespace ES.Finances.Application.Finance.Command.Fee.AddFeeStructure
     public record AddFeeStructureDTOs
     (
         string feeTypeId,
-            string feeStructureId,
             decimal amount,
+            decimal? discountAmount,
             int times,
             decimal totalAmount,
             FeePaidType feePaidType

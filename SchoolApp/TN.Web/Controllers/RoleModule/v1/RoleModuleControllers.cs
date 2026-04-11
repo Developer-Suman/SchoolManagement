@@ -31,6 +31,7 @@ using TN.Setup.Application.Setup.Command.UpdateModules;
 using TN.Setup.Application.Setup.Command.UpdateModules.RequestCommandMapper;
 using TN.Setup.Application.Setup.Command.UpdateSubModules;
 using TN.Setup.Application.Setup.Command.UpdateSubModules.RequestCommandMapper;
+using TN.Setup.Application.Setup.Queries.AppNames;
 using TN.Setup.Application.Setup.Queries.GetMenuBySubModulesId;
 using TN.Setup.Application.Setup.Queries.GetModulesByRoleId;
 using TN.Setup.Application.Setup.Queries.GetSubModulesById;
@@ -66,6 +67,31 @@ namespace TN.Web.Controllers.RoleModule.v1
 
 
         #region Modules
+
+        #region AppNames
+        [HttpGet("AppNames")]
+        public async Task<IActionResult> AppNames([FromQuery] PaginationRequest paginationRequest)
+        {
+            var query = new AppNamesQuery(paginationRequest);
+            var queryResult = await _mediator.Send(query);
+            #region Switch Statement
+            return queryResult switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(queryResult.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = queryResult.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(queryResult.Errors),
+                _ => BadRequest("Invalid page and pageSize Fields")
+            };
+            #endregion
+
+        }
+
+        #endregion
+
+
         #region AllModule
         [HttpGet("all-modules")]
         public async Task<IActionResult> AllModules([FromQuery] PaginationRequest paginationRequest)

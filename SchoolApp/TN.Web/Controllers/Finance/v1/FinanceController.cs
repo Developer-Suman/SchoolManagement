@@ -9,6 +9,8 @@ using ES.Finances.Application.Finance.Command.Fee.AddStudentFee.RequestCommandMa
 using ES.Finances.Application.Finance.Command.Fee.AssignMonthlyFee;
 using ES.Finances.Application.Finance.Command.Fee.AssignMonthlyFee.RequestCommandMapper;
 using ES.Finances.Application.Finance.Command.Fee.DeleteFeeType;
+using ES.Finances.Application.Finance.Command.Fee.FeeCategory.AddFeeCategory;
+using ES.Finances.Application.Finance.Command.Fee.FeeCategory.AddFeeCategory.AddFeeCategoryCommandMapper;
 using ES.Finances.Application.Finance.Command.Fee.UpdateFeeStructure;
 using ES.Finances.Application.Finance.Command.Fee.UpdateFeeStructure.RequestCommandMapper;
 using ES.Finances.Application.Finance.Command.Fee.UpdateFeeType;
@@ -17,6 +19,7 @@ using ES.Finances.Application.Finance.Command.Fee.UpdateStudentFee;
 using ES.Finances.Application.Finance.Command.Fee.UpdateStudentFee.RequestMapper;
 using ES.Finances.Application.Finance.Command.PaymentRecords.AddpaymentsRecords;
 using ES.Finances.Application.Finance.Command.PaymentRecords.AddpaymentsRecords.RequestCommandMapper;
+using ES.Finances.Application.Finance.Queries.Fee.FeeCategory.FilterFeeCategory;
 using ES.Finances.Application.Finance.Queries.Fee.FeeStructure;
 using ES.Finances.Application.Finance.Queries.Fee.FeeStructureByClass;
 using ES.Finances.Application.Finance.Queries.Fee.FeeStructureById;
@@ -80,6 +83,55 @@ namespace TN.Web.Controllers.Finance.v1
 
         }
 
+        #endregion
+
+        #endregion
+
+        #region FeeCategory
+        #region FilterFeeCategory
+        [HttpGet("FilterFeeCategory")]
+        public async Task<IActionResult> FilterFeeCategory([FromQuery] FilterFeeCategoryDTOs filterFeeCategoryDTOs, [FromQuery] PaginationRequest paginationRequest)
+        {
+            var query = new FilterFeeCategoryQuery(paginationRequest, filterFeeCategoryDTOs);
+            var result = await _mediator.Send(query);
+            #region Switch Statement
+            return result switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(result.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = result.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(result.Errors),
+                _ => BadRequest("Invalid page and pageSize Fields")
+            };
+            #endregion
+
+        }
+
+        #endregion
+
+
+
+        #region AddFeeCategory
+        [HttpPost("AddFeeCategory")]
+
+        public async Task<IActionResult> AddFeeCategory([FromBody] AddFeeCategoryRequest request)
+        {
+            var command = request.ToCommand();
+            var result = await _mediator.Send(command);
+            #region Switch Statement
+            return result switch
+            {
+                { IsSuccess: true, Data: not null } => CreatedAtAction(nameof(AddFeeCategory), result.Data),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { result.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(result.Errors),
+                _ => BadRequest("Invalid Fields for Add")
+
+            };
+
+            #endregion
+        }
         #endregion
 
         #endregion

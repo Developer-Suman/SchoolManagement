@@ -9,6 +9,7 @@ namespace ES.Academics.Application.Academics.Queries.Events.FilterEvents
     public record FilterEventsDTOs
     (
       string? startDate,
-      string? endDate
+      string? endDate,
+      string? title
         );
 }

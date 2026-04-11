@@ -15,6 +15,6 @@ namespace ES.Finances.Application.Finance.Command.Fee.AddStudentFee
             string feeStructureId,
             string classId,
             decimal discountPercentage,
-            List<NameOfMonths?> nameOfMonths
+            List<StudentFeeDetailsDTOs?> StudentFeeDetailsDTOs
         ) : IRequest<Result<AddStudentFeeResponse>>;
 }

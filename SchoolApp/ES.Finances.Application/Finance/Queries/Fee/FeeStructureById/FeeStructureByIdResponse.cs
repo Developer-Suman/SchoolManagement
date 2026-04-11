@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ES.Finances.Application.Finance.Command.Fee.AddFeeStructure;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,10 +11,10 @@ namespace ES.Finances.Application.Finance.Queries.Fee.FeeStructureById
     public record FeeStructureByIdResponse
     (
         string id,
-            decimal amount,
             string classId,
+            string feeCategoryName,
             string fyId,
-              List<NameOfMonths?> nameOfMonths,
+            List<AddFeeStructureDTOs> feeStructureDTOs,
             bool isActive,
             string schoolId,
             string createdBy,

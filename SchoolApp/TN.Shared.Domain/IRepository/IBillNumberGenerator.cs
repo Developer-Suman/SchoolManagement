@@ -8,6 +8,7 @@ namespace TN.Shared.Domain.IRepository
     public interface IBillNumberGenerator
     {
         Task<string> GenerateBillNumberAsync(string schoolId, string billType, string fyName);
+        Task<string> GenerateSchoolReceipt(string schoolId);
 
         Task<string> GenerateTransactionNumber(string schoolId, string transactionNumberType, string fyName);
         Task<string> GenerateJournalReference(string schoolId);

@@ -9,17 +9,17 @@ namespace ES.Finances.Application.Finance.Command.Fee.AddFeeStructure
 {
     public record AddFeeStructureResponse
     (
-        string id,
-            decimal amount,
-            string classId,
-            string fyId,
-            string feeTypeId,
-            bool isActive,
-            string schoolId,
-            string createdBy,
-            DateTime createdAt,
-            string modifiedBy,
-            DateTime modifiedAt,
-                  NameOfMonths? nameOfMonths
+        string id="",
+            decimal amount=0,
+            string classId="",
+            string fyId = "",
+            string feeTypeId = "",
+            bool isActive=true,
+            string schoolId = "",
+            string createdBy = "",
+            DateTime createdAt=default,
+            string modifiedBy = "",
+            DateTime modifiedAt= default,
+                  List<AddFeeStructureDTOs> feeStructureDTOs = default
         );
 }

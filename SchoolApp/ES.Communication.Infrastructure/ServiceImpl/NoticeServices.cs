@@ -138,42 +138,49 @@ namespace ES.Communication.Infrastructure.ServiceImpl
                         query => query.Select(c => c.Id)
                     );
 
-                var noticeFilterData = isSuperAdmin
+                var filter = isSuperAdmin
                     ? notice
                     : notice.Where(x => x.SchoolId == _tokenService.SchoolId().FirstOrDefault() || x.SchoolId == "");
 
-                var (startUtc, endUtc) = await _dateConverter.GetDateRangeUtc(filterNoticeDTOs.startDate, filterNoticeDTOs.endDate);
+                IQueryable<Notice> query = filter.AsQueryable();
 
-                var filteredResult = noticeFilterData
-                 .Where(x =>
-                       (string.IsNullOrEmpty(filterNoticeDTOs.title) || x.Title == filterNoticeDTOs.title) &&
-                     x.CreatedAt >= startUtc &&
-                         x.CreatedAt <= endUtc &&
-                         x.IsActive
-                 )
-                 .OrderByDescending(x => x.CreatedAt) // newest first
-                 .ToList();
+                if (!string.IsNullOrEmpty(filterNoticeDTOs.title))
+                {
+                    query = query.Where(x => x.Title == filterNoticeDTOs.title);
+                }
+
+                if (filterNoticeDTOs.startDate != null && filterNoticeDTOs.endDate != null)
+                {
+                    var (startUtc, endUtc) = await _dateConverter.GetDateRangeUtc(
+                        filterNoticeDTOs.startDate,
+                        filterNoticeDTOs.endDate
+                    );
+
+                    query = query.Where(x => x.CreatedAt >= startUtc && x.CreatedAt <= endUtc);
+                }
+
+                query = query.Where(x => x.IsActive)
+               .OrderByDescending(x => x.CreatedAt);
 
 
 
 
-                var responseList = filteredResult
-                .OrderByDescending(x => x.CreatedAt)
+                var responseList = query
                 .Select(i => new FilterNoticeResponse(
                     i.Id,
                     i.Title,
                     i.ContentHtml,
                     i.ShortDescription,
                     i.CreatedAt ?? default,
-                     i.IsPublished ? PublishStatus.Published: PublishStatus.UnPublished,
+                     i.IsPublished ? PublishStatus.Published : PublishStatus.UnPublished,
                     i.CreatedBy,
-                      
+
                     i.ModifiedAt ?? default,
                     i.ModifiedBy,
                     i.SchoolId
-
                 ))
                 .ToList();
+
 
                 PagedResult<FilterNoticeResponse> finalResponseList;
 
