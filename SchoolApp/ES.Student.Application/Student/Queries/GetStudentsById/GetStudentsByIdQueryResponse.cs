@@ -10,7 +10,7 @@ namespace ES.Student.Application.Student.Queries.GetStudentsById
 {
     public record  GetStudentsByIdQueryResponse
     (
-
+        string feeCategoryId="",
         string firstName="",
             string? middleName="",
             string lastName="",

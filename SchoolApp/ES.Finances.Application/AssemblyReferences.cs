@@ -3,6 +3,7 @@ using ES.Finances.Application.Finance.Command.Fee.AddFeeType;
 using ES.Finances.Application.Finance.Command.Fee.AddStudentFee;
 using ES.Finances.Application.Finance.Command.Fee.AssignMonthlyFee;
 using ES.Finances.Application.Finance.Command.Fee.FeeCategory.AddFeeCategory;
+using ES.Finances.Application.Finance.Command.Fee.FeeCategory.UpdateFeeCategory;
 using ES.Finances.Application.Finance.Command.Fee.UpdateFeeStructure;
 
 using ES.Finances.Application.Finance.Command.Fee.UpdateFeeType;
@@ -29,6 +30,7 @@ namespace ES.Finances.Application
             services.AddScoped<IValidator<AddPaymentsRecordsCommand>, AddPaymentsRecordsCommandValidators>();
             services.AddScoped<IValidator<AssignMonthlyFeeCommand>, AssignMonthlyFeeCommandValidators>();
             services.AddScoped<IValidator<AddFeeCategoryCommand>, AddFeeCategoryCommandValidator>();
+            services.AddScoped<IValidator<UpdateFeeCategoryCommand>, UpdateFeeCategoryCommandValidator>();
             return services;
         }
 

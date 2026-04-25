@@ -17,6 +17,7 @@ using ES.Academics.Application.Academics.Command.AddSubject.RequestCommandMapper
 using ES.Academics.Application.Academics.Command.ClosedAcademicYear;
 using ES.Academics.Application.Academics.Command.ClosedAcademicYear.RequestCommandMapper;
 using ES.Academics.Application.Academics.Command.DeleteExam;
+using ES.Academics.Application.Academics.Command.DeleteExamResult;
 using ES.Academics.Application.Academics.Command.DeleteSchoolClass;
 using ES.Academics.Application.Academics.Command.DeleteSubject;
 using ES.Academics.Application.Academics.Command.EvaluteAssignments;
@@ -131,7 +132,14 @@ namespace TN.Web.Controllers.Academics.v1
             #region Switch Statement
             return addEventsResult switch
             {
-                { IsSuccess: true, Data: not null } => CreatedAtAction(nameof(AddEvents), addEventsResult.Data),
+                { IsSuccess: true, Data: not null } => CreatedAtAction(
+                nameof(AddEvents),
+                new { id = addEventsResult.Data.id },  
+                new
+                {
+                    Data = addEventsResult.Data,
+                    Message = addEventsResult.Message
+                }),
                 { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = addEventsResult.Message }),
                 { IsSuccess: false, Errors: not null } => HandleFailureResult(addEventsResult.Errors),
                 _ => BadRequest("Invalid Fields ")
@@ -765,7 +773,7 @@ namespace TN.Web.Controllers.Academics.v1
 
         public async Task<IActionResult> DeleteExamResult([FromRoute] string id, CancellationToken cancellationToken)
         {
-            var command = new DeleteExamCommand(id);
+            var command = new DeleteExamResultCommand(id);
             var deleteExamResultDetails = await _mediator.Send(command);
             #region Switch Statement
             return deleteExamResultDetails switch
@@ -802,7 +810,7 @@ namespace TN.Web.Controllers.Academics.v1
         }
         #endregion
 
-        #region UpdateExam
+        #region UpdateExamResult
         [HttpPatch("UpdateExamResult/{Id}")]
 
         public async Task<IActionResult> UpdateExamResult([FromRoute] string Id, [FromBody] UpdateExamResultRequest request)

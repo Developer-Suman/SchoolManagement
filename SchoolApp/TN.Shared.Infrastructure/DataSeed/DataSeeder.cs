@@ -9,6 +9,7 @@ using TN.Setup.Domain.Entities;
 using TN.Shared.Domain.Entities.Academics;
 using TN.Shared.Domain.Entities.Account;
 using TN.Shared.Domain.Entities.Certificates;
+using TN.Shared.Domain.Entities.Finance;
 using TN.Shared.Domain.Entities.OrganizationSetUp;
 using TN.Shared.Domain.Entities.Setup;
 using TN.Shared.Domain.Entities.StockCenterEntities;
@@ -73,6 +74,7 @@ namespace TN.Shared.Infrastructure.DataSeed
                 await SeedClasses();
                 await SeedAcademicYear();
                 await CertificateTemplate();
+                await SeedFeeCategory();
 
             }
             catch (Exception ex)
@@ -85,6 +87,26 @@ namespace TN.Shared.Infrastructure.DataSeed
 
 
         }
+
+        #region SeedFeeCategory
+        private async Task SeedFeeCategory()
+        {
+            if (!await _context.FeeCategories.AnyAsync())
+            {
+                var feeCategory = new List<FeeCategory>()
+                {
+                    new FeeCategory("2733092b-a82f-4d76-bae7-5828d9ea2018","Regular Student","Regular Student","",true,"","",DateTime.UtcNow,"", default),
+                    new FeeCategory("4f6daa41-7eaa-41ff-8bae-fb815d98ac59","New Admission","New Admission","",true,"","",DateTime.UtcNow,"", default),
+                    new FeeCategory("7869a1f2-d967-43da-b65d-3282ea181361","Discounted Student","Discounted Student","",true,"","",DateTime.UtcNow,"", default),
+                    new FeeCategory("ed24a4f5-0a90-40aa-9d94-c460254bffa6","Scholership Student","SchelorShip Student","",true,"","",DateTime.UtcNow,"", default)
+                };
+                await _context.FeeCategories.AddRangeAsync(feeCategory);
+                await _unitOfWork.SaveChangesAsync();
+
+            }
+        }
+
+        #endregion
 
         #region AppName
         private async Task SeedAppName()

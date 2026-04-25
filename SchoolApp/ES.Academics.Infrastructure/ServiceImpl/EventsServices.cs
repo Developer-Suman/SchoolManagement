@@ -31,6 +31,7 @@ using TN.Shared.Domain.Entities.Crm.Enrollments;
 using TN.Shared.Domain.Entities.OrganizationSetUp;
 using TN.Shared.Domain.ExtensionMethod.Pagination;
 using TN.Shared.Domain.IRepository;
+using TN.Shared.Infrastructure.CustomMiddleware.CustomException;
 using Unity.Injection;
 using static ES.Academics.Application.Academics.Queries.Events.ScheduleEvents.ScheduleEventsResponse;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
@@ -73,6 +74,11 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                     var userId = _tokenService.GetUserId();
                     var academicYearId = _fiscalContext.CurrentAcademicYearId;
 
+                    if (newId is not null)
+                    {
+                        throw new NotFoundExceptions("Event not found.");
+                    }
+
                     var addEvents = new Events(
                         newId,
                         addEventsCommand.title,
@@ -109,7 +115,7 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                 catch (Exception ex)
                 {
                     scope.Dispose();
-                    throw new Exception("An error occurred while adding ", ex);
+                    throw;
 
                 }
             }

@@ -1,5 +1,7 @@
-﻿using ES.Student.Application.CocurricularActivities.Command.AddActivity;
-using ES.Student.Application.CocurricularActivities.Command.Addparticipation;
+﻿using ES.Student.Application.CocurricularActivities.Command.Activity.AddActivity;
+using ES.Student.Application.CocurricularActivities.Command.Activity.UpdateActivity;
+using ES.Student.Application.CocurricularActivities.Command.Participation.Addparticipation;
+using ES.Student.Application.CocurricularActivities.Command.Participation.UpdateParticipation;
 using ES.Student.Application.Registration.Command.RegisterMultipleStudents;
 using ES.Student.Application.Registration.Command.RegisterStudents;
 using ES.Student.Application.Student.Command.AddAttendances;
@@ -36,6 +38,8 @@ namespace ES.Student.Application
             services.AddScoped<IValidator<StudentExcelCommand>, StudentExcelCommandValidator>();
             services.AddScoped<IValidator<AddActivityCommand>, AddActivityCommandValidator>();
             services.AddScoped<IValidator<AddParticipationCommand>, AddParticipationCommandValidator>();
+            services.AddScoped<IValidator<UpdateParticipationCommand>, UpdateParticipationCommandValidator>();
+            services.AddScoped<IValidator<UpdateActivityCommand>, UpdateActivityCommandValidator>();
             return services;
         }
     }

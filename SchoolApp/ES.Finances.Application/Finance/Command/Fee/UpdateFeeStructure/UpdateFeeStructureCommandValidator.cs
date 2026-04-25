@@ -11,7 +11,7 @@ namespace ES.Finances.Application.Finance.Command.Fee.UpdateFeeStructure
     {
         public UpdateFeeStructureCommandValidator()
         {
-            RuleFor(x => x.id)
+            RuleFor(x => x.classId)
                 .NotEmpty().WithMessage("amount is required.")
                 .Matches(@"\S").WithMessage("amount must not be whitespace.");
         }

@@ -12,6 +12,7 @@ namespace ES.Finances.Application.Finance.Queries.Fee.FeeStructureById
     (
         string id,
             string classId,
+            string feeCategoryId,
             string feeCategoryName,
             string fyId,
             List<AddFeeStructureDTOs> feeStructureDTOs,

@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,6 +15,7 @@ namespace ES.Student.Application.Student.Command.UpdateStudents
     (
           string id,
          string firstName,
+         string feeCategoryId,
         string? middleName,
         string lastName,
         string registrationNumber,
@@ -22,7 +24,7 @@ namespace ES.Student.Application.Student.Command.UpdateStudents
         DateTime dateOfBirth,
         string? email,
         string? phoneNumber,
-        string? imageUrl,
+        IFormFile? studentImg,
         string? address,
         DateTime enrollmentDate,
         string? parentId,

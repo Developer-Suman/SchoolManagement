@@ -515,7 +515,7 @@ namespace TN.Web.Controllers.Student.v1
         #region UpdateStudents
         [HttpPatch("UpdateStudents/{id}")]
 
-        public async Task<IActionResult> UpdateStudents([FromRoute] string id, [FromBody] UpdateStudentRequest request)
+        public async Task<IActionResult> UpdateStudents(string id, [FromForm] UpdateStudentRequest request)
         {
             //Mapping command and request
             var command = request.ToUpdateStudentCommand(id);

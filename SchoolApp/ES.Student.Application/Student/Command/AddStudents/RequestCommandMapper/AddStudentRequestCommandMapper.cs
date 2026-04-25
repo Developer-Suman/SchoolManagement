@@ -12,6 +12,7 @@ namespace ES.Student.Application.Student.Command.AddStudents.RequestCommandMappe
         {
             return new AddStudentsCommand(
                 request.firstName,
+                request.feeCategoryId,
                 request.middleName,
                 request.lastName,
                 request.registrationNumber,

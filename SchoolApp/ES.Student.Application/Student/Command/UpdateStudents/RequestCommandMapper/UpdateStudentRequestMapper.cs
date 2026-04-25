@@ -13,6 +13,7 @@ namespace ES.Student.Application.Student.Command.UpdateStudents.RequestCommandMa
             return new UpdateStudentCommand(
                     id,
                     request.firstName,
+                    request.feeCategoryId,
                     request.middleName,
                     request.lastName,
                     request.registrationNumber,
@@ -21,7 +22,7 @@ namespace ES.Student.Application.Student.Command.UpdateStudents.RequestCommandMa
                     request.dateOfBirth,
                     request.email,
                     request.phoneNumber,
-                    request.imageUrl,
+                    request.studentImg ,
                     request.address,
                     request.enrollmentDate,
                     request.parentId,

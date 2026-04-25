@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TN.Shared.Domain.Entities.Finance;
 using TN.Shared.Domain.Entities.Students;
 using static TN.Shared.Domain.Enum.GenderEnum;
 
@@ -11,6 +12,7 @@ namespace ES.Student.Application.Student.Command.UpdateStudents
     public record  UpdateStudentResponse
     (
         string id,
+        string feeCategoryId,
         string firstName,
         string? middleName,
         string lastName,

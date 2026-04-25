@@ -1,7 +1,12 @@
 ﻿using AutoMapper;
 using ES.Finances.Application.Finance.Command.Fee.AddFeeType;
 using ES.Finances.Application.Finance.Command.Fee.FeeCategory.AddFeeCategory;
+using ES.Finances.Application.Finance.Command.Fee.FeeCategory.UpdateFeeCategory;
+using ES.Finances.Application.Finance.Command.Fee.UpdateFeeStructure;
+using ES.Finances.Application.Finance.Command.Fee.UpdateFeeType;
+using ES.Finances.Application.Finance.Queries.Fee.FeeCategory.FeeCategoryById;
 using ES.Finances.Application.Finance.Queries.Fee.FeeCategory.FilterFeeCategory;
+using ES.Finances.Application.Finance.Queries.Fee.FeetypeById;
 using ES.Finances.Application.Finance.Queries.Fee.FilterFeetype;
 using ES.Finances.Application.ServiceInterface;
 using System;
@@ -100,6 +105,30 @@ namespace ES.Finances.Infrastructure.ServiceImpl
                     throw new Exception("An error occurred while adding..", ex);
 
                 }
+            }
+        }
+
+        public async Task<Result<bool>> Delete(string feeCategoryId)
+        {
+            try
+            {
+                var feeCategory = await _unitOfWork.BaseRepository<FeeCategory>().GetByGuIdAsync(feeCategoryId);
+
+                if (feeCategory is null)
+                {
+                    return Result<bool>.Failure("NotFound", "FeeCategory not found");
+                }
+
+                feeCategory.IsActive = false;
+
+                _unitOfWork.BaseRepository<FeeCategory>().Update(feeCategory);
+
+                return Result<bool>.Success(true);
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while deleting feeCategory", ex);
             }
         }
 
@@ -202,6 +231,72 @@ namespace ES.Finances.Infrastructure.ServiceImpl
             catch (Exception ex)
             {
                 throw new Exception($"An error occurred while fetching result: {ex.Message}", ex);
+            }
+        }
+
+        public async Task<Result<FeeCategoryByIdResponse>> GetCategory(string id, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+
+                var feeCategory = await _unitOfWork.BaseRepository<FeeCategory>().GetByGuIdAsync(id);
+
+                var feeCategoryResponse = _mapper.Map<FeeCategoryByIdResponse>(feeCategory);
+
+                return Result<FeeCategoryByIdResponse>.Success(feeCategoryResponse);
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while fetching by using Id", ex);
+            }
+        }
+
+        public async Task<Result<UpdateFeeCategoryResponse>> Update(string feeCategoryId, UpdateFeeCategoryCommand updateFeeCategoryCommand)
+        {
+            using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            {
+                try
+                {
+                    if (feeCategoryId == null)
+                    {
+                        return Result<UpdateFeeCategoryResponse>.Failure("NotFound", "Please provide valid feeCategoryId");
+                    }
+
+                    var ToBeUpdated = await _unitOfWork.BaseRepository<FeeCategory>().GetByGuIdAsync(feeCategoryId);
+                    if (ToBeUpdated is null)
+                    {
+                        return Result<UpdateFeeCategoryResponse>.Failure("NotFound", "feeCategory are not Found");
+                    }
+                    ToBeUpdated.ModifiedAt = DateTime.UtcNow;
+                    _mapper.Map(updateFeeCategoryCommand, ToBeUpdated);
+                    await _unitOfWork.SaveChangesAsync();
+                    scope.Complete();
+
+                    var resultResponse = new UpdateFeeCategoryResponse
+                        (
+                        feeCategoryId,
+                        ToBeUpdated.Name,
+                        ToBeUpdated.Description,
+                        ToBeUpdated.FyId,
+                        ToBeUpdated.IsActive,
+                        ToBeUpdated.SchoolId,
+
+                          ToBeUpdated.CreatedBy,
+                        ToBeUpdated.CreatedAt,
+                        ToBeUpdated.ModifiedBy,
+                        ToBeUpdated.ModifiedAt
+                      
+
+                        );
+
+                    return Result<UpdateFeeCategoryResponse>.Success(resultResponse);
+
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception("An error occurred while updating", ex);
+                }
             }
         }
     }

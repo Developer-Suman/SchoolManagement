@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TN.Shared.Domain.Entities.CocurricularActivities;
+using TN.Shared.Domain.Entities.Students;
 using TN.Shared.Domain.Primitive;
 
 namespace TN.Shared.Domain.Entities.Finance
@@ -38,6 +40,7 @@ namespace TN.Shared.Domain.Entities.Finance
             CreatedAt = createdAt;
             ModifiedAt = modifiedAt;
             FeeStructures = new List<FeeStructure>();
+            StudentDatas = new List<StudentData>();
 
         }
         public string Name { get; set; }
@@ -53,5 +56,6 @@ namespace TN.Shared.Domain.Entities.Finance
         public string ModifiedBy { get; set; }
         public DateTime ModifiedAt { get; set; } = DateTime.Now;
         public ICollection<FeeStructure> FeeStructures { get; set; }
+        public ICollection<StudentData> StudentDatas { get; set; }
     }
 }

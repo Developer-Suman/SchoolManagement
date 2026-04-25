@@ -11,6 +11,7 @@ namespace ES.Student.Application.Student.Queries.StudentFromRegistration
     public record StudentFromRegistrationResponse
     (
         string id = "",
+        string feeCategoryId = "",
          string firstName = "",
         string? middleName = "",
         string lastName = "",

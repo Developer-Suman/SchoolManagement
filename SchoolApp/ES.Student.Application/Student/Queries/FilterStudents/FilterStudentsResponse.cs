@@ -13,6 +13,7 @@ namespace ES.Student.Application.Student.Queries.FilterStudents
     public record FilterStudentsResponse
     (
         string id = "",
+        string? feeCategoryId = "",
          string firstName = "",
         string? middleName = "",
         string lastName = "",

@@ -15,7 +15,9 @@ using ES.Academics.Application.Academics.Command.Events.AddEvents;
 using ES.Academics.Application.Academics.Command.Events.DeleteEvents;
 using ES.Academics.Application.Academics.Command.Events.UpdateEvents;
 using ES.Academics.Application.Academics.Command.SubmitAssignments;
+using ES.Academics.Application.Academics.Command.UpdateExamResult;
 using ES.Academics.Application.Academics.Command.UpdateSchoolClass;
+using ES.Academics.Application.Academics.Command.UpdateSubject;
 using ES.Academics.Application.Academics.Queries.ClassByExamSession;
 using ES.Academics.Application.Academics.Queries.ClassWithSubject;
 using ES.Academics.Application.Academics.Queries.Events.Events;
@@ -151,6 +153,7 @@ namespace ES.Academics.Application.AutoMapper
 
             #region ExamResult
 
+            CreateMap<ExamResult, UpdateExamResultCommand>().ReverseMap();
             CreateMap<ExamResult, DeleteExamResultCommand>().ReverseMap();
             CreateMap<Subject, SubjectByClassIdResponse>().ReverseMap();
 
@@ -171,6 +174,7 @@ namespace ES.Academics.Application.AutoMapper
             #endregion
 
             #region Subject
+            CreateMap<Subject, UpdateSubjectCommand>().ReverseMap();
             CreateMap<Subject, SubjectResponse>().ReverseMap();
             CreateMap<Subject, DeleteSubjectCommand>().ReverseMap();
 

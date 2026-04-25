@@ -1,8 +1,6 @@
 ﻿using AutoMapper;
 using ES.Certificate.Application.Certificates.Queries.CertificateTemplate;
 using ES.Certificate.Application.ServiceInterface.IHelperMethod;
-using ES.Student.Application.CocurricularActivities.Queries.FilterActivity;
-using ES.Student.Application.Registration.Command.RegisterStudents;
 using ES.Student.Application.ServiceInterface;
 using ES.Student.Application.Student.Command.AddParent;
 using ES.Student.Application.Student.Command.AddStudents;
@@ -20,8 +18,10 @@ using ES.Student.Application.Student.Queries.GetStudentForAttendance;
 using ES.Student.Application.Student.Queries.GetStudentsById;
 using ES.Student.Application.Student.Queries.StudentFromRegistration;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using OfficeOpenXml;
 using SendGrid.Helpers.Errors.Model;
@@ -37,6 +37,7 @@ using TN.Shared.Domain.Abstractions;
 using TN.Shared.Domain.Entities.Academics;
 using TN.Shared.Domain.Entities.Certificates;
 using TN.Shared.Domain.Entities.Communication;
+using TN.Shared.Domain.Entities.Finance;
 using TN.Shared.Domain.Entities.OrganizationSetUp;
 using TN.Shared.Domain.Entities.Staff;
 using TN.Shared.Domain.Entities.StockCenterEntities;
@@ -63,10 +64,12 @@ namespace ES.Student.Infrastructure.ServiceImpl
         private readonly IimageServices _imageServices;
         private readonly IAuthorizationService _authorizationService;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IWebHostEnvironment _environment;
 
-        public StudentServices(IHelperService helperService,IHttpContextAccessor httpContextAccessor, IAuthorizationService authorizationService,IUnitOfWork unitOfWork,IMapper mapper,ITokenService tokenService, IGetUserScopedData getUserScopedData,
+        public StudentServices(IWebHostEnvironment environment,IHelperService helperService,IHttpContextAccessor httpContextAccessor, IAuthorizationService authorizationService,IUnitOfWork unitOfWork,IMapper mapper,ITokenService tokenService, IGetUserScopedData getUserScopedData,
             IDateConvertHelper dateConvertHelper,FiscalContext fiscalContext, IHelperMethodServices helperMethodServices, IimageServices iimageServices)
         {
+            _environment = environment;
             _authorizationService = authorizationService;
             _getUserScopedData = getUserScopedData;
             _dateConverter = dateConvertHelper;
@@ -183,6 +186,7 @@ namespace ES.Student.Infrastructure.ServiceImpl
                     var studentsData = new StudentData
                      (
                          newId,
+                         addStudentsCommand.feeCategoryId,
                          addStudentsCommand.firstName,
                          nullableMiddleName,
                          addStudentsCommand.lastName,
@@ -476,15 +480,20 @@ namespace ES.Student.Infrastructure.ServiceImpl
                     }
 
                     int rowCount = worksheet.Dimension.Rows;
-                    int colCount = worksheet.Dimension.Columns;
 
-                    Dictionary<string, int> headerMap = new();
+                    Dictionary<string, int> headerMap = new Dictionary<string, int>();
 
                     int headerRow = worksheet.Dimension.Start.Row;
+                    int colCount = worksheet.Dimension.End.Column;
 
                     for (int col = 1; col <= colCount; col++)
                     {
-                        var header = worksheet.Cells[headerRow, col].Text?.Trim().ToLower();
+                        var rawHeader = worksheet.Cells[headerRow, col].Text;
+
+                        if (string.IsNullOrWhiteSpace(rawHeader))
+                            continue;
+
+                        var header = rawHeader.Trim().ToLower();
 
                         if (!string.IsNullOrWhiteSpace(header))
                         {
@@ -510,12 +519,13 @@ namespace ES.Student.Infrastructure.ServiceImpl
                         .ToDictionary(g => g.Key, g => g.First());
 
 
+                    var feeCategory = await _unitOfWork.BaseRepository<FeeCategory>()
+                      .GetConditionalAsync(i => i.SchoolId == schoolId || i.SchoolId == "");
 
-
-               
-
-
-
+                    var feeCategoryLookup = feeCategory
+                        .Where(p => !string.IsNullOrWhiteSpace(p.Name))
+                        .GroupBy(p => p.Name.Trim().ToLower())
+                        .ToDictionary(g => g.Key, g => g.First());
 
 
                     // ============================
@@ -606,12 +616,53 @@ namespace ES.Student.Infrastructure.ServiceImpl
                             throw new Exception($"Invalid Class '{currentClassText}' at row {row}");
                         }
 
+
+                        var feeCategoryFromExcel = worksheet.Cells[row, headerMap["feecategory"]].Text?.Trim();
+
+                        FeeCategory matchedfeeCategory = null;
+
+                        if (!string.IsNullOrWhiteSpace(feeCategoryFromExcel) &&
+                            feeCategoryLookup.TryGetValue(feeCategoryFromExcel.ToLower(), out var feeCategoryDetails))
+                        {
+                            matchedfeeCategory = feeCategoryDetails;
+                        }
+
+
+                        if (matchedfeeCategory == null)
+                        {
+                            var newFeeCategory = new FeeCategory
+                            {
+                                Id = Guid.NewGuid().ToString(),
+                                Name = feeCategoryFromExcel ?? "Unknown Name" ,
+                                Description = "From Excel",
+                                FyId = fyId,
+                                IsActive = true,
+                                SchoolId = schoolId,
+                                CreatedBy = userId,
+                                CreatedAt = DateTime.UtcNow,
+                                ModifiedBy = "",
+                                ModifiedAt = DateTime.UtcNow
+                            };
+
+                            await _unitOfWork.BaseRepository<FeeCategory>().AddAsync(newFeeCategory);
+
+                            matchedfeeCategory = newFeeCategory;
+
+                            feeCategoryLookup[newFeeCategory.Name.ToLower()] = newFeeCategory;
+                        }
+
+                        var feeCategoryId = matchedfeeCategory.Id;
+
+
+
+
                         // ============================
                         // Parent Matching
                         // ============================
 
                         var fatherName = worksheet.Cells[row, headerMap["father name"]].Text?.Trim();
                         var motherName = worksheet.Cells[row, headerMap["mother name"]].Text?.Trim();
+                        var contactNumber = worksheet.Cells[row, headerMap["guardian contact number"]].Text?.Trim();
 
                         Parent matchedParent = null;
 
@@ -641,7 +692,7 @@ namespace ES.Student.Infrastructure.ServiceImpl
                                 CreatedAt = DateTime.UtcNow,
                                 CreatedBy = userId,
                                 IsActive = true,
-                                PhoneNumber = "",
+                                PhoneNumber = contactNumber,
                                 Email = "",
                                 Address = "",
                                 Occupation = "",
@@ -715,6 +766,7 @@ namespace ES.Student.Infrastructure.ServiceImpl
 
                         var student = new StudentData(
                             studentId,
+                            feeCategoryId,
                             firstName,
                             middleName,
                             lastName,
@@ -1127,6 +1179,7 @@ namespace ES.Student.Infrastructure.ServiceImpl
                 .OrderByDescending(x => x.CreatedAt)
                 .Select(i => new FilterStudentsResponse(
                     i.Id,
+                    i.FeeCategoryid,
                     i.FirstName,
                     i.MiddleName,
                     i.LastName,
@@ -1365,6 +1418,32 @@ namespace ES.Student.Infrastructure.ServiceImpl
                         return Result<UpdateStudentResponse>.Failure("NotFound", "students are not Found");
                     }
 
+
+                    // 🔹 Handle Image Update
+                    if (updateStudentCommand.studentImg != null && updateStudentCommand.studentImg.Length > 0)
+                    {
+                        // 1. Delete old image (if exists)
+                        if (!string.IsNullOrEmpty(studentToBeUpdated.ImageUrl))
+                        {
+                            var oldPath = Path.Combine(_environment.WebRootPath, studentToBeUpdated.ImageUrl);
+
+                            if (File.Exists(oldPath))
+                            {
+                                File.Delete(oldPath);
+                            }
+                        }
+
+                        // 2. Save new image
+                        string imageURL = await _imageServices.AddSingle(updateStudentCommand.studentImg);
+                        if (imageURL is null)
+                        {
+                            return Result<UpdateStudentResponse>.Failure("Image Url are not Created");
+                        }
+
+                        // 3. Update DB path
+                        studentToBeUpdated.ImageUrl = imageURL;
+                    }
+
                     _mapper.Map(updateStudentCommand, studentToBeUpdated);
                     await _unitOfWork.SaveChangesAsync();
                     scope.Complete();
@@ -1372,6 +1451,7 @@ namespace ES.Student.Infrastructure.ServiceImpl
                     var resultResponse = new UpdateStudentResponse
                         (
                              id,
+                            studentToBeUpdated.FeeCategoryid,
                             studentToBeUpdated.FirstName,
                             studentToBeUpdated.MiddleName,
                             studentToBeUpdated.LastName,
@@ -1478,6 +1558,7 @@ namespace ES.Student.Infrastructure.ServiceImpl
                 var mappedItems = pagedResult.Data.Items
                    .Select(x => new StudentFromRegistrationResponse(
                        x.Student.Id,
+                       x.Student.FeeCategoryid,
                        x.Student.FirstName,
                        x.Student.MiddleName,
                        x.Student.LastName,

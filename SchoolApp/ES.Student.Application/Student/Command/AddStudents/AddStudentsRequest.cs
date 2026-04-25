@@ -13,6 +13,7 @@ namespace ES.Student.Application.Student.Command.AddStudents
     public class AddStudentsRequest
     {
         public string? firstName { get; set; }
+        public string? feeCategoryId { get; set; }
         public string? middleName { get; set; }
         public string? lastName { get; set; }
         public string? registrationNumber { get; set; }

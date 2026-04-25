@@ -13,8 +13,6 @@ namespace ES.Communication.Application.Communication.Command.UpdateNotice
         string id,
         string title,
         string contentHtml,
-        string? shortDescription,
-        string modifiedBy,
-        string modifiedAt
+        string? shortDescription
     ) : IRequest<Result<UpdateNoticeResponse>>;
 }

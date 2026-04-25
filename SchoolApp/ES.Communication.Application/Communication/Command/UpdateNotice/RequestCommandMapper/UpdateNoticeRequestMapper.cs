@@ -14,9 +14,7 @@ namespace ES.Communication.Application.Communication.Command.UpdateNotice.Reques
                 Id,
                 request.title,
                 request.contentHtml,
-                request.shortDescription,
-                request.modifiedBy,
-                request.modifiedAt
+                request.shortDescription
                  );
         }
     }

@@ -5,6 +5,7 @@ using ES.Finances.Application.Finance.Command.Fee.UpdateFeeStructure;
 using ES.Finances.Application.Finance.Queries.Fee.FeeStructure;
 using ES.Finances.Application.Finance.Queries.Fee.FeeStructureByClass;
 using ES.Finances.Application.Finance.Queries.Fee.FeeStructureById;
+using ES.Finances.Application.Finance.Queries.Fee.FeeStructureByStudent;
 using ES.Finances.Application.Finance.Queries.Fee.FilterFeeStructure;
 using ES.Finances.Application.Finance.Queries.Fee.FilterFeetype;
 using ES.Finances.Application.ServiceInterface;
@@ -136,7 +137,8 @@ namespace ES.Finances.Infrastructure.ServiceImpl
                             x.amount,
                             x.times,
                             x.totalAmount,
-                            x.feePaidType
+                            x.feePaidType,
+                            true
                         )).ToList(),
                         true,
                         schoolId ?? "",
@@ -223,6 +225,30 @@ namespace ES.Finances.Infrastructure.ServiceImpl
             }
         }
 
+        public async Task<Result<bool>> Delete(string feeStructureid)
+        {
+            try
+            {
+                var feeStructure = await _unitOfWork.BaseRepository<FeeStructure>().GetByGuIdAsync(feeStructureid);
+
+                if (feeStructure is null)
+                {
+                    return Result<bool>.Failure("NotFound", "FeeStructure not found");
+                }
+
+                feeStructure.IsActive = false;
+
+                _unitOfWork.BaseRepository<FeeStructure>().Update(feeStructure);
+                await _unitOfWork.SaveChangesAsync();
+                return Result<bool>.Success(true);
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while deleting FeeStructure", ex);
+            }
+        }
+
         public async Task<Result<PagedResult<FeeStructureResponse>>> FeeStructure(PaginationRequest paginationRequest, CancellationToken cancellationToken = default)
         {
             try
@@ -255,6 +281,59 @@ namespace ES.Finances.Infrastructure.ServiceImpl
             catch (Exception ex)
             {
                 throw new Exception("An error occurred while fetching", ex);
+            }
+        }
+
+        public async Task<Result<FeeStructureByStudentResponse>> FeeStructureByStudent(FeeStructureByStudentDTOs feeStructureByStudentDTOs, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+
+                var (student, currentSchoolId, institutionIds, userRoles, isSuperAdmins) =
+                        await _getUserScopedData.GetUserScopedData<StudentData>();
+
+
+                var query = await student
+                        .Where(x =>
+                            x.IsActive &&
+                            x.SchoolId == currentSchoolId &&
+                            x.Id == feeStructureByStudentDTOs.studentId
+                        )
+                        .Select(x => new
+                        {
+                            StudentId = x.Id,
+                            StudentName = x.FirstName + " " + x.LastName,
+
+                            FeeCategory = x.FeeCategory == null ? null : new
+                            {
+                                x.FeeCategory.Id,
+                                x.FeeCategory.Name,
+
+                                FeeStructures = x.FeeCategory.FeeStructures
+                                    .Where(fs => fs.IsActive)
+                                    .Select(fs => new
+                                    {
+                                        fs.Id
+                                    })
+                                    .ToList()
+                            }
+                        })
+                        .AsNoTracking()
+                        .FirstOrDefaultAsync();
+
+                var response = new FeeStructureByStudentResponse
+                (
+                    query.FeeCategory?.FeeStructures.FirstOrDefault()?.Id ?? "",
+                    query.StudentId,
+                    query.FeeCategory?.Name ?? ""
+                    );
+
+                return Result<FeeStructureByStudentResponse>.Success(response);
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while fetching Notice by using Id", ex);
             }
         }
 
@@ -384,10 +463,14 @@ namespace ES.Finances.Infrastructure.ServiceImpl
                     (
                         entity.Id,
                         entity.ClassId,
+                        entity.FeeCategoryId,
                         entity.FeeCategory.Name,
                         entity.FyId,
-                        entity.FeeStructureDetails.Select(x=>new AddFeeStructureDTOs
+                        entity.FeeStructureDetails
+                        .Where(x=>x.IsActive == true)
+                        .Select(x=>new AddFeeStructureDTOs
                         (
+                            x.Id,
                             x.FeeTypeId,
                             x.Amount,
                             x.DiscountAmount,
@@ -471,40 +554,129 @@ namespace ES.Finances.Infrastructure.ServiceImpl
                 {
                     if (feeStructureId == null)
                     {
-                        return Result<UpdateFeeStructureResponse>.Failure("NotFound", "Please provide valid feeStrcturId");
+                        return Result<UpdateFeeStructureResponse>.Failure("NotFound", "Please provide valid feeStructureId");
                     }
 
-                    var feeStrctureToBeUpdated = await _unitOfWork.BaseRepository<FeeStructure>().GetByGuIdAsync(feeStructureId);
-                    if (feeStrctureToBeUpdated is null)
+                    var userId = _tokenService.GetUserId();
+
+                    var feeStructureDetails = await _unitOfWork.BaseRepository<FeeStructure>()
+                        .GetConditionalAsync(
+                            x => x.Id == feeStructureId,
+                            query => query.Include(x => x.FeeStructureDetails)
+                        );
+
+                    var feeStructure = feeStructureDetails.FirstOrDefault();
+
+                    if (feeStructure is null)
                     {
-                        return Result<UpdateFeeStructureResponse>.Failure("NotFound", "FeeStructure are not Found");
+                        return Result<UpdateFeeStructureResponse>.Failure("NotFound", "FeeStructure not found");
                     }
-                    feeStrctureToBeUpdated.ModifiedAt = DateTime.UtcNow;
-                    _mapper.Map(updateFeeStructureCommand, feeStrctureToBeUpdated);
+
+                    // ✅ Update main entity
+                    feeStructure.ModifiedAt = DateTime.UtcNow;
+                    feeStructure.ModifiedBy = userId;
+                    feeStructure.ClassId = updateFeeStructureCommand.classId;
+                    feeStructure.FeeCategoryId = updateFeeStructureCommand.feeCategoryId;
+
+                    if (updateFeeStructureCommand.feeStructureDTOs != null &&
+                        updateFeeStructureCommand.feeStructureDTOs.Any())
+                    {
+
+                        var existingDetails = feeStructure.FeeStructureDetails?.ToList()
+                                               ?? new List<FeeStructureDetails>();
+
+                        // ✅ Loop incoming DTOs (Update / Add)
+                        foreach (var dto in updateFeeStructureCommand.feeStructureDTOs)
+                        {
+                            var matchedDetails = existingDetails
+                                .Where(x => x.FeeTypeId == dto.feeTypeId)
+                                .ToList();
+
+                            if (matchedDetails.Any())
+                            {
+                                // ✅ Take first as main
+                                var mainDetail = matchedDetails.First();
+
+                                // 🔄 UPDATE main
+                                mainDetail.Amount = dto.amount;
+                                mainDetail.DiscountAmount = dto.discountAmount;
+                                mainDetail.Times = dto.times;
+                                mainDetail.TotalAmount = dto.totalAmount;
+                                mainDetail.FeePaidType = dto.feePaidType;
+                                mainDetail.IsActive = true;
+
+                                _unitOfWork.BaseRepository<FeeStructureDetails>()
+                                    .Update(mainDetail);
+
+                                // ❌ SOFT DELETE duplicates
+                                var duplicates = matchedDetails.Skip(1).ToList();
+
+                                foreach (var dup in duplicates)
+                                {
+                                    dup.IsActive = false;
+
+                                    _unitOfWork.BaseRepository<FeeStructureDetails>()
+                                        .Update(dup);
+                                }
+                            }
+                            else
+                            {
+                                // ➕ ADD NEW
+                                var newDetail = _mapper.Map<FeeStructureDetails>(dto);
+
+                                newDetail.Id = Guid.NewGuid().ToString();
+                                newDetail.FeeStructureId = feeStructureId;
+                                newDetail.IsActive = true;
+
+                                await _unitOfWork.BaseRepository<FeeStructureDetails>()
+                                    .AddAsync(newDetail);
+                            }
+                        }
+
+                        // ✅ SOFT DELETE (same pattern as Exam)
+                        var incomingFeeTypeIds = updateFeeStructureCommand.feeStructureDTOs
+                            .Select(x => x.feeTypeId)
+                            .ToList();
+
+                        var toSoftDelete = existingDetails
+                            .Where(x => x.IsActive==true && !incomingFeeTypeIds.Contains(x.FeeTypeId))
+                            .ToList();
+
+                        foreach (var item in toSoftDelete)
+                        {
+                            item.IsActive = false;
+
+                            _unitOfWork.BaseRepository<FeeStructureDetails>()
+                                .Update(item);
+                        }
+                    }
+
                     await _unitOfWork.SaveChangesAsync();
                     scope.Complete();
 
-                    var resultResponse = new UpdateFeeStructureResponse
-                        (
+                    // ✅ Response
+                    var resultResponse = new UpdateFeeStructureResponse(
                         feeStructureId,
-                        feeStrctureToBeUpdated.FeeStructureDetails.Sum(x=>x.TotalAmount),
-                        feeStrctureToBeUpdated.ClassId,
-                        feeStrctureToBeUpdated.FyId,
-                        feeStrctureToBeUpdated.IsActive,
-                        feeStrctureToBeUpdated.SchoolId,
-                        feeStrctureToBeUpdated.CreatedBy,
-                        feeStrctureToBeUpdated.CreatedAt,
-                        feeStrctureToBeUpdated.ModifiedBy,
-                        feeStrctureToBeUpdated.ModifiedAt
-
-                        );
+                        feeStructure.ClassId,
+                        feeStructure.FeeCategoryId,
+                        feeStructure.FeeStructureDetails?
+                            .Where(x => x.IsActive==true)
+                            .Select(x => new AddFeeStructureDTOs(
+                                x.Id,
+                                x.FeeTypeId,
+                                x.Amount,
+                                x.DiscountAmount,
+                                x.Times,
+                                x.TotalAmount,
+                                x.FeePaidType
+                            )).ToList() ?? new List<AddFeeStructureDTOs>()
+                    );
 
                     return Result<UpdateFeeStructureResponse>.Success(resultResponse);
-
                 }
                 catch (Exception ex)
                 {
-                    throw new Exception("An error occurred while updating", ex);
+                    throw new Exception("An error occurred while updating FeeStructure", ex);
                 }
             }
         }

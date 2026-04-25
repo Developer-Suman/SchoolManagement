@@ -1,9 +1,13 @@
 ﻿using AutoMapper;
-using ES.Student.Application.CocurricularActivities.Command.AddActivity;
-using ES.Student.Application.CocurricularActivities.Command.Addparticipation;
-using ES.Student.Application.CocurricularActivities.Queries.Activity;
-using ES.Student.Application.CocurricularActivities.Queries.FilterActivity;
-using ES.Student.Application.CocurricularActivities.Queries.FilterParticipation;
+using ES.Student.Application.CocurricularActivities.Command.Activity.AddActivity;
+using ES.Student.Application.CocurricularActivities.Command.Activity.UpdateActivity;
+using ES.Student.Application.CocurricularActivities.Command.Participation.Addparticipation;
+using ES.Student.Application.CocurricularActivities.Command.Participation.UpdateParticipation;
+using ES.Student.Application.CocurricularActivities.Queries.Activities.Activity;
+using ES.Student.Application.CocurricularActivities.Queries.Activities.ActivityById;
+using ES.Student.Application.CocurricularActivities.Queries.Activities.FilterActivity;
+using ES.Student.Application.CocurricularActivities.Queries.Participation.FilterParticipation;
+using ES.Student.Application.CocurricularActivities.Queries.Participation.ParticipationById;
 using ES.Student.Application.Registration.Command.RegisterMultipleStudents;
 using ES.Student.Application.Registration.Command.RegisterStudents;
 using ES.Student.Application.Registration.Queries.FilterRegisterStudents;
@@ -43,6 +47,8 @@ namespace ES.Student.Application.AutoMapper
         {
 
             #region Cocuricular Activities
+            CreateMap<Activity, ActivityByIdResponse>().ReverseMap();
+            CreateMap<Activity, UpdateActivityCommand>().ReverseMap();
             CreateMap<Activity, AddActivityResponse>().ReverseMap();
 
             CreateMap<ActivityResponse, Activity>().ReverseMap();
@@ -54,6 +60,8 @@ namespace ES.Student.Application.AutoMapper
             #endregion
 
             #region Participation
+            CreateMap<Participation, ParticipationByIdResponse>().ReverseMap();
+            CreateMap<Participation, UpdateParticipationCommand>().ReverseMap();
             CreateMap<Participation, AddParticipationResponse>().ReverseMap();
 
             CreateMap<FilterParticipationResponse, Participation>().ReverseMap();

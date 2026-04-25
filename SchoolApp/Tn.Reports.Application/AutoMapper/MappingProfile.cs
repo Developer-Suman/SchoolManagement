@@ -1,10 +1,4 @@
 ﻿using AutoMapper;
-using ES.Student.Application.CocurricularActivities.Queries.Activity;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TN.Account.Domain.Entities;
 using TN.Purchase.Domain.Entities;
 using TN.Reports.Application.AccountBook.Queries.SalesRegister;

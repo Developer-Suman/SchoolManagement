@@ -820,7 +820,7 @@ namespace TN.Shared.Infrastructure.Data
                .OnDelete(DeleteBehavior.Restrict);
             #endregion
 
-   
+
 
 
 
@@ -831,6 +831,15 @@ namespace TN.Shared.Infrastructure.Data
 
 
             #region Student
+            #region Students and FeeCategory(m:1)
+            builder.Entity<FeeCategory>()
+               .HasMany(p => p.StudentDatas)
+               .WithOne(p => p.FeeCategory)
+               .HasForeignKey(p => p.FeeCategoryid)
+               .OnDelete(DeleteBehavior.Restrict);
+            #endregion
+
+
 
             #region AcademicYear and Registrations(1:m)
             builder.Entity<AcademicYear>()

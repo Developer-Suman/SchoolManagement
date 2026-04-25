@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ES.Finances.Application.Finance.Command.Fee.AddStudentFee;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,10 +10,9 @@ namespace ES.Finances.Application.Finance.Command.Fee.UpdateStudentFee
     public record UpdateStudentFeeRequest
     (
         string studentId,
-            string feeStructureId,
-
-            decimal discount,
-            decimal totalAmount,
-            decimal paidAmount
+    string feeStructureId,
+    string classId,
+    decimal discountPercentage,
+    List<UpdateStudentFeeDetailsDTOs?> StudentFeeDetailsDTOs
         );
 }

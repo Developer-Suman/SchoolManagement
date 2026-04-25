@@ -26,7 +26,8 @@ namespace ES.Communication.Application.AutoMapper
             #endregion
 
 
-            #region Attendance
+            #region Notice
+            CreateMap<UpdateNoticeCommand, Notice>().ReverseMap();
             CreateMap<AddNoticeResponse, Notice>().ReverseMap();
             CreateMap<UpdateNoticeResponse, Notice>().ReverseMap();
             CreateMap<NoticeByIdResponse, Notice>().ReverseMap();

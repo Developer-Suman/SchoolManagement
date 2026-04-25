@@ -9,6 +9,7 @@ namespace ES.Finances.Application.Finance.Command.Fee.AddFeeStructure
 {
     public record AddFeeStructureDTOs
     (
+        string? id,
         string feeTypeId,
             decimal amount,
             decimal? discountAmount,

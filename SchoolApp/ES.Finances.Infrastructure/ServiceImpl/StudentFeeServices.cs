@@ -37,6 +37,7 @@ using TN.Shared.Domain.ExtensionMethod.Pagination;
 using TN.Shared.Domain.IRepository;
 using TN.Shared.Domain.Static.Cache;
 using static TN.Shared.Domain.Entities.Finance.StudentFee;
+using static TN.Shared.Domain.Enum.HelperEnum;
 
 namespace ES.Finances.Infrastructure.ServiceImpl
 {
@@ -145,7 +146,8 @@ namespace ES.Finances.Infrastructure.ServiceImpl
                             item.amount,
                             item.times,
                             item.totalAmount,
-                            item.feePaidType
+                            item.feePaidType,
+                            true
                         )).ToList(),
                         true, schoolId, userId, DateTime.UtcNow, "", default
                     );
@@ -324,6 +326,7 @@ namespace ES.Finances.Infrastructure.ServiceImpl
                     .GroupBy(x => new { x.StudentId, x.ClassId })
                     .Select(g => new
                     {
+                        Id = g.Select(x => x.Id).FirstOrDefault(),
                         StudentId = g.Key.StudentId,
                         ClassId = g.Key.ClassId,
                         SchoolId = g.Select(x=>x.SchoolId).FirstOrDefault(),
@@ -338,20 +341,28 @@ namespace ES.Finances.Infrastructure.ServiceImpl
 
                         DueAmount = g.Sum(x => x.TotalAmount) - g.Sum(x => x.PaidAmount),
 
-                        LatestDate = g.Max(x => x.CreatedAt)
+                        LatestDate = g.Max(x => x.CreatedAt),
+                        PaymentReceipts = g
+                        .SelectMany(x => x.Payments)   // flatten all payments
+                        .Where(p => p.ReceiptNumber != null) // optional safety
+                        .Select(p => p.ReceiptNumber)
+                        .Distinct()
+                        .ToList(),
                     })
                     .OrderByDescending(x => x.LatestDate)
                     .ToList();
 
                 var responseList = filteredResult
                        .Select(i => new FilterStudentFeeResponse(
+                           i.Id.ToString(),
                            i.StudentId,
                            i.FeeStructureIds,
                            i.TotalAmount,
                            i.TotalPaid,
                            i.DueAmount,
                            i.ClassId,
-                           i.SchoolId
+                           i.SchoolId,
+                           i.PaymentReceipts.FirstOrDefault()
                        ))
                        .ToList();
 
@@ -401,17 +412,44 @@ namespace ES.Finances.Infrastructure.ServiceImpl
         {
             try
             {
+                var studentFeeDetails = await _unitOfWork.BaseRepository<StudentFee>().GetConditionalAsync(
+                    x => x.Id == id,
+                    query => query.Include(x => x.StudentFeeDetails)
+                    );
 
-                var studentFee = await _unitOfWork.BaseRepository<Notice>().GetByGuIdAsync(id);
+                var studentFee = studentFeeDetails.FirstOrDefault();
 
-                var studentFeeResponse = _mapper.Map<StudentFeeByIdResponse>(studentFee);
+                var studentFeeResponse = new StudentFeeByIdResponse
+                        (
+                            studentFee.Id,
+                            studentFee.StudentId,
+                            studentFee.FeeStructureId,
+                            studentFee.ClassId,
+                            studentFee.DiscountPercentage,
+                            studentFee.StudentFeeDetails != null
+                                ? studentFee.StudentFeeDetails?
+                                .Where(x => x.IsActive == true)
+                                .Select(x =>
+                                    new UpdateStudentFeeDetailsDTOs
+                                    (
+                                        x.Id,
+                                        x.FeeTypeId,
+                                        x.DiscountAmount,
+                                        x.Amount,
+                                        x.Times,
+                                        x.TotalAmount,
+                                        x.FeePaidType
+                                    )
+                                ).ToList()
+                                : new List<UpdateStudentFeeDetailsDTOs>()
+                        );
 
                 return Result<StudentFeeByIdResponse>.Success(studentFeeResponse);
 
             }
             catch (Exception ex)
             {
-                throw new Exception("An error occurred while fetching Notice by using Id", ex);
+                throw new Exception("An error occurred while fetching Class by using Id", ex);
             }
         }
 
@@ -451,7 +489,8 @@ namespace ES.Finances.Infrastructure.ServiceImpl
                         p.PaymentMethod,
                         amountBeforePayment, 
                         currentBalance  ,
-                        p.Schoolid
+                        p.Schoolid,
+                        p.ReceiptNumber
                     ));
                 }
 
@@ -525,12 +564,81 @@ namespace ES.Finances.Infrastructure.ServiceImpl
                         return Result<UpdateStudentFeeResponse>.Failure("NotFound", "Please provide valid studentFeeId");
                     }
 
-                    var studentFeeToBeUpdated = await _unitOfWork.BaseRepository<StudentFee>().GetByGuIdAsync(studentFeeId);
+                    var studentFeeDetails = await _unitOfWork.BaseRepository<StudentFee>().
+                                GetConditionalAsync(x => x.Id == studentFeeId,
+                                query => query.Include(rm => rm.StudentFeeDetails)
+                                );
+                    var studentFeeToBeUpdated = studentFeeDetails.FirstOrDefault();
                     if (studentFeeToBeUpdated is null)
                     {
                         return Result<UpdateStudentFeeResponse>.Failure("NotFound", "StudentFee not Found");
                     }
                     studentFeeToBeUpdated.ModifiedAt = DateTime.UtcNow;
+                    studentFeeToBeUpdated.StudentId = updateStudentFeeCommand.studentId;
+                    studentFeeToBeUpdated.FeeStructureId = updateStudentFeeCommand.feeStructureId;
+                    studentFeeToBeUpdated.ClassId = updateStudentFeeCommand.classId;
+                    studentFeeToBeUpdated.DiscountPercentage = updateStudentFeeCommand.discountPercentage;
+
+                    if (updateStudentFeeCommand.StudentFeeDetailsDTOs != null && updateStudentFeeCommand.StudentFeeDetailsDTOs.Any())
+                    {
+                        foreach (var detail in updateStudentFeeCommand.StudentFeeDetailsDTOs)
+                        {
+                            //var existingExamResult = await _unitOfWork.BaseRepository<MarksObtained>().GetByGuIdAsync(detail.Id);
+
+                            var existingStudentFeeDetails = studentFeeToBeUpdated.StudentFeeDetails
+                             .FirstOrDefault(x => x.Id == detail.id);
+
+                            var incomingIds = updateStudentFeeCommand.StudentFeeDetailsDTOs
+                                .Where(x => !string.IsNullOrEmpty(x.id))
+                                .Select(x => x.id)
+                                .ToList();
+
+                            var existingDetails = studentFeeToBeUpdated.StudentFeeDetails.ToList();
+
+                            var toBeRemoved = existingDetails
+                                .Where(x => !incomingIds.Contains(x.Id))
+                                .ToList();
+
+                            foreach (var item in toBeRemoved)
+                            {
+                                item.IsActive = false;
+                                _unitOfWork.BaseRepository<StudentFeeDetail>().Update(item);
+                            }
+
+                            if (existingStudentFeeDetails != null)
+                            {
+                                // update existing
+                                existingStudentFeeDetails.FeeTypeId = detail.feeTypeId;
+                                existingStudentFeeDetails.DiscountAmount = detail.discountAmount;
+                                existingStudentFeeDetails.Amount = detail.amount;
+                                existingStudentFeeDetails.Times = detail.times;
+                                existingStudentFeeDetails.TotalAmount = detail.totalAmount;
+                                existingStudentFeeDetails.FeePaidType = detail.feePaidType;
+                                existingStudentFeeDetails.IsActive = true;
+                                _unitOfWork.BaseRepository<StudentFeeDetail>().Update(existingStudentFeeDetails);
+
+                            }
+                            else
+                            {
+                                // add new
+                                var newStudentFeeDetail = new StudentFeeDetail
+                                {
+                                    Id = Guid.NewGuid().ToString(),
+                                    FeeTypeId = detail.feeTypeId,
+                                    DiscountAmount = detail.discountAmount,
+                                    Amount = detail.amount,
+                                    TotalAmount = detail.totalAmount,
+                                    FeePaidType = detail.feePaidType,
+                                    StudentFeeId = studentFeeId,
+                                    IsActive = true
+                                };
+                                await _unitOfWork.BaseRepository<StudentFeeDetail>().AddAsync(newStudentFeeDetail);
+                            }
+                        }
+
+                        await _unitOfWork.SaveChangesAsync();
+                    }
+
                     _mapper.Map(updateStudentFeeCommand, studentFeeToBeUpdated);
                     await _unitOfWork.SaveChangesAsync();
                     scope.Complete();
@@ -540,15 +648,11 @@ namespace ES.Finances.Infrastructure.ServiceImpl
                             studentFeeId,
                             studentFeeToBeUpdated.StudentId,
                             studentFeeToBeUpdated.FeeStructureId,
-                            studentFeeToBeUpdated.DiscountAmount,
-                            studentFeeToBeUpdated.TotalAmount,
-                            studentFeeToBeUpdated.PaidAmount,
-                            studentFeeToBeUpdated.IsActive,
-                            studentFeeToBeUpdated.SchoolId,
-                            studentFeeToBeUpdated.CreatedBy,
-                            studentFeeToBeUpdated.CreatedAt,
-                            studentFeeToBeUpdated.ModifiedBy,
-                            studentFeeToBeUpdated.ModifiedAt
+                            studentFeeToBeUpdated.ClassId,
+                            studentFeeToBeUpdated.DiscountPercentage
+                            
+                            
+                          
                         );
 
                     return Result<UpdateStudentFeeResponse>.Success(resultResponse);

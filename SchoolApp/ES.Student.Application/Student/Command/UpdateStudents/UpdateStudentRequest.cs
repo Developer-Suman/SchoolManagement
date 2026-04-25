@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,6 +12,7 @@ namespace ES.Student.Application.Student.Command.UpdateStudents
     public record UpdateStudentRequest
     (
         string firstName,
+        string feeCategoryId,
         string? middleName,
         string lastName,
         string registrationNumber,
@@ -19,7 +21,7 @@ namespace ES.Student.Application.Student.Command.UpdateStudents
         DateTime dateOfBirth,
         string? email,
         string? phoneNumber,
-        string? imageUrl,
+        IFormFile? studentImg,
         string? address,
         DateTime enrollmentDate,
         string? parentId,

@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿using ES.Finances.Application.Finance.Command.Fee.AddFeeStructure;
+using MediatR;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,8 +12,8 @@ namespace ES.Finances.Application.Finance.Command.Fee.UpdateFeeStructure
     public record UpdateFeeStructureCommand
     (
         string id,
-        decimal amount,
-            string classId,
-            string feeTypeId
+        string classId,
+            string feeCategoryId,
+            List<AddFeeStructureDTOs?> feeStructureDTOs
         ) : IRequest<Result<UpdateFeeStructureResponse>>;
 }

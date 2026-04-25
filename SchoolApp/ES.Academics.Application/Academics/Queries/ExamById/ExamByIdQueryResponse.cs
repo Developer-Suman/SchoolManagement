@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ES.Academics.Application.Academics.Command.AddExam;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,9 +12,7 @@ namespace ES.Academics.Application.Academics.Queries.ExamById
         string id="",
          string name="",
          DateTime examDate= default,
-         decimal totalMarks=0,
-         decimal passingMarks=0,
-         bool? isfinalExam=true,
-         string classId = ""
+         string classId="",
+         List<ExamSubjectDTOs> ExamSubjectDTOs = default
         );
 }
