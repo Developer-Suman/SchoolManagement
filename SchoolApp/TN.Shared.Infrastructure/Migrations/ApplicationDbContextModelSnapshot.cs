@@ -2645,6 +2645,9 @@ namespace TN.Shared.Infrastructure.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool?>("IsActive")
+                        .HasColumnType("bit");
+
                     b.Property<int>("PassMarks")
                         .HasColumnType("int");
 
@@ -2663,6 +2666,9 @@ namespace TN.Shared.Infrastructure.Migrations
                     b.Property<string>("ExamResultId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
+
+                    b.Property<bool?>("IsActive")
+                        .HasColumnType("bit");
 
                     b.Property<decimal>("MarksObtaineds")
                         .HasPrecision(18, 4)
@@ -4469,6 +4475,9 @@ namespace TN.Shared.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<bool?>("IsActive")
+                        .HasColumnType("bit");
+
                     b.Property<int>("Times")
                         .HasColumnType("int");
 
@@ -4669,6 +4678,9 @@ namespace TN.Shared.Infrastructure.Migrations
                     b.Property<string>("FeeTypeId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
+
+                    b.Property<bool?>("IsActive")
+                        .HasColumnType("bit");
 
                     b.Property<string>("StudentFeeId")
                         .IsRequired()
@@ -5896,6 +5908,9 @@ namespace TN.Shared.Infrastructure.Migrations
                     b.Property<int?>("EnrollmentStatus")
                         .HasColumnType("int");
 
+                    b.Property<string>("FeeCategoryid")
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<string>("FirstName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -5965,6 +5980,8 @@ namespace TN.Shared.Infrastructure.Migrations
                     b.HasIndex("ClassSectionId");
 
                     b.HasIndex("DistrictId");
+
+                    b.HasIndex("FeeCategoryid");
 
                     b.HasIndex("LedgerId")
                         .IsUnique()
@@ -7746,6 +7763,11 @@ namespace TN.Shared.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("TN.Shared.Domain.Entities.Finance.FeeCategory", "FeeCategory")
+                        .WithMany("StudentDatas")
+                        .HasForeignKey("FeeCategoryid")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("TN.Account.Domain.Entities.Ledger", "Ledger")
                         .WithOne("StudentData")
                         .HasForeignKey("TN.Shared.Domain.Entities.Students.StudentData", "LedgerId");
@@ -7780,6 +7802,8 @@ namespace TN.Shared.Infrastructure.Migrations
                     b.Navigation("ClassSection");
 
                     b.Navigation("District");
+
+                    b.Navigation("FeeCategory");
 
                     b.Navigation("Ledger");
 
@@ -8250,6 +8274,8 @@ namespace TN.Shared.Infrastructure.Migrations
             modelBuilder.Entity("TN.Shared.Domain.Entities.Finance.FeeCategory", b =>
                 {
                     b.Navigation("FeeStructures");
+
+                    b.Navigation("StudentDatas");
                 });
 
             modelBuilder.Entity("TN.Shared.Domain.Entities.Finance.FeeStructure", b =>

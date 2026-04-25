@@ -14,9 +14,9 @@ namespace ES.Finances.Application.Finance.Command.Fee.UpdateStudentFee.RequestMa
                 Id,
                 request.studentId,
                 request.feeStructureId,
-                request.discount,
-                request.totalAmount,
-                request.paidAmount
+                request.classId,
+                request.discountPercentage,
+                request.StudentFeeDetailsDTOs
                  );
         }
     }

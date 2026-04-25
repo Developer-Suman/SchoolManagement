@@ -10,8 +10,6 @@ namespace ES.Communication.Application.Communication.Command.UpdateNotice
     (
         string title,
         string contentHtml,
-        string? shortDescription,
-        string modifiedBy,
-        string modifiedAt
+        string? shortDescription
     );
 }

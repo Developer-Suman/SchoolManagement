@@ -24,7 +24,8 @@ namespace TN.Shared.Domain.Entities.Finance
             decimal amount,
             int times,
             decimal totalAmount,
-            FeePaidType feePaidType
+            FeePaidType feePaidType,
+            bool? isActive
             ) : base(id) 
         {
             FeeTypeId = feeTypeId;
@@ -34,10 +35,12 @@ namespace TN.Shared.Domain.Entities.Finance
             Times = times;
             TotalAmount = totalAmount;
             FeePaidType = feePaidType;
+            IsActive = isActive;
 
 
         }
 
+        public bool? IsActive { get; set; }
         public FeePaidType FeePaidType { get; set; }
         public decimal Amount { get; set; }
         public int Times { get; set; }

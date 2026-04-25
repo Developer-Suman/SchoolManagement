@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿using ES.Academics.Application.Academics.Command.AddExamResult;
+using MediatR;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,6 +16,6 @@ namespace ES.Academics.Application.Academics.Command.UpdateExamResult
              string? examId,
             string studentId,
             string remarks,
-            List<MarksObtained> marksObtained
+            List<MarksObtainedDTOs> marksObtained
         ) : IRequest<Result<UpdateExamResultResponse>>;
 }

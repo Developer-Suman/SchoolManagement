@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-
+﻿
 namespace TN.Shared.Domain.Abstractions
 {
     public class Result<T>
@@ -30,6 +24,11 @@ namespace TN.Shared.Domain.Abstractions
         public static Result<T> Success(string message)
         {
             return new Result<T>(true, Enumerable.Empty<string>(), default!, message);
+        }
+
+        public static Result<T> Success(T data, string message)
+        {
+            return new Result<T>(true, Enumerable.Empty<string>(), data, message);
         }
 
         public static Result<T> Failure(params string[] errors)

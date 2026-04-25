@@ -22,6 +22,7 @@ namespace TN.Shared.Domain.Entities.Students
 
         public StudentData(
             string id, 
+            string? feeCategoryId,
             string firstName,
             string? middleName,
             string lastName,
@@ -56,6 +57,7 @@ namespace TN.Shared.Domain.Entities.Students
             : base(id)
         {
             FirstName = firstName;
+            FeeCategoryid = feeCategoryId;
             MiddleName = middleName;
             LastName = lastName;
             Gender = gender;
@@ -96,6 +98,8 @@ namespace TN.Shared.Domain.Entities.Students
 
         }
 
+        public string? FeeCategoryid { get; set; }
+        public FeeCategory? FeeCategory { get; set; }
         public EnrollmentStatus? EnrollmentStatus { get; set; }
         public string? LedgerId { get; set; }
         public Ledger? Ledger { get; set; }

@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿using ES.Academics.Application.Academics.Command.AddExam;
+using MediatR;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,9 +14,8 @@ namespace ES.Academics.Application.Academics.Command.UpdateExam
         string id,
               string name,
         DateTime examDate,
-        decimal totalMarks,
-        decimal passingMarks,
         bool? isfinalExam,
-        string classId
+        string classId,
+        List<UpdateExamSubjectDTOs?> UpdateExamSubjectDTOs = default
         ) : IRequest<Result<UpdateExamResponse>>;
 }

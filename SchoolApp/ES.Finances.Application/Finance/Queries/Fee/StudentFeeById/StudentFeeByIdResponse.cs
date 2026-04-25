@@ -1,4 +1,6 @@
-﻿using System;
+﻿using ES.Finances.Application.Finance.Command.Fee.AddStudentFee;
+using ES.Finances.Application.Finance.Command.Fee.UpdateStudentFee;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,16 +13,8 @@ namespace ES.Finances.Application.Finance.Queries.Fee.StudentFeeById
         string id,
             string studentId,
             string feeStructureId,
-
-            decimal discount,
-            decimal totalAmount,
-            decimal paidAmount,
-            DateTime dueDate,
-            bool isActive,
-            string schoolid,
-            string createdBy,
-            DateTime createdAt,
-            string modifiedBy,
-            DateTime modifiedAt
+            string classId,
+            decimal discountPercentage,
+            List<UpdateStudentFeeDetailsDTOs?> StudentFeeDetailsDTOs
         );
 }

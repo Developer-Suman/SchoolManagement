@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ES.Academics.Application.Academics.Command.AddExamResult;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,6 +13,6 @@ namespace ES.Academics.Application.Academics.Command.UpdateExamResult
             string? examId,
             string studentId,
             string remarks,
-            List<MarksObtained> marksObtained
+            List<MarksObtainedDTOs> marksObtained
         );
 }

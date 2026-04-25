@@ -20,15 +20,20 @@ namespace TN.Shared.Domain.Entities.Academics
             string examId,
             string subjectId,
             int passMarks,
-            int fullMarks
+            int fullMarks,
+            bool? isActive
             ) : base(id)
         {
             ExamId = examId;
             SubjectId = subjectId;
             PassMarks = passMarks;
             FullMarks = fullMarks;
-
+            IsActive = isActive ?? true;
         }
+
+        public bool? IsActive { get; set; }
+
+        
 
         public string ExamId { get; set; }
         public Exam Exam { get; set; }

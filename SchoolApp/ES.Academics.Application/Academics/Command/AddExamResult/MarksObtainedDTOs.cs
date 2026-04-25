@@ -9,6 +9,6 @@ namespace ES.Academics.Application.Academics.Command.AddExamResult
     public record MarksObtainedDTOs
     (
             string subjectId,
-            decimal marksObtained
+            decimal marksObtaineds
         );
 }

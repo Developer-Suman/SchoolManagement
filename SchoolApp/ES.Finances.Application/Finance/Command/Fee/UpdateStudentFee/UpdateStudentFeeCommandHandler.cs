@@ -36,20 +36,20 @@ namespace ES.Finances.Application.Finance.Command.Fee.UpdateStudentFee
 
                 }
 
-                var updatestudentFee = await _studentFeeServices.Update(request.id, request);
+                var result = await _studentFeeServices.Update(request.id, request);
 
-                if (updatestudentFee.Errors.Any())
+                if (result.Errors.Any())
                 {
-                    var errors = string.Join(", ", updatestudentFee.Errors);
+                    var errors = string.Join(", ", result.Errors);
                     return Result<UpdateStudentFeeResponse>.Failure(errors);
                 }
 
-                if (updatestudentFee is null || !updatestudentFee.IsSuccess)
+                if (result is null || !result.IsSuccess)
                 {
                     return Result<UpdateStudentFeeResponse>.Failure("Updates StudentFee failed");
                 }
 
-                var ledgerDisplay = _mapper.Map<UpdateStudentFeeResponse>(updatestudentFee.Data);
+                var ledgerDisplay = _mapper.Map<UpdateStudentFeeResponse>(result.Data);
                 return Result<UpdateStudentFeeResponse>.Success(ledgerDisplay);
             }
             catch (Exception ex)

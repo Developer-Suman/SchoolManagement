@@ -14,10 +14,9 @@ namespace ES.Academics.Application.Academics.Command.UpdateExam.RequestCommandMa
                 examId,
                 request.name,
                 request.examDate,
-                request.totalMarks,
-                request.passingMarks,
                 request.isfinalExam,
-                request.classId
+                request.classId,
+                request.UpdateExamSubjectDTOs
             );
         }
     }

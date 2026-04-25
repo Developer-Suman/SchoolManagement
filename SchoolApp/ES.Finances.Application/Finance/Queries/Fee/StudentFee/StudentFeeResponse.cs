@@ -9,20 +9,20 @@ namespace ES.Finances.Application.Finance.Queries.Fee.StudentFee
 {
     public record StudentFeeResponse
     (
-        string id,
-            string studentId,
-            string feeStructureId,
+        string id="",
+            string studentId="",
+            string feeStructureId="",
 
-            decimal discount,
-            decimal totalAmount,
-            decimal paidAmount,
-            DateTime dueDate,
-            bool isActive,
-            string schoolid,
-            PaidStatus isPaidStatus,
-            string createdBy,
-            DateTime createdAt,
-            string modifiedBy,
-            DateTime modifiedAt
+            decimal discount=0,
+            decimal totalAmount=0,
+            decimal paidAmount=0,
+            DateTime dueDate=default,
+            bool isActive=true,
+            string schoolid="",
+            PaidStatus isPaidStatus=PaidStatus.Paid,
+            string createdBy="",
+            DateTime createdAt=default,
+            string modifiedBy="",
+            DateTime modifiedAt=default
         );
 }

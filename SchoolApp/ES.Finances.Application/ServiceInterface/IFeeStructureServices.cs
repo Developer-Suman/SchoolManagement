@@ -3,6 +3,7 @@ using ES.Finances.Application.Finance.Command.Fee.UpdateFeeStructure;
 using ES.Finances.Application.Finance.Queries.Fee.FeeStructure;
 using ES.Finances.Application.Finance.Queries.Fee.FeeStructureByClass;
 using ES.Finances.Application.Finance.Queries.Fee.FeeStructureById;
+using ES.Finances.Application.Finance.Queries.Fee.FeeStructureByStudent;
 using ES.Finances.Application.Finance.Queries.Fee.FilterFeeStructure;
 using ES.Finances.Application.Finance.Queries.Fee.FilterFeetype;
 using ES.Finances.Application.Finance.Queries.Fee.StudentFeeById;
@@ -22,8 +23,11 @@ namespace ES.Finances.Application.ServiceInterface
         Task<Result<AddFeeStructureResponse>> Add(AddFeeStructureCommand addFeeStructureCommand);
         Task<Result<PagedResult<FeeStructureResponse>>> FeeStructure(PaginationRequest paginationRequest, CancellationToken cancellationToken = default);
         Task<Result<FeeStructureByIdResponse>> GetFeeStructure(string id, CancellationToken cancellationToken = default);
+        Task<Result<FeeStructureByStudentResponse>> FeeStructureByStudent(FeeStructureByStudentDTOs feeStructureByStudentDTOs, CancellationToken cancellationToken = default);
         Task<Result<PagedResult<FilterFeeStructureResponse>>> Filter(PaginationRequest paginationRequest, FilterFeeStructureDTOs filterFeeStructureDTOs);
       
         Task<Result<UpdateFeeStructureResponse>> Update(string feeStructureId, UpdateFeeStructureCommand updateFeeStructureCommand);
+
+        Task<Result<bool>> Delete(string feeStructureid);
     }
 }

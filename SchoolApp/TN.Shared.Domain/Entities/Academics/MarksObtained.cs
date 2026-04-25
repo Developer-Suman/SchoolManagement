@@ -18,15 +18,17 @@ namespace TN.Shared.Domain.Entities.Academics
             string id,
             string subjectId,
             decimal marksObtained,
-            string examResultId
+            string examResultId,
+            bool? isActive
             ) : base(id)
         {
             SubjectId = subjectId;
             ExamResultId = examResultId;
             MarksObtaineds = marksObtained;
+            IsActive = isActive;
 
         }
-
+        public bool? IsActive { get; set; }
         public string ExamResultId { get; set; }
         public ExamResult ExamResult { get; set; }
         public string SubjectId { get; set; }

@@ -14,6 +14,6 @@ namespace ES.Academics.Application.Academics.Command.AddExam
             DateTime examDate,
             bool? isfinalExam,
             string classId,
-            List<ExamSubjectDTOs> examSubjects
+            List<AddExamSubjectDTOs> examSubjects
         ) : IRequest<Result<AddExamResponse>>;
 }

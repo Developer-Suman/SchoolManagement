@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿using ES.Finances.Application.Finance.Command.Fee.AddStudentFee;
+using MediatR;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,9 +14,8 @@ namespace ES.Finances.Application.Finance.Command.Fee.UpdateStudentFee
         string id,
         string studentId,
             string feeStructureId,
-
-            decimal discount,
-            decimal totalAmount,
-            decimal paidAmount
-        ): IRequest<Result<UpdateStudentFeeResponse>>;
+            string classId,
+            decimal discountPercentage,
+            List<UpdateStudentFeeDetailsDTOs?> StudentFeeDetailsDTOs
+        ) : IRequest<Result<UpdateStudentFeeResponse>>;
 }

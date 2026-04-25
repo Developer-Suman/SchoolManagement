@@ -8,6 +8,7 @@ namespace ES.Academics.Application.Academics.Command.AddExam
 {
     public record ExamSubjectDTOs
     (
+        string examSubjectId,
             string subjectId,
             int passMarks,
             int fullMarks

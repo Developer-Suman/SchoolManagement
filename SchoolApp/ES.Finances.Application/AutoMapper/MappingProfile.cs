@@ -3,15 +3,18 @@ using ES.Finances.Application.Finance.Command.Fee.AddFeeStructure;
 using ES.Finances.Application.Finance.Command.Fee.AddFeeType;
 using ES.Finances.Application.Finance.Command.Fee.AddStudentFee;
 using ES.Finances.Application.Finance.Command.Fee.FeeCategory.AddFeeCategory;
+using ES.Finances.Application.Finance.Command.Fee.FeeCategory.UpdateFeeCategory;
 using ES.Finances.Application.Finance.Command.Fee.UpdateFeeStructure;
 
 using ES.Finances.Application.Finance.Command.Fee.UpdateFeeType;
 using ES.Finances.Application.Finance.Command.Fee.UpdateStudentFee;
 using ES.Finances.Application.Finance.Command.PaymentRecords.AddpaymentsRecords;
+using ES.Finances.Application.Finance.Queries.Fee.FeeCategory.FeeCategoryById;
 using ES.Finances.Application.Finance.Queries.Fee.FeeCategory.FilterFeeCategory;
 using ES.Finances.Application.Finance.Queries.Fee.FeeStructure;
 using ES.Finances.Application.Finance.Queries.Fee.FeeStructureByClass;
 using ES.Finances.Application.Finance.Queries.Fee.FeeStructureById;
+using ES.Finances.Application.Finance.Queries.Fee.FeeStructureByStudent;
 using ES.Finances.Application.Finance.Queries.Fee.Feetype;
 using ES.Finances.Application.Finance.Queries.Fee.FeetypeById;
 using ES.Finances.Application.Finance.Queries.Fee.FilterFeeStructure;
@@ -25,6 +28,7 @@ using TN.Account.Application.Account.Command.AddLedger;
 using TN.Account.Domain.Entities;
 using TN.Shared.Domain.Entities.Academics;
 using TN.Shared.Domain.Entities.Finance;
+using TN.Shared.Domain.Entities.Students;
 using TN.Shared.Domain.ExtensionMethod.Pagination;
 
 namespace ES.Finances.Application.AutoMapper
@@ -50,6 +54,8 @@ namespace ES.Finances.Application.AutoMapper
             #endregion
 
             #region FeeCategory
+            CreateMap<FeeCategory, FeeCategoryByIdResponse>().ReverseMap();
+            CreateMap<FeeCategory, UpdateFeeCategoryCommand>().ReverseMap();
             CreateMap<FeeCategory, AddFeeCategoryResponse>().ReverseMap();
             CreateMap<FilterFeeCategoryResponse, FeeCategory>().ReverseMap();
             CreateMap<PagedResult<FeeCategory>, PagedResult<FilterFeeCategoryResponse>>().ReverseMap();
@@ -67,6 +73,8 @@ namespace ES.Finances.Application.AutoMapper
 
             #region FeeStructure
 
+            CreateMap<StudentData, FeeStructureByStudentResponse>().ReverseMap();
+            CreateMap<FeeStructureDetails, AddFeeStructureDTOs>().ReverseMap();
             CreateMap<FeeStructureByClassResponse, FeeStructure>().ReverseMap();
             CreateMap<PagedResult<FeeStructure>, PagedResult<FeeStructureByClassResponse>>().ReverseMap();
     

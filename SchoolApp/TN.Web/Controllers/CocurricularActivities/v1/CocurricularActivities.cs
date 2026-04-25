@@ -1,11 +1,22 @@
 ﻿
-using ES.Student.Application.CocurricularActivities.Command.AddActivity;
-using ES.Student.Application.CocurricularActivities.Command.AddActivity.RequestCommandMapper;
-using ES.Student.Application.CocurricularActivities.Command.Addparticipation;
-using ES.Student.Application.CocurricularActivities.Command.Addparticipation.RequestCommandMapper;
-using ES.Student.Application.CocurricularActivities.Queries.Activity;
-using ES.Student.Application.CocurricularActivities.Queries.FilterActivity;
-using ES.Student.Application.CocurricularActivities.Queries.FilterParticipation;
+using ES.Finances.Application.Finance.Command.Fee.FeeCategory.DeleteFeeCategory;
+using ES.Finances.Application.Finance.Command.Fee.FeeCategory.UpdateFeeCategory;
+using ES.Finances.Application.Finance.Queries.Fee.FeeCategory.FeeCategoryById;
+using ES.Student.Application.CocurricularActivities.Command.Activity.AddActivity;
+using ES.Student.Application.CocurricularActivities.Command.Activity.AddActivity.RequestCommandMapper;
+using ES.Student.Application.CocurricularActivities.Command.Activity.DeleteActivity;
+using ES.Student.Application.CocurricularActivities.Command.Activity.UpdateActivity;
+using ES.Student.Application.CocurricularActivities.Command.Activity.UpdateActivity.RequestCommandMapper;
+using ES.Student.Application.CocurricularActivities.Command.Participation.Addparticipation;
+using ES.Student.Application.CocurricularActivities.Command.Participation.Addparticipation.RequestCommandMapper;
+using ES.Student.Application.CocurricularActivities.Command.Participation.DeleteParticipation;
+using ES.Student.Application.CocurricularActivities.Command.Participation.UpdateParticipation;
+using ES.Student.Application.CocurricularActivities.Command.Participation.UpdateParticipation.RequestCommandMapper;
+using ES.Student.Application.CocurricularActivities.Queries.Activities.Activity;
+using ES.Student.Application.CocurricularActivities.Queries.Activities.ActivityById;
+using ES.Student.Application.CocurricularActivities.Queries.Activities.FilterActivity;
+using ES.Student.Application.CocurricularActivities.Queries.Participation.FilterParticipation;
+using ES.Student.Application.CocurricularActivities.Queries.Participation.ParticipationById;
 using ES.Student.Application.Student.Queries.ActivityByEvents;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -38,6 +49,75 @@ namespace TN.Web.Controllers.CocurricularActivities.v1
 
 
         #region Activity
+
+        #region UpdateActivity
+        [HttpPatch("UpdateActivity/{Id}")]
+
+        public async Task<IActionResult> UpdateActivity([FromRoute] string Id, [FromBody] UpdateActivityRequest request)
+        {
+            //Mapping command and request
+            var command = request.ToCommand(Id);
+            var update = await _mediator.Send(command);
+            #region Switch Statement
+            return update switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(update.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = update.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(update.Errors),
+                _ => BadRequest("Invalid Fields for Update")
+            };
+
+            #endregion
+        }
+        #endregion  
+
+        #region DeleteActivity
+        [HttpDelete("DeleteActivity/{id}")]
+
+        public async Task<IActionResult> DeleteActivity([FromRoute] string id, CancellationToken cancellationToken)
+        {
+            var command = new DeleteActivityCommand(id);
+            var deleteResult = await _mediator.Send(command);
+            #region Switch Statement
+            return deleteResult switch
+            {
+                { IsSuccess: true, Data: true } => NoContent(),
+                { IsSuccess: true, Message: not null } => new JsonResult(new { Message = deleteResult.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(deleteResult.Errors),
+                _ => BadRequest("Invalid Fields")
+            };
+
+            #endregion
+        }
+        #endregion
+
+        #region ActivityById
+        [HttpGet("ActivityById/{Id}")]
+        public async Task<IActionResult> GetActivityById([FromRoute] string Id)
+        {
+            var query = new ActivityByIdQuery(Id);
+            var queryResult = await _mediator.Send(query);
+            #region Switch Statement
+            return queryResult switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(queryResult.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = queryResult.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(queryResult.Errors),
+                _ => BadRequest("Invalid page and pageSize Fields")
+            };
+            #endregion
+
+        }
+        #endregion
+
+
+
 
         #region ActivityByEvents
         [HttpGet("ActivityByEvents")]
@@ -135,6 +215,74 @@ namespace TN.Web.Controllers.CocurricularActivities.v1
 
 
         #region Participation
+
+        #region UpdateParticipation
+        [HttpPatch("UpdateParticipation/{Id}")]
+
+        public async Task<IActionResult> UpdateParticipation([FromRoute] string Id, [FromBody] UpdateParticipationRequest request)
+        {
+            //Mapping command and request
+            var command = request.ToCommand(Id);
+            var update = await _mediator.Send(command);
+            #region Switch Statement
+            return update switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(update.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = update.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(update.Errors),
+                _ => BadRequest("Invalid Fields for Update")
+            };
+
+            #endregion
+        }
+        #endregion  
+
+        #region DeleteParticipation
+        [HttpDelete("DeleteParticipation/{id}")]
+
+        public async Task<IActionResult> DeleteParticipation([FromRoute] string id, CancellationToken cancellationToken)
+        {
+            var command = new DeleteParticipationCommand(id);
+            var deleteResult = await _mediator.Send(command);
+            #region Switch Statement
+            return deleteResult switch
+            {
+                { IsSuccess: true, Data: true } => NoContent(),
+                { IsSuccess: true, Message: not null } => new JsonResult(new { Message = deleteResult.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(deleteResult.Errors),
+                _ => BadRequest("Invalid Fields")
+            };
+
+            #endregion
+        }
+        #endregion
+
+        #region ParticipationById
+        [HttpGet("ParticipationById/{Id}")]
+        public async Task<IActionResult> GetParticipationById([FromRoute] string Id)
+        {
+            var query = new ParticipationByIdQuery(Id);
+            var queryResult = await _mediator.Send(query);
+            #region Switch Statement
+            return queryResult switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(queryResult.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = queryResult.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(queryResult.Errors),
+                _ => BadRequest("Invalid page and pageSize Fields")
+            };
+            #endregion
+
+        }
+        #endregion
+
+
 
         #region AddParticipation
         [HttpPost("AddParticipation")]

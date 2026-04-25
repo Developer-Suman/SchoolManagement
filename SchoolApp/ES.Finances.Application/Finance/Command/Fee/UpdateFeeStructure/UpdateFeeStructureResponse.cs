@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ES.Finances.Application.Finance.Command.Fee.AddFeeStructure;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,15 +9,9 @@ namespace ES.Finances.Application.Finance.Command.Fee.UpdateFeeStructure
 {
     public record UpdateFeeStructureResponse
     (
-        string id,
-            decimal amount,
-            string classId,
-            string fyId,
-            bool isActive,
-            string schoolId,
-            string createdBy,
-            DateTime createdAt,
-            string modifiedBy,
-            DateTime modifiedAt
+        string id="",
+        string classId="",
+            string feeCategoryId="",
+            List<AddFeeStructureDTOs> feeStructureDTOs = default
         );
 }

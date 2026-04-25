@@ -8,9 +8,13 @@ using ES.Finances.Application.Finance.Command.Fee.AddStudentFee;
 using ES.Finances.Application.Finance.Command.Fee.AddStudentFee.RequestCommandMapper;
 using ES.Finances.Application.Finance.Command.Fee.AssignMonthlyFee;
 using ES.Finances.Application.Finance.Command.Fee.AssignMonthlyFee.RequestCommandMapper;
+using ES.Finances.Application.Finance.Command.Fee.DeleteFeeStructure;
 using ES.Finances.Application.Finance.Command.Fee.DeleteFeeType;
 using ES.Finances.Application.Finance.Command.Fee.FeeCategory.AddFeeCategory;
 using ES.Finances.Application.Finance.Command.Fee.FeeCategory.AddFeeCategory.AddFeeCategoryCommandMapper;
+using ES.Finances.Application.Finance.Command.Fee.FeeCategory.DeleteFeeCategory;
+using ES.Finances.Application.Finance.Command.Fee.FeeCategory.UpdateFeeCategory;
+using ES.Finances.Application.Finance.Command.Fee.FeeCategory.UpdateFeeCategory.RequestCommandMapper;
 using ES.Finances.Application.Finance.Command.Fee.UpdateFeeStructure;
 using ES.Finances.Application.Finance.Command.Fee.UpdateFeeStructure.RequestCommandMapper;
 using ES.Finances.Application.Finance.Command.Fee.UpdateFeeType;
@@ -19,10 +23,12 @@ using ES.Finances.Application.Finance.Command.Fee.UpdateStudentFee;
 using ES.Finances.Application.Finance.Command.Fee.UpdateStudentFee.RequestMapper;
 using ES.Finances.Application.Finance.Command.PaymentRecords.AddpaymentsRecords;
 using ES.Finances.Application.Finance.Command.PaymentRecords.AddpaymentsRecords.RequestCommandMapper;
+using ES.Finances.Application.Finance.Queries.Fee.FeeCategory.FeeCategoryById;
 using ES.Finances.Application.Finance.Queries.Fee.FeeCategory.FilterFeeCategory;
 using ES.Finances.Application.Finance.Queries.Fee.FeeStructure;
 using ES.Finances.Application.Finance.Queries.Fee.FeeStructureByClass;
 using ES.Finances.Application.Finance.Queries.Fee.FeeStructureById;
+using ES.Finances.Application.Finance.Queries.Fee.FeeStructureByStudent;
 using ES.Finances.Application.Finance.Queries.Fee.Feetype;
 using ES.Finances.Application.Finance.Queries.Fee.FeetypeById;
 using ES.Finances.Application.Finance.Queries.Fee.FilterFeeStructure;
@@ -111,7 +117,71 @@ namespace TN.Web.Controllers.Finance.v1
 
         #endregion
 
+        #region UpdateFeeCategory
+        [HttpPatch("UpdateFeeCategory/{Id}")]
 
+        public async Task<IActionResult> UpdateFeeCategory([FromRoute] string Id, [FromBody] UpdateFeeCategoryRequest request)
+        {
+            //Mapping command and request
+            var command = request.ToCommand(Id);
+            var update = await _mediator.Send(command);
+            #region Switch Statement
+            return update switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(update.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = update.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(update.Errors),
+                _ => BadRequest("Invalid Fields for Update")
+            };
+
+            #endregion
+        }
+        #endregion  
+
+        #region DeleteFeeCategory
+        [HttpDelete("DeleteFeeCategory/{id}")]
+
+        public async Task<IActionResult> DeleteFeeCategory([FromRoute] string id, CancellationToken cancellationToken)
+        {
+            var command = new DeleteFeeCategoryCommand(id);
+            var deleteResult = await _mediator.Send(command);
+            #region Switch Statement
+            return deleteResult switch
+            {
+                { IsSuccess: true, Data: true } => NoContent(),
+                { IsSuccess: true, Message: not null } => new JsonResult(new { Message = deleteResult.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(deleteResult.Errors),
+                _ => BadRequest("Invalid Fields")
+            };
+
+            #endregion
+        }
+        #endregion
+
+        #region FeeCategoryById
+        [HttpGet("FeeCategory/{Id}")]
+        public async Task<IActionResult> GetFeeCategory([FromRoute] string Id)
+        {
+            var query = new FeeCategoryByIdQuery(Id);
+            var queryResult = await _mediator.Send(query);
+            #region Switch Statement
+            return queryResult switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(queryResult.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = queryResult.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(queryResult.Errors),
+                _ => BadRequest("Invalid page and pageSize Fields")
+            };
+            #endregion
+
+        }
+        #endregion
 
         #region AddFeeCategory
         [HttpPost("AddFeeCategory")]
@@ -209,6 +279,29 @@ namespace TN.Web.Controllers.Finance.v1
         #endregion
 
         #region StudentFee
+
+
+        #region FeeStructureByStudent
+        [HttpGet("FeeStructureByStudent")]
+        public async Task<IActionResult> FeeStructureByStudent([FromQuery] FeeStructureByStudentDTOs feeStructureByStudentDTOs)
+        {
+            var query = new FeeStructureByStudentQuery(feeStructureByStudentDTOs);
+            var StudentFeeByIdResponse = await _mediator.Send(query);
+            #region Switch Statement
+            return StudentFeeByIdResponse switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(StudentFeeByIdResponse.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = StudentFeeByIdResponse.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(StudentFeeByIdResponse.Errors),
+                _ => BadRequest("Invalid page and pageSize Fields")
+            };
+            #endregion
+
+        }
+        #endregion
 
         #region FeeStructureByClass
         [HttpGet("FeeStructureByClass")]
@@ -404,6 +497,27 @@ namespace TN.Web.Controllers.Finance.v1
         #endregion
 
         #region FeeStructure
+
+        #region DeleteFeeStructure
+        [HttpDelete("DeleteFeeStructure/{id}")]
+
+        public async Task<IActionResult> DeleteFeeStructure([FromRoute] string id, CancellationToken cancellationToken)
+        {
+            var command = new DeleteFeeStructureCommand(id);
+            var deleteResult = await _mediator.Send(command);
+            #region Switch Statement
+            return deleteResult switch
+            {
+                { IsSuccess: true, Data: true } => NoContent(),
+                { IsSuccess: true, Message: not null } => new JsonResult(new { Message = deleteResult.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(deleteResult.Errors),
+                _ => BadRequest("Invalid Fields")
+            };
+
+            #endregion
+        }
+        #endregion
+
 
         #region UpdateFeeStructure
         [HttpPatch("UpdateFeeStructure/{Id}")]

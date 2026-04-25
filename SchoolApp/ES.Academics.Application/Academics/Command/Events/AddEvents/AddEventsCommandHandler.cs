@@ -47,13 +47,14 @@ namespace ES.Academics.Application.Academics.Command.Events.AddEvents
                 }
 
                 var addDisplay = _mapper.Map<AddEventsResponse>(add.Data);
-                return Result<AddEventsResponse>.Success(addDisplay);
+
+                return Result<AddEventsResponse>.Success(addDisplay, "Event created successfully");
 
 
             }
             catch (Exception ex)
             {
-                throw new Exception("An error occurred while adding", ex);
+                throw;
 
 
             }

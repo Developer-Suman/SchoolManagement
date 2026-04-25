@@ -11,6 +11,7 @@ using ES.Academics.Application.Academics.Queries.FilterExam;
 using ES.Academics.Application.Academics.Queries.FilterExamResult;
 using ES.Academics.Application.Academics.Queries.FilterSchoolClass;
 using ES.Academics.Application.Academics.Queries.MarkSheetByStudent;
+using ES.Academics.Application.Academics.Queries.SchoolClass;
 using ES.Academics.Application.Academics.Queries.SubjectByClassId;
 using ES.Academics.Application.ServiceInterface;
 using ES.Certificate.Application.ServiceInterface.IHelperMethod;
@@ -101,8 +102,9 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                             Guid.NewGuid().ToString(),
                             
                             e.subjectId,
-                            e.marksObtained,
-                            newId
+                            e.marksObtaineds,
+                            newId,
+                            true
                         )).ToList() ?? new List<MarksObtained>()
 
                     );
@@ -200,7 +202,9 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                            exam.CreatedAt,
                            exam.ModifiedBy,
                            exam.ModifiedAt,
-                           exam.MarksOtaineds?.Select(detail => new MarksObtainedDTOs(
+                           exam.MarksOtaineds?
+                            .Where(detail => detail.IsActive==true)
+                           .Select(detail => new MarksObtainedDTOs(
                                detail.SubjectId,
                                detail.MarksObtaineds
                       
@@ -256,7 +260,9 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                     exam.CreatedAt,
                     exam.ModifiedBy,
                     exam.ModifiedAt,
-                    exam.MarksOtaineds?.Select(detail => new MarksObtainedDTOs(
+                    exam.MarksOtaineds?
+                     .Where(detail => detail.IsActive==true)
+                    .Select(detail => new MarksObtainedDTOs(
                         detail.SubjectId,
                         detail.MarksObtaineds
                        
@@ -356,7 +362,9 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                         exam.ModifiedBy,
                         exam.ModifiedAt,
                         exam.MarksOtaineds != null
-                            ? exam.MarksOtaineds.Select(detail => new MarksObtainedDTOs(
+                            ? exam.MarksOtaineds
+                             .Where(detail => detail.IsActive==true)
+                            .Select(detail => new MarksObtainedDTOs(
                                 detail.SubjectId,
                                 detail.MarksObtaineds
                             )).ToList()
@@ -564,11 +572,13 @@ namespace ES.Academics.Infrastructure.ServiceImpl
             {
                 try
                 {
-                    if (examResultId == null)
+                    if (string.IsNullOrEmpty(examResultId))
                     {
                         return Result<UpdateExamResultResponse>.Failure("NotFound", "Please provide valid examResultId");
                     }
                     var userId = _tokenService.GetUserId();
+
+
                     var examResultsDetails = await _unitOfWork.BaseRepository<ExamResult>().
                                  GetConditionalAsync(x => x.Id == examResultId,
                                  query => query.Include(rm => rm.MarksOtaineds)
@@ -590,30 +600,48 @@ namespace ES.Academics.Infrastructure.ServiceImpl
 
 
 
-
                     if (updateExamResultCommand.marksObtained != null && updateExamResultCommand.marksObtained.Any())
                     {
+                        var incomingSubjectIds = updateExamResultCommand.marksObtained
+                            .Select(x => x.subjectId)
+                            .ToList();
+
+                        var existingMarks = examResult.MarksOtaineds
+                            .Where(x => x.IsActive == true) 
+                            .ToList();
+
+                        var existingDict = existingMarks
+                            .ToDictionary(x => x.SubjectId, x => x);
+
                         foreach (var detail in updateExamResultCommand.marksObtained)
                         {
-                            var existingExamResult = await _unitOfWork.BaseRepository<ExamResult>().GetByGuIdAsync(detail.Id);
-
-                            if (existingExamResult != null)
+                            if (existingDict.TryGetValue(detail.subjectId, out var existing))
                             {
-                                _mapper.Map(detail, existingExamResult);
-                                _unitOfWork.BaseRepository<ExamResult>().Update(existingExamResult);
+                                existing.MarksObtaineds = detail.marksObtaineds;
+                                existing.IsActive = true;
+                                _unitOfWork.BaseRepository<MarksObtained>().Update(existing);
                             }
                             else
                             {
-                                var newExamResult = _mapper.Map<ExamResult>(detail);
-                                newExamResult.Id = Guid.NewGuid().ToString();
-                                await _unitOfWork.BaseRepository<ExamResult>().AddAsync(newExamResult);
+                                var newMark = _mapper.Map<MarksObtained>(detail);
+                                newMark.Id = Guid.NewGuid().ToString();
+                                newMark.ExamResultId = examResultId;
+                                newMark.IsActive = true;
+
+                                examResult.MarksOtaineds.Add(newMark);
                             }
                         }
 
-                        await _unitOfWork.SaveChangesAsync();
+                        var toSoftDelete = existingMarks
+                            .Where(x => !incomingSubjectIds.Contains(x.SubjectId))
+                            .ToList();
+
+                        foreach (var item in toSoftDelete)
+                        {
+                            item.IsActive = false;
+                        }
                     }
 
-                    _mapper.Map(updateExamResultCommand, examResult);
                     await _unitOfWork.SaveChangesAsync();
                     scope.Complete();
 
@@ -631,7 +659,9 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                             examResult.CreatedAt,
                             examResult.ModifiedBy,
                             examResult.ModifiedAt,
-                            examResult.MarksOtaineds?.Select(details=> new MarksObtainedDTOs
+                            examResult.MarksOtaineds?
+                             .Where(detail => detail.IsActive==true)
+                            .Select(details=> new MarksObtainedDTOs
                             (
                                 details.SubjectId,
                                 details.MarksObtaineds

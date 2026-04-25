@@ -12,9 +12,9 @@ namespace ES.Finances.Application.Finance.Command.Fee.UpdateFeeStructure.Request
         {
             return new UpdateFeeStructureCommand(
                 id,
-                request.amount,
                 request.classId,
-                request.feeTypeId
+                request.feeCategoryId,
+                request?.feeStructureDTOs
                 );
         }
     }

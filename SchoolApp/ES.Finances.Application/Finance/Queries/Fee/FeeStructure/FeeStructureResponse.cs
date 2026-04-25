@@ -3,16 +3,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TN.Shared.Domain.Entities.Finance;
 
 namespace ES.Finances.Application.Finance.Queries.Fee.FeeStructure
 {
     public record FeeStructureResponse
     (
          string id,
-            decimal amount,
             string classId,
             string fyId,
-            string feeTypeId,
+            string? ledgerId,
+            //NameOfMonths? nameOfMonths,
+            string? feeCategoryId,
+            //List<FeeStructureDetails> feeStructureDetails,
             bool isActive,
             string schoolId,
             string createdBy,

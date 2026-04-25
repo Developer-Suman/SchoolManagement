@@ -15,6 +15,7 @@ namespace ES.Student.Application.Student.Command.AddStudents
     public record AddStudentsCommand
     (
         string? firstName,
+        string? feeCategoryId,
         string? middleName,
         string? lastName,
         string? registrationNumber,

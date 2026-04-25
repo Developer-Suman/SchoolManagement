@@ -2,6 +2,7 @@
 using ES.Academics.Application.Academics.Command.AddExam;
 using ES.Academics.Application.Academics.Command.AddSchoolClass;
 using ES.Academics.Application.Academics.Command.UpdateExam;
+using ES.Academics.Application.Academics.Command.UpdateExamResult;
 using ES.Academics.Application.Academics.Command.UpdateSchoolClass;
 using ES.Academics.Application.Academics.Queries.ClassByExamSession;
 using ES.Academics.Application.Academics.Queries.Exam;
@@ -82,7 +83,8 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                             newId,
                             es.subjectId,
                             es.passMarks,
-                            es.fullMarks
+                            es.fullMarks,
+                            true
                             )
                        ).ToList()
                     );
@@ -176,9 +178,31 @@ namespace ES.Academics.Infrastructure.ServiceImpl
         {
             try
             {
-                var exam = await _unitOfWork.BaseRepository<Exam>().GetByGuIdAsync(examId);
+                var examDetails = await _unitOfWork.BaseRepository<Exam>().GetConditionalAsync(
+                    x=>x.Id == examId,
+                    query=>query.Include(x=>x.ExamSubjects)
+                    );
 
-                var examResponse = _mapper.Map<ExamByIdQueryResponse>(exam);
+                var exam = examDetails.FirstOrDefault();
+
+                var examResponse = new ExamByIdQueryResponse
+                    (
+                    exam.Id,
+                    exam.Name,
+                    exam.ExamDate,
+                    exam.ClassId,
+                    exam.ExamSubjects
+                    .Where(detail => detail.IsActive == true)
+                    .Select(x =>
+                    new ExamSubjectDTOs
+                    (
+                        x.Id,
+                        x.SubjectId,
+                        x.PassMarks,
+                        x.FullMarks
+
+                    )
+                    ).ToList());
 
                 return Result<ExamByIdQueryResponse>.Success(examResponse);
 
@@ -302,13 +326,77 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                         return Result<UpdateExamResponse>.Failure("NotFound", "Please provide valid examId");
                     }
 
-                    var examToBeUpdated = await _unitOfWork.BaseRepository<Exam>().GetByGuIdAsync(examId);
+                    var examDetails = await _unitOfWork.BaseRepository<Exam>().GetConditionalAsync(
+                         x => x.Id == examId,
+                         query => query.Include(x => x.ExamSubjects)
+                         );
+
+                    var examToBeUpdated = examDetails.FirstOrDefault();
+
                     if (examToBeUpdated is null)
                     {
                         return Result<UpdateExamResponse>.Failure("NotFound", "Exam are not Found");
                     }
-                    examToBeUpdated.CreatedAt = DateTime.UtcNow;
-                    _mapper.Map(updateExamCommand, examToBeUpdated);
+                    examToBeUpdated.Name = updateExamCommand.name;
+                    examToBeUpdated.ModifiedAt = DateTime.UtcNow;
+                    examToBeUpdated.ExamDate = updateExamCommand.examDate;
+
+
+                    if (updateExamCommand.UpdateExamSubjectDTOs != null && updateExamCommand.UpdateExamSubjectDTOs.Any())
+                    {
+                        var incomingSubjectIds = updateExamCommand.UpdateExamSubjectDTOs
+                            .Select(x => x.subjectId)
+                            .ToList();
+
+                        var existingSubjects = examToBeUpdated.ExamSubjects?.ToList() ?? new List<ExamSubject>();
+
+                        foreach (var subjectDto in updateExamCommand.UpdateExamSubjectDTOs)
+                        {
+                            var existingSubject = existingSubjects
+                                .FirstOrDefault(x => x.Id == subjectDto.examSubjectId);
+
+                            if (existingSubject != null)
+                            {
+                                // ✅ Update existing
+                                existingSubject.PassMarks = subjectDto.passMarks;
+                                existingSubject.FullMarks = subjectDto.fullMarks;
+                                existingSubject.SubjectId = subjectDto.subjectId;
+                                existingSubject.IsActive = true; // important (reactivate if previously soft deleted)
+
+                                _unitOfWork.BaseRepository<ExamSubject>().Update(existingSubject);
+                            }
+                            else
+                            {
+                                // ✅ Add new
+                                var newExamSubject = new ExamSubject
+                                {
+                                    Id = Guid.NewGuid().ToString(),
+                                    ExamId = examId,
+                                    PassMarks = subjectDto.passMarks,
+                                    SubjectId = subjectDto.subjectId,
+                                    FullMarks = subjectDto.fullMarks,
+                                    IsActive = true
+                                };
+
+                                await _unitOfWork.BaseRepository<ExamSubject>().AddAsync(newExamSubject);
+                            }
+                        }
+
+                        // ✅ Soft delete removed subjects
+                        var toSoftDelete = existingSubjects
+                            .Where(x => x.IsActive==true && !incomingSubjectIds.Contains(x.SubjectId))
+                            .ToList();
+
+                        foreach (var item in toSoftDelete)
+                        {
+                            item.IsActive = false;
+                            _unitOfWork.BaseRepository<ExamSubject>().Update(item);
+                        }
+                    }
+
+
+
+
                     await _unitOfWork.SaveChangesAsync();
                     scope.Complete();
 

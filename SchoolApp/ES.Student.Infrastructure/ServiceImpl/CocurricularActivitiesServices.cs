@@ -1,11 +1,17 @@
 ﻿using AutoMapper;
-using ES.Student.Application.CocurricularActivities.Command.AddActivity;
-using ES.Student.Application.CocurricularActivities.Command.Addparticipation;
-using ES.Student.Application.CocurricularActivities.Queries.Activity;
-using ES.Student.Application.CocurricularActivities.Queries.FilterActivity;
-using ES.Student.Application.CocurricularActivities.Queries.FilterParticipation;
+using ES.Academics.Application.Academics.Command.UpdateSubject;
+using ES.Student.Application.CocurricularActivities.Command.Activity.AddActivity;
+using ES.Student.Application.CocurricularActivities.Command.Activity.UpdateActivity;
+using ES.Student.Application.CocurricularActivities.Command.Participation.Addparticipation;
+using ES.Student.Application.CocurricularActivities.Command.Participation.UpdateParticipation;
+using ES.Student.Application.CocurricularActivities.Queries.Activities.Activity;
+using ES.Student.Application.CocurricularActivities.Queries.Activities.ActivityById;
+using ES.Student.Application.CocurricularActivities.Queries.Activities.FilterActivity;
+using ES.Student.Application.CocurricularActivities.Queries.Participation.FilterParticipation;
+using ES.Student.Application.CocurricularActivities.Queries.Participation.ParticipationById;
 using ES.Student.Application.ServiceInterface;
 using ES.Student.Application.Student.Queries.ActivityByEvents;
+using ES.Student.Application.Student.Queries.GetParentById;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -16,9 +22,11 @@ using System.Transactions;
 using TN.Authentication.Domain.Entities;
 using TN.Shared.Application.ServiceInterface;
 using TN.Shared.Domain.Abstractions;
+using TN.Shared.Domain.Entities.Academics;
 using TN.Shared.Domain.Entities.CocurricularActivities;
 using TN.Shared.Domain.Entities.Crm.Enrollments;
 using TN.Shared.Domain.Entities.OrganizationSetUp;
+using TN.Shared.Domain.Entities.Students;
 using TN.Shared.Domain.ExtensionMethod.Pagination;
 using TN.Shared.Domain.IRepository;
 
@@ -266,7 +274,9 @@ namespace ES.Student.Infrastructure.ServiceImpl
                 var (activity, currentSchoolId, institutionId, userRole, isSuperAdmin) =
                     await _getUserScopedData.GetUserScopedData<Activity>();
 
-                var finalQuery = activity.Where(x => x.SchoolId == currentSchoolId || x.SchoolId == currentSchoolId).AsNoTracking();
+                var finalQuery = activity
+                    .Where(x => x.SchoolId == currentSchoolId && x.IsActive)
+                    .AsNoTracking();
 
 
 
@@ -291,6 +301,54 @@ namespace ES.Student.Infrastructure.ServiceImpl
             catch (Exception ex)
             {
                 throw new Exception("An error occurred while fetching", ex);
+            }
+        }
+
+        public async Task<Result<bool>> DeleteActivity(string id, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var activity = await _unitOfWork.BaseRepository<Activity>().GetByGuIdAsync(id);
+
+                activity.IsActive = false;
+                if (activity is null)
+                {
+                    return Result<bool>.Failure("NotFound", "Activity Cannot be Found");
+                }
+
+                _unitOfWork.BaseRepository<Activity>().Update(activity);
+                await _unitOfWork.SaveChangesAsync();
+
+
+                return Result<bool>.Success(true);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"An error occurred while deleting activity having {id}", ex);
+            }
+        }
+
+        public async Task<Result<bool>> DeleteParticipation(string id, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var participation = await _unitOfWork.BaseRepository<Participation>().GetByGuIdAsync(id);
+
+                participation.IsActive = false;
+                if (participation is null)
+                {
+                    return Result<bool>.Failure("NotFound", "participation Cannot be Found");
+                }
+
+                _unitOfWork.BaseRepository<Participation>().Update(participation);
+                await _unitOfWork.SaveChangesAsync();
+
+
+                return Result<bool>.Success(true);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"An error occurred while deleting Participation having {id}", ex);
             }
         }
 
@@ -498,6 +556,130 @@ namespace ES.Student.Infrastructure.ServiceImpl
             catch (Exception ex)
             {
                 throw new Exception($"An error occurred while fetching result: {ex.Message}", ex);
+            }
+        }
+
+        public async Task<Result<ActivityByIdResponse>> GetActivityById(string id, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+
+                var activity = await _unitOfWork.BaseRepository<Activity>().GetByGuIdAsync(id);
+
+                var activityResponse = _mapper.Map<ActivityByIdResponse>(activity);
+
+                return Result<ActivityByIdResponse>.Success(activityResponse);
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while fetching activity by using Id", ex);
+            }
+        }
+
+        public async Task<Result<ParticipationByIdResponse>> GetParticipationById(string id, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+
+                var participation = await _unitOfWork.BaseRepository<Participation>().GetByGuIdAsync(id);
+
+                var participationResponse = _mapper.Map<ParticipationByIdResponse>(participation);
+
+                return Result<ParticipationByIdResponse>.Success(participationResponse);
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while fetching participation by using Id", ex);
+            }
+        }
+
+        public async Task<Result<UpdateActivityResponse>> UpdateActivity(string id, UpdateActivityCommand updateActivityCommand)
+        {
+            using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            {
+                try
+                {
+                    if (id == null)
+                    {
+                        return Result<UpdateActivityResponse>.Failure("NotFound", "Please provide valid activityId");
+                    }
+
+                    var activityToBeUpdated = await _unitOfWork.BaseRepository<Activity>().GetByGuIdAsync(id);
+                    if (activityToBeUpdated is null)
+                    {
+                        return Result<UpdateActivityResponse>.Failure("NotFound", "Subject are not Found");
+                    }
+                    activityToBeUpdated.CreatedAt = DateTime.UtcNow;
+                    _mapper.Map(updateActivityCommand, activityToBeUpdated);
+                    await _unitOfWork.SaveChangesAsync();
+                    scope.Complete();
+
+                    var resultResponse = new UpdateActivityResponse
+                        (
+
+                            activityToBeUpdated.Name,
+                            activityToBeUpdated.Descriptions,
+                            activityToBeUpdated.ActivityCategory,
+                            activityToBeUpdated.EventId,
+                            activityToBeUpdated.StartTime,
+                            activityToBeUpdated.EndTime,
+                            activityToBeUpdated.ActivityDate
+
+
+                        );
+
+                    return Result<UpdateActivityResponse>.Success(resultResponse);
+
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception("An error occurred while updating the Activity", ex);
+                }
+            }
+        }
+
+        public async Task<Result<UpdateParticipationResponse>> UpdateParticipation(string id, UpdateParticipationCommand updateParticipationCommand)
+        {
+            using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            {
+                try
+                {
+                    if (id == null)
+                    {
+                        return Result<UpdateParticipationResponse>.Failure("NotFound", "Please provide valid ParticipationId");
+                    }
+
+                    var participationToBeUpdated = await _unitOfWork.BaseRepository<Participation>().GetByGuIdAsync(id);
+                    if (participationToBeUpdated is null)
+                    {
+                        return Result<UpdateParticipationResponse>.Failure("NotFound", "Subject are not Found");
+                    }
+                    participationToBeUpdated.CreatedAt = DateTime.UtcNow;
+                    _mapper.Map(updateParticipationCommand, participationToBeUpdated);
+                    await _unitOfWork.SaveChangesAsync();
+                    scope.Complete();
+
+                    var resultResponse = new UpdateParticipationResponse
+                        (
+
+                            participationToBeUpdated.StudentId,
+                            participationToBeUpdated.ActivityId,
+                            participationToBeUpdated.AwardPosition,
+                            participationToBeUpdated.CertificateTitle,
+                            participationToBeUpdated.CertificateContent
+
+
+                        );
+
+                    return Result<UpdateParticipationResponse>.Success(resultResponse);
+
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception("An error occurred while updating the Participation", ex);
+                }
             }
         }
     }

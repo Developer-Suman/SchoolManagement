@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ES.Academics.Application.Academics.Command.AddExam;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,11 +9,19 @@ namespace ES.Academics.Application.Academics.Command.UpdateExam
 {
     public record UpdateExamRequest
     (
-        string name,
+        string id,
+              string name,
         DateTime examDate,
-        decimal totalMarks,
-        decimal passingMarks,
         bool? isfinalExam,
-        string classId
+        string classId,
+        List<UpdateExamSubjectDTOs> UpdateExamSubjectDTOs = default
         );
+
+    public record UpdateExamSubjectDTOs
+     (
+             string? examSubjectId,
+             string subjectId,
+             int passMarks,
+             int fullMarks
+         );
 }
