@@ -32,6 +32,7 @@ using TN.Shared.Domain.Entities.Finance;
 using TN.Shared.Domain.Entities.OrganizationSetUp;
 using TN.Shared.Domain.ExtensionMethod.Pagination;
 using TN.Shared.Domain.IRepository;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using static TN.Shared.Domain.Enum.EnrolmentTypeEnum;
 
 namespace ES.Enrolment.Infrastructure.ServiceImpl
@@ -74,6 +75,7 @@ namespace ES.Enrolment.Infrastructure.ServiceImpl
 
 
                     var add = new CrmLead(
+                        Guid.NewGuid().ToString(),
                             newId,
                         addInquiryCommand.dateOfBirth,
                         addInquiryCommand.gender,
@@ -187,6 +189,7 @@ namespace ES.Enrolment.Infrastructure.ServiceImpl
 
                     var applicant = new CrmApplicant
                         (
+                        Guid.NewGuid().ToString(),
                         convertApplicantCommand.userId,
                         convertApplicantCommand.passportNo,
                         convertApplicantCommand.countryId, 
@@ -207,6 +210,17 @@ namespace ES.Enrolment.Infrastructure.ServiceImpl
 
 
                     await _unitOfWork.BaseRepository<CrmApplicant>().AddAsync(applicant);
+
+                    var exists = await _unitOfWork.BaseRepository<CrmApplicant>()
+                        .AnyAsync(x => x.ProfileId == convertApplicantCommand.userId);
+
+                    if (exists)
+                    {
+                        return Result<ConvertApplicantResponse>.Failure(
+                            "Conflict",
+                            "Applicant already exists for this user"
+                        );
+                    }
 
 
                     await _unitOfWork.SaveChangesAsync();
@@ -237,6 +251,7 @@ namespace ES.Enrolment.Infrastructure.ServiceImpl
 
                     var students = new CrmStudent
                         (
+                        Guid.NewGuid().ToString(),
                         convertStudentCommand.userId,
                         convertStudentCommand.universityName,
                         convertStudentCommand.visaId,
@@ -293,24 +308,33 @@ namespace ES.Enrolment.Infrastructure.ServiceImpl
                     : crmApplicant.Include(x => x.Profile)
                .Where(x => x.SchoolId == _tokenService.SchoolId().FirstOrDefault() || x.SchoolId == "");
 
-                var (startUtc, endUtc) = await _dateConverter.GetDateRangeUtc(filterApplicantDTOs.startDate, filterApplicantDTOs.endDate);
+                IQueryable<CrmApplicant> query = filter.AsQueryable();
 
-                var filteredResult = filter
-                 .Where(x =>
-                       (string.IsNullOrEmpty(filterApplicantDTOs.userId) || x.Profile.Id == filterApplicantDTOs.userId) &&
-                     x.CreatedAt >= startUtc &&
-                         x.CreatedAt <= endUtc &&
-                         x.IsActive
-                 )
-                 .OrderByDescending(x => x.CreatedAt) // newest first
-                 .ToList();
+                if (!string.IsNullOrEmpty(filterApplicantDTOs.userId))
+                {
+                    query = query.Where(x => x.ProfileId == filterApplicantDTOs.userId);
+                }
+
+                if (filterApplicantDTOs.startDate != null && filterApplicantDTOs.endDate != null)
+                {
+                    var (startUtc, endUtc) = await _dateConverter.GetDateRangeUtc(
+                        filterApplicantDTOs.startDate,
+                        filterApplicantDTOs.endDate
+                    );
+
+                    query = query.Where(x => x.CreatedAt >= startUtc && x.CreatedAt <= endUtc);
+                }
+
+                query = query.Where(x => x.IsActive)
+               .OrderByDescending(x => x.CreatedAt);
 
 
 
 
-                var responseList = filteredResult
+                var responseList = query
                 .OrderByDescending(x => x.CreatedAt)
                 .Select(i => new FilterApplicantResponse(
+                    i.Id,
                     i.Profile.Id,
                     i.Profile.FullName,
                     i.Profile.Email,
@@ -394,24 +418,28 @@ namespace ES.Enrolment.Infrastructure.ServiceImpl
                     : crmStudent.Include(x => x.Profile)
                .Where(x => x.SchoolId == _tokenService.SchoolId().FirstOrDefault() || x.SchoolId == "");
 
+                IQueryable<CrmStudent> query = filter.AsQueryable();
+
+                if (!string.IsNullOrEmpty(filterCRMStudentsDTOs.userId))
+                {
+                    query = query.Where(x => x.ProfileId == filterCRMStudentsDTOs.userId);
+                }
+
+                if (filterCRMStudentsDTOs.startDate != null && filterCRMStudentsDTOs.endDate != null)
+                {
+                    var (startUtc, endUtc) = await _dateConverter.GetDateRangeUtc(
+                        filterCRMStudentsDTOs.startDate,
+                        filterCRMStudentsDTOs.endDate
+                    );
+
+                    query = query.Where(x => x.CreatedAt >= startUtc && x.CreatedAt <= endUtc);
+                }
+
+                query = query.Where(x => x.IsActive)
+               .OrderByDescending(x => x.CreatedAt);
 
 
-                var (startUtc, endUtc) = await _dateConverter.GetDateRangeUtc(filterCRMStudentsDTOs.startDate, filterCRMStudentsDTOs.endDate);
-
-                var filteredResult = filter
-                 .Where(x =>
-                       (string.IsNullOrEmpty(filterCRMStudentsDTOs.userId) || x.Profile.Id == filterCRMStudentsDTOs.userId) &&
-                     x.CreatedAt >= startUtc &&
-                         x.CreatedAt <= endUtc &&
-                         x.IsActive
-                 )
-                 .OrderByDescending(x => x.CreatedAt) // newest first
-                 .ToList();
-
-
-
-
-                var responseList = filteredResult
+                var responseList = query
                 .OrderByDescending(x => x.CreatedAt)
                 .Select(i => new FilterCRMStudentsResponse(
                     i.Profile.Id,
@@ -492,22 +520,29 @@ namespace ES.Enrolment.Infrastructure.ServiceImpl
                     : lead.Include(x => x.Profile)
                .Where(x => x.SchoolId == _tokenService.SchoolId().FirstOrDefault() || x.SchoolId == "");
 
-                var (startUtc, endUtc) = await _dateConverter.GetDateRangeUtc(filterInquiryDTOs.startDate, filterInquiryDTOs.endDate);
+                IQueryable<CrmLead> query = filter.AsQueryable();
 
-                var filteredResult = filter
-                 .Where(x =>
-                       (string.IsNullOrEmpty(filterInquiryDTOs.userId) || x.Profile.Id == filterInquiryDTOs.userId) &&
-                     x.CreatedAt >= startUtc &&
-                         x.CreatedAt <= endUtc &&
-                         x.IsActive
-                 )
-                 .OrderByDescending(x => x.CreatedAt) // newest first
-                 .ToList();
+                if (!string.IsNullOrEmpty(filterInquiryDTOs.userId))
+                {
+                    query = query.Where(x => x.ProfileId == filterInquiryDTOs.userId);
+                }
+
+                if (filterInquiryDTOs.startDate != null && filterInquiryDTOs.endDate != null)
+                {
+                    var (startUtc, endUtc) = await _dateConverter.GetDateRangeUtc(
+                        filterInquiryDTOs.startDate,
+                        filterInquiryDTOs.endDate
+                    );
+
+                    query = query.Where(x => x.CreatedAt >= startUtc && x.CreatedAt <= endUtc);
+                }
+
+                query = query.Where(x => x.IsActive)
+               .OrderByDescending(x => x.CreatedAt);
 
 
 
-
-                var responseList = filteredResult
+                var responseList = query
                 .OrderByDescending(x => x.CreatedAt)
                 .Select(i => new FilterInqueryResponse(
                     i.Id,

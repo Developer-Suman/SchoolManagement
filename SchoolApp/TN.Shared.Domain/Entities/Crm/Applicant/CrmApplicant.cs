@@ -21,6 +21,7 @@ namespace TN.Shared.Domain.Entities.Crm.Applicant
 
         public CrmApplicant(
             string id,
+            string? profileId,
             string? passportNo,
             string? countryId,
             string? universityId,
@@ -33,6 +34,7 @@ namespace TN.Shared.Domain.Entities.Crm.Applicant
             DateTime modifiedAt
             ) : base(id)
         {
+            ProfileId = profileId;
             PassportNumber = passportNo;
             CountryId = countryId;
             UniversityId = universityId;
@@ -45,6 +47,7 @@ namespace TN.Shared.Domain.Entities.Crm.Applicant
             ModifiedAt = modifiedAt;
             TrainingRegistrations = new List<TrainingRegistration>();
             Documents= new List<Document>();
+            VisaApplications = new List<VisaApplication>();
 
         }
         public string SchoolId { get; set; }
@@ -61,10 +64,12 @@ namespace TN.Shared.Domain.Entities.Crm.Applicant
         public University? University { get; set; }
         public string? CourseId { get; set; }
         public Course? Course { get; set; }
-        public virtual UserProfile Profile { get; set; }
+        public string? ProfileId { get; set; }
+        public virtual UserProfile? Profile { get; set; }
 
         public ICollection<TrainingRegistration> TrainingRegistrations { get;set; }
         public ICollection<Document> Documents  { get;set; }
+        public ICollection<VisaApplication> VisaApplications { get;set; }
 
     }
 }

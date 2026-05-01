@@ -22,6 +22,7 @@ namespace TN.Shared.Domain.Entities.Crm.Lead
 
         public CrmLead(
             string id,
+            string? profileId,
             DateTime dateOfBirth,
             Gender gender,
             string contactNumber,
@@ -70,6 +71,7 @@ namespace TN.Shared.Domain.Entities.Crm.Lead
             TrainingRemarks = trainingRemarks;
             TrainingStartDate = trainingStartDate;
             TrainingEndDate = trainingEndDate;
+            ProfileId = profileId;
 
 
 
@@ -149,7 +151,9 @@ namespace TN.Shared.Domain.Entities.Crm.Lead
 
         public string Source { get; set; }
         public string FeedBackOrSuggestion { get; set; }
-        public virtual UserProfile Profile { get; set; }
+
+        public string? ProfileId { get; set; }
+        public virtual UserProfile? Profile { get; set; }
 
         public List<LeadCountry> AppliedCountries { get; set; }
         public List<Appointment> Appointments { get; set; }

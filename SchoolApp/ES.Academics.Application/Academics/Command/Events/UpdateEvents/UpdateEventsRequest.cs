@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TN.Shared.Domain.Enum;
 
 namespace ES.Academics.Application.Academics.Command.Events.UpdateEvents
 {
@@ -10,15 +11,14 @@ namespace ES.Academics.Application.Academics.Command.Events.UpdateEvents
     (
             string title,
             string? descriptions,
-            string eventsType,
+            EventType eventsType,
             DateTime eventsDate,
             string participants,
-            DateTime eventTime,
+            TimeOnly? eventTime,
             string venue,
             string? chiefGuest,
             string? organizer,
-            string? mentor,
-            string schoolId
+            string? mentor
 
         );
 }

@@ -23,6 +23,6 @@ namespace ES.Academics.Application.Academics.Queries.FilterExamResult
      DateTime createdAt,
      string modifiedBy,
      DateTime modifiedAt,
-     List<MarksObtainedDTOs> marksObtained
+     List<FilterMarksObtainedDTOs> marksObtained
         );
 }

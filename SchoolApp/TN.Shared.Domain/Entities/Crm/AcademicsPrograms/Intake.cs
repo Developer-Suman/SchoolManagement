@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TN.Shared.Domain.Entities.Crm.Visa;
 using TN.Shared.Domain.Primitive;
 using static TN.Shared.Domain.Enum.HelperEnum;
 
@@ -41,8 +42,10 @@ namespace TN.Shared.Domain.Entities.Crm.AcademicsPrograms
             CreatedAt = createdAt;
             ModifiedBy = modifiedBy;
             ModifiedAt = modifiedAt;
+            VisaApplications = new List<VisaApplication>();
 
-            
+
+
         }
         public string SchoolId { get; set; }
         public bool IsActive { get; set; }
@@ -56,5 +59,7 @@ namespace TN.Shared.Domain.Entities.Crm.AcademicsPrograms
         public bool? IsOpen { get; set; }
         public string CourseId { get; set; }
         public Course Course { get; set; }
+        public ICollection<VisaApplication> VisaApplications { get; set; }
+
     }
 }

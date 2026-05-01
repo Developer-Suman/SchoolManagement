@@ -114,27 +114,43 @@ namespace TN.Setup.Infrastructure.ServiceImpl
         {
             try
             {
+                var institutionId = _tokenService.InstitutionId();
+                var userRole = _tokenService.GetRole();
+                var isSuperAdmin = userRole == Role.SuperAdmin;
 
-                var checkInstitution = await _unitOfWork.BaseRepository<Institution>()
-                   .FindBy(x => x.Id == _tokenService.InstitutionId()
-                   );
-                IQueryable<Institution> allInstitution = await _unitOfWork.BaseRepository<Institution>().GetAllAsyncWithPagination();
-                var userRoles = _tokenService.GetRole();
-                var isSuperAdmin = userRoles == Role.SuperAdmin;
+                IQueryable<Institution> query;
 
+                if (isSuperAdmin)
+                {
+                    query = await _unitOfWork.BaseRepository<Institution>()
+                        .GetAllAsync();
+                }
+                else
+                {
+                    query = await _unitOfWork.BaseRepository<Institution>()
+                        .FindBy(x => x.Id == institutionId);
+                }
 
-                var filterInstitution = isSuperAdmin ? allInstitution : checkInstitution;
+                var institutionPagedResult = await query
+                    .ToPagedResultAsync(
+                        paginationRequest.pageIndex,
+                        paginationRequest.pageSize,
+                        paginationRequest.IsPagination
+                    );
 
+                var response = new PagedResult<GetAllInstitutionResponse>
+                {
+                    Items = _mapper.Map<List<GetAllInstitutionResponse>>(institutionPagedResult.Data.Items),
+                    TotalItems = institutionPagedResult.Data.TotalItems,
+                    PageIndex = institutionPagedResult.Data.PageIndex,
+                    pageSize = institutionPagedResult.Data.pageSize
+                };
 
-                var institutionPagedResult = await filterInstitution.AsNoTracking().ToPagedResultAsync(paginationRequest.pageIndex, paginationRequest.pageSize, paginationRequest.IsPagination);
-                var allInstitutionResponse = _mapper.Map<PagedResult<GetAllInstitutionResponse>>(institutionPagedResult.Data);
-
-                return Result<PagedResult<GetAllInstitutionResponse>>.Success(allInstitutionResponse);
+                return Result<PagedResult<GetAllInstitutionResponse>>.Success(response);
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
-                throw new Exception("An error occurred while fetching the Institution",ex);
-            
+                throw new Exception("An error occurred while fetching the Institution", ex);
             }
         }
 

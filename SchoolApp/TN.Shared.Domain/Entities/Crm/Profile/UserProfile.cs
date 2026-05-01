@@ -43,9 +43,9 @@ namespace TN.Shared.Domain.Entities.Crm.Profile
         public DateTime CreatedAt { get; private set; }
 
         // Navigation properties
-        public virtual CrmLead CrmLeadDetails { get; set; }
-        public virtual CrmApplicant CrmApplicantDetails { get; set; }
-        public virtual CrmStudent CrmStudentDetails { get; set; }
+        public virtual CrmLead? CrmLeadDetails { get; set; }
+        public virtual CrmApplicant? CrmApplicantDetails { get; set; }
+        public virtual CrmStudent? CrmStudentDetails { get; set; }
         public ICollection<FollowUp> FollowUps { get; set; }
     }
 }

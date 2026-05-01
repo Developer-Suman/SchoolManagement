@@ -11,7 +11,7 @@ namespace ES.Enrolment.Application.Enrolments.Command.FollowUp.AddFollowUp
 {
     public record AddFollowUpCommand
     (
-        string userId,
+        string? userId,
             TimeOnly startTime,
             TimeOnly endTime,
             DateTime followUpDate,

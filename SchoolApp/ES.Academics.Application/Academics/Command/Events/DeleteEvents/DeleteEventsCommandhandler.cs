@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using ES.Academics.Application.Academics.Command.Events.UpdateEvents;
 using ES.Academics.Application.ServiceInterface;
 using MediatR;
 using System;
@@ -23,18 +24,21 @@ namespace ES.Academics.Application.Academics.Command.Events.DeleteEvents
         }
         public async Task<Result<bool>> Handle(DeleteEventsCommand request, CancellationToken cancellationToken)
         {
+            var entityName = typeof(DeleteEventsCommand).Name
+                   .Replace("Delete", "")
+                   .Replace("Command", "");
             try
             {
                 var deleteEvents = await _eventsServices.Delete(request.Id, cancellationToken);
                 if (deleteEvents is null)
                 {
-                    return Result<bool>.Failure("NotFound", "Event not Found");
+                    return Result<bool>.Failure("NotFound", $"{entityName} not Found");
                 }
-                return Result<bool>.Success(true);
+                return Result<bool>.Success(true, $"{entityName} Deleted Successfully");
             }
             catch (Exception ex)
             {
-                throw new Exception("An error occurred while deleting Certificate Template", ex);
+                throw;
             }
         }
     }

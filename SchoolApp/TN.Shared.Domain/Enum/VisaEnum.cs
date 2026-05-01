@@ -15,5 +15,12 @@ namespace TN.Shared.Domain.Enum
             Rejected=3,
             ActionRequired=4
         }
+
+        public enum VisaStatusType
+        {
+         
+            Application = 1,
+            Documents = 2
+        }
     }
 }

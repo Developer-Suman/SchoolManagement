@@ -10,6 +10,8 @@ using ES.Attendance.Infrastructure;
 using ES.Certificate.Infrastructure;
 using ES.Communication.Application;
 using ES.Communication.Infrastructure;
+using ES.Crm.Finance.Application;
+using ES.Crm.Finance.Infrastructure;
 using ES.Enrolment.Application;
 using ES.Enrolment.Infrastructure;
 using ES.Finances.Application;
@@ -18,6 +20,8 @@ using ES.Staff.Application;
 using ES.Staff.Infrastructure;
 using ES.Student.Application;
 using ES.Student.Infrastructure;
+using ES.Visa.Application;
+using ES.Visa.Infrastructure;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.OpenApi.Models;
 using NV.Payment.Application;
@@ -240,12 +244,20 @@ try
     #region CRM
 
     builder.Services
+      .AddCrmFinanceApplication()
+      .AddCrmFinanceInfrastructure();
+
+    builder.Services
       .AddAcademicProgramsApplication()
       .AddAcademicProgramsInfrastructure();
 
     builder.Services
       .AddEnrolmentApplication()
       .AddEnrolmentInfrastructure();
+
+    builder.Services
+      .AddVisaApplication()
+      .AddVisaInfrastructures();
 
     #endregion
 
@@ -292,5 +304,8 @@ try
 
 }catch(Exception ex)
 {
+    Console.WriteLine(ex);
     Log.Error("The following {Exception} was thrown during Application Startup", ex);
+    throw;
+    
 }
