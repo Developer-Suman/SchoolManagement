@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TN.Shared.Domain.Abstractions;
+using TN.Shared.Domain.Enum;
 using ZXing;
 
 namespace ES.Academics.Application.Academics.Command.Events.UpdateEvents
@@ -14,14 +15,13 @@ namespace ES.Academics.Application.Academics.Command.Events.UpdateEvents
          string id,
             string title,
             string? descriptions,
-            string eventsType,
+            EventType eventsType,
             DateTime eventsDate,
             string participants,
-            DateTime eventTime,
+            TimeOnly? eventTime,
             string venue,
             string? chiefGuest,
             string? organizer,
-            string? mentor,
-            string schoolId
+            string? mentor
         ) : IRequest<Result<UpdateEventsResponse>>;
 }

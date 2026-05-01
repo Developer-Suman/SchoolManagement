@@ -10,7 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AutoMapper" Version="14.0.0" />
+    <PackageReference Include="AutoMapper" Version="12.4.1" />
 
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.16">
       <PrivateAssets>all</PrivateAssets>
@@ -18,8 +18,8 @@
     </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="8.0.16" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.16" />
-    <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="8.0.21" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.16" />
+    <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="10.0.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.0" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.19.6" />
     <PackageReference Include="NepDate" Version="2.0.5" />
     <PackageReference Include="QuestPDF" Version="2026.2.3" />
@@ -42,6 +42,8 @@
     <ProjectReference Include="..\ES.Certificate.Infrastructure\ES.Certificate.Infrastructure.csproj" />
     <ProjectReference Include="..\ES.Communication.Application\ES.Communication.Application.csproj" />
     <ProjectReference Include="..\ES.Communication.Infrastructure\ES.Communication.Infrastructure.csproj" />
+    <ProjectReference Include="..\ES.Crm.Finance.Application\ES.Crm.Finance.Application.csproj" />
+    <ProjectReference Include="..\ES.Crm.Finance.Infrastructure\ES.Crm.Finance.Infrastructure.csproj" />
     <ProjectReference Include="..\ES.Enrolment.Application\ES.Enrolment.Application.csproj" />
     <ProjectReference Include="..\ES.Enrolment.Infrastructure\ES.Enrolment.Infrastructure.csproj" />
     <ProjectReference Include="..\ES.Finances.Infrastructure\ES.Finances.Infrastructure.csproj" />
@@ -50,6 +52,8 @@
     <ProjectReference Include="..\ES.Student.Infrastructure\ES.Student.Infrastructure.csproj" />
     <ProjectReference Include="..\ES.Finances.Application\ES.Finances.Application.csproj" />
     <ProjectReference Include="..\ES.Student.Application\ES.Student.Application.csproj" />
+    <ProjectReference Include="..\ES.Visa.Application\ES.Visa.Application.csproj" />
+    <ProjectReference Include="..\ES.Visa.Infrastructure\ES.Visa.Infrastructure.csproj" />
     <ProjectReference Include="..\NV.Payment.Application\NV.Payment.Application.csproj" />
     <ProjectReference Include="..\NV.Payment.Infrastructure\NV.Payment.Infrastructure.csproj" />
     <ProjectReference Include="..\TN.Account.Application\TN.Account.Application.csproj" />

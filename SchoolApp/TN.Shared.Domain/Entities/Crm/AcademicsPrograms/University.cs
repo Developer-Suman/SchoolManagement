@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TN.Shared.Domain.Entities.Crm.Applicant;
+using TN.Shared.Domain.Entities.Crm.Visa;
 using TN.Shared.Domain.Primitive;
 
 namespace TN.Shared.Domain.Entities.Crm.AcademicsPrograms
@@ -44,6 +45,7 @@ namespace TN.Shared.Domain.Entities.Crm.AcademicsPrograms
             ModifiedAt = modifiedAt;
             Courses = new List<Course>();
             CrmApplicants = new List<CrmApplicant>();
+            VisaApplications = new List<VisaApplication>();
 
 
         }
@@ -62,5 +64,6 @@ namespace TN.Shared.Domain.Entities.Crm.AcademicsPrograms
         public int GlobalRanking { get; set; }
         public ICollection<Course> Courses { get; set; }
         public ICollection<CrmApplicant> CrmApplicants { get; set; }
+        public ICollection<VisaApplication> VisaApplications { get; set; }
     }
 }

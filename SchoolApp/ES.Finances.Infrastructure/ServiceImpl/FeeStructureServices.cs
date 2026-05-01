@@ -294,39 +294,36 @@ namespace ES.Finances.Infrastructure.ServiceImpl
 
 
                 var query = await student
-                        .Where(x =>
-                            x.IsActive &&
-                            x.SchoolId == currentSchoolId &&
-                            x.Id == feeStructureByStudentDTOs.studentId
-                        )
-                        .Select(x => new
-                        {
-                            StudentId = x.Id,
-                            StudentName = x.FirstName + " " + x.LastName,
+                    .Where(x =>
+                        x.IsActive &&
+                        x.SchoolId == currentSchoolId &&
+                        x.Id == feeStructureByStudentDTOs.studentId
+                    )
+                    .Select(x => new
+                    {
+                        StudentName = x.FirstName + " " + x.LastName,
+                        FeeCategoryName = x.FeeCategory != null ? x.FeeCategory.Name : "",
+                        FeeStructureId = x.FeeCategory != null
+                            ? x.FeeCategory.FeeStructures
+                                .Where(fs => fs.IsActive)
+                                .Select(fs => fs.Id)
+                                .FirstOrDefault()
+                            : ""
+                    })
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync();
 
-                            FeeCategory = x.FeeCategory == null ? null : new
-                            {
-                                x.FeeCategory.Id,
-                                x.FeeCategory.Name,
+                if (query == null)
+                {
+                    return Result<FeeStructureByStudentResponse>
+                        .Failure("NotFound", "Student not found");
+                }
 
-                                FeeStructures = x.FeeCategory.FeeStructures
-                                    .Where(fs => fs.IsActive)
-                                    .Select(fs => new
-                                    {
-                                        fs.Id
-                                    })
-                                    .ToList()
-                            }
-                        })
-                        .AsNoTracking()
-                        .FirstOrDefaultAsync();
-
-                var response = new FeeStructureByStudentResponse
-                (
-                    query.FeeCategory?.FeeStructures.FirstOrDefault()?.Id ?? "",
-                    query.StudentId,
-                    query.FeeCategory?.Name ?? ""
-                    );
+                var response = new FeeStructureByStudentResponse(
+                    query.FeeStructureId ?? "",
+                    query.StudentName ?? "",
+                    query.FeeCategoryName ?? ""
+                );
 
                 return Result<FeeStructureByStudentResponse>.Success(response);
 

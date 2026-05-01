@@ -303,7 +303,9 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                         .ThenInclude(s => s.Municipality)
                     .Include(x => x.Student)
                         .ThenInclude(s => s.Vdc)
-                    .Include(x => x.MarksOtaineds);
+                    .Include(x => x.MarksOtaineds)
+                        .ThenInclude(x => x.Subject)
+                    ;
 
                 var data = await query.ToListAsync();
 
@@ -345,6 +347,7 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                 }
 
                 var responseList = query
+                    .Where(exam => exam.IsActive)
                     .OrderByDescending(x => x.CreatedAt)
                     .Select(exam => new FilterExamResultResponse(
                         exam.Id,
@@ -364,11 +367,12 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                         exam.MarksOtaineds != null
                             ? exam.MarksOtaineds
                              .Where(detail => detail.IsActive==true)
-                            .Select(detail => new MarksObtainedDTOs(
-                                detail.SubjectId,
+                            .Select(detail => new FilterMarksObtainedDTOs(
+                                detail.SubjectId ?? string.Empty,
+                                detail.Subject.Name,
                                 detail.MarksObtaineds
                             )).ToList()
-                            : new List<MarksObtainedDTOs>()
+                            : new List<FilterMarksObtainedDTOs>()
                     ))
                     .ToList();
 

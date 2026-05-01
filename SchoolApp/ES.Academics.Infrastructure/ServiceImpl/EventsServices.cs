@@ -74,10 +74,7 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                     var userId = _tokenService.GetUserId();
                     var academicYearId = _fiscalContext.CurrentAcademicYearId;
 
-                    if (newId is not null)
-                    {
-                        throw new NotFoundExceptions("Event not found.");
-                    }
+ 
 
                     var addEvents = new Events(
                         newId,
@@ -100,8 +97,6 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                         true,
                         fyId,
                         academicYearId
-
-
                     );
 
                     await _unitOfWork.BaseRepository<Events>().AddAsync(addEvents);
@@ -123,12 +118,13 @@ namespace ES.Academics.Infrastructure.ServiceImpl
 
         public async Task<Result<bool>> Delete(string Id, CancellationToken cancellationToken)
         {
+
             try
             {
                 var events = await _unitOfWork.BaseRepository<Events>().GetByGuIdAsync(Id);
                 if (events is null)
                 {
-                    return Result<bool>.Failure("NotFound", "Events Cannot be Found");
+                    return Result<bool>.Failure("NotFound", "Data not Found");
                 }
 
                 events.IsActive = false;
@@ -140,7 +136,7 @@ namespace ES.Academics.Infrastructure.ServiceImpl
             }
             catch (Exception ex)
             {
-                throw new Exception($"An error occurred while deleting Events having {Id}", ex);
+                throw;
             }
         }
 
@@ -225,23 +221,26 @@ namespace ES.Academics.Infrastructure.ServiceImpl
 
                 var eventsDictionary = query
                     .OrderByDescending(x => x.CreatedAt)
-                    .AsEnumerable() // switch to memory for dictionary creation
+                    .AsEnumerable()
+                    .GroupBy(x => x.EventsDate)
                     .ToDictionary(
-                        x => x.EventsDate,
-                        x => new EventsDetails(
-                            id: x.Id,
-                            title: x.Title,
-                            descriptions: x.Description,
-                            eventsType: x.EventsType,
-                            eventsDate: x.EventsDate,
-                            participants: x.Participants,
-                            eventTime: x.EventTime ?? default,
-                            venue: x.Venue,
-                            chiefGuest: x.ChiefGuest,
-                            organizer: x.Organizer,
-                            mentor: x.Mentor
-                        ),
-                        StringComparer.OrdinalIgnoreCase // safer key handling
+                        g => g.Key,
+                        g => {
+                            var x = g.First(); // latest due to ordering
+                            return new EventsDetails(
+                                id: x.Id,
+                                title: x.Title,
+                                descriptions: x.Description,
+                                eventsType: x.EventsType,
+                                eventsDate: x.EventsDate,
+                                participants: x.Participants,
+                                eventTime: x.EventTime ?? default,
+                                venue: x.Venue,
+                                chiefGuest: x.ChiefGuest,
+                                organizer: x.Organizer,
+                                mentor: x.Mentor
+                            );
+                        }
                     );
 
 
@@ -371,46 +370,52 @@ namespace ES.Academics.Infrastructure.ServiceImpl
             }
         }
 
-        public async Task<Result<UpdateEventsResponse>> Update(string eventsId, UpdateEventsCommand updateEventsCommand)
+        public async Task<Result<UpdateEventsResponse>> Update(string updateId, UpdateEventsCommand updateCommand)
             {
             using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
+                var entityName = typeof(UpdateEventsCommand).Name
+                   .Replace("Update", "")
+                   .Replace("Command", "");
+
+
                 try
                 {
-                    if (eventsId == null)
+
+                    if (updateId == null)
                     {
-                        return Result<UpdateEventsResponse>.Failure("NotFound", "Please provide valid EventsId");
+                        return Result<UpdateEventsResponse>.Failure("NotFound", $"Please provide valid {updateId}");
                     }
 
-                    var eventsToBeUpdated = await _unitOfWork.BaseRepository<Events>().GetByGuIdAsync(eventsId);
-                    if (eventsToBeUpdated is null)
+                    var dataToBeUpdated = await _unitOfWork.BaseRepository<Events>().GetByGuIdAsync(updateId);
+                    if (dataToBeUpdated is null)
                     {
-                        return Result<UpdateEventsResponse>.Failure("NotFound", "Events are not Found");
+                        return Result<UpdateEventsResponse>.Failure("NotFound", $"{entityName} are not Found");
                     }
-                    eventsToBeUpdated.CreatedAt = DateTime.UtcNow;
-                    _mapper.Map(updateEventsCommand, eventsToBeUpdated);
+                    dataToBeUpdated.CreatedAt = DateTime.UtcNow;
+                    _mapper.Map(updateCommand, dataToBeUpdated);
                     await _unitOfWork.SaveChangesAsync();
                     scope.Complete();
 
                     var resultResponse = new UpdateEventsResponse
                         (
-                            eventsToBeUpdated.Id,
-                            eventsToBeUpdated.Title,
-                            eventsToBeUpdated.Description,
-                            eventsToBeUpdated.EventsType,
-                            eventsToBeUpdated.EventsDate,
-                            eventsToBeUpdated.Participants,
-                            eventsToBeUpdated.EventTime ?? default,
-                            eventsToBeUpdated.Venue,
-                            eventsToBeUpdated.ChiefGuest,
-                            eventsToBeUpdated.Organizer,
-                            eventsToBeUpdated.Mentor,
-                            eventsToBeUpdated.SchoolId,
-                            eventsToBeUpdated.CreatedBy,
-                            eventsToBeUpdated.CreatedAt,
-                            eventsToBeUpdated.ModifiedBy,
-                            eventsToBeUpdated.ModifiedAt,
-                            eventsToBeUpdated.IsActive
+                            dataToBeUpdated.Id,
+                            dataToBeUpdated.Title,
+                            dataToBeUpdated.Description,
+                            dataToBeUpdated.EventsType,
+                            dataToBeUpdated.EventsDate,
+                            dataToBeUpdated.Participants,
+                            dataToBeUpdated.EventTime ?? default,
+                            dataToBeUpdated.Venue,
+                            dataToBeUpdated.ChiefGuest,
+                            dataToBeUpdated.Organizer,
+                            dataToBeUpdated.Mentor,
+                            dataToBeUpdated.SchoolId,
+                            dataToBeUpdated.CreatedBy,
+                            dataToBeUpdated.CreatedAt,
+                            dataToBeUpdated.ModifiedBy,
+                            dataToBeUpdated.ModifiedAt,
+                            dataToBeUpdated.IsActive
                          );
 
                     return Result<UpdateEventsResponse>.Success(resultResponse);
@@ -418,7 +423,7 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                 }
                 catch (Exception ex)
                 {
-                    throw new Exception("An error occurred while updating the Events", ex);
+                    throw;
                 }
             }
         }

@@ -21,8 +21,7 @@ namespace ES.Academics.Application.Academics.Command.Events.UpdateEvents.Request
                 request.venue,
                 request.chiefGuest,
                 request.organizer,
-                request.mentor,
-                request.schoolId
+                request.mentor
                 );
         }
     }

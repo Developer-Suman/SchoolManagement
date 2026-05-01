@@ -1,4 +1,5 @@
 ﻿using Microsoft.OpenApi.Models;
+using TN.Shared.Infrastructure.Data;
 
 namespace TN.Web.Configs
 {
@@ -6,6 +7,18 @@ namespace TN.Web.Configs
     {
         public static void Inject(WebApplicationBuilder builder)
         {
+
+            builder.Services.AddControllers()
+                .AddJsonOptions(options =>
+                {
+                    options.JsonSerializerOptions.PropertyNamingPolicy = null;
+                });
+
+            builder.Services.AddControllers()
+                .AddJsonOptions(options =>
+                {
+                    options.JsonSerializerOptions.PropertyNamingPolicy = null;
+                });
 
             #region TimeConverter
             builder.Services.AddControllers()

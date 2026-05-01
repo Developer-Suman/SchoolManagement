@@ -58,26 +58,13 @@ using ES.Academics.Application.Academics.Queries.SchoolClassById;
 using ES.Academics.Application.Academics.Queries.Subject;
 using ES.Academics.Application.Academics.Queries.SubjectByClassId;
 using ES.Academics.Application.Academics.Queries.SubjectById;
-using ES.Certificate.Application.Certificates.Command.Awards.SchoolAwards.AddAwards;
-using ES.Certificate.Application.Certificates.Command.Awards.SchoolAwards.DeleteAwards;
-using ES.Certificate.Application.Certificates.Command.Awards.SchoolAwards.UpdateAwards;
-using ES.Certificate.Application.Certificates.Queries.SchoolAwards.Awards;
-using ES.Certificate.Application.Certificates.Queries.SchoolAwards.AwardsById;
-using ES.Certificate.Application.Certificates.Queries.SchoolAwards.FilterSchoolAwards;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
-using TN.Account.Application.Account.Command.DeleteLedger;
-using TN.Account.Application.Account.Command.UpdateLedger;
-using TN.Account.Application.Account.Queries.LedgerById;
 using TN.Authentication.Domain.Entities;
-using TN.Shared.Application.Shared.Queries.GetFilterUserActivity;
 using TN.Shared.Domain.ExtensionMethod.Pagination;
-using TN.Transactions.Application.Transactions.Command.AddReceipt;
-using TN.Transactions.Application.Transactions.Queries.GetAllReceipt;
 using TN.Web.BaseControllers;
 
 namespace TN.Web.Controllers.Academics.v1
@@ -126,7 +113,6 @@ namespace TN.Web.Controllers.Academics.v1
 
         public async Task<IActionResult> AddEvents([FromBody] AddEventsRequest request)
         {
-            //Mapping command and request
             var command = request.ToCommand();
             var addEventsResult = await _mediator.Send(command);
             #region Switch Statement
@@ -134,13 +120,18 @@ namespace TN.Web.Controllers.Academics.v1
             {
                 { IsSuccess: true, Data: not null } => CreatedAtAction(
                 nameof(AddEvents),
-                new { id = addEventsResult.Data.id },  
+                new { id = addEventsResult.Data.id },
                 new
                 {
                     Data = addEventsResult.Data,
+                    Message = addEventsResult.Message,
+                    StatusCode = StatusCodes.Status201Created
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new
+                {
+                    StatusCode = StatusCodes.Status200OK,
                     Message = addEventsResult.Message
                 }),
-                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = addEventsResult.Message }),
                 { IsSuccess: false, Errors: not null } => HandleFailureResult(addEventsResult.Errors),
                 _ => BadRequest("Invalid Fields ")
 
@@ -157,17 +148,26 @@ namespace TN.Web.Controllers.Academics.v1
         {
             //Mapping command and request
             var command = request.ToCommand(Id);
-            var updateEventsResult = await _mediator.Send(command);
+            var result = await _mediator.Send(command);
             #region Switch Statement
-            return updateEventsResult switch
+            return result switch
             {
-                { IsSuccess: true, Data: not null } => new JsonResult(updateEventsResult.Data, new JsonSerializerOptions
+                { IsSuccess: true, Data: not null } => new ObjectResult(new
                 {
-                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                    Data = result.Data,
+                    Message = result.Message,
+                    StatusCode = StatusCodes.Status200OK
+                })
+                {
+                    StatusCode = StatusCodes.Status200OK
+                },
+                { IsSuccess: true, Data: null, Message: not null } => Ok(new
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = result.Message
                 }),
-                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = updateEventsResult.Message }),
-                { IsSuccess: false, Errors: not null } => HandleFailureResult(updateEventsResult.Errors),
-                _ => BadRequest("Invalid Fields for Update Events")
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(result.Errors),
+                _ => BadRequest("Invalid Fields")
             };
 
             #endregion
@@ -225,14 +225,18 @@ namespace TN.Web.Controllers.Academics.v1
         public async Task<IActionResult> DeleteEvents([FromRoute] string id, CancellationToken cancellationToken)
         {
             var command = new DeleteEventsCommand(id);
-            var deleteEventsResult = await _mediator.Send(command);
+            var result = await _mediator.Send(command);
             #region Switch Statement
-            return deleteEventsResult switch
+            return result switch
             {
-                { IsSuccess: true, Data: true } => NoContent(),
-                { IsSuccess: true, Message: not null } => new JsonResult(new { Message = deleteEventsResult.Message }),
-                { IsSuccess: false, Errors: not null } => HandleFailureResult(deleteEventsResult.Errors),
-                _ => BadRequest("Invalid Fields for Delete Awards")
+
+                { IsSuccess: true } => Ok(new
+                {
+                    StatusCode = StatusCodes.Status204NoContent,
+                    Message = result.Message
+                }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(result.Errors),
+                _ => BadRequest("Invalid Fields")
             };
 
             #endregion

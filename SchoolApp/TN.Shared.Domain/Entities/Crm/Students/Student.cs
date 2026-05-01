@@ -19,6 +19,7 @@ namespace TN.Shared.Domain.Entities.Crm.Students
 
         public CrmStudent(
             string id,
+            string? profileId,
             string universityName,
             string visaId,
             bool isActive,
@@ -37,9 +38,11 @@ namespace TN.Shared.Domain.Entities.Crm.Students
             ModifiedBy = modifiedBy;
             CreatedAt = createdAt;
             ModifiedAt = modifiedAt;
+            ProfileId = profileId;
 
         }
 
+        
         public string SchoolId { get; set; }
         public bool IsActive { get; set; }
         public string CreatedBy { get; set; }
@@ -48,7 +51,8 @@ namespace TN.Shared.Domain.Entities.Crm.Students
         public DateTime ModifiedAt { get; set; } = DateTime.Now;
         public string UniversityName { get; set; }
         public string VisaId { get; set; }
-        public virtual UserProfile Profile { get; set; }
+        public string? ProfileId { get; set; }
+        public virtual UserProfile? Profile { get; set; }
 
     }
 }

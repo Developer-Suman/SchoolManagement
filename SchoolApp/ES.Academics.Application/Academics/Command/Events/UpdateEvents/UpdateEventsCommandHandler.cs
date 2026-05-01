@@ -23,10 +23,15 @@ namespace ES.Academics.Application.Academics.Command.Events.UpdateEvents
             _mapper = mapper;
 
         }
-        public async Task<Result<UpdateEventsResponse>> Handle(UpdateEventsCommand request, CancellationToken cancellationToken)
+        public async Task<Result<UpdateEventsResponse>> Handle(UpdateEventsCommand request, CancellationToken cancellationToken) 
         {
+            var entityName = typeof(UpdateEventsCommand).Name
+                    .Replace("Update", "")
+                    .Replace("Command", "");
+
             try
-            {
+            { 
+
                 var validationAction = await _validator.ValidateAsync(request, cancellationToken);
                 if ((!validationAction.IsValid))
                 {
@@ -35,25 +40,28 @@ namespace ES.Academics.Application.Academics.Command.Events.UpdateEvents
 
                 }
 
-                var updateEvents = await _eventsServices.Update(request.id, request);
+                var update = await _eventsServices.Update(request.id, request);
 
-                if (updateEvents.Errors.Any())
+                if (update.Errors.Any())
                 {
-                    var errors = string.Join(", ", updateEvents.Errors);
+                    var errors = string.Join(", ", update.Errors);
                     return Result<UpdateEventsResponse>.Failure(errors);
                 }
 
-                if (updateEvents is null || !updateEvents.IsSuccess)
+                if (update is null || !update.IsSuccess)
                 {
-                    return Result<UpdateEventsResponse>.Failure("Update Event failed");
+                    var errors = update?.Errors?.Any() == true
+                        ? string.Join(", ", update.Errors)
+                        : $"{entityName} update failed";
+                    return Result<UpdateEventsResponse>.Failure(errors);
                 }
 
-                var UpdateAcademicsDisplay = _mapper.Map<UpdateEventsResponse>(updateEvents.Data);
-                return Result<UpdateEventsResponse>.Success(UpdateAcademicsDisplay);
+                var updateDisplay = _mapper.Map<UpdateEventsResponse>(update.Data);
+                return Result<UpdateEventsResponse>.Success(updateDisplay, $"{entityName} Updated Successfully");
             }
             catch (Exception ex)
             {
-                throw new Exception("An error occurred while updating the Events", ex);
+                throw ;
             }
         }
     }

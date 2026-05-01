@@ -9,6 +9,7 @@ namespace ES.Enrolment.Application.Enrolments.Queries.Applicants.FilterApplicant
 {
     public record FilterApplicantResponse
     (
+        string id,
         string userId,
         string fullName,
         string email,
