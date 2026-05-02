@@ -1,6 +1,7 @@
 ﻿using ES.Visa.Application.Visa.Command.VisaApplication.AddVisaApplication;
 using ES.Visa.Application.Visa.Command.VisaApplication.UpdateVisaApplication;
 using ES.Visa.Application.Visa.Command.VisaStatus.AddVisaStatus;
+using ES.Visa.Application.Visa.Command.VisaStatus.UpdateVisaStatus;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -21,6 +22,7 @@ namespace ES.Visa.Application
             services.AddScoped<IValidator<AddVisaApplicationCommand>, AddVisaApplicationCommandValidator>();
             services.AddScoped<IValidator<AddVisaStatusCommand>, AddVisaStatusCommandValidator>();
             services.AddScoped<IValidator<UpdateVisaApplicationCommand>, UpdateVisaApplicationCommandValidator>();
+            services.AddScoped<IValidator<UpdateVisaStatusCommand>, UpdateVisaStatusCommandValidator>();
             return services;
         }
     }

@@ -2,6 +2,7 @@
 using ES.Visa.Application.Visa.Command.VisaApplication.AddVisaApplication;
 using ES.Visa.Application.Visa.Command.VisaApplication.UpdateVisaApplication;
 using ES.Visa.Application.Visa.Command.VisaStatus.AddVisaStatus;
+using ES.Visa.Application.Visa.Command.VisaStatus.UpdateVisaStatus;
 using ES.Visa.Application.Visa.Queries.VisaApplication.FilterVisaApplication;
 using ES.Visa.Application.Visa.Queries.VisaApplication.VisaApplication;
 using ES.Visa.Application.Visa.Queries.VisaApplicationStatusHistory.FilterVisaApplicationHistory;
@@ -33,6 +34,8 @@ namespace ES.Visa.Application.AutoMapper
 
 
             #region VisaStatus
+
+            CreateMap<VisaStatus, UpdateVisaStatusCommand>().ReverseMap();
             CreateMap<AddVisaStatusCommand, VisaStatus>().ReverseMap();
             CreateMap<AddVisaStatusResponse, VisaStatus>().ReverseMap();
 
