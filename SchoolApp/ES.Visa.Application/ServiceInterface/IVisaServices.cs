@@ -1,6 +1,7 @@
 ﻿using ES.Visa.Application.Visa.Command.VisaApplication.AddVisaApplication;
 using ES.Visa.Application.Visa.Command.VisaApplication.UpdateVisaApplication;
 using ES.Visa.Application.Visa.Command.VisaStatus.AddVisaStatus;
+using ES.Visa.Application.Visa.Command.VisaStatus.UpdateVisaStatus;
 using ES.Visa.Application.Visa.Queries.VisaApplication.FilterVisaApplication;
 using ES.Visa.Application.Visa.Queries.VisaApplication.VisaApplication;
 using ES.Visa.Application.Visa.Queries.VisaApplicationStatusHistory.FilterVisaApplicationHistory;
@@ -30,5 +31,8 @@ namespace ES.Visa.Application.ServiceInterface
         Task<Result<PagedResult<FilterVisaApplicationResponse>>> GetFilterVisaApplication(PaginationRequest paginationRequest, FilterVisaApplicationDTOs filterVisaApplicationDTOs);
         Task<Result<PagedResult<FilterVisaApplicationStatusHistoryResponse>>> GetFilterVisaApplicationStatusHistory(PaginationRequest paginationRequest, FilterVisaApplicationStatusHistoryDTOs filterVisaApplicationStatusHistoryDTOs);
         Task<Result<PagedResult<FilterVisaStatusResponse>>> GetFilterVisaStatus(PaginationRequest paginationRequest, FilterVisaStatusDTOs filterVisaStatusDTOs);
+        Task<Result<UpdateVisaStatusResponse>> UpdateVisaStatus(string visaStatusId, UpdateVisaStatusCommand updateVisaStatusCommand);
+
+        Task<Result<bool>> DeleteVisaStatus(string id, CancellationToken cancellationToken);
     }
 }
