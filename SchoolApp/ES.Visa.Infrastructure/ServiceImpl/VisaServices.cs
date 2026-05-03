@@ -1,25 +1,21 @@
-﻿using AutoMapper;
-using ES.Academics.Application.Academics.Command.AddExamResult;
-using ES.Academics.Application.Academics.Command.UpdateExamResult;
-using ES.Academics.Application.Academics.Queries.Events.FilterEvents;
-using ES.Academics.Application.Academics.Queries.ExamResultById;
+﻿using System.Transactions;
+using AutoMapper;
 using ES.Certificate.Application.ServiceInterface.IHelperMethod;
 using ES.Visa.Application.ServiceInterface;
 using ES.Visa.Application.Visa.Command.VisaApplication.AddVisaApplication;
 using ES.Visa.Application.Visa.Command.VisaApplication.UpdateVisaApplication;
 using ES.Visa.Application.Visa.Command.VisaStatus.AddVisaStatus;
+using ES.Visa.Application.Visa.Command.VisaStatus.UpdateVisaStatus;
 using ES.Visa.Application.Visa.Queries.VisaApplication.FilterVisaApplication;
 using ES.Visa.Application.Visa.Queries.VisaApplication.VisaApplication;
 using ES.Visa.Application.Visa.Queries.VisaApplicationStatusHistory.FilterVisaApplicationHistory;
 using ES.Visa.Application.Visa.Queries.VisaStatus.FilterVisaStatus;
 using ES.Visa.Application.Visa.Queries.VisaStatus.VisaStatus;
 using Microsoft.EntityFrameworkCore;
-using System.Transactions;
 using TN.Authentication.Domain.Entities;
 using TN.Shared.Application.ServiceInterface;
 using TN.Shared.Application.ServiceInterface.IHelperServices;
 using TN.Shared.Domain.Abstractions;
-using TN.Shared.Domain.Entities.Academics;
 using TN.Shared.Domain.Entities.Crm.Visa;
 using TN.Shared.Domain.Entities.OrganizationSetUp;
 using TN.Shared.Domain.ExtensionMethod.Pagination;
@@ -106,7 +102,7 @@ namespace ES.Visa.Infrastructure.ServiceImpl
                         addVisaApplicationCommand.emailSent,
                         addVisaApplicationCommand.emailContent,
 
-                        documents, 
+                        documents,
                         fyId,
                         true,
                         schoolId,
@@ -191,6 +187,29 @@ namespace ES.Visa.Infrastructure.ServiceImpl
 
                 visaApplication.IsActive = false;
                 _unitOfWork.BaseRepository<VisaApplication>().Update(visaApplication);
+                await _unitOfWork.SaveChangesAsync();
+
+
+                return Result<bool>.Success(true);
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
+        public async Task<Result<bool>> DeleteVisaStatus(string id, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var visaStatus = await _unitOfWork.BaseRepository<VisaStatus>().GetByGuIdAsync(id);
+                if (visaStatus is null)
+                {
+                    return Result<bool>.Failure("NotFound", "Data not Found");
+                }
+
+                visaStatus.IsActive = false;
+                _unitOfWork.BaseRepository<VisaStatus>().Update(visaStatus);
                 await _unitOfWork.SaveChangesAsync();
 
 
@@ -550,9 +569,37 @@ namespace ES.Visa.Infrastructure.ServiceImpl
             }
         }
 
-        public Task<Result<VisaStatusQueryResponse>> GetVisaStatus(string visaStatusId, CancellationToken cancellationToken = default)
+        public async Task<Result<VisaStatusQueryResponse>> GetVisaStatus(string visaStatusId, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var visaStatus = await _unitOfWork.BaseRepository<VisaStatus>().
+                    GetConditionalAsync(x => x.Id == visaStatusId
+                    );
+
+                var visa = visaStatus.FirstOrDefault();
+                var visaStatusDetails = new VisaStatusQueryResponse(
+                    visa.Id,
+                    visa.Name,
+                    visa.VisaStatusType,
+                    visa.IsActive,
+                    visa.SchoolId,
+                    visa.CreatedBy,
+                    visa.CreatedAt,
+                    visa.ModifiedBy,
+                    visa.ModifiedAt
+
+                );
+
+                var visaStatusResponse = _mapper.Map<VisaStatusQueryResponse>(visaStatusDetails);
+
+                return Result<VisaStatusQueryResponse>.Success(visaStatusResponse);
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while fetching", ex);
+            }
         }
 
         public async Task<Result<UpdateVisaApplicationResponse>> UpdateVisaApplication(string visaApplicationId, UpdateVisaApplicationCommand updateVisaApplicationCommand)
@@ -627,7 +674,7 @@ namespace ES.Visa.Infrastructure.ServiceImpl
 
                                 if (imageURL != null && !string.IsNullOrEmpty(existing.FilePath))
                                 {
-                                     _imageServices.DeleteSingle(existing.FilePath); // assuming Delete method exists
+                                    _imageServices.DeleteSingle(existing.FilePath); // assuming Delete method exists
                                 }
                                 existing.DocumentTypeId = detail.documentTypeId;
                                 existing.FilePath = imageURL ?? existing.FilePath; // keep old if no new file
@@ -718,6 +765,61 @@ namespace ES.Visa.Infrastructure.ServiceImpl
                 catch (Exception ex)
                 {
                     throw new Exception("An error occurred while updating", ex);
+                }
+            }
+        }
+
+        public async Task<Result<UpdateVisaStatusResponse>> UpdateVisaStatus(string visaStatusId, UpdateVisaStatusCommand updateVisaStatusCommand)
+        {
+            using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            {
+                try
+                {
+                    if (string.IsNullOrEmpty(updateVisaStatusCommand.id))
+                    {
+                        return Result<UpdateVisaStatusResponse>.Failure("NotFound", "Please provide valid Id");
+                    }
+
+                    var userId = _tokenService.GetUserId();
+
+                    var visaStatusDetails = await _unitOfWork.BaseRepository<VisaStatus>()
+                        .GetConditionalAsync(x => x.Id == updateVisaStatusCommand.id);
+
+                    var visaStatus = visaStatusDetails.FirstOrDefault();
+
+                    if (visaStatus == null)
+                    {
+                        return Result<UpdateVisaStatusResponse>.Failure("NotFound", "VisaStatus not found.");
+                    }
+                    visaStatus.Name = updateVisaStatusCommand.Name;
+                    visaStatus.VisaStatusType = updateVisaStatusCommand.VisaStatusType;
+                    visaStatus.ModifiedBy = userId;
+                    visaStatus.ModifiedAt = DateTime.UtcNow;
+
+                    _unitOfWork.BaseRepository<VisaStatus>().Update(visaStatus);
+
+                    await _unitOfWork.SaveChangesAsync();
+                    scope.Complete();
+
+                    var resultResponse = new UpdateVisaStatusResponse
+                    (
+                        visaStatus.Id,
+                        visaStatus.Name,
+                        visaStatus.VisaStatusType,
+                        visaStatus.FyId,
+                        visaStatus.IsActive,
+                        visaStatus.SchoolId,
+                        visaStatus.CreatedBy,
+                        visaStatus.CreatedAt,
+                        visaStatus.ModifiedBy,
+                        visaStatus.ModifiedAt
+                    );
+
+                    return Result<UpdateVisaStatusResponse>.Success(resultResponse);
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception("An error occurred while updating VisaStatus", ex);
                 }
             }
         }

@@ -1,4 +1,5 @@
-﻿using ES.Academics.Application.Academics.Command.Events.AddEvents;
+﻿using System.Text.Json;
+using ES.Academics.Application.Academics.Command.Events.AddEvents;
 using ES.Academics.Application.Academics.Command.Events.DeleteEvents;
 using ES.Academics.Application.Academics.Command.Events.UpdateEvents;
 using ES.Academics.Application.Academics.Queries.Events.Events;
@@ -11,17 +12,20 @@ using ES.Visa.Application.Visa.Command.VisaApplication.UpdateVisaApplication;
 using ES.Visa.Application.Visa.Command.VisaApplication.UpdateVisaApplication.RequestCommandMapper;
 using ES.Visa.Application.Visa.Command.VisaStatus.AddVisaStatus;
 using ES.Visa.Application.Visa.Command.VisaStatus.AddVisaStatus.RequestCommandMapper;
+using ES.Visa.Application.Visa.Command.VisaStatus.DeleteVisaStatus;
+using ES.Visa.Application.Visa.Command.VisaStatus.UpdateVisaStatus;
+using ES.Visa.Application.Visa.Command.VisaStatus.UpdateVisaStatus.RequestCommandMapper;
 using ES.Visa.Application.Visa.Queries.VisaApplication.FilterVisaApplication;
 using ES.Visa.Application.Visa.Queries.VisaApplication.VisaApplication;
 using ES.Visa.Application.Visa.Queries.VisaApplicationStatusHistory.FilterVisaApplicationHistory;
 using ES.Visa.Application.Visa.Queries.VisaStatus;
 using ES.Visa.Application.Visa.Queries.VisaStatus.FilterVisaStatus;
+using ES.Visa.Application.Visa.Queries.VisaStatus.VisaStatus;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using System.Text.Json;
 using TN.Authentication.Domain.Entities;
 using TN.Shared.Domain.ExtensionMethod.Pagination;
 using TN.Web.BaseControllers;
@@ -104,8 +108,86 @@ namespace TN.Web.Controllers.VisaApplication.v1
         }
         #endregion
 
+        #region VisaStatusById
+        [HttpGet("VisaStatusById/{visaStatusId}")]
+        public async Task<IActionResult> VisaStatusById([FromRoute] string visaStatusId)
+        {
+            var query = new VisaStatusQuery(visaStatusId);
+            var queryResult = await _mediator.Send(query);
+            #region Switch Statement
+            return queryResult switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(queryResult.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = queryResult.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(queryResult.Errors),
+                _ => BadRequest("Invalid page and pageSize Fields")
+            };
+            #endregion
+
+        }
+        #endregion
+
+        #region DeleteVisaStatus
+        [HttpDelete("DeleteVisaStatus/{id}")]
+
+        public async Task<IActionResult> DeleteVisaStatus([FromRoute] string id, CancellationToken cancellationToken)
+        {
+            var command = new DeleteVisaStatusCommand(id);
+            var result = await _mediator.Send(command);
+            #region Switch Statement
+            return result switch
+            {
+
+                { IsSuccess: true } => Ok(new
+                {
+                    StatusCode = StatusCodes.Status204NoContent,
+                    Message = result.Message
+                }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(result.Errors),
+                _ => BadRequest("Invalid Fields")
+            };
+
+            #endregion
+        }
+
+        #endregion
 
 
+        #region UpdateVisaStatus
+        [HttpPatch("UpdateVisaStatus/{Id}")]
+
+        public async Task<IActionResult> UpdateVisaStatus(string Id, [FromBody] UpdateVisaStatusRequest request)
+        {
+            //Mapping command and request
+            var command = request.ToCommand(Id);
+            var result = await _mediator.Send(command);
+            #region Switch Statement
+            return result switch
+            {
+                { IsSuccess: true, Data: not null } => new ObjectResult(new
+                {
+                    Data = result.Data,
+                    Message = result.Message,
+                    StatusCode = StatusCodes.Status200OK
+                })
+                {
+                    StatusCode = StatusCodes.Status200OK
+                },
+                { IsSuccess: true, Data: null, Message: not null } => Ok(new
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = result.Message
+                }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(result.Errors),
+                _ => BadRequest("Invalid Fields")
+            };
+
+            #endregion
+        }
+        #endregion
 
         #region FilterVisaStatus
         [HttpGet("FilterVisaStatus")]
