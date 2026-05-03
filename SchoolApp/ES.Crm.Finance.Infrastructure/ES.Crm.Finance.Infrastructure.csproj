@@ -7,10 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="ServiceImpl\" />
-  </ItemGroup>
-
-  <ItemGroup>
+    <ProjectReference Include="..\ES.Certificate.Application\ES.Certificate.Application.csproj" />
     <ProjectReference Include="..\ES.Crm.Finance.Application\ES.Crm.Finance.Application.csproj" />
     <ProjectReference Include="..\TN.Shared.Application\TN.Shared.Application.csproj" />
     <ProjectReference Include="..\TN.Shared.Domain\TN.Shared.Domain.csproj" />

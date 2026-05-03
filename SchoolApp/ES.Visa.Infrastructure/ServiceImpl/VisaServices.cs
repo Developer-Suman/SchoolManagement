@@ -12,12 +12,8 @@ using ES.Visa.Application.Visa.Queries.VisaApplication.FilterVisaApplication;
 using ES.Visa.Application.Visa.Queries.VisaApplication.VisaApplication;
 using ES.Visa.Application.Visa.Queries.VisaApplicationStatusHistory.FilterVisaApplicationHistory;
 using ES.Visa.Application.Visa.Queries.VisaStatus.FilterVisaStatus;
+using ES.Visa.Application.Visa.Queries.VisaStatus.VisaStatus;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Transactions;
 using TN.Authentication.Domain.Entities;
 using TN.Shared.Application.ServiceInterface;
@@ -307,7 +303,7 @@ namespace ES.Visa.Infrastructure.ServiceImpl
             }
             catch (Exception ex)
             {
-                throw new Exception($"An error occurred while fetching {ex.Message}", ex);
+                throw;
             }
         }
 
@@ -552,6 +548,11 @@ namespace ES.Visa.Infrastructure.ServiceImpl
             {
                 throw new Exception("An error occurred while fetching", ex);
             }
+        }
+
+        public Task<Result<VisaStatusQueryResponse>> GetVisaStatus(string visaStatusId, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
         }
 
         public async Task<Result<UpdateVisaApplicationResponse>> UpdateVisaApplication(string visaApplicationId, UpdateVisaApplicationCommand updateVisaApplicationCommand)

@@ -2,15 +2,9 @@
 using ES.Academics.Application.Academics.Command.AddExam;
 using ES.Academics.Application.Academics.Command.AddSchoolClass;
 using ES.Academics.Application.Academics.Command.UpdateExam;
-using ES.Academics.Application.Academics.Command.UpdateExamResult;
-using ES.Academics.Application.Academics.Command.UpdateSchoolClass;
-using ES.Academics.Application.Academics.Queries.ClassByExamSession;
 using ES.Academics.Application.Academics.Queries.Exam;
 using ES.Academics.Application.Academics.Queries.ExamById;
 using ES.Academics.Application.Academics.Queries.FilterExam;
-using ES.Academics.Application.Academics.Queries.FilterSchoolClass;
-using ES.Academics.Application.Academics.Queries.SchoolClass;
-using ES.Academics.Application.Academics.Queries.SchoolClassById;
 using ES.Academics.Application.ServiceInterface;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -348,32 +342,32 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                             .Select(x => x.subjectId)
                             .ToList();
 
-                        var existingSubjects = examToBeUpdated.ExamSubjects?.ToList() ?? new List<ExamSubject>();
+                        // ✅ Get ALL (active + inactive)
+                        var existingExamSubjects = examToBeUpdated.ExamSubjects?.ToList()
+                            ?? new List<ExamSubject>();
 
                         foreach (var subjectDto in updateExamCommand.UpdateExamSubjectDTOs)
                         {
-                            var existingSubject = existingSubjects
-                                .FirstOrDefault(x => x.Id == subjectDto.examSubjectId);
+                            var existingExamSubject = existingExamSubjects
+                                .FirstOrDefault(x => x.SubjectId == subjectDto.subjectId);
 
-                            if (existingSubject != null)
+                            if (existingExamSubject != null)
                             {
-                                // ✅ Update existing
-                                existingSubject.PassMarks = subjectDto.passMarks;
-                                existingSubject.FullMarks = subjectDto.fullMarks;
-                                existingSubject.SubjectId = subjectDto.subjectId;
-                                existingSubject.IsActive = true; // important (reactivate if previously soft deleted)
-
-                                _unitOfWork.BaseRepository<ExamSubject>().Update(existingSubject);
+                                // ✅ Update / Reactivate
+                                existingExamSubject.PassMarks = subjectDto.passMarks;
+                                existingExamSubject.FullMarks = subjectDto.fullMarks;
+                                existingExamSubject.IsActive = true;
+                                _unitOfWork.BaseRepository<ExamSubject>().Update(existingExamSubject);
                             }
                             else
                             {
-                                // ✅ Add new
+                                // ✅ Insert only if NOT exists in DB
                                 var newExamSubject = new ExamSubject
                                 {
                                     Id = Guid.NewGuid().ToString(),
                                     ExamId = examId,
-                                    PassMarks = subjectDto.passMarks,
                                     SubjectId = subjectDto.subjectId,
+                                    PassMarks = subjectDto.passMarks,
                                     FullMarks = subjectDto.fullMarks,
                                     IsActive = true
                                 };
@@ -382,23 +376,20 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                             }
                         }
 
-                        // ✅ Soft delete removed subjects
-                        var toSoftDelete = existingSubjects
+                        // ✅ Soft delete removed
+                        var toSoftDelete = existingExamSubjects
                             .Where(x => x.IsActive==true && !incomingSubjectIds.Contains(x.SubjectId))
                             .ToList();
 
                         foreach (var item in toSoftDelete)
                         {
                             item.IsActive = false;
-                            _unitOfWork.BaseRepository<ExamSubject>().Update(item);
                         }
                     }
 
-
-
-
                     await _unitOfWork.SaveChangesAsync();
                     scope.Complete();
+
 
                     var resultResponse = new UpdateExamResponse
                         (

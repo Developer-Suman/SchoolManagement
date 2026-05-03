@@ -26,8 +26,8 @@ namespace ES.Visa.Application.Visa.Queries.VisaApplication.VisaApplication
             try
             {
 
-                var examResultById = await _visaServices.GetVisaApplication(request.id);
-                return Result<VisaApplicationResponse>.Success(examResultById.Data);
+                var query = await _visaServices.GetVisaApplication(request.id);
+                return Result<VisaApplicationResponse>.Success(query.Data);
 
             }
             catch (Exception ex)

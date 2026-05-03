@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using ES.Crm.Finance.Application.ServiceInterface;
+using ES.Crm.Finance.Infrastructure.ServiceImpl;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +15,8 @@ namespace ES.Crm.Finance.Infrastructure
         {
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             #region Inject Dependencies
-            //services.AddScoped<IEnrolmentServices, EnrolmentServices>();
+            services.AddScoped<IInstallmentServices, InstallmentServices>();
+            services.AddScoped<IPaymentServices, PaymentServices>();
             #endregion
             return services;
         }
