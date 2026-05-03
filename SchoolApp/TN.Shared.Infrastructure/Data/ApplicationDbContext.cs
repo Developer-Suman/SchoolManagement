@@ -18,6 +18,7 @@ using TN.Shared.Domain.Entities.Communication;
 using TN.Shared.Domain.Entities.Crm.AcademicsPrograms;
 using TN.Shared.Domain.Entities.Crm.Applicant;
 using TN.Shared.Domain.Entities.Crm.Enrollments;
+using TN.Shared.Domain.Entities.Crm.Finance;
 using TN.Shared.Domain.Entities.Crm.Lead;
 using TN.Shared.Domain.Entities.Crm.Profile;
 using TN.Shared.Domain.Entities.Crm.Students;
@@ -52,13 +53,22 @@ namespace TN.Shared.Infrastructure.Data
         }
 
         #region CRM
+
+        #region Finance
+        public DbSet<Invoice> Invoices { get; set; }
+        public DbSet<InvoiceItem> InvoiceItems { get; set; }
+        public DbSet<CrmPayment> CrmPayments { get; set; }
+        public DbSet<Installment> Installments { get; set; }
+        public DbSet<PaymentAllocation> PaymentAllocations { get; set; }
+        public DbSet<InstallmentPlan> InstallmentPlans { get; set; }
+        #endregion
+
+
+        #region Visa
         public DbSet<VisaApplication> VisaApplications { get; set; }
         public DbSet<VisaStatus> VisaStatuses { get; set; }
         public DbSet<VisaApplicationStatusHistory> VisaApplicationStatusHistories { get; set; }
         public DbSet<VisaApplicationDocument> VisaApplicationDocuments { get; set; }
-
-        #region Visa
-
         #endregion
 
         #region Documents
@@ -331,6 +341,69 @@ namespace TN.Shared.Infrastructure.Data
 
 
             #region CRM 
+
+            #region Finance
+
+            #region Installments and PaymentAllocation(1:m)
+            builder.Entity<PaymentAllocation>()
+            .HasOne(x => x.Installments)
+            .WithMany(x => x.PaymentAllocations)
+            .HasForeignKey(x => x.InstallmentId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+            #endregion
+
+
+            #region CrmPayments and PaymentAllocation(1:m)
+            builder.Entity<PaymentAllocation>()
+            .HasOne(x => x.CrmPayment)
+            .WithMany(x => x.PaymentAllocations)
+            .HasForeignKey(x => x.PaymentId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+            #endregion
+
+
+            #region Invoice and InvoiceItems(1:m)
+            builder.Entity<InvoiceItem>()
+            .HasOne(x => x.Invoice)
+            .WithMany(x => x.InvoiceItems)
+            .HasForeignKey(x => x.InvoiceId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+            #endregion
+
+
+            #region Invoice and CrmPayments(1:m)
+            builder.Entity<CrmPayment>()
+            .HasOne(x => x.Invoice)
+            .WithMany(x => x.Payments)
+            .HasForeignKey(x => x.InvoiceId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+            #endregion
+
+
+            #region Invoice and InstallmentPlan(1:m)
+            builder.Entity<InstallmentPlan>()
+            .HasOne(x => x.Invoice)
+            .WithMany(x => x.InstallmentPlans)
+            .HasForeignKey(x => x.InvoiceId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+            #endregion
+
+
+            #region InstallmentPlan and Installments(1:m)
+            builder.Entity<Installment>()
+            .HasOne(x => x.InstallmentPlan)
+            .WithMany(x => x.Installments)
+            .HasForeignKey(x => x.InstallmentPlanId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+            #endregion
+
+            #endregion
 
             #region Visa
 

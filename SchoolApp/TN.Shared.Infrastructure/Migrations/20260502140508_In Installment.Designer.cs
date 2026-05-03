@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TN.Shared.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using TN.Shared.Infrastructure.Data;
 namespace TN.Shared.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260502140508_In Installment")]
+    partial class InInstallment
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -4033,26 +4036,9 @@ namespace TN.Shared.Infrastructure.Migrations
                         .HasPrecision(18, 4)
                         .HasColumnType("decimal(18,4)");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("InvoiceId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime>("ModifiedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("ModifiedBy")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("PaymentDate")
                         .HasColumnType("datetime2");
@@ -4064,10 +4050,6 @@ namespace TN.Shared.Infrastructure.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("ReferenceNumber")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("SchoolId")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -4215,32 +4197,6 @@ namespace TN.Shared.Infrastructure.Migrations
                     b.HasIndex("InvoiceId");
 
                     b.ToTable("InvoiceItems");
-                });
-
-            modelBuilder.Entity("TN.Shared.Domain.Entities.Crm.Finance.PaymentAllocation", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<decimal>("AllocatedAmount")
-                        .HasPrecision(18, 4)
-                        .HasColumnType("decimal(18,4)");
-
-                    b.Property<string>("InstallmentId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("PaymentId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("InstallmentId");
-
-                    b.HasIndex("PaymentId");
-
-                    b.ToTable("PaymentAllocations");
                 });
 
             modelBuilder.Entity("TN.Shared.Domain.Entities.Crm.Lead.CrmLead", b =>
@@ -7749,25 +7705,6 @@ namespace TN.Shared.Infrastructure.Migrations
                     b.Navigation("Invoice");
                 });
 
-            modelBuilder.Entity("TN.Shared.Domain.Entities.Crm.Finance.PaymentAllocation", b =>
-                {
-                    b.HasOne("TN.Shared.Domain.Entities.Crm.Finance.Installment", "Installments")
-                        .WithMany("PaymentAllocations")
-                        .HasForeignKey("InstallmentId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("TN.Shared.Domain.Entities.Crm.Finance.CrmPayment", "CrmPayment")
-                        .WithMany("PaymentAllocations")
-                        .HasForeignKey("PaymentId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("CrmPayment");
-
-                    b.Navigation("Installments");
-                });
-
             modelBuilder.Entity("TN.Shared.Domain.Entities.Crm.Lead.CrmLead", b =>
                 {
                     b.HasOne("TN.Shared.Domain.Entities.Crm.Profile.UserProfile", "Profile")
@@ -8866,16 +8803,6 @@ namespace TN.Shared.Infrastructure.Migrations
             modelBuilder.Entity("TN.Shared.Domain.Entities.Crm.Enrollments.Counselor", b =>
                 {
                     b.Navigation("Appointments");
-                });
-
-            modelBuilder.Entity("TN.Shared.Domain.Entities.Crm.Finance.CrmPayment", b =>
-                {
-                    b.Navigation("PaymentAllocations");
-                });
-
-            modelBuilder.Entity("TN.Shared.Domain.Entities.Crm.Finance.Installment", b =>
-                {
-                    b.Navigation("PaymentAllocations");
                 });
 
             modelBuilder.Entity("TN.Shared.Domain.Entities.Crm.Finance.InstallmentPlan", b =>

@@ -322,7 +322,7 @@ namespace ES.Visa.Infrastructure.ServiceImpl
             }
             catch (Exception ex)
             {
-                throw new Exception($"An error occurred while fetching {ex.Message}", ex);
+                throw;
             }
         }
 
