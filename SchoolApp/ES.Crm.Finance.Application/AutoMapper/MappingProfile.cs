@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
 using ES.Crm.Finance.Application.CrmFinance.Command.InstallmentsPlan.AddInstallmentsPlan;
+using ES.Crm.Finance.Application.CrmFinance.Command.Invoice.AddInvoice;
+using ES.Crm.Finance.Application.CrmFinance.Command.Invoice.UpdateInvoice;
 using ES.Crm.Finance.Application.CrmFinance.Command.Payments.Addpayments;
 using ES.Crm.Finance.Application.CrmFinance.Queries.InstallmentsPlan.FilterInstallmentPlan;
 using ES.Crm.Finance.Application.CrmFinance.Queries.InstallmentsPlan.InstallmentPlan;
@@ -19,6 +21,15 @@ namespace ES.Crm.Finance.Application.AutoMapper
     {
         public MappingProfile()
         {
+            #region Invoice
+            CreateMap<UpdateInvoiceCommand, Invoice>().ReverseMap();
+            CreateMap<AddInvoiceCommand, Invoice>().ReverseMap();
+            CreateMap<AddInvoiceResponse, Invoice>().ReverseMap();
+            CreateMap<AddInvoiceItemDTOs, InvoiceItem>().ReverseMap();
+
+
+            #endregion
+
             #region Installment Plan
             CreateMap<AddInstallmentsPlanCommand, InstallmentPlan>().ReverseMap();
             CreateMap<AddInstallmentsPlanResponse, InstallmentPlan>().ReverseMap();
