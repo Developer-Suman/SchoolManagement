@@ -185,6 +185,27 @@ namespace TN.Shared.Infrastructure.Repository
             }
         }
 
+        public async Task<string> GenerateSchoolInvoiceNumber(string schoolId)
+        {
+            try
+            {
+
+                var company = await _unitOfWork.BaseRepository<School>().GetByGuIdAsync(schoolId);
+
+                string schoolShortName = company.Name.Substring(0, 3).ToUpper();
+                string yearMonth = DateTime.UtcNow.ToString("yyyyMM");
+                string prefix = $"{schoolShortName}/{yearMonth}";
+
+                int lastBillCount = await _unitOfWork.BaseRepository<PaymentsRecords>().CountAsync(p => p.Schoolid == schoolId);
+                return $"INVOICE-{prefix}-{(lastBillCount + 1):D4}";
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while Generating Invoice Number", ex);
+            }
+        }
+
         public async Task<string> GenerateSchoolReceipt(string schoolId)
         {
             try
