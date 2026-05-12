@@ -26,6 +26,7 @@ namespace TN.Shared.Domain.Entities.Crm.Enrollments
             DateTime followUpDate,
             string notes,
             FollowUpStatus followUpStatus,
+            string? appointmentId,
             bool isActive,
             string schoolId,
             string createdBy,
@@ -50,6 +51,8 @@ namespace TN.Shared.Domain.Entities.Crm.Enrollments
 
         }
 
+        public string? Appointmentid { get; set; }
+        public Appointment? Appointment { get; set; }
         public TimeOnly StartTime { get; set; }
         public TimeOnly EndTime { get; set; }
 

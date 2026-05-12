@@ -19,15 +19,19 @@ namespace TN.Shared.Domain.Entities.Academics
             string id,
             string examId,
             string subjectId,
-            int passMarks,
-            int fullMarks,
+            int passMarksPr,
+            int fullMarksPr,
+            int passMarksTh,
+            int fullMarksTh,
             bool? isActive
             ) : base(id)
         {
             ExamId = examId;
             SubjectId = subjectId;
-            PassMarks = passMarks;
-            FullMarks = fullMarks;
+            PassMarksTh = passMarksTh;
+            FullMarksTh = passMarksTh;
+            PassMarksPr = passMarksPr;
+            FullMarksPr = passMarksPr;
             IsActive = isActive ?? true;
         }
 
@@ -42,7 +46,9 @@ namespace TN.Shared.Domain.Entities.Academics
         public Subject Subject { get; set; }
 
         // Marks depend on Exam + Subject
-        public int FullMarks { get; set; }
-        public int PassMarks { get; set; }
+        public int FullMarksPr { get; set; }
+        public int PassMarksPr { get; set; }
+        public int FullMarksTh { get; set; }
+        public int PassMarksTh { get; set; }
     }
 }

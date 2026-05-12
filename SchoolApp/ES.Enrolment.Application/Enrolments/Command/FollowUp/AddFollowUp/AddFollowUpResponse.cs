@@ -16,6 +16,7 @@ namespace ES.Enrolment.Application.Enrolments.Command.FollowUp.AddFollowUp
             string notes = "",
             FollowUpStatus followUpStatus = default,
             bool isActive=true,
+            string appointmentId = "",
             string schoolId = "",
             string createdBy = "",
             DateTime createdAt = default,

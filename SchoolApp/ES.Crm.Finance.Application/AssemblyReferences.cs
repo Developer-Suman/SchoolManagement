@@ -2,6 +2,7 @@
 using ES.Crm.Finance.Application.CrmFinance.Command.Invoice.AddInvoice;
 using ES.Crm.Finance.Application.CrmFinance.Command.Invoice.UpdateInvoice;
 using ES.Crm.Finance.Application.CrmFinance.Command.Payments.Addpayments;
+using ES.Crm.Finance.Application.CrmFinance.Command.Payments.UpdatePayments;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using System;

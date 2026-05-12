@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TN.Shared.Domain.Entities.Crm.Applicant;
 using TN.Shared.Domain.Primitive;
 using static TN.Shared.Domain.Enum.CrmEnum;
 
@@ -19,7 +20,7 @@ namespace TN.Shared.Domain.Entities.Crm.Finance
         public Invoice(
             string id,
             string invoiceNumber,
-            string applicantId,
+            string? applicantId,
             decimal totalAmount,
             decimal paidAmount,
             decimal dueAmount,
@@ -44,7 +45,8 @@ namespace TN.Shared.Domain.Entities.Crm.Finance
         }
 
         public string InvoiceNumber { get; set; }
-        public string ApplicantId { get; set; }
+        public string? ApplicantId { get; set; }
+        public CrmApplicant? Applicant { get; set; }
         public decimal TotalAmount { get; set; }
         public decimal PaidAmount { get; set; }
         public decimal DueAmount { get; set; }

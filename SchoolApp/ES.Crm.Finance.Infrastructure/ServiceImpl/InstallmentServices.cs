@@ -2,6 +2,7 @@
 using Azure.Core;
 using ES.Certificate.Application.ServiceInterface.IHelperMethod;
 using ES.Crm.Finance.Application.CrmFinance.Command.InstallmentsPlan.AddInstallmentsPlan;
+using ES.Crm.Finance.Application.CrmFinance.Command.InstallmentsPlan.UpdateInstallmentsPlan;
 using ES.Crm.Finance.Application.CrmFinance.Queries.InstallmentsPlan.FilterInstallmentPlan;
 using ES.Crm.Finance.Application.CrmFinance.Queries.InstallmentsPlan.InstallmentPlan;
 using ES.Crm.Finance.Application.ServiceInterface;
@@ -45,7 +46,7 @@ namespace ES.Crm.Finance.Infrastructure.ServiceImpl
             _helperMethodServices = helperMethodServices;
             _imageServices = iimageServices;
         }
-        public async Task<Result<AddInstallmentsPlanResponse>> AddInstallmentPlan(AddInstallmentsPlanCommand addInstallmentsPlanCommand)
+        public async Task<Result<AddInstallmentsPlanResponse>> Add(AddInstallmentsPlanCommand addInstallmentsPlanCommand)
         {
             using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
@@ -58,19 +59,16 @@ namespace ES.Crm.Finance.Infrastructure.ServiceImpl
                     var academicYearId = _fiscalContext.CurrentAcademicYearId;
 
 
-                    //GetTotalAmount
-                    var invoice = await _unitOfWork.BaseRepository<Invoice>()
-                        .GetByGuIdAsync(addInstallmentsPlanCommand.invoiceId);
+                    var invoiceDetails = await _unitOfWork.BaseRepository<Invoice>()
+                        .GetConditionalAsync(x=>x.ApplicantId == addInstallmentsPlanCommand.applicantId);
 
-
-                    // 🔥 VALIDATION
+                    var invoice = invoiceDetails.FirstOrDefault();
                     if (addInstallmentsPlanCommand.numberOfInstallments <= 0)
                         throw new Exception("Invalid number of installments");
 
                     if (invoice.TotalAmount <= 0)
                         throw new Exception("Invalid total amount");
 
-                    // 🔥 CALCULATION
                     decimal baseAmount = Math.Floor(invoice.TotalAmount / addInstallmentsPlanCommand.numberOfInstallments);
                     decimal remainder = invoice.TotalAmount % addInstallmentsPlanCommand.numberOfInstallments;
 
@@ -80,7 +78,6 @@ namespace ES.Crm.Finance.Infrastructure.ServiceImpl
                     {
                         decimal amount = baseAmount;
 
-                        // 🔥 Handle remainder in last installment
                         if (i == addInstallmentsPlanCommand.numberOfInstallments)
                         {
                             amount += remainder;
@@ -105,7 +102,7 @@ namespace ES.Crm.Finance.Infrastructure.ServiceImpl
 
                     var add = new InstallmentPlan(
                         newId,
-                        addInstallmentsPlanCommand.invoiceId,
+                        invoice.Id,
                         addInstallmentsPlanCommand.numberOfInstallments,
                         invoice.TotalAmount,
                         installments,
@@ -134,7 +131,30 @@ namespace ES.Crm.Finance.Infrastructure.ServiceImpl
             }
         }
 
-        public async Task<Result<PagedResult<FilterInstallmentPlanResponse>>> GetFilterInstallmentPlan(PaginationRequest paginationRequest, FilterInstallmentPlanDTOs filterInstallmentPlanDTOs)
+        public async Task<Result<bool>> Delete(string id, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var installmentPlan = await _unitOfWork.BaseRepository<InstallmentPlan>().GetByGuIdAsync(id);
+                if (installmentPlan is null)
+                {
+                    return Result<bool>.Failure("NotFound", "Data not Found");
+                }
+
+                installmentPlan.IsActive = false;
+                _unitOfWork.BaseRepository<InstallmentPlan>().Update(installmentPlan);
+                await _unitOfWork.SaveChangesAsync();
+
+
+                return Result<bool>.Success(true);
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
+        public async Task<Result<PagedResult<FilterInstallmentPlanResponse>>> Filter(PaginationRequest paginationRequest, FilterInstallmentPlanDTOs filterInstallmentPlanDTOs)
         {
             try
             {
@@ -180,6 +200,8 @@ namespace ES.Crm.Finance.Infrastructure.ServiceImpl
                 var responseList = query
                 .Select(i => new FilterInstallmentPlanResponse(
                     i.Id,
+                    i.Invoice.InvoiceNumber,
+                    i.Invoice.Applicant.Profile.FullName,
                     i.InvoiceId,
                     i.NumberOfInstallments,
                     i.TotalAmount,
@@ -234,7 +256,7 @@ namespace ES.Crm.Finance.Infrastructure.ServiceImpl
             }
         }
 
-        public async Task<Result<InstallmentPlanResponse>> GetInstallmentPlan(string installmentPlanId, CancellationToken cancellationToken = default)
+        public async Task<Result<InstallmentPlanResponse>> Get(string installmentPlanId, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -268,6 +290,128 @@ namespace ES.Crm.Finance.Infrastructure.ServiceImpl
             catch (Exception ex)
             {
                 throw new Exception("An error occurred while fetching", ex);
+            }
+        }
+
+        public async Task<Result<UpdateInstallmentsPlanResponse>> Update(string installmentPlanId, UpdateInstallmentsPlanCommand updateInstallmentsPlanCommand)
+        {
+            using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            {
+                try
+                {
+                    if (string.IsNullOrEmpty(installmentPlanId))
+                    {
+                        return Result<UpdateInstallmentsPlanResponse>.Failure("NotFound", "Please provide valid installmentPlanId");
+                    }
+                    var userId = _tokenService.GetUserId();
+
+
+                    var installmentsPlanDetails = await _unitOfWork.BaseRepository<InstallmentPlan>().
+                                 GetConditionalAsync(x => x.Id == installmentPlanId,
+                                 query => query.Include(rm => rm.Installments)
+                                 .ThenInclude(pa=>pa.PaymentAllocations)
+                                 );
+
+                    var installmentsPlan = installmentsPlanDetails.FirstOrDefault();
+
+                    if (installmentsPlan == null)
+                    {
+                        return Result<UpdateInstallmentsPlanResponse>.Failure("NotFound", "InstallmentsPlan not found.");
+                    }
+
+
+                    var invoice = await _unitOfWork.BaseRepository<Invoice>()
+                       .GetByGuIdAsync(updateInstallmentsPlanCommand.invoiceId);
+
+
+                    installmentsPlan.InvoiceId = invoice.Id;
+                    installmentsPlan.NumberOfInstallments = updateInstallmentsPlanCommand.numberOfInstallments;
+                    installmentsPlan.TotalAmount = invoice.TotalAmount;
+                    installmentsPlan.ModifiedBy = userId;
+                    installmentsPlan.ModifiedAt = DateTime.UtcNow;
+
+                    _unitOfWork.BaseRepository<InstallmentPlan>().Update(installmentsPlan);
+
+
+
+                    if (installmentsPlan.Installments != null && installmentsPlan.Installments.Any())
+                    {
+                        var installmentsWithAllocations = installmentsPlan.Installments
+                            .Where(i => i.PaymentAllocations.Any())
+                            .ToList();
+
+                        var allocationsToDelete = installmentsWithAllocations
+                            .SelectMany(i => i.PaymentAllocations)
+                            .ToList();
+
+                        _unitOfWork.BaseRepository<PaymentAllocation>()
+                            .DeleteRange(allocationsToDelete);
+
+                        _unitOfWork.BaseRepository<Installment>()
+                            .DeleteRange(installmentsWithAllocations);
+                    }
+
+
+                    decimal baseAmount = Math.Floor(invoice.TotalAmount / updateInstallmentsPlanCommand.numberOfInstallments);
+                    decimal remainder = invoice.TotalAmount % updateInstallmentsPlanCommand.numberOfInstallments;
+
+                    var newInstallments = new List<Installment>();
+
+                    for (int i = 1; i <= updateInstallmentsPlanCommand.numberOfInstallments; i++)
+                    {
+                        decimal amount = baseAmount;
+
+                        if (i == updateInstallmentsPlanCommand.numberOfInstallments)
+                        {
+                            amount += remainder;
+                        }
+
+                        var installment = new Installment(
+                            Guid.NewGuid().ToString(),
+                            installmentsPlan.Id, // ✅ correct FK
+                            amount,
+                            DateTime.UtcNow.AddMonths(i - 1),
+                            false,
+                            true
+                        );
+
+                        newInstallments.Add(installment);
+                    }
+
+                    await _unitOfWork.BaseRepository<Installment>()
+                        .AddRange(newInstallments);
+
+
+                    await _unitOfWork.SaveChangesAsync();
+                    scope.Complete();
+
+
+                    var resultResponse = new UpdateInstallmentsPlanResponse
+                        (
+
+                            installmentsPlan.Id,
+                            installmentsPlan.InvoiceId,
+
+                            installmentsPlan.NumberOfInstallments,
+                            installmentsPlan.TotalAmount,
+                            installmentsPlan.IsActive,
+                            installmentsPlan.SchoolId,
+                            installmentsPlan.CreatedBy,
+                            installmentsPlan.CreatedAt,
+                            installmentsPlan.ModifiedBy,
+                            installmentsPlan.ModifiedAt
+
+
+
+                        );
+
+                    return Result<UpdateInstallmentsPlanResponse>.Success(resultResponse);
+
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception("An error occurred while updating", ex);
+                }
             }
         }
     }

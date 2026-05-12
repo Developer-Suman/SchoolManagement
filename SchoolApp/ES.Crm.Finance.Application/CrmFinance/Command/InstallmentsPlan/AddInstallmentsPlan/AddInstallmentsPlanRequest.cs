@@ -9,7 +9,7 @@ namespace ES.Crm.Finance.Application.CrmFinance.Command.InstallmentsPlan.AddInst
 {
     public record AddInstallmentsPlanRequest
     (
-        string invoiceId,
+        string applicantId,
             int numberOfInstallments
         );
 }

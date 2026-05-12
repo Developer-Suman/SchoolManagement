@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using ES.Enrolment.Application.Enrolments.Command.TranningRegistration.AddTranningRegistration;
 using ES.Enrolment.Application.ServiceInterface;
 using FluentValidation;
 using MediatR;
@@ -25,6 +26,9 @@ namespace ES.Enrolment.Application.Enrolments.Command.Enquiry.AddInquiry
         }
         public async Task<Result<AddInquiryResponse>> Handle(AddInquiryCommand request, CancellationToken cancellationToken)
         {
+            var entityName = typeof(AddInquiryCommand).Name
+                .Replace("Add", "")
+                .Replace("Command", "");
             try
             {
                 var validationResult = await _validator.ValidateAsync(request, cancellationToken);
@@ -48,7 +52,7 @@ namespace ES.Enrolment.Application.Enrolments.Command.Enquiry.AddInquiry
                 }
 
                 var addDisplay = _mapper.Map<AddInquiryResponse>(add.Data);
-                return Result<AddInquiryResponse>.Success(addDisplay);
+                return Result<AddInquiryResponse>.Success(addDisplay, $"{entityName} Added Successfully");
 
 
             }

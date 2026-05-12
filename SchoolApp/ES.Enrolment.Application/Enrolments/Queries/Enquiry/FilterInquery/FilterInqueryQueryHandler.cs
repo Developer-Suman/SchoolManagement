@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using ES.Enrolment.Application.Enrolments.Command.TranningRegistration.AddTranningRegistration;
 using ES.Enrolment.Application.ServiceInterface;
 using MediatR;
 using System;
@@ -23,6 +24,9 @@ namespace ES.Enrolment.Application.Enrolments.Queries.Enquiry.FilterInquery
         }
         public async Task<Result<PagedResult<FilterInqueryResponse>>> Handle(FilterInquiryQuery request, CancellationToken cancellationToken)
         {
+            var entityName = typeof(FilterInquiryQuery).Name
+                .Replace("Filter", "")
+                .Replace("Query", "");
             try
             {
 
@@ -30,7 +34,7 @@ namespace ES.Enrolment.Application.Enrolments.Queries.Enquiry.FilterInquery
 
                 var resultDisplay = _mapper.Map<PagedResult<FilterInqueryResponse>>(result.Data);
 
-                return Result<PagedResult<FilterInqueryResponse>>.Success(resultDisplay);
+                return Result<PagedResult<FilterInqueryResponse>>.Success(resultDisplay, $"{entityName} returned Successfully");
             }
             catch (Exception ex)
             {

@@ -3,8 +3,10 @@ using ES.Crm.Finance.Application.CrmFinance.Command.InstallmentsPlan.AddInstallm
 using ES.Crm.Finance.Application.CrmFinance.Command.Invoice.AddInvoice;
 using ES.Crm.Finance.Application.CrmFinance.Command.Invoice.UpdateInvoice;
 using ES.Crm.Finance.Application.CrmFinance.Command.Payments.Addpayments;
+using ES.Crm.Finance.Application.CrmFinance.Command.Payments.UpdatePayments;
 using ES.Crm.Finance.Application.CrmFinance.Queries.InstallmentsPlan.FilterInstallmentPlan;
 using ES.Crm.Finance.Application.CrmFinance.Queries.InstallmentsPlan.InstallmentPlan;
+using ES.Crm.Finance.Application.CrmFinance.Queries.Payments.FilterPayments;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,6 +37,9 @@ namespace ES.Crm.Finance.Application.AutoMapper
             CreateMap<AddInstallmentsPlanResponse, InstallmentPlan>().ReverseMap();
             CreateMap<AddInstallmentsPlanCommand, AddInstallmentsPlanResponse>().ReverseMap();
 
+
+            CreateMap<InstallmentPlan, UpdateInstallmentsPlanCommand>().ReverseMap();
+
             CreateMap<FilterInstallmentPlanResponse, InstallmentPlan>().ReverseMap();
             CreateMap<PagedResult<InstallmentPlan>, PagedResult<FilterInstallmentPlanResponse>>().ReverseMap();
 
@@ -45,6 +50,14 @@ namespace ES.Crm.Finance.Application.AutoMapper
             CreateMap<AddPaymentsCommand, CrmPayment>().ReverseMap();
             CreateMap<AddPaymentsResponse, CrmPayment>().ReverseMap();
             CreateMap<AddPaymentsCommand, AddPaymentsResponse>().ReverseMap();
+
+            CreateMap<CrmPayment, UpdatePaymentsCommand>().ReverseMap();
+
+
+            CreateMap<FilterPaymentsResponse, CrmPayment>().ReverseMap();
+            CreateMap<PagedResult<CrmPayment>, PagedResult<FilterPaymentsResponse>>().ReverseMap();
+
+
             #endregion
         }
     }

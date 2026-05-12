@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using ES.Enrolment.Application.Enrolments.Command.Appointment.AddAppointment;
+using ES.Enrolment.Application.Enrolments.Command.FollowUp.DeleteFollowUp;
 using ES.Enrolment.Application.ServiceInterface;
 using FluentValidation;
 using MediatR;
@@ -28,8 +29,12 @@ namespace ES.Enrolment.Application.Enrolments.Command.FollowUp.AddFollowUp
         }
         public async Task<Result<AddFollowUpResponse>> Handle(AddFollowUpCommand request, CancellationToken cancellationToken)
         {
+            var entityName = typeof(AddFollowUpCommand).Name
+               .Replace("Add", "")
+               .Replace("Command", "");
             try
             {
+
                 var validationResult = await _validator.ValidateAsync(request, cancellationToken);
                 if (!validationResult.IsValid)
                 {
@@ -51,8 +56,7 @@ namespace ES.Enrolment.Application.Enrolments.Command.FollowUp.AddFollowUp
                 }
 
                 var addDisplay = _mapper.Map<AddFollowUpResponse>(add.Data);
-                return Result<AddFollowUpResponse>.Success(addDisplay);
-
+                return Result<AddFollowUpResponse>.Success(addDisplay, $"{entityName} Added Successfully");
 
             }
             catch (Exception ex)

@@ -9,6 +9,7 @@ using ES.Finances.Application.Finance.Command.Fee.UpdateFeeStructure;
 using ES.Finances.Application.Finance.Command.Fee.UpdateFeeType;
 using ES.Finances.Application.Finance.Command.Fee.UpdateStudentFee;
 using ES.Finances.Application.Finance.Command.PaymentRecords.AddpaymentsRecords;
+using ES.Finances.Application.Finance.Queries.Fee.DueSlip;
 using ES.Finances.Application.Finance.Queries.Fee.FeeCategory.FeeCategoryById;
 using ES.Finances.Application.Finance.Queries.Fee.FeeCategory.FilterFeeCategory;
 using ES.Finances.Application.Finance.Queries.Fee.FeeStructure;
@@ -98,6 +99,11 @@ namespace ES.Finances.Application.AutoMapper
             CreateMap<PagedResult<StudentFee>, PagedResult<FilterStudentFeeResponse>>().ReverseMap();
             CreateMap<StudentFeeResponse, StudentFee>().ReverseMap();
             CreateMap<PagedResult<StudentFee>, PagedResult<StudentFeeResponse>>().ReverseMap();
+
+            CreateMap<DueSlipResponse, Registrations>().ReverseMap();
+            CreateMap<PagedResult<Registrations>, PagedResult<DueSlipResponse>>().ReverseMap();
+
+
             #endregion
 
         }

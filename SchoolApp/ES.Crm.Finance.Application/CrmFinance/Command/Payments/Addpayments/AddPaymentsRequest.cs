@@ -13,8 +13,6 @@ namespace ES.Crm.Finance.Application.CrmFinance.Command.Payments.Addpayments
         string invoiceId,
             decimal amount,
             DateTime paymentDate,
-            PaymentMethods paymentMethod,
-            string referenceNumber,
-            PaymentStatus paymentStatus
+            PaymentMethods paymentMethod
         );
 }

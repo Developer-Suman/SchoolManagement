@@ -10,12 +10,13 @@ namespace ES.Finances.Application.Finance.Queries.Fee.FilterStudentFee
     (
         string id="",
             string studentId="",
-            List<string> feeStructureId=default,
+            string feeStructureId="",
             decimal totalAmount = 0,
             decimal paidAmount=0,
             decimal dueAmount=0,
             string classId="",
             string? schoolId="",
-            string? receiptNumber = ""
+            string? receiptNumber = "",
+            List<FeeStructureDTOs> feeStructureDTOs = default
         );
 }

@@ -1,5 +1,7 @@
 ﻿
 using ES.Enrolment.Application.Enrolments.Command.Appointment.AddAppointment;
+using ES.Enrolment.Application.Enrolments.Command.Appointment.UpdateAppointment;
+using ES.Enrolment.Application.Enrolments.Queries.Appointments.AppointmentsId;
 using ES.Enrolment.Application.Enrolments.Queries.Appointments.FilterAppointment;
 using ES.Enrolment.Application.Enrolments.Queries.Appointments.ScheduleAppointment;
 using ES.Enrolment.Application.Enrolments.Queries.Appointments.ShowLeadEnquiry;
@@ -21,5 +23,10 @@ namespace ES.Enrolment.Application.ServiceInterface
 
         Task<Result<ScheduleAppointmentResponse>> GetAppointmentSchedule(ScheduleAppointmentDTOs scheduleAppointmentDTOs);
         Task<Result<ShowLeadEnquiryResponse>> ShowLeadEnqueries(ShowLeadEnquiryDTOs showLeadEnquiryDTOs);
+
+        Task<Result<UpdateAppointmentResponse>> Update(string appointmentId, UpdateAppointmentCommand updateAppointmentCommand);
+
+        Task<Result<bool>> Delete(string id, CancellationToken cancellationToken);
+        Task<Result<AppointmentsIdResponse>> Get(string appointmentId, CancellationToken cancellationToken = default);
     }
 }

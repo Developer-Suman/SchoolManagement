@@ -16,6 +16,7 @@ namespace ES.Enrolment.Application.Enrolments.Queries.FollowUp.FilterFollowUp
             DateTime followUpDate = default,
             string notes = "",
             FollowUpStatus followUpStatus = default,
+            string appointmentId = "",  
             bool isActive = true,
             string schoolId = "",
             string createdBy = "",

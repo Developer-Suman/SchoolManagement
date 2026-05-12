@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using ES.Enrolment.Application.Enrolments.Command.Appointment.AddAppointment;
+using ES.Enrolment.Application.Enrolments.Command.Appointment.UpdateAppointment;
 using ES.Enrolment.Application.Enrolments.Command.ConsultancyClass;
 using ES.Enrolment.Application.Enrolments.Command.ConvertApplicant;
 using ES.Enrolment.Application.Enrolments.Command.ConvertStudent;
@@ -32,6 +33,7 @@ using TN.Shared.Domain.Entities.Crm.Enrollments;
 using TN.Shared.Domain.Entities.Crm.Lead;
 using TN.Shared.Domain.Entities.Crm.Profile;
 using TN.Shared.Domain.Entities.Crm.Students;
+using TN.Shared.Domain.Entities.Crm.Visa;
 using TN.Shared.Domain.Entities.Finance;
 using TN.Shared.Domain.ExtensionMethod.Pagination;
 
@@ -78,6 +80,8 @@ namespace ES.Enrolment.Application.AutoMapper
 
             #region Appointment
             CreateMap<Appointment, AddAppointmentResponse>().ReverseMap();
+
+            CreateMap<Appointment, UpdateAppointmentCommand>().ReverseMap();
 
             CreateMap<FilterAppointmentResponse, Appointment>().ReverseMap();
             CreateMap<PagedResult<Appointment>, PagedResult<FilterAppointmentResponse>>().ReverseMap();

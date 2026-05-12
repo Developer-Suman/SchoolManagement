@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using ES.Crm.Finance.Application.CrmFinance.Queries.Payments.FilterPayments;
 using ES.Crm.Finance.Application.ServiceInterface;
 using MediatR;
 using System;
@@ -26,14 +27,17 @@ namespace ES.Crm.Finance.Application.CrmFinance.Queries.InstallmentsPlan.FilterI
         }
         public async Task<Result<PagedResult<FilterInstallmentPlanResponse>>> Handle(FilterInstallmentPlanQuery request, CancellationToken cancellationToken)
         {
+            var entityName = typeof(FilterInstallmentPlanQuery).Name
+                  .Replace("Filter", "")
+                  .Replace("Query", "");
             try
             {
 
-                var result = await _installmentServices.GetFilterInstallmentPlan(request.PaginationRequest, request.FilterInstallmentPlanDTOs);
+                var result = await _installmentServices.Filter(request.PaginationRequest, request.FilterInstallmentPlanDTOs);
 
                 var filterResult = _mapper.Map<PagedResult<FilterInstallmentPlanResponse>>(result.Data);
 
-                return Result<PagedResult<FilterInstallmentPlanResponse>>.Success(filterResult);
+                return Result<PagedResult<FilterInstallmentPlanResponse>>.Success(filterResult, $"{entityName} return successfully");
             }
             catch (Exception ex)
             {

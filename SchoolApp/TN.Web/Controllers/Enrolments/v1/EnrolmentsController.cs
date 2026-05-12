@@ -2,6 +2,9 @@
 using ES.Enrolment.Application.Enrolments.Command.AddFollowUp.RequestCommand_Mapper;
 using ES.Enrolment.Application.Enrolments.Command.Appointment.AddAppointment;
 using ES.Enrolment.Application.Enrolments.Command.Appointment.AddAppointment.RequestCommandMapper;
+using ES.Enrolment.Application.Enrolments.Command.Appointment.DeleteAppointment;
+using ES.Enrolment.Application.Enrolments.Command.Appointment.UpdateAppointment;
+using ES.Enrolment.Application.Enrolments.Command.Appointment.UpdateAppointment.RequestCommandMapper;
 using ES.Enrolment.Application.Enrolments.Command.ConsultancyClass;
 using ES.Enrolment.Application.Enrolments.Command.ConvertApplicant;
 using ES.Enrolment.Application.Enrolments.Command.ConvertApplicant.RequestCommandMapper;
@@ -12,11 +15,15 @@ using ES.Enrolment.Application.Enrolments.Command.Counselor.AddCounselor.Request
 using ES.Enrolment.Application.Enrolments.Command.Enquiry.AddInquiry;
 using ES.Enrolment.Application.Enrolments.Command.Enquiry.AddInquiry.RequestCommandMapper;
 using ES.Enrolment.Application.Enrolments.Command.FollowUp.AddFollowUp;
+using ES.Enrolment.Application.Enrolments.Command.FollowUp.DeleteFollowUp;
+using ES.Enrolment.Application.Enrolments.Command.FollowUp.UpdateFollowUp;
+using ES.Enrolment.Application.Enrolments.Command.FollowUp.UpdateFollowUp.RequestCommandMapper;
 using ES.Enrolment.Application.Enrolments.Command.TranningRegistration.AddTranningRegistration;
 using ES.Enrolment.Application.Enrolments.Command.TranningRegistration.AddTranningRegistration.RequestCommandMapper;
 using ES.Enrolment.Application.Enrolments.Queries.Applicants.Applicant;
 using ES.Enrolment.Application.Enrolments.Queries.Applicants.ApplicantsById;
 using ES.Enrolment.Application.Enrolments.Queries.Applicants.FilterApplicant;
+using ES.Enrolment.Application.Enrolments.Queries.Appointments.AppointmentsId;
 using ES.Enrolment.Application.Enrolments.Queries.Appointments.FilterAppointment;
 using ES.Enrolment.Application.Enrolments.Queries.Appointments.ScheduleAppointment;
 using ES.Enrolment.Application.Enrolments.Queries.Appointments.ShowLeadEnquiry;
@@ -30,10 +37,15 @@ using ES.Enrolment.Application.Enrolments.Queries.Enquiry.FilterInquery;
 using ES.Enrolment.Application.Enrolments.Queries.Enquiry.InqueryById;
 using ES.Enrolment.Application.Enrolments.Queries.Enquiry.Inquiry;
 using ES.Enrolment.Application.Enrolments.Queries.FollowUp.FilterFollowUp;
+using ES.Enrolment.Application.Enrolments.Queries.FollowUp.FollowUpId;
 using ES.Enrolment.Application.Enrolments.Queries.TrainingRegistration.FilterTrainingRegistration;
 using ES.Enrolment.Application.Enrolments.Queries.UserProfiles.GetAllUserProfile;
 using ES.Enrolment.Application.Enrolments.Queries.UserProfiles.GetUserProfileById;
 using ES.Finances.Application.Finance.Queries.Fee.Feetype;
+using ES.Visa.Application.Visa.Command.VisaApplication.DeleteVisaApplication;
+using ES.Visa.Application.Visa.Command.VisaStatus.UpdateVisaStatus;
+using ES.Visa.Application.Visa.Queries.VisaStatus.FilterVisaStatus;
+using ES.Visa.Application.Visa.Queries.VisaStatus.VisaStatus;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
@@ -73,13 +85,25 @@ namespace TN.Web.Controllers.Enrolments.v1
         {
             //Mapping command and request
             var command = request.ToCommand();
-            var add = await _mediator.Send(command);
+            var addResult = await _mediator.Send(command);
             #region Switch Statement
-            return add switch
+            return addResult switch
             {
-                { IsSuccess: true, Data: not null } => CreatedAtAction(nameof(AddFollowUp), add.Data),
-                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = add.Message }),
-                { IsSuccess: false, Errors: not null } => HandleFailureResult(add.Errors),
+                { IsSuccess: true, Data: not null } => CreatedAtAction(
+                nameof(AddFollowUp),
+                new { id = addResult.Data.id },
+                new
+                {
+                    Data = addResult.Data,
+                    Message = addResult.Message,
+                    StatusCode = StatusCodes.Status201Created
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = addResult.Message
+                }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(addResult.Errors),
                 _ => BadRequest("Invalid Fields ")
 
             };
@@ -87,21 +111,109 @@ namespace TN.Web.Controllers.Enrolments.v1
             #endregion
         }
         #endregion
+
+        #region UpdateFollowUp
+        [HttpPatch("UpdateFollowUp/{Id}")]
+
+        public async Task<IActionResult> UpdateFollowUp(string Id, [FromBody] UpdateFollowUpRequest request)
+        {
+            //Mapping command and request
+            var command = request.ToCommand(Id);
+            var result = await _mediator.Send(command);
+            #region Switch Statement
+            return result switch
+            {
+                { IsSuccess: true, Data: not null } => new ObjectResult(new
+                {
+                    Data = result.Data,
+                    Message = result.Message,
+                    StatusCode = StatusCodes.Status200OK
+                })
+                {
+                    StatusCode = StatusCodes.Status200OK
+                },
+                { IsSuccess: true, Data: null, Message: not null } => Ok(new
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = result.Message
+                }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(result.Errors),
+                _ => BadRequest("Invalid Fields")
+            };
+
+            #endregion
+        }
+        #endregion
+
+        #region DeleteFollowUp
+        [HttpDelete("DeleteFollowUp/{id}")]
+
+        public async Task<IActionResult> DeleteFollowUp([FromRoute] string id, CancellationToken cancellationToken)
+        {
+            var command = new DeleteFollowUpCommand(id);
+            var result = await _mediator.Send(command);
+            #region Switch Statement
+            return result switch
+            {
+
+                { IsSuccess: true } => Ok(new
+                {
+                    StatusCode = StatusCodes.Status204NoContent,
+                    Message = result.Message
+                }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(result.Errors),
+                _ => BadRequest("Invalid Fields")
+            };
+
+            #endregion
+        }
+
+        #endregion
+
+        #region FollowUpById
+        [HttpGet("FollowUpById/{followUpId}")]
+        public async Task<IActionResult> FollowUpById([FromRoute] string followUpId)
+        {
+            var query = new FollowUpIdQuery(followUpId);
+            var queryResult = await _mediator.Send(query);
+            #region Switch Statement
+            return queryResult switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(queryResult.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = queryResult.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(queryResult.Errors),
+                _ => BadRequest("Invalid page and pageSize Fields")
+            };
+            #endregion
+
+        }
+        #endregion
         #region FilterFollowUps
         [HttpGet("FilterFollowUps")]
         public async Task<IActionResult> FilterFollowUps([FromQuery] FilterFollowUpDTOs filterFollowUpDTOs, [FromQuery] PaginationRequest paginationRequest)
         {
+
             var query = new FilterFollowUpQuery(paginationRequest, filterFollowUpDTOs);
-            var filter = await _mediator.Send(query);
+            var filteredResult = await _mediator.Send(query);
             #region Switch Statement
-            return filter switch
+            return filteredResult switch
             {
-                { IsSuccess: true, Data: not null } => new JsonResult(filter.Data, new JsonSerializerOptions
+                { IsSuccess: true, Data: not null } => Ok(new
                 {
-                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                    Data = filteredResult.Data,
+                    Message = filteredResult.Message,
+                    StatusCode = StatusCodes.Status200OK
                 }),
-                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = filter.Message }),
-                { IsSuccess: false, Errors: not null } => HandleFailureResult(filter.Errors),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = filteredResult.Message,
+                    Data = (object?)null
+                }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(filteredResult.Errors),
                 _ => BadRequest("Invalid page and pageSize Fields")
             };
             #endregion
@@ -118,17 +230,25 @@ namespace TN.Web.Controllers.Enrolments.v1
         [HttpGet("FilterTrainingRegistration")]
         public async Task<IActionResult> FilterTrainingRegistration([FromQuery] FilterTrainingRegistrationDTOs filterTrainingRegistrationDTOs, [FromQuery] PaginationRequest paginationRequest)
         {
+
             var query = new FilterTrainingRegistrationQuery(paginationRequest, filterTrainingRegistrationDTOs);
-            var filter = await _mediator.Send(query);
+            var filteredResult = await _mediator.Send(query);
             #region Switch Statement
-            return filter switch
+            return filteredResult switch
             {
-                { IsSuccess: true, Data: not null } => new JsonResult(filter.Data, new JsonSerializerOptions
+                { IsSuccess: true, Data: not null } => Ok(new
                 {
-                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                    Data = filteredResult.Data,
+                    Message = filteredResult.Message,
+                    StatusCode = StatusCodes.Status200OK
                 }),
-                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = filter.Message }),
-                { IsSuccess: false, Errors: not null } => HandleFailureResult(filter.Errors),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = filteredResult.Message,
+                    Data = (object?)null
+                }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(filteredResult.Errors),
                 _ => BadRequest("Invalid page and pageSize Fields")
             };
             #endregion
@@ -144,13 +264,25 @@ namespace TN.Web.Controllers.Enrolments.v1
         {
             //Mapping command and request
             var command = request.ToCommand();
-            var add = await _mediator.Send(command);
+            var addResult = await _mediator.Send(command);
             #region Switch Statement
-            return add switch
+            return addResult switch
             {
-                { IsSuccess: true, Data: not null } => CreatedAtAction(nameof(AddTrainingRegistration), add.Data),
-                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = add.Message }),
-                { IsSuccess: false, Errors: not null } => HandleFailureResult(add.Errors),
+                { IsSuccess: true, Data: not null } => CreatedAtAction(
+                nameof(AddTrainingRegistration),
+                new { id = addResult.Data.id },
+                new
+                {
+                    Data = addResult.Data,
+                    Message = addResult.Message,
+                    StatusCode = StatusCodes.Status201Created
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = addResult.Message
+                }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(addResult.Errors),
                 _ => BadRequest("Invalid Fields ")
 
             };
@@ -194,16 +326,23 @@ namespace TN.Web.Controllers.Enrolments.v1
         public async Task<IActionResult> FilterConsultancyClasss([FromQuery] FilterConsultancyClassDTOs filterConsultancyClassDTOs, [FromQuery] PaginationRequest paginationRequest)
         {
             var query = new FilterConsultancyClassQuery(filterConsultancyClassDTOs,paginationRequest);
-            var filter = await _mediator.Send(query);
+            var filteredResult = await _mediator.Send(query);
             #region Switch Statement
-            return filter switch
+            return filteredResult switch
             {
-                { IsSuccess: true, Data: not null } => new JsonResult(filter.Data, new JsonSerializerOptions
+                { IsSuccess: true, Data: not null } => Ok(new
                 {
-                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                    Data = filteredResult.Data,
+                    Message = filteredResult.Message,
+                    StatusCode = StatusCodes.Status200OK
                 }),
-                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = filter.Message }),
-                { IsSuccess: false, Errors: not null } => HandleFailureResult(filter.Errors),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = filteredResult.Message,
+                    Data = (object?)null
+                }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(filteredResult.Errors),
                 _ => BadRequest("Invalid page and pageSize Fields")
             };
             #endregion
@@ -219,13 +358,25 @@ namespace TN.Web.Controllers.Enrolments.v1
         {
             //Mapping command and request
             var command = request.ToCommand();
-            var add = await _mediator.Send(command);
+            var addResult = await _mediator.Send(command);
             #region Switch Statement
-            return add switch
+            return addResult switch
             {
-                { IsSuccess: true, Data: not null } => CreatedAtAction(nameof(AddConsultancyClass), add.Data),
-                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = add.Message }),
-                { IsSuccess: false, Errors: not null } => HandleFailureResult(add.Errors),
+                { IsSuccess: true, Data: not null } => CreatedAtAction(
+                nameof(AddConsultancyClass),
+                new { id = addResult.Data.id },
+                new
+                {
+                    Data = addResult.Data,
+                    Message = addResult.Message,
+                    StatusCode = StatusCodes.Status201Created
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = addResult.Message
+                }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(addResult.Errors),
                 _ => BadRequest("Invalid Fields ")
 
             };
@@ -237,26 +388,29 @@ namespace TN.Web.Controllers.Enrolments.v1
         #endregion
 
 
-
-
-
-
         #region Appointments
         #region ShowLeadEnqueryDetails
         [HttpGet("ShowLeadEnqueryDetails")]
         public async Task<IActionResult> ShowLeadEnqueryDetails([FromQuery] ShowLeadEnquiryDTOs showLeadEnquiryDTOs)
         {
             var query = new ShowLeadEnquiryQuery(showLeadEnquiryDTOs);
-            var filter = await _mediator.Send(query);
+            var filteredResult = await _mediator.Send(query);
             #region Switch Statement
-            return filter switch
+            return filteredResult switch
             {
-                { IsSuccess: true, Data: not null } => new JsonResult(filter.Data, new JsonSerializerOptions
+                { IsSuccess: true, Data: not null } => Ok(new
                 {
-                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                    Data = filteredResult.Data,
+                    Message = filteredResult.Message,
+                    StatusCode = StatusCodes.Status200OK
                 }),
-                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = filter.Message }),
-                { IsSuccess: false, Errors: not null } => HandleFailureResult(filter.Errors),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = filteredResult.Message,
+                    Data = (object?)null
+                }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(filteredResult.Errors),
                 _ => BadRequest("Invalid page and pageSize Fields")
             };
             #endregion
@@ -295,13 +449,25 @@ namespace TN.Web.Controllers.Enrolments.v1
         {
             //Mapping command and request
             var command = request.ToCommand();
-            var add = await _mediator.Send(command);
+            var addResult = await _mediator.Send(command);
             #region Switch Statement
-            return add switch
+            return addResult switch
             {
-                { IsSuccess: true, Data: not null } => CreatedAtAction(nameof(AddAppointment), add.Data),
-                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = add.Message }),
-                { IsSuccess: false, Errors: not null } => HandleFailureResult(add.Errors),
+                { IsSuccess: true, Data: not null } => CreatedAtAction(
+                nameof(AddAppointment),
+                new { id = addResult.Data.id },
+                new
+                {
+                    Data = addResult.Data,
+                    Message = addResult.Message,
+                    StatusCode = StatusCodes.Status201Created
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = addResult.Message
+                }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(addResult.Errors),
                 _ => BadRequest("Invalid Fields ")
 
             };
@@ -309,21 +475,109 @@ namespace TN.Web.Controllers.Enrolments.v1
             #endregion
         }
         #endregion
+
+        #region UpdateAppointments
+        [HttpPatch("UpdateAppointments/{Id}")]
+
+        public async Task<IActionResult> UpdateAppointments(string Id, [FromBody] UpdateAppointmentRequest request)
+        {
+            //Mapping command and request
+            var command = request.ToCommand(Id);
+            var result = await _mediator.Send(command);
+            #region Switch Statement
+            return result switch
+            {
+                { IsSuccess: true, Data: not null } => new ObjectResult(new
+                {
+                    Data = result.Data,
+                    Message = result.Message,
+                    StatusCode = StatusCodes.Status200OK
+                })
+                {
+                    StatusCode = StatusCodes.Status200OK
+                },
+                { IsSuccess: true, Data: null, Message: not null } => Ok(new
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = result.Message
+                }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(result.Errors),
+                _ => BadRequest("Invalid Fields")
+            };
+
+            #endregion
+        }
+        #endregion
+
+        #region DeleteAppointments
+        [HttpDelete("DeleteAppointments/{id}")]
+
+        public async Task<IActionResult> DeleteAppointments([FromRoute] string id, CancellationToken cancellationToken)
+        {
+            var command = new DeleteAppointmentCommand(id);
+            var result = await _mediator.Send(command);
+            #region Switch Statement
+            return result switch
+            {
+
+                { IsSuccess: true } => Ok(new
+                {
+                    StatusCode = StatusCodes.Status204NoContent,
+                    Message = result.Message
+                }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(result.Errors),
+                _ => BadRequest("Invalid Fields")
+            };
+
+            #endregion
+        }
+
+        #endregion
+
+        #region AppointmentsById
+        [HttpGet("AppointmentsById/{appointmentsId}")]
+        public async Task<IActionResult> AppointmentsById([FromRoute] string appointmentsId)
+        {
+            var query = new AppointmentsIdQuery(appointmentsId);
+            var queryResult = await _mediator.Send(query);
+            #region Switch Statement
+            return queryResult switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(queryResult.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = queryResult.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(queryResult.Errors),
+                _ => BadRequest("Invalid page and pageSize Fields")
+            };
+            #endregion
+
+        }
+        #endregion
+
         #region FilterAppointments
         [HttpGet("FilterAppointments")]
         public async Task<IActionResult> FilterAppointments([FromQuery] FilterAppointmentDTOs filterAppointmentDTOs, [FromQuery] PaginationRequest paginationRequest)
         {
             var query = new FilterAppointmentQuery(paginationRequest, filterAppointmentDTOs);
-            var filter = await _mediator.Send(query);
+            var filteredResult = await _mediator.Send(query);
             #region Switch Statement
-            return filter switch
+            return filteredResult switch
             {
-                { IsSuccess: true, Data: not null } => new JsonResult(filter.Data, new JsonSerializerOptions
+                { IsSuccess: true, Data: not null } => Ok(new
                 {
-                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                    Data = filteredResult.Data,
+                    Message = filteredResult.Message,
+                    StatusCode = StatusCodes.Status200OK
                 }),
-                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = filter.Message }),
-                { IsSuccess: false, Errors: not null } => HandleFailureResult(filter.Errors),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = filteredResult.Message,
+                    Data = (object?)null
+                }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(filteredResult.Errors),
                 _ => BadRequest("Invalid page and pageSize Fields")
             };
             #endregion
@@ -364,16 +618,23 @@ namespace TN.Web.Controllers.Enrolments.v1
         public async Task<IActionResult> FilterCounselor([FromQuery] FilterCounselorDTOs filterCounselorDTOs, [FromQuery] PaginationRequest paginationRequest)
         {
             var query = new FilterCounselorQuery(paginationRequest, filterCounselorDTOs);
-            var filter = await _mediator.Send(query);
+            var filteredResult = await _mediator.Send(query);
             #region Switch Statement
-            return filter switch
+            return filteredResult switch
             {
-                { IsSuccess: true, Data: not null } => new JsonResult(filter.Data, new JsonSerializerOptions
+                { IsSuccess: true, Data: not null } => Ok(new
                 {
-                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                    Data = filteredResult.Data,
+                    Message = filteredResult.Message,
+                    StatusCode = StatusCodes.Status200OK
                 }),
-                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = filter.Message }),
-                { IsSuccess: false, Errors: not null } => HandleFailureResult(filter.Errors),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = filteredResult.Message,
+                    Data = (object?)null
+                }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(filteredResult.Errors),
                 _ => BadRequest("Invalid page and pageSize Fields")
             };
             #endregion
@@ -389,25 +650,35 @@ namespace TN.Web.Controllers.Enrolments.v1
         {
             //Mapping command and request
             var command = request.ToCommand();
-            var add = await _mediator.Send(command);
+            var addResult = await _mediator.Send(command);
             #region Switch Statement
-            return add switch
+            return addResult switch
             {
-                { IsSuccess: true, Data: not null } => CreatedAtAction(nameof(AddCounselor), add.Data),
-                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = add.Message }),
-                { IsSuccess: false, Errors: not null } => HandleFailureResult(add.Errors),
+                { IsSuccess: true, Data: not null } => CreatedAtAction(
+                nameof(AddCounselor),
+                new { id = addResult.Data.id },
+                new
+                {
+                    Data = addResult.Data,
+                    Message = addResult.Message,
+                    StatusCode = StatusCodes.Status201Created
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = addResult.Message
+                }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(addResult.Errors),
                 _ => BadRequest("Invalid Fields ")
 
             };
+
 
             #endregion
         }
         #endregion
 
         #endregion
-
-
-      
 
         #region ApplicantsById
         [HttpGet("Applicants/{id}")]
@@ -550,16 +821,23 @@ namespace TN.Web.Controllers.Enrolments.v1
         public async Task<IActionResult> FilterCRMStudents([FromQuery] FilterCRMStudentsDTOs filterCRMStudentsDTOs, [FromQuery] PaginationRequest paginationRequest)
         {
             var query = new FilterCRMStudentsQuery(paginationRequest, filterCRMStudentsDTOs);
-            var filterCRMStudents = await _mediator.Send(query);
+            var filteredResult = await _mediator.Send(query);
             #region Switch Statement
-            return filterCRMStudents switch
+            return filteredResult switch
             {
-                { IsSuccess: true, Data: not null } => new JsonResult(filterCRMStudents.Data, new JsonSerializerOptions
+                { IsSuccess: true, Data: not null } => Ok(new
                 {
-                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                    Data = filteredResult.Data,
+                    Message = filteredResult.Message,
+                    StatusCode = StatusCodes.Status200OK
                 }),
-                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = filterCRMStudents.Message }),
-                { IsSuccess: false, Errors: not null } => HandleFailureResult(filterCRMStudents.Errors),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = filteredResult.Message,
+                    Data = (object?)null
+                }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(filteredResult.Errors),
                 _ => BadRequest("Invalid page and pageSize Fields")
             };
             #endregion
@@ -573,16 +851,23 @@ namespace TN.Web.Controllers.Enrolments.v1
         public async Task<IActionResult> GetFilterApplicants([FromQuery] FilterApplicantDTOs filterApplicantDTOs, [FromQuery] PaginationRequest paginationRequest)
         {
             var query = new FilterApplicantQuery(paginationRequest, filterApplicantDTOs);
-            var filterApplicants = await _mediator.Send(query);
+            var filteredResult = await _mediator.Send(query);
             #region Switch Statement
-            return filterApplicants switch
+            return filteredResult switch
             {
-                { IsSuccess: true, Data: not null } => new JsonResult(filterApplicants.Data, new JsonSerializerOptions
+                { IsSuccess: true, Data: not null } => Ok(new
                 {
-                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                    Data = filteredResult.Data,
+                    Message = filteredResult.Message,
+                    StatusCode = StatusCodes.Status200OK
                 }),
-                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = filterApplicants.Message }),
-                { IsSuccess: false, Errors: not null } => HandleFailureResult(filterApplicants.Errors),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = filteredResult.Message,
+                    Data = (object?)null
+                }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(filteredResult.Errors),
                 _ => BadRequest("Invalid page and pageSize Fields")
             };
             #endregion
@@ -596,16 +881,23 @@ namespace TN.Web.Controllers.Enrolments.v1
         public async Task<IActionResult> GetFilterInquery([FromQuery] FilterInquiryDTOs filterInquiryDTOs, [FromQuery] PaginationRequest paginationRequest)
         {
             var query = new FilterInquiryQuery(paginationRequest, filterInquiryDTOs);
-            var filterInquery = await _mediator.Send(query);
+            var filteredResult = await _mediator.Send(query);
             #region Switch Statement
-            return filterInquery switch
+            return filteredResult switch
             {
-                { IsSuccess: true, Data: not null } => new JsonResult(filterInquery.Data, new JsonSerializerOptions
+                { IsSuccess: true, Data: not null } => Ok(new
                 {
-                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                    Data = filteredResult.Data,
+                    Message = filteredResult.Message,
+                    StatusCode = StatusCodes.Status200OK
                 }),
-                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = filterInquery.Message }),
-                { IsSuccess: false, Errors: not null } => HandleFailureResult(filterInquery.Errors),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = filteredResult.Message,
+                    Data = (object?)null
+                }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(filteredResult.Errors),
                 _ => BadRequest("Invalid page and pageSize Fields")
             };
             #endregion
@@ -621,13 +913,25 @@ namespace TN.Web.Controllers.Enrolments.v1
         {
             //Mapping command and request
             var command = request.ToCommand();
-            var addInquiry = await _mediator.Send(command);
+            var addResult = await _mediator.Send(command);
             #region Switch Statement
-            return addInquiry switch
+            return addResult switch
             {
-                { IsSuccess: true, Data: not null } => CreatedAtAction(nameof(AddInquiry), addInquiry.Data),
-                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = addInquiry.Message }),
-                { IsSuccess: false, Errors: not null } => HandleFailureResult(addInquiry.Errors),
+                { IsSuccess: true, Data: not null } => CreatedAtAction(
+                nameof(AddInquiry),
+                new { id = addResult.Data.id },
+                new
+                {
+                    Data = addResult.Data,
+                    Message = addResult.Message,
+                    StatusCode = StatusCodes.Status201Created
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = addResult.Message
+                }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(addResult.Errors),
                 _ => BadRequest("Invalid Fields ")
 
             };
@@ -643,13 +947,25 @@ namespace TN.Web.Controllers.Enrolments.v1
         {
             //Mapping command and request
             var command = request.ToCommand();
-            var convert = await _mediator.Send(command);
+            var addResult = await _mediator.Send(command);
             #region Switch Statement
-            return convert switch
+            return addResult switch
             {
-                { IsSuccess: true, Data: not null } => CreatedAtAction(nameof(ConvertToApplicant), convert.Data),
-                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = convert.Message }),
-                { IsSuccess: false, Errors: not null } => HandleFailureResult(convert.Errors),
+                { IsSuccess: true, Data: not null } => CreatedAtAction(
+                nameof(ConvertToApplicant),
+                new { id = addResult.Data.id },
+                new
+                {
+                    Data = addResult.Data,
+                    Message = addResult.Message,
+                    StatusCode = StatusCodes.Status201Created
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = addResult.Message
+                }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(addResult.Errors),
                 _ => BadRequest("Invalid Fields ")
 
             };
@@ -665,13 +981,25 @@ namespace TN.Web.Controllers.Enrolments.v1
         {
             //Mapping command and request
             var command = request.ToCommand();
-            var convert = await _mediator.Send(command);
+            var addResult = await _mediator.Send(command);
             #region Switch Statement
-            return convert switch
+            return addResult switch
             {
-                { IsSuccess: true, Data: not null } => CreatedAtAction(nameof(ConvertToStudents), convert.Data),
-                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = convert.Message }),
-                { IsSuccess: false, Errors: not null } => HandleFailureResult(convert.Errors),
+                { IsSuccess: true, Data: not null } => CreatedAtAction(
+                nameof(ConvertToStudents),
+                new { id = addResult.Data },
+                new
+                {
+                    Data = addResult.Data,
+                    Message = addResult.Message,
+                    StatusCode = StatusCodes.Status201Created
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = addResult.Message
+                }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(addResult.Errors),
                 _ => BadRequest("Invalid Fields ")
 
             };

@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using Azure.Core;
 using ES.Enrolment.Application.Enrolments.Command.Appointment.AddAppointment;
+using ES.Enrolment.Application.Enrolments.Command.Appointment.UpdateAppointment;
+using ES.Enrolment.Application.Enrolments.Queries.Appointments.AppointmentsId;
 using ES.Enrolment.Application.Enrolments.Queries.Appointments.FilterAppointment;
 using ES.Enrolment.Application.Enrolments.Queries.Appointments.ScheduleAppointment;
 using ES.Enrolment.Application.Enrolments.Queries.Appointments.ShowLeadEnquiry;
@@ -14,11 +16,13 @@ using System.Threading.Tasks;
 using System.Transactions;
 using TN.Authentication.Domain.Entities;
 using TN.Shared.Application.ServiceInterface;
+using TN.Shared.Application.ServiceInterface.IHelperServices;
 using TN.Shared.Domain.Abstractions;
 using TN.Shared.Domain.Entities.Certificates;
 using TN.Shared.Domain.Entities.Crm.Applicant;
 using TN.Shared.Domain.Entities.Crm.Enrollments;
 using TN.Shared.Domain.Entities.Crm.Lead;
+using TN.Shared.Domain.Entities.Crm.Visa;
 using TN.Shared.Domain.Entities.OrganizationSetUp;
 using TN.Shared.Domain.Entities.Students;
 using TN.Shared.Domain.ExtensionMethod.Pagination;
@@ -93,6 +97,29 @@ namespace ES.Enrolment.Infrastructure.ServiceImpl
                     throw new Exception("An error occurred while adding ", ex);
 
                 }
+            }
+        }
+
+        public async Task<Result<bool>> Delete(string id, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var appointment = await _unitOfWork.BaseRepository<Appointment>().GetByGuIdAsync(id);
+                if (appointment is null)
+                {
+                    return Result<bool>.Failure("NotFound", "Data not Found");
+                }
+
+                appointment.IsActive = false;
+                _unitOfWork.BaseRepository<Appointment>().Update(appointment);
+                await _unitOfWork.SaveChangesAsync();
+
+
+                return Result<bool>.Success(true);
+            }
+            catch (Exception ex)
+            {
+                throw;
             }
         }
 
@@ -196,6 +223,41 @@ namespace ES.Enrolment.Infrastructure.ServiceImpl
             catch (Exception ex)
             {
                 throw new Exception($"An error occurred while fetching result: {ex.Message}", ex);
+            }
+        }
+
+        public async Task<Result<AppointmentsIdResponse>> Get(string appointmentId, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                var appointmentDetails = await _unitOfWork.BaseRepository<Appointment>().
+                    GetConditionalAsync(x => x.Id == appointmentId
+                    );
+
+                var appointment = appointmentDetails.FirstOrDefault();
+                var appointmentDetailsResponse = new AppointmentsIdResponse(
+                    appointment.Id,
+                    appointment.LeadId,
+                    appointment.StartTime,
+                    appointment.EndTime,
+                    appointment.AppointmentDate,
+                    appointment.CounselorId,
+                    appointment.Notes,
+                    appointment.AppointmentStatus,
+                    appointment.IsActive,
+                    appointment.SchoolId,
+                    appointment.CreatedBy,
+                    appointment.CreatedAt,
+                    appointment.ModifiedBy,
+                    appointment.ModifiedAt
+                );
+
+                return Result<AppointmentsIdResponse>.Success(appointmentDetailsResponse);
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while fetching", ex);
             }
         }
 
@@ -314,6 +376,75 @@ namespace ES.Enrolment.Infrastructure.ServiceImpl
             catch (Exception ex)
             {
                 throw new Exception($"An error occurred while  {ex.Message}", ex);
+            }
+        }
+
+        public async Task<Result<UpdateAppointmentResponse>> Update(string appointmentId, UpdateAppointmentCommand updateAppointmentCommand)
+        {
+            using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            {
+                try
+                {
+                    if (string.IsNullOrEmpty(appointmentId))
+                    {
+                        return Result<UpdateAppointmentResponse>.Failure("NotFound", "Please provide valid appointmentId");
+                    }
+                    var userId = _tokenService.GetUserId();
+
+
+                    var appointmentDetails = await _unitOfWork.BaseRepository<Appointment>().
+                                 GetConditionalAsync(x => x.Id == appointmentId,
+                                 query => query.Include(rm => rm.FollowUps)
+                                 );
+
+                    var appointments = appointmentDetails.FirstOrDefault();
+
+                    if (appointments == null)
+                    {
+                        return Result<UpdateAppointmentResponse>.Failure("NotFound", "Appointments not found.");
+                    }
+
+                    appointments.LeadId = updateAppointmentCommand.leadId;
+                    appointments.StartTime = updateAppointmentCommand.startTime;
+                    appointments.EndTime = updateAppointmentCommand.endTime;
+                    appointments.AppointmentDate = updateAppointmentCommand.appointmentDate;
+                    appointments.CounselorId = updateAppointmentCommand.counselorId;
+                    appointments.Notes = updateAppointmentCommand.notes;
+                    appointments.AppointmentStatus = updateAppointmentCommand.appointmentStatus;
+                    appointments.ModifiedBy = userId;
+                    appointments.ModifiedAt = DateTime.UtcNow;
+
+
+                    await _unitOfWork.SaveChangesAsync();
+                    scope.Complete();
+
+
+                    var resultResponse = new UpdateAppointmentResponse
+                        (
+
+                            appointments.Id,
+                            appointments.LeadId,
+
+                            appointments.AppointmentDate,
+                            appointments.CounselorId,
+                            appointments.Notes,
+                            appointments.AppointmentStatus,
+                            appointments.IsActive,
+                            appointments.SchoolId,
+                            appointments.CreatedBy,
+                            appointments.CreatedAt,
+                            appointments.ModifiedBy,
+                            appointments.ModifiedAt
+                        
+                        );
+
+                    return Result<UpdateAppointmentResponse>.Success(resultResponse);
+
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception("An error occurred while updating", ex);
+                }
             }
         }
     }

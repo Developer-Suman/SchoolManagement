@@ -23,6 +23,7 @@ using ES.Finances.Application.Finance.Command.Fee.UpdateStudentFee;
 using ES.Finances.Application.Finance.Command.Fee.UpdateStudentFee.RequestMapper;
 using ES.Finances.Application.Finance.Command.PaymentRecords.AddpaymentsRecords;
 using ES.Finances.Application.Finance.Command.PaymentRecords.AddpaymentsRecords.RequestCommandMapper;
+using ES.Finances.Application.Finance.Queries.Fee.DueSlip;
 using ES.Finances.Application.Finance.Queries.Fee.FeeCategory.FeeCategoryById;
 using ES.Finances.Application.Finance.Queries.Fee.FeeCategory.FilterFeeCategory;
 using ES.Finances.Application.Finance.Queries.Fee.FeeStructure;
@@ -37,6 +38,7 @@ using ES.Finances.Application.Finance.Queries.Fee.FilterStudentFee;
 using ES.Finances.Application.Finance.Queries.Fee.StudentFee;
 using ES.Finances.Application.Finance.Queries.Fee.StudentFeeById;
 using ES.Finances.Application.Finance.Queries.Fee.StudentFeeSummary;
+using ES.Finances.Application.Finance.Queries.Fee.TotalFeeDetails;
 using ES.Finances.Application.Finance.Queries.PaymentsRecords.FilterpaymentsRecords;
 using ES.Finances.Application.Finance.Queries.PaymentsRecords.PaymentsRecordsById;
 using MediatR;
@@ -279,6 +281,50 @@ namespace TN.Web.Controllers.Finance.v1
         #endregion
 
         #region StudentFee
+
+        #region TotalFeeDetails
+        [HttpGet("TotalFeeDetails")]
+        public async Task<IActionResult> TotalFeeDetails()
+        {
+            var query = new TotalFeeDetailsQuery();
+            var queryResult = await _mediator.Send(query);
+            #region Switch Statement
+            return queryResult switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(queryResult.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = queryResult.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(queryResult.Errors),
+                _ => BadRequest("Invalid page and pageSize Fields")
+            };
+            #endregion
+
+        }
+        #endregion
+
+        #region DueSlip
+        [HttpGet("DueSlip")]
+        public async Task<IActionResult> DueSlip([FromQuery] DueSlipDTOs dueSlipDTOs, [FromQuery] PaginationRequest paginationRequest)
+        {
+            var query = new DueSlipQuery(dueSlipDTOs,paginationRequest);
+            var result = await _mediator.Send(query);
+            #region Switch Statement
+            return result switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(result.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = result.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(result.Errors),
+                _ => BadRequest("Invalid page and pageSize Fields")
+            };
+            #endregion
+
+        }
+        #endregion
 
 
         #region FeeStructureByStudent

@@ -81,7 +81,8 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                         addEventsCommand.title,
                         addEventsCommand.descriptions,
                             addEventsCommand.eventsType,
-                        addEventsCommand.eventsDate,
+                        addEventsCommand.fromDate,
+                        addEventsCommand.toDate,
 
                         addEventsCommand.participants,
                         addEventsCommand.eventTime,
@@ -151,7 +152,7 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                     await _getUserScopedData.GetUserScopedData<Events>();
 
                 var finalQuery = events.Where(x => x.IsActive == true 
-                && x.AcademicYearId == academicYearId
+                && x.AcademicYearId == academicYearId && x.SchoolId == currentSchoolId
                 && x.FyId == fyId).AsNoTracking();
 
                 var data = events.ToList();
@@ -222,7 +223,7 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                 var eventsDictionary = query
                     .OrderByDescending(x => x.CreatedAt)
                     .AsEnumerable()
-                    .GroupBy(x => x.EventsDate)
+                    .GroupBy(x => x.FromDate)
                     .ToDictionary(
                         g => g.Key,
                         g => {
@@ -232,7 +233,8 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                                 title: x.Title,
                                 descriptions: x.Description,
                                 eventsType: x.EventsType,
-                                eventsDate: x.EventsDate,
+                                fromDate: x.FromDate,
+                                toDate: x.ToDate,
                                 participants: x.Participants,
                                 eventTime: x.EventTime ?? default,
                                 venue: x.Venue,
@@ -310,7 +312,8 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                     i.Title,
                     i.Description,
                     i.EventsType,
-                    i.EventsDate,
+                    i.FromDate,
+                    i.ToDate,
                     i.Participants,
                     i.EventTime ?? default,
                     i.Venue,
@@ -403,7 +406,8 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                             dataToBeUpdated.Title,
                             dataToBeUpdated.Description,
                             dataToBeUpdated.EventsType,
-                            dataToBeUpdated.EventsDate,
+                            dataToBeUpdated.FromDate,
+                            dataToBeUpdated.ToDate,
                             dataToBeUpdated.Participants,
                             dataToBeUpdated.EventTime ?? default,
                             dataToBeUpdated.Venue,

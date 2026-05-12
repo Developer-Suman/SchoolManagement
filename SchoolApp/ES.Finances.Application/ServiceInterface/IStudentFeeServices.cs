@@ -3,11 +3,13 @@ using ES.Finances.Application.Finance.Command.Fee.AddStudentFee;
 using ES.Finances.Application.Finance.Command.Fee.AssignMonthlyFee;
 using ES.Finances.Application.Finance.Command.Fee.UpdateFeeType;
 using ES.Finances.Application.Finance.Command.Fee.UpdateStudentFee;
+using ES.Finances.Application.Finance.Queries.Fee.DueSlip;
 using ES.Finances.Application.Finance.Queries.Fee.FilterFeeStructure;
 using ES.Finances.Application.Finance.Queries.Fee.FilterStudentFee;
 using ES.Finances.Application.Finance.Queries.Fee.StudentFee;
 using ES.Finances.Application.Finance.Queries.Fee.StudentFeeById;
 using ES.Finances.Application.Finance.Queries.Fee.StudentFeeSummary;
+using ES.Finances.Application.Finance.Queries.Fee.TotalFeeDetails;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,7 +27,10 @@ namespace ES.Finances.Application.ServiceInterface
         Task<Result<PagedResult<StudentFeeResponse>>> StudentFee(PaginationRequest paginationRequest, CancellationToken cancellationToken = default);
         Task<Result<PagedResult<FilterStudentFeeResponse>>> Filter(PaginationRequest paginationRequest, FilterStudentFeeDTOs filterStudentFeeDTOs);
         Task<Result<StudentFeeByIdResponse>> GetStudentFee(string id, CancellationToken cancellationToken = default);
+        Task<Result<TotalFeeDetailsResponse>> GetTotalFeeDetails();
         Task<Result<PagedResult<StudentFeeSummaryResponse>>> GetStudentFeeSummary(PaginationRequest paginationRequest, StudentFeeSummaryDTOs studentFeeSummaryDTOs);
         Task<Result<UpdateStudentFeeResponse>> Update(string studentFeeId, UpdateStudentFeeCommand updateStudentFeeCommand);
+
+        Task<Result<PagedResult<DueSlipResponse>>> GetDueSlip(PaginationRequest paginationRequest, DueSlipDTOs dueSlipDTOs);
     }
 }

@@ -29,8 +29,8 @@ namespace ES.Academics.Application.Academics.Command.Events.DeleteEvents
                    .Replace("Command", "");
             try
             {
-                var deleteEvents = await _eventsServices.Delete(request.Id, cancellationToken);
-                if (deleteEvents is null)
+                var deleteResult = await _eventsServices.Delete(request.Id, cancellationToken);
+                if (deleteResult is null)
                 {
                     return Result<bool>.Failure("NotFound", $"{entityName} not Found");
                 }

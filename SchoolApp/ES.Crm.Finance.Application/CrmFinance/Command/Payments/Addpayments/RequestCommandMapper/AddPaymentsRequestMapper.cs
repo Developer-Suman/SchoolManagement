@@ -15,9 +15,7 @@ namespace ES.Crm.Finance.Application.CrmFinance.Command.Payments.Addpayments.Req
                 request.invoiceId,
                 request.amount,
                 request.paymentDate,
-                request.paymentMethod,
-                request.referenceNumber,
-                request.paymentStatus
+                request.paymentMethod
             );
         }
     }

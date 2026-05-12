@@ -1,7 +1,9 @@
 ﻿using ES.Enrolment.Application.Enrolments.Command.Appointment.AddAppointment;
 using ES.Enrolment.Application.Enrolments.Command.FollowUp.AddFollowUp;
+using ES.Enrolment.Application.Enrolments.Command.FollowUp.UpdateFollowUp;
 using ES.Enrolment.Application.Enrolments.Queries.Appointments.FilterAppointment;
 using ES.Enrolment.Application.Enrolments.Queries.FollowUp.FilterFollowUp;
+using ES.Enrolment.Application.Enrolments.Queries.FollowUp.FollowUpId;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,6 +18,11 @@ namespace ES.Enrolment.Application.ServiceInterface
     {
         Task<Result<AddFollowUpResponse>> Add(AddFollowUpCommand addFollowUpCommand);
 
+        Task<Result<UpdateFollowUpResponse>> Update(string followUpId, UpdateFollowUpCommand updateFollowUpCommand);
+        Task<Result<bool>> Delete(string id, CancellationToken cancellationToken);
+
         Task<Result<PagedResult<FilterFollowUpResponse>>> Filter(PaginationRequest paginationRequest, FilterFollowUpDTOs filterFollowUpDTOs);
+
+        Task<Result<FollowUpIdResponse>> Get(string followUpId, CancellationToken cancellationToken = default);
     }
 }
