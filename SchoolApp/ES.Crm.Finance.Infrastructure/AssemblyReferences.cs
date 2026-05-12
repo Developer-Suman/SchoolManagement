@@ -16,6 +16,7 @@ namespace ES.Crm.Finance.Infrastructure
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             #region Inject Dependencies
             services.AddScoped<IInstallmentServices, InstallmentServices>();
+            services.AddScoped<IInvoiceServices, InvoiceServices>();
             services.AddScoped<IPaymentServices, PaymentServices>();
             #endregion
             return services;

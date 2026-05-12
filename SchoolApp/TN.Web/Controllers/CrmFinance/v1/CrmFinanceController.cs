@@ -1,8 +1,11 @@
-﻿using ES.Crm.Finance.Application.CrmFinance.Command.InstallmentsPlan.AddInstallmentsPlan;
+﻿using System.Text.Json;
+using ES.Academics.Application.Academics.Command.UpdateExamResult;
+using ES.Crm.Finance.Application.CrmFinance.Command.InstallmentsPlan.AddInstallmentsPlan;
 using ES.Crm.Finance.Application.CrmFinance.Command.InstallmentsPlan.AddInstallmentsPlan.RequestCommandMapper;
-using ES.Crm.Finance.Application.CrmFinance.Command.InstallmentsPlan.DeleteInstallmentsPlan;
-using ES.Crm.Finance.Application.CrmFinance.Command.InstallmentsPlan.UpdateInstallmentsPlan;
-using ES.Crm.Finance.Application.CrmFinance.Command.InstallmentsPlan.UpdateInstallmentsPlan.RequestCommandMapper;
+using ES.Crm.Finance.Application.CrmFinance.Command.Invoice.AddInvoice;
+using ES.Crm.Finance.Application.CrmFinance.Command.Invoice.AddInvoice.RequestCommandMapper;
+using ES.Crm.Finance.Application.CrmFinance.Command.Invoice.UpdateInvoice;
+using ES.Crm.Finance.Application.CrmFinance.Command.Invoice.UpdateInvoice.RequestCommandMapper;
 using ES.Crm.Finance.Application.CrmFinance.Command.Payments.Addpayments;
 using ES.Crm.Finance.Application.CrmFinance.Command.Payments.Addpayments.RequestCommandMapper;
 using ES.Crm.Finance.Application.CrmFinance.Command.Payments.DeletePayments;
@@ -19,8 +22,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using NV.Payment.Application.Payment.Command.DeletePayment;
-using System.Text.Json;
 using TN.Authentication.Domain.Entities;
 using TN.Shared.Domain.ExtensionMethod.Pagination;
 using TN.Web.BaseControllers;
@@ -41,6 +42,71 @@ namespace TN.Web.Controllers.CrmFinance.v1
             _authorizationService = authorizationService;
 
         }
+
+
+        #region Invoice
+
+        #region UpdateInvoice
+        [HttpPatch("UpdateInvoice/{id}")]
+
+        public async Task<IActionResult> UpdateInvoice([FromRoute] string id, [FromBody] UpdateInvoiceRequest request)
+        {
+            //Mapping command and request
+            var command = request.ToCommand(id);
+            var updateInvoiceDetails = await _mediator.Send(command);
+            #region Switch Statement
+            return updateInvoiceDetails switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(updateInvoiceDetails.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = updateInvoiceDetails.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(updateInvoiceDetails.Errors),
+                _ => BadRequest("Invalid Fields for Update Invoice")
+            };
+
+            #endregion
+        }
+        #endregion
+
+        #region AddInvoice
+        [HttpPost("AddInvoice")]
+
+        public async Task<IActionResult> AddInvoice([FromBody] AddInvoiceRequest request)
+        {
+            var command = request.ToCommand();
+            var addResult = await _mediator.Send(command);
+            #region Switch Statement
+            return addResult switch
+            {
+                { IsSuccess: true, Data: not null } => CreatedAtAction(
+                nameof(AddInstallmentsPlan),
+                new { id = addResult.Data.id },
+                new
+                {
+                    Data = addResult.Data,
+                    Message = addResult.Message,
+                    StatusCode = StatusCodes.Status201Created
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = addResult.Message
+                }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(addResult.Errors),
+                _ => BadRequest("Invalid Fields ")
+
+            };
+
+            #endregion
+        }
+        #endregion
+
+
+
+        #endregion
+
 
         #region InstallmentsPlan
         #region AddInstallmentsPlan
