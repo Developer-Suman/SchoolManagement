@@ -9,6 +9,7 @@ namespace TN.Shared.Domain.IRepository
     {
         Task<string> GenerateBillNumberAsync(string schoolId, string billType, string fyName);
         Task<string> GenerateSchoolReceipt(string schoolId);
+        Task<string> GenerateCrmReferenceNumber(string schoolId);
 
         Task<string> GenerateTransactionNumber(string schoolId, string transactionNumberType, string fyName);
         Task<string> GenerateJournalReference(string schoolId);

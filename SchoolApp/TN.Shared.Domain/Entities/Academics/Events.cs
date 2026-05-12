@@ -24,7 +24,8 @@ namespace TN.Shared.Domain.Entities.Academics
             string title,
             string? descriptions,
             EventType eventsType,
-            string eventsDate,
+            string fromDate,
+            string toDate,
             string participants,
             TimeOnly ? eventTime,
             string venue,
@@ -46,7 +47,8 @@ namespace TN.Shared.Domain.Entities.Academics
             Title = title;
             Description = descriptions;
             EventsType = eventsType;
-            EventsDate = eventsDate;
+            FromDate = fromDate;
+            ToDate = toDate;
             Participants = participants;
             EventTime = eventTime;
             Venue = venue;
@@ -74,7 +76,8 @@ namespace TN.Shared.Domain.Entities.Academics
         public string Title { get;set; }
         public string? Description { get;set; }
         public EventType? EventsType { get; set; }
-        public string EventsDate { get; set; }
+        public string FromDate { get; set; }
+        public string ToDate { get; set; }
         public string Participants { get; set; }
         public TimeOnly? EventTime { get; set; }
         public string Venue { get; set; }

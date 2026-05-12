@@ -12,8 +12,8 @@ namespace ES.Crm.Finance.Application.CrmFinance.Command.InstallmentsPlan.AddInst
     {
         public AddInstallmentsPlanCommandValidator()
         {
-            RuleFor(x => x.invoiceId)
-               .NotEmpty().WithMessage("InvoiceId is required.");
+            RuleFor(x => x.applicantId)
+               .NotEmpty().WithMessage("ApplicantId is required.");
 
             RuleFor(x => x.numberOfInstallments)
                .GreaterThan(0).WithMessage("Number of installments must be greater than zero.");

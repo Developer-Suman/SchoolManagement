@@ -52,6 +52,7 @@ namespace TN.Shared.Domain.Entities.Crm.Enrollments
             IsActive = isActive;
             SchoolId = schoolId;
             AppointmentStatus = appointmentStatus;
+            FollowUps = new List<FollowUp>();
 
 
         }
@@ -84,8 +85,9 @@ namespace TN.Shared.Domain.Entities.Crm.Enrollments
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public string ModifiedBy { get; set; }
         public DateTime ModifiedAt { get; set; } = DateTime.UtcNow;
-   
-    }
+        public ICollection<FollowUp> FollowUps { get; set; }
+
+        }
 }
 
 //public async Task<List<Appointment>> GetCounselorAppointments(Guid counselorId)

@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TN.Shared.Domain.Entities.Crm.AcademicsPrograms;
 using TN.Shared.Domain.Entities.Crm.Enrollments;
+using TN.Shared.Domain.Entities.Crm.Finance;
 using TN.Shared.Domain.Entities.Crm.Profile;
 using TN.Shared.Domain.Entities.Crm.Visa;
 using TN.Shared.Domain.Primitive;
@@ -48,6 +49,7 @@ namespace TN.Shared.Domain.Entities.Crm.Applicant
             TrainingRegistrations = new List<TrainingRegistration>();
             Documents= new List<Document>();
             VisaApplications = new List<VisaApplication>();
+            Invoices = new List<Invoice>();
 
         }
         public string SchoolId { get; set; }
@@ -70,6 +72,7 @@ namespace TN.Shared.Domain.Entities.Crm.Applicant
         public ICollection<TrainingRegistration> TrainingRegistrations { get;set; }
         public ICollection<Document> Documents  { get;set; }
         public ICollection<VisaApplication> VisaApplications { get;set; }
+        public ICollection<Invoice> Invoices { get;set; }
 
     }
 }

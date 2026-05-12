@@ -3,6 +3,8 @@
     public record FilterInstallmentPlanResponse
     (
         string id="",
+        string invoiceNumber="",
+        string applicantName="",
             string invoiceId="",
             int numberOfInstallments=0,
             decimal totalAmount=0,

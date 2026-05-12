@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using ES.Enrolment.Application.Enrolments.Command.TranningRegistration.AddTranningRegistration;
 using ES.Enrolment.Application.ServiceInterface;
 using MediatR;
 using System;
@@ -25,14 +26,17 @@ namespace ES.Enrolment.Application.Enrolments.Queries.Counselors.FilterCounselor
         }
         public async Task<Result<PagedResult<FilterCounselorResponse>>> Handle(FilterCounselorQuery request, CancellationToken cancellationToken)
         {
+            var entityName = typeof(FilterCounselorQuery).Name
+               .Replace("Filter", "")
+               .Replace("Query", "");
             try
             {
-
+                
                 var result = await _counselorServices.FilterCounselor(request.paginationRequest, request.filterCounselorDTOs);
 
                 var resultDisplay = _mapper.Map<PagedResult<FilterCounselorResponse>>(result.Data);
 
-                return Result<PagedResult<FilterCounselorResponse>>.Success(resultDisplay);
+                return Result<PagedResult<FilterCounselorResponse>>.Success(resultDisplay, $"{entityName} return Successfully");
             }
             catch (Exception ex)
             {

@@ -39,7 +39,7 @@ namespace ES.Crm.Finance.Application.CrmFinance.Command.InstallmentsPlan.AddInst
                     return Result<AddInstallmentsPlanResponse>.Failure(errors);
                 }
 
-                var add = await _installmentServices.AddInstallmentPlan(request);
+                var add = await _installmentServices.Add(request);
 
                 if (add.Errors.Any())
                 {

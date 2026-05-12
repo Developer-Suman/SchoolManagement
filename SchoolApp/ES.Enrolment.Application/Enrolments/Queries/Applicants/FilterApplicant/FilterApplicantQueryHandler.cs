@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using ES.Enrolment.Application.Enrolments.Command.TranningRegistration.AddTranningRegistration;
 using ES.Enrolment.Application.ServiceInterface;
 using MediatR;
 using TN.Shared.Domain.Abstractions;
@@ -18,14 +19,17 @@ namespace ES.Enrolment.Application.Enrolments.Queries.Applicants.FilterApplicant
         }
         public async Task<Result<PagedResult<FilterApplicantResponse>>> Handle(FilterApplicantQuery request, CancellationToken cancellationToken)
         {
-            try
+            var entityName = typeof(FilterApplicantQuery).Name
+           .Replace("Filter", "")
+           .Replace("Query", "");
+                    try
             {
 
                 var result = await _enrolmentServices.FilterApplicant(request.PaginationRequest, request.FilterApplicantDTOs);
 
                 var resultDisplay = _mapper.Map<PagedResult<FilterApplicantResponse>>(result.Data);
 
-                return Result<PagedResult<FilterApplicantResponse>>.Success(resultDisplay);
+                return Result<PagedResult<FilterApplicantResponse>>.Success(resultDisplay, $"{entityName} Added Successfully");
             }
             catch (Exception ex)
             {

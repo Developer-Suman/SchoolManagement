@@ -9,19 +9,19 @@ namespace ES.Enrolment.Application.Enrolments.Queries.Appointments.FilterAppoint
 {
     public record FilterAppointmentResponse
     (
-            string id,
-            string leadId,
-            TimeOnly startTime,
-            TimeOnly endTime,
-            DateTime appointmentDate,
-            string counselorId,
-            string notes,
-            AppointmentStatus appointmentStatus,
-            bool isActive,
-            string schoolId,
-            string createdBy,
-            DateTime createdAt,
-            string modifiedBy,
-            DateTime modifiedAt
+            string id="",
+            string leadId="",
+            TimeOnly startTime=default,
+            TimeOnly endTime=default,
+            DateTime appointmentDate=default,
+            string counselorId="",
+            string notes="",
+            AppointmentStatus appointmentStatus=default,
+            bool isActive=default,
+            string schoolId="",
+            string createdBy="",
+            DateTime createdAt=default,
+            string modifiedBy="",
+            DateTime modifiedAt=default
         );
 }

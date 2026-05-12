@@ -101,7 +101,8 @@ namespace ES.Student.Infrastructure.ServiceImpl
                     i.Events.Title,
                     i.Events.Description,
                     i.Events.EventsType,
-                    i.Events.EventsDate,
+                    i.Events.FromDate,
+                    i.Events.ToDate,
                     i.Events.EventTime,
                     i.Events.Venue,
                     i.Events.ChiefGuest,
@@ -232,6 +233,24 @@ namespace ES.Student.Infrastructure.ServiceImpl
                     var FyId = _fiscalContext.CurrentFiscalYearId;
                     var schoolId = _tokenService.SchoolId().FirstOrDefault() ?? "";
                     var userId = _tokenService.GetUserId();
+
+                    var alreadyExists = await _unitOfWork
+                        .BaseRepository<Participation>()
+                        .AnyAsync(x =>
+                            x.StudentId == addParticipationCommand.studentId &&
+                            x.ActivityId == addParticipationCommand.activityId &&
+                            x.AwardPosition == addParticipationCommand.awardPosition &&
+                            x.SchoolId == schoolId &&
+                            x.IsActive);
+
+                    if (alreadyExists)
+                    {
+                        return Result<AddParticipationResponse>.Failure(
+                            "This student participation with award position is already reserved."
+                        );
+                    }
+
+
 
                     var add = new Participation(
                         newId,

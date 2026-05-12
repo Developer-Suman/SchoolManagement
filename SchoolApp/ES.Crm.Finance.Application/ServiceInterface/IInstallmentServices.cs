@@ -1,4 +1,5 @@
 ﻿using ES.Crm.Finance.Application.CrmFinance.Command.InstallmentsPlan.AddInstallmentsPlan;
+using ES.Crm.Finance.Application.CrmFinance.Command.InstallmentsPlan.UpdateInstallmentsPlan;
 using ES.Crm.Finance.Application.CrmFinance.Queries.InstallmentsPlan.FilterInstallmentPlan;
 using ES.Crm.Finance.Application.CrmFinance.Queries.InstallmentsPlan.InstallmentPlan;
 using System;
@@ -13,12 +14,12 @@ namespace ES.Crm.Finance.Application.ServiceInterface
 {
     public interface IInstallmentServices
     {
-        Task<Result<AddInstallmentsPlanResponse>> AddInstallmentPlan(AddInstallmentsPlanCommand addInstallmentsPlanCommand);
+        Task<Result<AddInstallmentsPlanResponse>> Add(AddInstallmentsPlanCommand addInstallmentsPlanCommand);
       
-        Task<Result<InstallmentPlanResponse>> GetInstallmentPlan(string installmentPlanId, CancellationToken cancellationToken = default);
-        //Task<Result<UpdateVisaApplicationResponse>> UpdateVisaApplication(string visaApplicationId, UpdateVisaApplicationCommand updateVisaApplicationCommand);
-        //Task<Result<bool>> DeleteVisaApplication(string id, CancellationToken cancellationToken);
+        Task<Result<InstallmentPlanResponse>> Get(string installmentPlanId, CancellationToken cancellationToken = default);
+        Task<Result<UpdateInstallmentsPlanResponse>> Update(string installmentPlanId, UpdateInstallmentsPlanCommand updateInstallmentsPlanCommand);
+        Task<Result<bool>> Delete(string id, CancellationToken cancellationToken);
        
-        Task<Result<PagedResult<FilterInstallmentPlanResponse>>> GetFilterInstallmentPlan(PaginationRequest paginationRequest, FilterInstallmentPlanDTOs filterInstallmentPlanDTOs);
+        Task<Result<PagedResult<FilterInstallmentPlanResponse>>> Filter(PaginationRequest paginationRequest, FilterInstallmentPlanDTOs filterInstallmentPlanDTOs);
     }
 }

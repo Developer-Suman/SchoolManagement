@@ -9,7 +9,9 @@ namespace ES.Academics.Application.Academics.Command.AddExam
     public record AddExamSubjectDTOs
     (
         string subjectId,
-            int passMarks,
-            int fullMarks
+        int passMarksPr,
+        int fullMarksPr,
+        int passMarksTh,
+        int fullMarksTh
         );
 }

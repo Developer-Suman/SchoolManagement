@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using ES.Enrolment.Application.Enrolments.Command.FollowUp.DeleteFollowUp;
 using ES.Enrolment.Application.ServiceInterface;
 using MediatR;
 using TN.Shared.Domain.Abstractions;
@@ -19,6 +20,9 @@ namespace ES.Enrolment.Application.Enrolments.Queries.TrainingRegistration.Filte
         }
         public async Task<Result<PagedResult<FilterTrainingRegistrationResponse>>> Handle(FilterTrainingRegistrationQuery request, CancellationToken cancellationToken)
         {
+            var entityName = typeof(FilterTrainingRegistrationQuery).Name
+               .Replace("Filter", "")
+               .Replace("Query", "");
             try
             {
 
@@ -26,7 +30,7 @@ namespace ES.Enrolment.Application.Enrolments.Queries.TrainingRegistration.Filte
 
                 var resultDisplay = _mapper.Map<PagedResult<FilterTrainingRegistrationResponse>>(result.Data);
 
-                return Result<PagedResult<FilterTrainingRegistrationResponse>>.Success(resultDisplay);
+                return Result<PagedResult<FilterTrainingRegistrationResponse>>.Success(resultDisplay, $"{entityName} return Successfully");
             }
             catch (Exception ex)
             {

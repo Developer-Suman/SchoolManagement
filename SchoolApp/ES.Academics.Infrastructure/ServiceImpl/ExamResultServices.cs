@@ -556,7 +556,7 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                             subject.Name,
                             subject.ExamSubjects
                                 .Where(x => x.ExamId == subjectByClassDTOs.examId)
-                                .Select(x => x.FullMarks)
+                                .Select(x => x.FullMarksPr + x.FullMarksTh)
                                 .FirstOrDefault()
                         ))
                         .ToList();

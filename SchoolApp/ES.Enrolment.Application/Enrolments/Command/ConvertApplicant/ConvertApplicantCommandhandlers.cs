@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using ES.Enrolment.Application.Enrolments.Command.TranningRegistration.AddTranningRegistration;
 using ES.Enrolment.Application.ServiceInterface;
 using FluentValidation;
 using MediatR;
@@ -25,6 +26,9 @@ namespace ES.Enrolment.Application.Enrolments.Command.ConvertApplicant
         }
         public async Task<Result<ConvertApplicantResponse>> Handle(ConvertApplicantCommand request, CancellationToken cancellationToken)
         {
+            var entityName = typeof(ConvertApplicantCommand).Name
+                .Replace("Convert", "")
+                .Replace("Command", "");
             try
             {
                 var validationResult = await _validator.ValidateAsync(request, cancellationToken);
@@ -48,7 +52,7 @@ namespace ES.Enrolment.Application.Enrolments.Command.ConvertApplicant
                 }
 
                 var addDisplay = _mapper.Map<ConvertApplicantResponse>(convert.Data);
-                return Result<ConvertApplicantResponse>.Success(addDisplay);
+                return Result<ConvertApplicantResponse>.Success(addDisplay, $"{entityName} converted Successfully");
 
 
             }

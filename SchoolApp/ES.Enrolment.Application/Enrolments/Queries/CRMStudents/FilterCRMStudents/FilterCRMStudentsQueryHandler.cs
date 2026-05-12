@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using ES.Enrolment.Application.Enrolments.Command.TranningRegistration.AddTranningRegistration;
 using ES.Enrolment.Application.ServiceInterface;
 using MediatR;
 using System;
@@ -22,6 +23,9 @@ namespace ES.Enrolment.Application.Enrolments.Queries.CRMStudents.FilterCRMStude
         }
         public async Task<Result<PagedResult<FilterCRMStudentsResponse>>> Handle(FilterCRMStudentsQuery request, CancellationToken cancellationToken)
         {
+            var entityName = typeof(FilterCRMStudentsQuery).Name
+                   .Replace("Filter", "")
+                   .Replace("Query", "");
             try
             {
 
@@ -29,7 +33,7 @@ namespace ES.Enrolment.Application.Enrolments.Queries.CRMStudents.FilterCRMStude
 
                 var resultDisplay = _mapper.Map<PagedResult<FilterCRMStudentsResponse>>(result.Data);
 
-                return Result<PagedResult<FilterCRMStudentsResponse>>.Success(resultDisplay);
+                return Result<PagedResult<FilterCRMStudentsResponse>>.Success(resultDisplay, $"{entityName} return Successfully");
             }
             catch (Exception ex)
             {

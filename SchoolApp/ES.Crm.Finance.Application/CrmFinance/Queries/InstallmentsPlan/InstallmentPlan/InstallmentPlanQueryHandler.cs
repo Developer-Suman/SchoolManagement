@@ -26,7 +26,7 @@ namespace ES.Crm.Finance.Application.CrmFinance.Queries.InstallmentsPlan.Install
             try
             {
 
-                var query = await _installmentServices.GetInstallmentPlan(request.id);
+                var query = await _installmentServices.Get(request.id);
                 return Result<InstallmentPlanResponse>.Success(query.Data);
 
             }

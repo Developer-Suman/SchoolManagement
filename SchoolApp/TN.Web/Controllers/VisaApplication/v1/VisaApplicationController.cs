@@ -1,10 +1,10 @@
-﻿using System.Text.Json;
-using ES.Academics.Application.Academics.Command.Events.AddEvents;
+﻿using ES.Academics.Application.Academics.Command.Events.AddEvents;
 using ES.Academics.Application.Academics.Command.Events.DeleteEvents;
 using ES.Academics.Application.Academics.Command.Events.UpdateEvents;
 using ES.Academics.Application.Academics.Queries.Events.Events;
 using ES.Academics.Application.Academics.Queries.Events.EventsById;
 using ES.Academics.Application.Academics.Queries.Events.FilterEvents;
+using ES.Crm.Finance.Application.CrmFinance.Queries.InstallmentsPlan.FilterInstallmentPlan;
 using ES.Visa.Application.Visa.Command.VisaApplication.AddVisaApplication;
 using ES.Visa.Application.Visa.Command.VisaApplication.AddVisaApplication.RequestCommandMapper;
 using ES.Visa.Application.Visa.Command.VisaApplication.DeleteVisaApplication;
@@ -26,6 +26,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
 using TN.Authentication.Domain.Entities;
 using TN.Shared.Domain.ExtensionMethod.Pagination;
 using TN.Web.BaseControllers;
@@ -193,16 +194,24 @@ namespace TN.Web.Controllers.VisaApplication.v1
         [HttpGet("FilterVisaStatus")]
         public async Task<IActionResult> FilterVisaStatus([FromQuery] FilterVisaStatusDTOs filterVisaStatusDTOs, [FromQuery] PaginationRequest paginationRequest)
         {
+
             var query = new FilterVisaStatusQuery(paginationRequest, filterVisaStatusDTOs);
             var filteredResult = await _mediator.Send(query);
             #region Switch Statement
             return filteredResult switch
             {
-                { IsSuccess: true, Data: not null } => new JsonResult(filteredResult.Data, new JsonSerializerOptions
+                { IsSuccess: true, Data: not null } => Ok(new
                 {
-                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                    Data = filteredResult.Data,
+                    Message = filteredResult.Message,
+                    StatusCode = StatusCodes.Status200OK
                 }),
-                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = filteredResult.Message }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = filteredResult.Message,
+                    Data = (object?)null
+                }),
                 { IsSuccess: false, Errors: not null } => HandleFailureResult(filteredResult.Errors),
                 _ => BadRequest("Invalid page and pageSize Fields")
             };
@@ -334,16 +343,24 @@ namespace TN.Web.Controllers.VisaApplication.v1
         [HttpGet("FilterVisaApplication")]
         public async Task<IActionResult> FilterVisaApplication([FromQuery] FilterVisaApplicationDTOs filterVisaApplicationDTOs, [FromQuery] PaginationRequest paginationRequest)
         {
+
             var query = new FilterVisaApplicationQuery(paginationRequest, filterVisaApplicationDTOs);
             var filteredResult = await _mediator.Send(query);
             #region Switch Statement
             return filteredResult switch
             {
-                { IsSuccess: true, Data: not null } => new JsonResult(filteredResult.Data, new JsonSerializerOptions
+                { IsSuccess: true, Data: not null } => Ok(new
                 {
-                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                    Data = filteredResult.Data,
+                    Message = filteredResult.Message,
+                    StatusCode = StatusCodes.Status200OK
                 }),
-                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = filteredResult.Message }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = filteredResult.Message,
+                    Data = (object?)null
+                }),
                 { IsSuccess: false, Errors: not null } => HandleFailureResult(filteredResult.Errors),
                 _ => BadRequest("Invalid page and pageSize Fields")
             };

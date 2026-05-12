@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using ES.Enrolment.Application.Enrolments.Command.TranningRegistration.AddTranningRegistration;
 using ES.Enrolment.Application.ServiceInterface;
 using MediatR;
 using System;
@@ -24,6 +25,9 @@ namespace ES.Enrolment.Application.Enrolments.Queries.Appointments.FilterAppoint
         }
         public async Task<Result<PagedResult<FilterAppointmentResponse>>> Handle(FilterAppointmentQuery request, CancellationToken cancellationToken)
         {
+            var entityName = typeof(FilterAppointmentQuery).Name
+                   .Replace("Filter", "")
+                   .Replace("Query", "");
             try
             {
 
@@ -31,7 +35,7 @@ namespace ES.Enrolment.Application.Enrolments.Queries.Appointments.FilterAppoint
 
                 var resultDisplay = _mapper.Map<PagedResult<FilterAppointmentResponse>>(result.Data);
 
-                return Result<PagedResult<FilterAppointmentResponse>>.Success(resultDisplay);
+                return Result<PagedResult<FilterAppointmentResponse>>.Success(resultDisplay,$"{entityName} returned Successfully");
             }
             catch (Exception ex)
             {

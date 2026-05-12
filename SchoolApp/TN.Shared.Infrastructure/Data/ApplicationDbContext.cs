@@ -344,6 +344,17 @@ namespace TN.Shared.Infrastructure.Data
 
             #region Finance
 
+            #region Applicant and Invoice(1:m)
+            builder.Entity<Invoice>()
+            .HasOne(x => x.Applicant)
+            .WithMany(x => x.Invoices)
+            .HasForeignKey(x => x.ApplicantId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+            #endregion
+
+
+
             #region Installments and PaymentAllocation(1:m)
             builder.Entity<PaymentAllocation>()
             .HasOne(x => x.Installments)
@@ -596,6 +607,17 @@ namespace TN.Shared.Infrastructure.Data
             #endregion
 
             #region Appointments
+
+            #region Appointment and FollowUps(1:m)
+
+            builder.Entity<Appointment>()
+            .HasMany(x => x.FollowUps)
+            .WithOne(x => x.Appointment)
+            .HasForeignKey(x => x.Appointmentid);
+
+            #endregion
+
+
 
             #region Appointment and Lead(1:m)
 

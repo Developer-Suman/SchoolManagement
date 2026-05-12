@@ -13,7 +13,9 @@ using TN.Setup.Application.Setup.Queries.Modules;
 using TN.Setup.Application.Setup.Queries.ModulesById;
 using TN.Setup.Application.Setup.Queries.NavigationByUser;
 using TN.Setup.Domain.Entities;
+using TN.Shared.Application.ServiceInterface;
 using TN.Shared.Domain.Abstractions;
+using TN.Shared.Domain.Entities.Crm.Visa;
 using TN.Shared.Domain.Entities.Setup;
 using TN.Shared.Domain.ExtensionMethod.Pagination;
 using TN.Shared.Domain.IRepository;
@@ -28,13 +30,15 @@ namespace TN.Setup.Infrastructure.ServiceImpl
         private readonly IMemoryCacheRepository _memoryCacheRepository;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly ApplicationDbContext _applicationDbContext;
+        private readonly IGetUserScopedData _getUserScopedData;
 
-        public ModuleService(IUnitOfWork unitOfWork,ApplicationDbContext applicationDbContext, IMapper mapper,RoleManager<IdentityRole> roleManager, IMemoryCacheRepository memoryCacheRepository)
+        public ModuleService(IUnitOfWork unitOfWork, IGetUserScopedData getUserScopedData, ApplicationDbContext applicationDbContext, IMapper mapper,RoleManager<IdentityRole> roleManager, IMemoryCacheRepository memoryCacheRepository)
 
         {
             _roleManager = roleManager;
             _mapper = mapper;
-            _memoryCacheRepository= memoryCacheRepository;
+            _getUserScopedData = getUserScopedData;
+            _memoryCacheRepository = memoryCacheRepository;
             _unitOfWork = unitOfWork;
             _memoryCacheRepository = memoryCacheRepository;
             _applicationDbContext = applicationDbContext;
@@ -181,24 +185,57 @@ namespace TN.Setup.Infrastructure.ServiceImpl
         {
             try
             {
-                //var cachekeys = CacheKeys.Module;
-                //var cacheData = await _memoryCacheRepository.GetCacheKey<PagedResult<GetAllModulesResponse>>(cachekeys);
-                //if(cacheData is not null)
-                //{
-                //    return Result<PagedResult<GetAllModulesResponse>>.Success(cacheData);
-                //}
+                var (modules, schoolId, institutionId, userRole, isSuperAdmin) = await _getUserScopedData.GetUserScopedData<Modules>();
+                IQueryable<Modules> query = modules.AsQueryable();
 
-                var modules = await _unitOfWork.BaseRepository<Modules>().GetAllAsyncWithPagination();
-                var modulesPagedResult = await modules.AsNoTracking().ToPagedResultAsync(paginationRequest.pageIndex, paginationRequest.pageSize, paginationRequest.IsPagination);
-                var allModulesResponse = _mapper.Map<PagedResult<GetAllModulesResponse>>(modulesPagedResult.Data);
-               
-                //await _memoryCacheRepository.SetAsync(cachekeys, allModulesResponse,new Microsoft.Extensions.Caching.Memory.MemoryCacheEntryOptions 
-                //    {
-                //       AbsoluteExpiration=DateTimeOffset.Now.AddMinutes(30)
-                     
-                //    },cancellationToken); 
-                
-                return Result<PagedResult<GetAllModulesResponse>>.Success(allModulesResponse);
+                var responseList = query
+                  .Select(i => new GetAllModulesResponse(
+                      i.Id,
+                      i.Name,
+                      i.Description,
+                      i.IconUrl,
+                      i.Rank,
+                      i.TargetUrl,
+                      i.AppId,
+                      i.AppName.Name,
+                      i.IsActive
+                  ))
+                  .ToList();
+
+                PagedResult<GetAllModulesResponse> finalResponseList;
+
+                if (paginationRequest.IsPagination)
+                {
+
+                    int pageIndex = paginationRequest.pageIndex <= 0 ? 1 : paginationRequest.pageIndex;
+                    int pageSize = paginationRequest.pageSize <= 0 ? 10 : paginationRequest.pageSize;
+
+                    int totalItems = responseList.Count();
+
+                    var pagedItems = responseList
+                        .Skip((pageIndex - 1) * pageSize)
+                        .Take(pageSize)
+                        .ToList();
+
+                    finalResponseList = new PagedResult<GetAllModulesResponse>
+                    {
+                        Items = pagedItems,
+                        TotalItems = totalItems,
+                        PageIndex = pageIndex,
+                        pageSize = pageSize
+                    };
+                }
+                else
+                {
+                    finalResponseList = new PagedResult<GetAllModulesResponse>
+                    {
+                        Items = responseList.ToList(),
+                        TotalItems = responseList.Count(),
+                        PageIndex = 1,
+                        pageSize = responseList.Count()
+                    };
+                }
+                return Result<PagedResult<GetAllModulesResponse>>.Success(finalResponseList);
             }
             catch (Exception ex)
             {

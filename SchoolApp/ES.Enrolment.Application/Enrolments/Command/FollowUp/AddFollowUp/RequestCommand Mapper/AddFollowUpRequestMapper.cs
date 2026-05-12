@@ -18,7 +18,8 @@ namespace ES.Enrolment.Application.Enrolments.Command.AddFollowUp.RequestCommand
                 request.endTime,
                 request.followUpDate,
                 request.notes,
-                request.followUpStatus
+                request.followUpStatus,
+                request.appointmentId
                 );
         }
     }

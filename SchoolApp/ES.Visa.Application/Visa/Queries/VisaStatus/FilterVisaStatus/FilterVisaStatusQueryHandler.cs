@@ -25,6 +25,9 @@ namespace ES.Visa.Application.Visa.Queries.VisaStatus.FilterVisaStatus
         }
         public async Task<Result<PagedResult<FilterVisaStatusResponse>>> Handle(FilterVisaStatusQuery request, CancellationToken cancellationToken)
         {
+            var entityName = typeof(FilterVisaStatusQuery).Name
+              .Replace("Filter", "")
+              .Replace("Query", "");
             try
             {
 
@@ -32,7 +35,7 @@ namespace ES.Visa.Application.Visa.Queries.VisaStatus.FilterVisaStatus
 
                 var filterResult = _mapper.Map<PagedResult<FilterVisaStatusResponse>>(result.Data);
 
-                return Result<PagedResult<FilterVisaStatusResponse>>.Success(filterResult);
+                return Result<PagedResult<FilterVisaStatusResponse>>.Success(filterResult, $"{entityName} return successfully");
             }
             catch (Exception ex)
             {

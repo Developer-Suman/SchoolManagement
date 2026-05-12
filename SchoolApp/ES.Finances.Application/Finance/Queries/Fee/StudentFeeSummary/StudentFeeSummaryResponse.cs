@@ -16,6 +16,7 @@ namespace ES.Finances.Application.Finance.Queries.Fee.StudentFeeSummary
         decimal totalAmount=0,
          decimal dueAmount = 0,
          string schoolId="",
-         string? receiptNumber=""
+         string? receiptNumber="",
+        List<FeeStructureForFeeSummaryDTOs> FeeStructureForFeeSummaryDTOs = default
         );  
 }

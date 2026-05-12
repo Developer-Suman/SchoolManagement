@@ -76,8 +76,10 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                             Guid.NewGuid().ToString(),
                             newId,
                             es.subjectId,
-                            es.passMarks,
-                            es.fullMarks,
+                            es.passMarksPr,
+                            es.fullMarksPr,
+                            es.passMarksTh,
+                            es.fullMarksTh,
                             true
                             )
                        ).ToList()
@@ -192,8 +194,10 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                     (
                         x.Id,
                         x.SubjectId,
-                        x.PassMarks,
-                        x.FullMarks
+                        x.PassMarksPr,
+                        x.FullMarksPr,
+                        x.PassMarksTh,
+                        x.FullMarksTh
 
                     )
                     ).ToList());
@@ -258,7 +262,7 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                     i.Id,
                     i.Name,
                     i.ExamDate,
-                    i.ExamSubjects.Sum(x=>x.FullMarks),
+                    i.ExamSubjects.Sum(x => x.FullMarksPr + x.FullMarksTh),
                     i.SchoolId,
                     i.IsFinalExam,
                     i.ClassId
@@ -354,8 +358,10 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                             if (existingExamSubject != null)
                             {
                                 // ✅ Update / Reactivate
-                                existingExamSubject.PassMarks = subjectDto.passMarks;
-                                existingExamSubject.FullMarks = subjectDto.fullMarks;
+                                existingExamSubject.PassMarksPr = subjectDto.passMarksPr;
+                                existingExamSubject.FullMarksPr = subjectDto.fullMarksPr;
+                                existingExamSubject.PassMarksTh = subjectDto.passMarksTh;
+                                existingExamSubject.FullMarksTh = subjectDto.fullMarksTh    ;
                                 existingExamSubject.IsActive = true;
                                 _unitOfWork.BaseRepository<ExamSubject>().Update(existingExamSubject);
                             }
@@ -367,8 +373,10 @@ namespace ES.Academics.Infrastructure.ServiceImpl
                                     Id = Guid.NewGuid().ToString(),
                                     ExamId = examId,
                                     SubjectId = subjectDto.subjectId,
-                                    PassMarks = subjectDto.passMarks,
-                                    FullMarks = subjectDto.fullMarks,
+                                    PassMarksPr = subjectDto.passMarksPr,
+                                    FullMarksPr = subjectDto.fullMarksPr,
+                                    PassMarksTh = subjectDto.passMarksTh,
+                                    FullMarksTh = subjectDto.fullMarksTh,
                                     IsActive = true
                                 };
 
