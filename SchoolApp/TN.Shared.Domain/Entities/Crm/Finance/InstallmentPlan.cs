@@ -19,6 +19,7 @@ namespace TN.Shared.Domain.Entities.Crm.Finance
             string id,
             string invoiceId,
             int numberOfInstallments,
+            decimal baseAmount,
             decimal totalAmount,
             List<Installment> installments,
             bool isActive,
@@ -32,6 +33,7 @@ namespace TN.Shared.Domain.Entities.Crm.Finance
             InvoiceId = invoiceId;
             NumberOfInstallments = numberOfInstallments;
             TotalAmount = totalAmount;
+            BaseAmount = baseAmount;
             IsActive = isActive;
             SchoolId = schoolId;
             CreatedBy = createdBy;
@@ -40,6 +42,7 @@ namespace TN.Shared.Domain.Entities.Crm.Finance
             ModifiedAt = modifiedAt;
             Installments = installments;
         }
+        public decimal BaseAmount { get; set; }
 
         public string SchoolId { get; set; }
         public bool IsActive { get; set; }

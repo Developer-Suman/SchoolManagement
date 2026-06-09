@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
+using ES.AcademicPrograms.Application.AcademicPrograms.Queries.Country;
 using ES.AcademicPrograms.Application.AcademicPrograms.Queries.CourseByUniversity;
 using ES.AcademicPrograms.Application.ServiceInterface;
 using MediatR;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,17 +29,20 @@ namespace ES.AcademicPrograms.Application.AcademicPrograms.Queries.UniversityByC
 
         public async Task<Result<PagedResult<UniversityByCountryResponse>>> Handle(UniversityByCountryQuery request, CancellationToken cancellationToken)
         {
+            var entityName = typeof(UniversityByCountryQuery).Name
+                    .Replace("Filter", "")
+                    .Replace("Query", "");
             try
             {
 
                 var university = await _universityServices.GetUniversityByCountry(request.countryId, request.paginationRequest);
-                var allUniversityDetails = _mapper.Map<PagedResult<UniversityByCountryResponse>>(university.Data);
-                return Result<PagedResult<UniversityByCountryResponse>>.Success(allUniversityDetails);
+                var filterResult = _mapper.Map<PagedResult<UniversityByCountryResponse>>(university.Data);
+                return Result<PagedResult<UniversityByCountryResponse>>.Success(filterResult, $"{entityName} return successfully");
 
             }
             catch (Exception ex)
             {
-                throw new Exception("An error occurred while fetching University using countryId", ex);
+                throw;
             }
         }
     }

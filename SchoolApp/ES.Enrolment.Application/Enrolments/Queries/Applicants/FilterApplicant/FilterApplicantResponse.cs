@@ -9,20 +9,23 @@ namespace ES.Enrolment.Application.Enrolments.Queries.Applicants.FilterApplicant
 {
     public record FilterApplicantResponse
     (
-        string id,
-        string userId,
-        string fullName,
-        string email,
-        EnrolmentType enrolmentType,
-        string? passportNo,
-            string? countryId,
-            string? universityId,
-            string? courseId,
-            bool isActive,
-            string schoolId,
-            string createdBy,
-            DateTime createdAt,
-            string modifiedBy,
-            DateTime modifiedAt
+        string id ="",
+        string userId ="",
+        string fullName ="",
+        string email ="",
+        EnrolmentType enrolmentType = EnrolmentType.Applicant,
+        string? passportNo ="",
+        string? countryId ="",
+        string? countryName ="",
+        string? universityId ="",
+        string universityName ="",
+        string? courseId ="",
+            string? courseName="",
+            bool isActive=true,
+            string schoolId="",
+            string createdBy="",
+            DateTime createdAt=default,
+            string modifiedBy="",
+            DateTime modifiedAt=default
         );
 }

@@ -21,8 +21,7 @@ namespace ES.Visa.Application.Visa.Command.VisaApplication.AddVisaApplication.Re
                 request.visaStatusId,
                 request.visaDetails,
                 request.emailSent,
-                request.emailContent,
-                request.visaApplicationDocumentsDTOs
+                request.emailContent
                 );
         }
     }

@@ -153,6 +153,7 @@ namespace TN.Reports.Infrastructure.ServiceImpl
                             group.First().TransactionDate,
                             p.BillNumber,
                             p.LedgerId,
+                            
                             p.PaymentId,
                             p.ReferenceNumber,
                             p.JournalEntry.ReferenceNumber,

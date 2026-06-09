@@ -33,5 +33,7 @@ namespace ES.AcademicPrograms.Application.ServiceInterface
         Task<Result<PagedResult<FilterDocumentsTypeResponse>>> FilterDocumentsType(FilterDocumentsTypeDTOs filterDocumentsTypeDTOs, PaginationRequest paginationRequest);
 
         Task<Result<PagedResult<AddDocumentsTypeResponse>>> DocumentsType(PaginationRequest paginationRequest, CancellationToken cancellationToken = default);
+        Task<Result<bool>> Delete(string id, CancellationToken cancellationToken);
+
     }
 }

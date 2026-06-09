@@ -8,7 +8,9 @@ namespace ES.AcademicPrograms.Application.AcademicPrograms.Queries.FilterRequire
 {
     public record DocCheckListDTOs
    (
+        string id="",
         string documenteTypeId="",
+        string documenteTypeName="",
         bool? isRequired = true
         );
 }

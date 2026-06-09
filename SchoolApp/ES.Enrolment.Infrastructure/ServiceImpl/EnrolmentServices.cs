@@ -304,8 +304,16 @@ namespace ES.Enrolment.Infrastructure.ServiceImpl
                     );
 
                 var filter = isSuperAdmin
-                    ? crmApplicant.Include(x => x.Profile)
-                    : crmApplicant.Include(x => x.Profile)
+                    ? crmApplicant
+                     .Include(x => x.Profile)
+                    .Include(x => x.Country)
+                    .ThenInclude(u=>u.Universities)
+                    .ThenInclude(c=>c.Courses)
+                    : crmApplicant
+                    .Include(x => x.Profile)
+                    .Include(x => x.Country)
+                    .ThenInclude(u => u.Universities)
+                    .ThenInclude(c => c.Courses)
                .Where(x => x.SchoolId == _tokenService.SchoolId().FirstOrDefault() || x.SchoolId == "");
 
                 IQueryable<CrmApplicant> query = filter.AsQueryable();
@@ -325,8 +333,7 @@ namespace ES.Enrolment.Infrastructure.ServiceImpl
                     query = query.Where(x => x.CreatedAt >= startUtc && x.CreatedAt <= endUtc);
                 }
 
-                query = query.Where(x => x.IsActive)
-               .OrderByDescending(x => x.CreatedAt);
+                query = query.Where(x => x.IsActive);
 
 
 
@@ -341,8 +348,11 @@ namespace ES.Enrolment.Infrastructure.ServiceImpl
                     i.Profile.EnrolmentType,
                     i.PassportNumber,
                     i.CountryId,
+                    i.Country != null ? i.Country.Name : "",
                     i.UniversityId,
+                    i.University != null ? i.University.Name : "",
                     i.CourseId,
+                    i.Course != null ? i.Course.Title : "",
                     i.IsActive,
                     i.SchoolId,
                     i.CreatedBy,

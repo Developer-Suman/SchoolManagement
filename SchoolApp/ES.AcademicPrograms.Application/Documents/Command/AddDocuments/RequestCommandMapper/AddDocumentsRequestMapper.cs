@@ -13,8 +13,7 @@ namespace ES.AcademicPrograms.Application.Documents.Command.AddDocuments.Request
             return new AddDocumentsCommand
                 (
                 request.applicantId,
-                request.documentTypeId,
-                request.docFile
+                request.documentsDTOs
                 );
         }
     }

@@ -20,6 +20,7 @@ namespace TN.Shared.Domain.Entities.Crm.AcademicsPrograms
         public University(
             string id,
             string name,
+            string address,
             string? countryId,
             string? descriptions,
             string? website,
@@ -34,6 +35,7 @@ namespace TN.Shared.Domain.Entities.Crm.AcademicsPrograms
         {
             Name = name;
             CountryId = countryId;
+                Address = address;
             Descriptions = descriptions;
             Website = website;
             GlobalRanking = globalRanking;
@@ -46,9 +48,13 @@ namespace TN.Shared.Domain.Entities.Crm.AcademicsPrograms
             Courses = new List<Course>();
             CrmApplicants = new List<CrmApplicant>();
             VisaApplications = new List<VisaApplication>();
+            Requirements = new List<Requirement>();
+            Intakes = new List<Intake>();
 
 
         }
+
+        public string Address { get; set; }
 
         public string SchoolId { get; set; }
         public bool IsActive { get; set; }
@@ -65,5 +71,7 @@ namespace TN.Shared.Domain.Entities.Crm.AcademicsPrograms
         public ICollection<Course> Courses { get; set; }
         public ICollection<CrmApplicant> CrmApplicants { get; set; }
         public ICollection<VisaApplication> VisaApplications { get; set; }
+        public ICollection<Requirement> Requirements { get; set; }
+        public ICollection<Intake> Intakes { get; set; }
     }
 }

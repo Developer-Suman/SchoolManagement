@@ -2,12 +2,14 @@
 using ES.AcademicPrograms.Application.AcademicPrograms.Command.AddCountry;
 using ES.AcademicPrograms.Application.AcademicPrograms.Command.AddUniversity;
 using ES.AcademicPrograms.Application.AcademicPrograms.Queries.Country;
+using ES.AcademicPrograms.Application.AcademicPrograms.Queries.CountryId;
 using ES.AcademicPrograms.Application.AcademicPrograms.Queries.CourseByUniversity;
 using ES.AcademicPrograms.Application.AcademicPrograms.Queries.FilterCourse;
 using ES.AcademicPrograms.Application.AcademicPrograms.Queries.FilterRequirements;
 using ES.AcademicPrograms.Application.AcademicPrograms.Queries.FilterUniversity;
 using ES.AcademicPrograms.Application.AcademicPrograms.Queries.University;
 using ES.AcademicPrograms.Application.AcademicPrograms.Queries.UniversityByCountry;
+using ES.AcademicPrograms.Application.AcademicPrograms.Queries.UniversityId;
 using ES.AcademicPrograms.Application.ServiceInterface;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -20,6 +22,7 @@ using TN.Authentication.Domain.Entities;
 using TN.Shared.Application.ServiceInterface;
 using TN.Shared.Domain.Abstractions;
 using TN.Shared.Domain.Entities.Crm.AcademicsPrograms;
+using TN.Shared.Domain.Entities.Crm.Finance;
 using TN.Shared.Domain.Entities.Crm.Lead;
 using TN.Shared.Domain.Entities.Crm.Profile;
 using TN.Shared.Domain.Entities.OrganizationSetUp;
@@ -110,6 +113,7 @@ namespace ES.AcademicPrograms.Infrastructure.ServiceImpl
                     var add = new University(
                             newId,
                         addUniversityCommand.name,
+                        addUniversityCommand.universityAddress,
                         addUniversityCommand.countryId,
                         addUniversityCommand.descriptions,
                         addUniversityCommand.website,
@@ -155,8 +159,8 @@ namespace ES.AcademicPrograms.Infrastructure.ServiceImpl
                     );
 
                 var filter = isSuperAdmin
-                    ? university
-                    : university
+                    ? university.Include(x=>x.Courses)
+                    : university.Include(x => x.Courses)
                .Where(x => x.SchoolId == _tokenService.SchoolId().FirstOrDefault() || x.SchoolId == "");
 
 
@@ -189,9 +193,12 @@ namespace ES.AcademicPrograms.Infrastructure.ServiceImpl
                     i.Id,
                     i.Name,
                     i.CountryId,
+                    i.Country.Name,
+                    i.Address,
                     i.Descriptions,
                     i.Website,
                     i.GlobalRanking,
+                    i.Courses.Select(c => c.Title).ToList(),
                     i.IsActive,
                     i.SchoolId,
                     i.CreatedBy,
@@ -242,6 +249,43 @@ namespace ES.AcademicPrograms.Infrastructure.ServiceImpl
             catch (Exception ex)
             {
                 throw new Exception($"An error occurred while fetching result: {ex.Message}", ex);
+            }
+        }
+
+        public async Task<Result<UniversityIdResponse>> Get(string universityId, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                var universityDetails = await _unitOfWork.BaseRepository<University>()
+                    .GetConditionalAsync(x=>x.Id==universityId,
+                    query=>query.Include(x=>x.Country)
+                    );
+
+                var university = universityDetails.FirstOrDefault();
+
+                var result = new UniversityIdResponse(
+                    university.Id,
+                    university.Name,
+                    university.CountryId,
+                    university.Country.Name,
+                    university.Address,
+                    university.Descriptions,
+                    university.Website,
+                    university.GlobalRanking,
+                    university.IsActive,
+                    university.SchoolId,
+                    university.CreatedBy,
+                    university.CreatedAt,
+                    university.ModifiedBy
+                );
+
+
+                return Result<UniversityIdResponse>.Success(result);
+
+            }
+            catch (Exception ex)
+            {
+                throw;
             }
         }
 
@@ -312,6 +356,29 @@ namespace ES.AcademicPrograms.Infrastructure.ServiceImpl
             catch (Exception ex)
             {
                 throw new Exception("An error occurred while fetching all Country", ex);
+            }
+        }
+
+        public async Task<Result<CountryIdResponse>> GetCountry(string countryId, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                var countryDetails = await _unitOfWork.BaseRepository<Country>()
+                     .GetByGuIdAsync(countryId
+                     );
+
+
+                var result = new CountryIdResponse(
+                    countryDetails.Id,
+                    countryDetails.Name
+                );
+
+                return Result<CountryIdResponse>.Success(result);
+
+            }
+            catch (Exception ex)
+            {
+                throw;
             }
         }
 

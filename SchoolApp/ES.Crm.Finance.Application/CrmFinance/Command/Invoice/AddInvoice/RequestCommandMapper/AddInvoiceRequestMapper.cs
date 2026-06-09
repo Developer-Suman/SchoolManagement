@@ -13,9 +13,9 @@ namespace ES.Crm.Finance.Application.CrmFinance.Command.Invoice.AddInvoice.Reque
             return new AddInvoiceCommand
             (
                request.applicantId,
-                request.paidAmount,
                 request.issueDate,
                 request.dueDate,
+                request.isInstallments,
                 request.addInvoiceItemDTOs
             );
 

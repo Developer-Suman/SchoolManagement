@@ -10,14 +10,14 @@ namespace ES.Crm.Finance.Application.CrmFinance.Command.Invoice.UpdateInvoice
 {
     public record UpdateInvoiceResponse
     (
-            string invoiceNumber,
-            string applicantId,
-            decimal totalAmount,
-            decimal paidAmount,
-            decimal dueAmount,
-            InvoiceStatus invoiceStatus,
-            DateTime issueDate,
-            DateTime? dueDate,
-            List<AddInvoiceItemDTOs> addInvoiceItemDTOs
+            string invoiceNumber="",
+            string applicantId="",
+            decimal totalAmount=0,
+            decimal paidAmount=0,
+            decimal dueAmount=0,
+            InvoiceStatus invoiceStatus=default,
+            DateTime issueDate=default,
+            DateTime? dueDate=default,
+            List<AddInvoiceItemDTOs> addInvoiceItemDTOs=default
     );
 }

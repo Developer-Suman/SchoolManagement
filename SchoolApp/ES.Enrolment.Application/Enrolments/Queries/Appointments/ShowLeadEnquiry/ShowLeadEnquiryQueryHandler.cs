@@ -26,9 +26,9 @@ namespace ES.Enrolment.Application.Enrolments.Queries.Appointments.ShowLeadEnqui
         }
         public async Task<Result<ShowLeadEnquiryResponse>> Handle(ShowLeadEnquiryQuery request, CancellationToken cancellationToken)
         {
-            var entityName = typeof(AddTranningRegistrationCommand).Name
-       .Replace("Show", "")
-       .Replace("Query", "");
+            var entityName = typeof(ShowLeadEnquiryQuery).Name
+               .Replace("Show", "")
+               .Replace("Query", "");
             try
             {
 
@@ -38,7 +38,6 @@ namespace ES.Enrolment.Application.Enrolments.Queries.Appointments.ShowLeadEnqui
                     (
                       result.Data.Countries
                     );
-                //var resultDisplay = _mapper.Map<PagedResult<ShowLeadEnquiryResponse>>(result.Data);
 
                 return Result<ShowLeadEnquiryResponse>.Success(resultDetails, $"{entityName} return Successfully");
             }

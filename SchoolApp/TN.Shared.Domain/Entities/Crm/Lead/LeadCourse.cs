@@ -23,6 +23,6 @@ namespace TN.Shared.Domain.Entities.Crm.Lead
 
         public string? CourseId { get; set; }
         public string? LeadUniversityId { get;set; }
-        public LeadUniversity LeadUniversity { get; set; }
+        //public LeadUniversity LeadUniversity { get; set; }
     }
 }

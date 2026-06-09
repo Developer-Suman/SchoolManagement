@@ -12,7 +12,7 @@ namespace ES.Crm.Finance.Application.CrmFinance.Command.InstallmentsPlan.AddInst
         public static AddInstallmentsPlanCommand ToCommand(this AddInstallmentsPlanRequest request)
         {
             return new AddInstallmentsPlanCommand(
-                request.applicantId,
+                request.invoiceId,
                 request.numberOfInstallments
                 //request.installmentsDTOs
                 );

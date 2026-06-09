@@ -12,11 +12,9 @@ namespace ES.Crm.Finance.Application.CrmFinance.Command.Invoice.UpdateInvoice
     public record UpdateInvoiceCommand
     (
         string id,
-        string invoiceNumber,
         string applicantId,
-        decimal paidAmount,
         DateTime issueDate,
         DateTime? dueDate,
-        List<AddInvoiceItemDTOs> addInvoiceItemDTOs
+        List<UpdateInvoiceItemDTOs> updateInvoiceItemDTOs
         ) : IRequest<Result<UpdateInvoiceResponse>>;
 }

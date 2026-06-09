@@ -10,9 +10,9 @@ namespace ES.Crm.Finance.Application.CrmFinance.Command.Invoice.AddInvoice
     (
         
         string applicantId,
-        decimal paidAmount,
         DateTime issueDate,
         DateTime? dueDate,
+        bool isInstallments,
         List<AddInvoiceItemDTOs> addInvoiceItemDTOs
 
     );

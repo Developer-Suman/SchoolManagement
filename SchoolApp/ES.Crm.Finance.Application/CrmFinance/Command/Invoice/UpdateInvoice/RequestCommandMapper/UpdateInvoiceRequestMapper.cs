@@ -12,12 +12,10 @@ namespace ES.Crm.Finance.Application.CrmFinance.Command.Invoice.UpdateInvoice.Re
         {
             return new UpdateInvoiceCommand(
                 id,
-                request.invoiceNumber,
                 request.applicantId,
-                request.paidAmount,
                 request.issueDate,
                 request.dueDate,
-                request.addInvoiceItemDTOs
+                request.updateInvoiceItemDTOs
             );
 
         }

@@ -24,7 +24,6 @@ namespace ES.Visa.Application.Visa.Command.VisaApplication.UpdateVisaApplication
             DateTime modifiedAt,
             string visaDetails,
             bool emailSent,
-            string emailContent,
-            List<UpdateVisaApplicationResponseDTOs> updateVisaApplicationResponseDTOs
+            string emailContent
         );
 }

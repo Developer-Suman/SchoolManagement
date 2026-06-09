@@ -1,10 +1,12 @@
 ﻿using ES.AcademicPrograms.Application.AcademicPrograms.Command.AddCountry;
 using ES.AcademicPrograms.Application.AcademicPrograms.Command.AddUniversity;
 using ES.AcademicPrograms.Application.AcademicPrograms.Queries.Country;
+using ES.AcademicPrograms.Application.AcademicPrograms.Queries.CountryId;
 using ES.AcademicPrograms.Application.AcademicPrograms.Queries.CourseByUniversity;
 using ES.AcademicPrograms.Application.AcademicPrograms.Queries.FilterUniversity;
 using ES.AcademicPrograms.Application.AcademicPrograms.Queries.University;
 using ES.AcademicPrograms.Application.AcademicPrograms.Queries.UniversityByCountry;
+using ES.AcademicPrograms.Application.AcademicPrograms.Queries.UniversityId;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,5 +26,9 @@ namespace ES.AcademicPrograms.Application.ServiceInterface
         Task<Result<PagedResult<FilterUniversityResponse>>> FilterUniversity(PaginationRequest paginationRequest, FilterUniversityDTOs filterUniversityDTOs);
         Task<Result<PagedResult<CountryResponse>>> GetAllCountry(PaginationRequest paginationRequest);
         Task<Result<PagedResult<UniversityResponse>>> GetAllUniversity(PaginationRequest paginationRequest);
+
+        Task<Result<UniversityIdResponse>> Get(string universityId, CancellationToken cancellationToken = default);
+
+        Task<Result<CountryIdResponse>> GetCountry(string countryId, CancellationToken cancellationToken = default);
     }
 }

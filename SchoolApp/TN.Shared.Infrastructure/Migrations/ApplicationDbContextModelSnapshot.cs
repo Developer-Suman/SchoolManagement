@@ -3594,6 +3594,10 @@ namespace TN.Shared.Infrastructure.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<string>("CountryId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<string>("CourseId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
@@ -3628,9 +3632,17 @@ namespace TN.Shared.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("UniversityId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
                     b.HasKey("Id");
 
+                    b.HasIndex("CountryId");
+
                     b.HasIndex("CourseId");
+
+                    b.HasIndex("UniversityId");
 
                     b.ToTable("Intakes");
                 });
@@ -3672,11 +3684,20 @@ namespace TN.Shared.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UniversityId")
+                        .HasColumnType("nvarchar(450)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CountryId");
 
                     b.HasIndex("CourseId");
+
+                    b.HasIndex("UniversityId");
 
                     b.ToTable("Requirements");
                 });
@@ -3685,6 +3706,10 @@ namespace TN.Shared.Infrastructure.Migrations
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("CountryId")
                         .HasColumnType("nvarchar(450)");
@@ -3791,8 +3816,9 @@ namespace TN.Shared.Infrastructure.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<DateTime>("AppointmentDate")
-                        .HasColumnType("datetime2");
+                    b.Property<string>("AppointmentDate")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("AppointmentStatus")
                         .HasColumnType("int");
@@ -3807,9 +3833,6 @@ namespace TN.Shared.Infrastructure.Migrations
                     b.Property<string>("CreatedBy")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<TimeOnly>("EndTime")
-                        .HasColumnType("time");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
@@ -3832,9 +3855,6 @@ namespace TN.Shared.Infrastructure.Migrations
                     b.Property<string>("SchoolId")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<TimeOnly>("StartTime")
-                        .HasColumnType("time");
 
                     b.HasKey("Id");
 
@@ -3953,8 +3973,9 @@ namespace TN.Shared.Infrastructure.Migrations
                     b.Property<TimeOnly>("EndTime")
                         .HasColumnType("time");
 
-                    b.Property<DateTime>("FollowUpDate")
-                        .HasColumnType("datetime2");
+                    b.Property<string>("FollowUpDate")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("FollowUpStatus")
                         .HasColumnType("int");
@@ -4062,6 +4083,9 @@ namespace TN.Shared.Infrastructure.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
+                    b.Property<bool?>("IsInstallments")
+                        .HasColumnType("bit");
+
                     b.Property<DateTime>("ModifiedAt")
                         .HasColumnType("datetime2");
 
@@ -4069,8 +4093,9 @@ namespace TN.Shared.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("PaymentDate")
-                        .HasColumnType("datetime2");
+                    b.Property<string>("PaymentDate")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("PaymentMethod")
                         .HasColumnType("int");
@@ -4127,6 +4152,10 @@ namespace TN.Shared.Infrastructure.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<decimal>("BaseAmount")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -4174,9 +4203,12 @@ namespace TN.Shared.Infrastructure.Migrations
                     b.Property<string>("ApplicantId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<decimal>("DueAmount")
-                        .HasPrecision(18, 4)
-                        .HasColumnType("decimal(18,4)");
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("DueDate")
                         .HasColumnType("datetime2");
@@ -4188,12 +4220,25 @@ namespace TN.Shared.Infrastructure.Migrations
                     b.Property<int>("InvoiceStatus")
                         .HasColumnType("int");
 
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool?>("IsInstallments")
+                        .HasColumnType("bit");
+
                     b.Property<DateTime>("IssueDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<decimal>("PaidAmount")
-                        .HasPrecision(18, 4)
-                        .HasColumnType("decimal(18,4)");
+                    b.Property<DateTime>("ModifiedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ModifiedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SchoolId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("TotalAmount")
                         .HasPrecision(18, 4)
@@ -4222,6 +4267,9 @@ namespace TN.Shared.Infrastructure.Migrations
                     b.Property<string>("InvoiceId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
@@ -4367,12 +4415,15 @@ namespace TN.Shared.Infrastructure.Migrations
                     b.Property<string>("CountryId")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("LeadId")
+                    b.Property<string>("CrmLeadId")
                         .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("LeadId")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("LeadId");
+                    b.HasIndex("CrmLeadId");
 
                     b.ToTable("LeadCountries");
                 });
@@ -4500,7 +4551,6 @@ namespace TN.Shared.Infrastructure.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("DocLink")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("DocumentStatus")
@@ -4694,51 +4744,6 @@ namespace TN.Shared.Infrastructure.Migrations
                     b.HasIndex("VisaStatusId");
 
                     b.ToTable("VisaApplications");
-                });
-
-            modelBuilder.Entity("TN.Shared.Domain.Entities.Crm.Visa.VisaApplicationDocument", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("DocumentTypeId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("FilePath")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool?>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime>("UploadedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("VerifiedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("VerifiedBy")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("VisaApplicationId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("VisaStatusId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("DocumentTypeId");
-
-                    b.HasIndex("VisaApplicationId");
-
-                    b.HasIndex("VisaStatusId");
-
-                    b.ToTable("VisaApplicationDocuments");
                 });
 
             modelBuilder.Entity("TN.Shared.Domain.Entities.Crm.Visa.VisaApplicationStatusHistory", b =>
@@ -7604,13 +7609,29 @@ namespace TN.Shared.Infrastructure.Migrations
 
             modelBuilder.Entity("TN.Shared.Domain.Entities.Crm.AcademicsPrograms.Intake", b =>
                 {
+                    b.HasOne("TN.Shared.Domain.Entities.Crm.AcademicsPrograms.Country", "Country")
+                        .WithMany("Intakes")
+                        .HasForeignKey("CountryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("TN.Shared.Domain.Entities.Crm.AcademicsPrograms.Course", "Course")
                         .WithMany("Intakes")
                         .HasForeignKey("CourseId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("TN.Shared.Domain.Entities.Crm.AcademicsPrograms.University", "University")
+                        .WithMany("Intakes")
+                        .HasForeignKey("UniversityId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Country");
+
                     b.Navigation("Course");
+
+                    b.Navigation("University");
                 });
 
             modelBuilder.Entity("TN.Shared.Domain.Entities.Crm.AcademicsPrograms.Requirement", b =>
@@ -7626,9 +7647,16 @@ namespace TN.Shared.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("TN.Shared.Domain.Entities.Crm.AcademicsPrograms.University", "University")
+                        .WithMany("Requirements")
+                        .HasForeignKey("UniversityId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.Navigation("Country");
 
                     b.Navigation("Course");
+
+                    b.Navigation("University");
                 });
 
             modelBuilder.Entity("TN.Shared.Domain.Entities.Crm.AcademicsPrograms.University", b =>
@@ -7812,32 +7840,23 @@ namespace TN.Shared.Infrastructure.Migrations
 
             modelBuilder.Entity("TN.Shared.Domain.Entities.Crm.Lead.LeadCountry", b =>
                 {
-                    b.HasOne("TN.Shared.Domain.Entities.Crm.Lead.CrmLead", "CrmLead")
+                    b.HasOne("TN.Shared.Domain.Entities.Crm.Lead.CrmLead", null)
                         .WithMany("AppliedCountries")
-                        .HasForeignKey("LeadId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("CrmLead");
+                        .HasForeignKey("CrmLeadId");
                 });
 
             modelBuilder.Entity("TN.Shared.Domain.Entities.Crm.Lead.LeadCourse", b =>
                 {
-                    b.HasOne("TN.Shared.Domain.Entities.Crm.Lead.LeadUniversity", "LeadUniversity")
+                    b.HasOne("TN.Shared.Domain.Entities.Crm.Lead.LeadUniversity", null)
                         .WithMany("SelectedCourses")
-                        .HasForeignKey("LeadUniversityId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.Navigation("LeadUniversity");
+                        .HasForeignKey("LeadUniversityId");
                 });
 
             modelBuilder.Entity("TN.Shared.Domain.Entities.Crm.Lead.LeadUniversity", b =>
                 {
-                    b.HasOne("TN.Shared.Domain.Entities.Crm.Lead.LeadCountry", "LeadCountry")
+                    b.HasOne("TN.Shared.Domain.Entities.Crm.Lead.LeadCountry", null)
                         .WithMany("SelectedUniversities")
-                        .HasForeignKey("LeadCountryId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.Navigation("LeadCountry");
+                        .HasForeignKey("LeadCountryId");
                 });
 
             modelBuilder.Entity("TN.Shared.Domain.Entities.Crm.Students.CrmStudent", b =>
@@ -7937,33 +7956,6 @@ namespace TN.Shared.Infrastructure.Migrations
                     b.Navigation("Universities");
 
                     b.Navigation("VisaStatus");
-                });
-
-            modelBuilder.Entity("TN.Shared.Domain.Entities.Crm.Visa.VisaApplicationDocument", b =>
-                {
-                    b.HasOne("TN.Shared.Domain.Entities.Crm.Visa.DocumentType", "DocumentTypes")
-                        .WithMany("VisaApplicationDocuments")
-                        .HasForeignKey("DocumentTypeId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("TN.Shared.Domain.Entities.Crm.Visa.VisaApplication", "VisaApplications")
-                        .WithMany("VisaApplicationDocuments")
-                        .HasForeignKey("VisaApplicationId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("TN.Shared.Domain.Entities.Crm.Visa.VisaStatus", "VisaStatuses")
-                        .WithMany("VisaApplicationDocuments")
-                        .HasForeignKey("VisaStatusId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("DocumentTypes");
-
-                    b.Navigation("VisaApplications");
-
-                    b.Navigation("VisaStatuses");
                 });
 
             modelBuilder.Entity("TN.Shared.Domain.Entities.Crm.Visa.VisaApplicationStatusHistory", b =>
@@ -8844,6 +8836,8 @@ namespace TN.Shared.Infrastructure.Migrations
                 {
                     b.Navigation("CrmApplicants");
 
+                    b.Navigation("Intakes");
+
                     b.Navigation("Requirements");
 
                     b.Navigation("Universities");
@@ -8877,6 +8871,10 @@ namespace TN.Shared.Infrastructure.Migrations
                     b.Navigation("Courses");
 
                     b.Navigation("CrmApplicants");
+
+                    b.Navigation("Intakes");
+
+                    b.Navigation("Requirements");
 
                     b.Navigation("VisaApplications");
                 });
@@ -8964,21 +8962,15 @@ namespace TN.Shared.Infrastructure.Migrations
                     b.Navigation("DocumentChecklists");
 
                     b.Navigation("Documents");
-
-                    b.Navigation("VisaApplicationDocuments");
                 });
 
             modelBuilder.Entity("TN.Shared.Domain.Entities.Crm.Visa.VisaApplication", b =>
                 {
-                    b.Navigation("VisaApplicationDocuments");
-
                     b.Navigation("VisaApplicationStatusHistories");
                 });
 
             modelBuilder.Entity("TN.Shared.Domain.Entities.Crm.Visa.VisaStatus", b =>
                 {
-                    b.Navigation("VisaApplicationDocuments");
-
                     b.Navigation("VisaApplicationStatusHistories");
 
                     b.Navigation("VisaApplications");

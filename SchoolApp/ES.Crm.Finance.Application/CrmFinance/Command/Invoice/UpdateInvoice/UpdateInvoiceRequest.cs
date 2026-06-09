@@ -9,11 +9,9 @@ namespace ES.Crm.Finance.Application.CrmFinance.Command.Invoice.UpdateInvoice
 {
     public record UpdateInvoiceRequest
     (
-         string invoiceNumber,
          string applicantId,
-         decimal paidAmount,
          DateTime issueDate,
          DateTime? dueDate,
-         List<AddInvoiceItemDTOs> addInvoiceItemDTOs
+         List<UpdateInvoiceItemDTOs> updateInvoiceItemDTOs
         );
 }

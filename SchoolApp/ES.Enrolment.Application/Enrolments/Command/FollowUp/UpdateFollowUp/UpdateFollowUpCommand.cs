@@ -14,7 +14,7 @@ namespace ES.Enrolment.Application.Enrolments.Command.FollowUp.UpdateFollowUp
         string id,
         TimeOnly startTime,
             TimeOnly endTime,
-            DateTime followUpDate,
+            string followUpDate,
             string notes,
             FollowUpStatus followUpStatus,
             string appointmentId

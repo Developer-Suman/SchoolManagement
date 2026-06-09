@@ -460,6 +460,7 @@ namespace ES.Finances.Infrastructure.ServiceImpl
             }
         }
 
+
         public async Task<Result<PagedResult<DueSlipResponse>>> GetDueSlip(PaginationRequest paginationRequest, DueSlipDTOs dueSlipDTOs)
         {
             try
@@ -526,7 +527,7 @@ namespace ES.Finances.Infrastructure.ServiceImpl
 
                             totalAmount: studentFees.Sum(sf => sf.TotalAmount),
 
-                            paidAmount: studentFees.Sum(sf => sf.PaidAmount),
+                            paidAmount: studentFees.Sum(sf => sf.TotalAmount) - studentFees.Sum(sf => sf.PaidAmount),
 
                             feeStructures: studentFees
                                 .SelectMany(sf => sf.FeeStructure.FeeStructureDetails)
@@ -639,20 +640,20 @@ namespace ES.Finances.Infrastructure.ServiceImpl
 
                 var fullList = new List<StudentFeeSummaryResponse>();
 
-                decimal currentBalance = netTotal;
+                decimal dueAmount = netTotal;
 
                 foreach (var p in payments)
                 {
-                    decimal amountBeforePayment = currentBalance;
+                    decimal amountBeforePayment = dueAmount;
 
-                    currentBalance -= p.AmountPaid;
+                    dueAmount -= p.AmountPaid;
 
                     fullList.Add(new StudentFeeSummaryResponse(
                         studentFeeSummaryDTOs.classId,
                         p.AmountPaid,
                         p.PaymentMethod,
                         amountBeforePayment,
-                        currentBalance,
+                        dueAmount,
                         p.Schoolid,
                         p.ReceiptNumber,
 

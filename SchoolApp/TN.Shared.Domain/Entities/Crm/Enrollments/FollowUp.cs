@@ -23,7 +23,7 @@ namespace TN.Shared.Domain.Entities.Crm.Enrollments
             string userId,
             TimeOnly startTime,
             TimeOnly endTime,
-            DateTime followUpDate,
+            string followUpDate,
             string notes,
             FollowUpStatus followUpStatus,
             string? appointmentId,
@@ -60,7 +60,7 @@ namespace TN.Shared.Domain.Entities.Crm.Enrollments
         public UserProfile UserProfile { get; set; }
 
         // Follow-up Details
-        public DateTime FollowUpDate { get; set; }
+        public string FollowUpDate { get; set; }
         public string Notes { get; set; }
 
         public FollowUpStatus FollowUpStatus { get; set; }

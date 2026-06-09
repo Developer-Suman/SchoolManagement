@@ -26,6 +26,7 @@ using TN.Shared.Domain.Entities.Certificates;
 using TN.Shared.Domain.Entities.Communication;
 using TN.Shared.Domain.Entities.Crm.AcademicsPrograms;
 using TN.Shared.Domain.Entities.Crm.Applicant;
+using TN.Shared.Domain.Entities.Crm.Finance;
 using TN.Shared.Domain.Entities.Crm.Visa;
 using TN.Shared.Domain.Entities.OrganizationSetUp;
 using TN.Shared.Domain.ExtensionMethod.Pagination;
@@ -63,47 +64,46 @@ namespace ES.AcademicPrograms.Infrastructure.ServiceImpl
             {
                 try
                 {
-
-                    string newId = Guid.NewGuid().ToString();
-                    var FyId = _fiscalContext.CurrentFiscalYearId;
-                    var schoolId = _tokenService.SchoolId().FirstOrDefault() ?? "";
+                    var fyId = _fiscalContext.CurrentFiscalYearId;
+                    var schoolId = _tokenService.SchoolId().FirstOrDefault() ?? string.Empty;
                     var userId = _tokenService.GetUserId();
 
-
-                    string docLink = await _imageServices.AddSingle(addDocumentsCommand.docFile);
-                    if (docLink is null)
+                    foreach (var document in addDocumentsCommand.documentsDTOs)
                     {
-                        return Result<AddDocumentsResponse>.Failure("Doc Url are not Created");
+                        string docLink = await _imageServices.AddSingle(document.docFile);
+
+                        if (string.IsNullOrWhiteSpace(docLink))
+                        {
+                            return Result<AddDocumentsResponse>.Failure("Document URL was not created.");
+                        }
+
+                        var entity = new Document(
+                            Guid.NewGuid().ToString(),
+                            addDocumentsCommand.applicantId,
+                            document.documentTypeId,
+                            DocumentStatus.Pending,
+                            docLink,
+                            true,
+                            schoolId,
+                            userId,
+                            DateTime.UtcNow,
+                            string.Empty,
+                            default
+                        );
+
+                        await _unitOfWork.BaseRepository<Document>().AddAsync(entity);
                     }
 
-
-                    var add = new Document(
-                            newId,
-                        addDocumentsCommand.applicantId,
-                        addDocumentsCommand.documentTypeId,
-                        DocumentStatus.Pending,
-                        docLink,
-                        true,
-                        schoolId ?? "",
-                        userId,
-                        DateTime.UtcNow,
-                        "",
-                        default
-
-                    );
-                    await _unitOfWork.BaseRepository<Document>().AddAsync(add);
                     await _unitOfWork.SaveChangesAsync();
                     scope.Complete();
 
-                    var resultDTOs = _mapper.Map<AddDocumentsResponse>(add);
-                    return Result<AddDocumentsResponse>.Success(resultDTOs);
-
+                    return Result<AddDocumentsResponse>.Success(
+                        new AddDocumentsResponse()
+                    );
                 }
                 catch (Exception ex)
                 {
-                    scope.Dispose();
-                    throw new Exception("An error occurred while adding ", ex);
-
+                    throw;
                 }
             }
         }
@@ -149,20 +149,59 @@ namespace ES.AcademicPrograms.Infrastructure.ServiceImpl
             }
         }
 
+        public async Task<Result<bool>> Delete(string id, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var documents = await _unitOfWork.BaseRepository<Document>().GetByGuIdAsync(id);
+                if (documents is null)
+                {
+                    return Result<bool>.Failure("NotFound", "Data not Found");
+                }
+
+                documents.IsActive = false;
+                _unitOfWork.BaseRepository<Document>().Update(documents);
+                await _unitOfWork.SaveChangesAsync();
+
+
+                return Result<bool>.Success(true);
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
         public async Task<Result<DocumentsByIdResponse>> DocumentsById(string documentsId, CancellationToken cancellationToken = default)
         {
             try
             {
-                var query = await _unitOfWork.BaseRepository<Document>().GetByGuIdAsync(documentsId);
+                var document = await _unitOfWork
+                    .BaseRepository<Document>()
+                    .GetByGuIdAsync(documentsId);
 
-                var queryDetails = _mapper.Map<DocumentsByIdResponse>(query);
+                if (document == null)
+                {
+                    return Result<DocumentsByIdResponse>.Failure("Document not found");
+                }
 
-                return Result<DocumentsByIdResponse>.Success(queryDetails);
+                var response = new DocumentsByIdResponse(
+                    id: document.Id,
+                    applicantId: document.ApplicantId,
+                    documentsByIdDTOs: new DocumentsByIdDTOs(
+                        documentTypeId: document.DocumentTypeId,
+                        documentStatus: document.DocumentStatus,
+                        documentsUrl: document.DocLink 
+                    )
+                );
 
+                return Result<DocumentsByIdResponse>.Success(response);
             }
             catch (Exception ex)
             {
-                throw new Exception("An error occurred while fetching Certificate Template by using Id", ex);
+                throw new Exception(
+                    "An error occurred while fetching Document by Id",
+                    ex);
             }
         }
 
@@ -224,7 +263,7 @@ namespace ES.AcademicPrograms.Infrastructure.ServiceImpl
                     : documents
                .Where(x => x.SchoolId == _tokenService.SchoolId().FirstOrDefault() || x.SchoolId == "");
 
-                IQueryable<Document> query = filter.AsQueryable();
+                IQueryable<Document> query = filter.Include(x=>x.DocumentType).AsQueryable();
 
                 if (!string.IsNullOrEmpty(filterDocumentsDTOs.applicantId))
                 {
@@ -253,6 +292,7 @@ namespace ES.AcademicPrograms.Infrastructure.ServiceImpl
                     i.Id,
                     i.ApplicantId,
                     i.DocumentTypeId,
+                    i.DocumentType.Name,
                     i.DocumentStatus,
                     i.DocLink,
                     i.IsActive,
@@ -409,13 +449,13 @@ namespace ES.AcademicPrograms.Infrastructure.ServiceImpl
             }
         }
 
-        public async Task<Result<NonRequiredDocumentsResponse>> NonRequired(string dockCheckListId)
+        public async Task<Result<NonRequiredDocumentsResponse>> NonRequired(string documentCheckListId)
         {
             try
             {
                 var userId = _tokenService.GetUserId();
                 var documentsCheckList = await _unitOfWork.BaseRepository<DocumentChecklist>()
-                  .FirstOrDefaultAsync(x => x.DocumentTypeId == dockCheckListId);
+                  .GetByGuIdAsync(documentCheckListId);
 
                 if (documentsCheckList == null)
                 {
@@ -423,7 +463,7 @@ namespace ES.AcademicPrograms.Infrastructure.ServiceImpl
                 }
                 documentsCheckList.NonRequired(userId);
                 await _unitOfWork.SaveChangesAsync();
-                var documentCheckListResponse = new NonRequiredDocumentsResponse(dockCheckListId, false);
+                var documentCheckListResponse = new NonRequiredDocumentsResponse(documentCheckListId, false);
 
                 return Result<NonRequiredDocumentsResponse>.Success(documentCheckListResponse);
             }
@@ -433,13 +473,13 @@ namespace ES.AcademicPrograms.Infrastructure.ServiceImpl
             }
         }
 
-        public async Task<Result<RequiredDocumentsResponse>> Required(string dockCheckListId)
+        public async Task<Result<RequiredDocumentsResponse>> Required(string documentCheckListId)
         {
             try
             {
                 var userId = _tokenService.GetUserId();
                 var documentsCheckList = await _unitOfWork.BaseRepository<DocumentChecklist>()
-                    .FirstOrDefaultAsync(x=>x.DocumentTypeId ==dockCheckListId);
+                    .GetByGuIdAsync(documentCheckListId);
 
                 if (documentsCheckList == null)
                 {
@@ -448,7 +488,7 @@ namespace ES.AcademicPrograms.Infrastructure.ServiceImpl
 
                 documentsCheckList.Required(userId);
                 await _unitOfWork.SaveChangesAsync();
-                var documentCheckListResponse = new RequiredDocumentsResponse(dockCheckListId, true);
+                var documentCheckListResponse = new RequiredDocumentsResponse(documentCheckListId, true);
 
                 return Result<RequiredDocumentsResponse>.Success(documentCheckListResponse);
             }
@@ -476,29 +516,48 @@ namespace ES.AcademicPrograms.Infrastructure.ServiceImpl
 
                     applicant.Documents ??= new List<Document>();
 
-                    foreach (var doc in uploadApplicantDocumentsCommand.UploadApplicantDocumentsDTOs)
+                    foreach (var doc in uploadApplicantDocumentsCommand.documentsByIdDTOs)
                     {
+                        var existingDoc = applicant.Documents
+                            .FirstOrDefault(x => x.DocumentTypeId == doc.documentTypeId);
 
-                        string docLink = await _imageServices.AddSingle(doc.documents);
-                        if (docLink is null)
+                        if (existingDoc is not null)
                         {
-                            return Result<UploadApplicantDocumentsResponse>.Failure("Doc Url are not Created");
+                            existingDoc.DocumentStatus = doc.documentStatus;
+
+                            if (doc.docFile is not null)
+                            {
+                                var docLinks = await _imageServices.AddSingle(doc.docFile);
+
+                                if (!string.IsNullOrWhiteSpace(docLinks))
+                                {
+                                    existingDoc.DocLink = docLinks;
+                                }
+                            }
+
+                            continue;
                         }
-                        var newDocument = new Document(
+
+                        string docLink = string.Empty;
+
+                        if (doc.docFile is not null)
+                        {
+                            docLink = await _imageServices.AddSingle(doc.docFile) ?? string.Empty;
+                        }
+
+                        applicant.Documents.Add(new Document(
                             Guid.NewGuid().ToString(),
                             applicant.Id,
                             doc.documentTypeId,
                             doc.documentStatus,
                             docLink,
                             true,
-                            schoolId ?? "",
+                            schoolId ?? string.Empty,
                             userId,
                             DateTime.UtcNow,
-                            "",
+                            string.Empty,
                             default
-                        );
-
-                        applicant.Documents.Add(newDocument);
+                        ));
                     }
 
                     _unitOfWork.BaseRepository<CrmApplicant>().Update(applicant);

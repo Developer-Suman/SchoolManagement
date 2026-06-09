@@ -57,7 +57,7 @@ namespace ES.AcademicPrograms.Application.AcademicPrograms.Command.AddRequiremen
             }
             catch (Exception ex)
             {
-                throw new Exception("An error occurred while adding", ex);
+                throw;
 
 
             }

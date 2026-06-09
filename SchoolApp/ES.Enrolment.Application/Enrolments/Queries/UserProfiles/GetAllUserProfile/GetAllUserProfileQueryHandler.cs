@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using ES.Enrolment.Application.Enrolments.Queries.Counselors.FilterCounselor;
 using ES.Enrolment.Application.ServiceInterface;
 using MediatR;
 using System;
@@ -23,9 +24,13 @@ namespace ES.Enrolment.Application.Enrolments.Queries.UserProfiles.GetAllUserPro
         }
         public async Task<Result<PagedResult<GetAllUserProfileResponse>>> Handle(GetAllUserProfileQuery request,CancellationToken cancellationToken)
         {
+            var entityName = typeof(GetAllUserProfileQuery).Name
+             .Replace("GetAllUser", "")
+             .Replace("Query", "");
             try
             {
-                return await _enrolmentServices.UserProfile(request.PaginationRequest, cancellationToken);        
+                var result =  await _enrolmentServices.UserProfile(request.PaginationRequest, cancellationToken);
+                return Result<PagedResult<GetAllUserProfileResponse>>.Success(result.Data, $"{entityName} return Successfully");
             }
             catch (Exception ex)
             {

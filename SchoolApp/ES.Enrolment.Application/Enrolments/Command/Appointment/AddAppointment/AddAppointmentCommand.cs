@@ -12,9 +12,7 @@ namespace ES.Enrolment.Application.Enrolments.Command.Appointment.AddAppointment
     public record AddAppointmentCommand
     (
           string leadId,
-              TimeOnly startTime,
-            TimeOnly endTime,
-            DateTime appointmentDate,
+            string appointmentDate,
             string counselorId,
             string notes,
             AppointmentStatus appointmentStatus

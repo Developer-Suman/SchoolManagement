@@ -9,8 +9,6 @@ namespace ES.Enrolment.Application.Enrolments.Command.Appointment.UpdateAppointm
             (
                 id,
                 request.leadId,
-                request.startTime,
-                request.endTime,
                 request.appointmentDate,
                 request.counselorId,
                 request.notes,

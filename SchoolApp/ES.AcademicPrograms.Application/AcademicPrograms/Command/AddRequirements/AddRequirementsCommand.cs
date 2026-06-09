@@ -10,8 +10,10 @@ namespace ES.AcademicPrograms.Application.AcademicPrograms.Command.AddRequiremen
 {
     public record AddRequirementsCommand
     (
+        string title,
          string descriptions,
         string countryId,
+         string universityId,
         string courseId,
         List<DocumentsCheckListDTOs> documentsCheckListDTOs
         ) : IRequest<Result<AddRequirementsResponse>>;

@@ -30,8 +30,9 @@ namespace TN.Shared.Domain.Entities.Crm.Lead
         }
 
         public string? CountryId { get; set; }
+        //public LeadCountry Country { get; set; }
         public string? LeadId { get;set; }
-        public CrmLead CrmLead { get; set; }
+        //public CrmLead CrmLead { get; set; }
         public List<LeadUniversity> SelectedUniversities { get; set; }
     }
 

@@ -12,7 +12,7 @@ namespace ES.AcademicPrograms.Application.Documents.Command.UploadApplicantDocum
     (
          string documentTypeId,
          DocumentStatus documentStatus,
-         IFormFile documents
+         IFormFile? docFile
         );
 
 }

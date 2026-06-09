@@ -10,6 +10,6 @@ namespace ES.AcademicPrograms.Application.Documents.Command.DocumentCheckList.No
 {
     public record NonRequiredDocumentsCommand
     (
-         string dockCheckListId
+         string documentCheckListId
         ) : IRequest<Result<NonRequiredDocumentsResponse>>;
 }

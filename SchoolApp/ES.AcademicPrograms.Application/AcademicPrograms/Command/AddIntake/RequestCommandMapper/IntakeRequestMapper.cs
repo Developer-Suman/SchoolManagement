@@ -14,6 +14,8 @@ namespace ES.AcademicPrograms.Application.AcademicPrograms.Command.AddIntake.Req
                 request.month,
                 request.deadline,
                 request.isOpen,
+                request.countryId,
+                request.universityId,
                 request.courseId
             );
         }

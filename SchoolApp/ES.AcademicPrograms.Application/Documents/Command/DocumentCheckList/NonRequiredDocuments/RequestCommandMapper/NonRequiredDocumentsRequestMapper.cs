@@ -12,7 +12,7 @@ namespace ES.AcademicPrograms.Application.Documents.Command.DocumentCheckList.No
         {
             return new NonRequiredDocumentsCommand
                 (
-                request.dockCheckListId
+                request.documentCheckListId
 
                 );
         }

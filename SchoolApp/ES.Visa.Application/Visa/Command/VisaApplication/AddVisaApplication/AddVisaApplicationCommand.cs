@@ -19,7 +19,6 @@ namespace ES.Visa.Application.Visa.Command.VisaApplication.AddVisaApplication
             string visaStatusId,
             string visaDetails,
             bool emailSent,
-            string emailContent,
-            List<VisaApplicationDocumentsDTOs> visaApplicationDocumentsDTOs
+            string? emailContent
         ) : IRequest<Result<AddVisaApplicationResponse>>;
 }

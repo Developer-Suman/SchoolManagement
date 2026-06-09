@@ -14,7 +14,7 @@ namespace ES.Crm.Finance.Application.CrmFinance.Command.Payments.UpdatePayments
             string id,
         string invoiceId,
             decimal amount,
-            DateTime paymentDate,
+            string paymentDate,
             PaymentMethods paymentMethod
         ) : IRequest<Result<UpdatePaymentsResponse>>;
 }

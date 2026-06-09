@@ -12,6 +12,7 @@ namespace ES.AcademicPrograms.Application.Documents.Queries.Documents.FilterDocu
         string id = "",
             string applicantId = "",
             string documentTypeId = "",
+            string docmentTypeName="",
             DocumentStatus documentStatus = default,
             string docLink="",
             bool isActive = true,

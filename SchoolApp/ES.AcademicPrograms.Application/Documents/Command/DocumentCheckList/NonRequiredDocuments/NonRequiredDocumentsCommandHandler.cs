@@ -25,7 +25,7 @@ namespace ES.AcademicPrograms.Application.Documents.Command.DocumentCheckList.No
         {
             try
             {
-                var docCheckList = await _documentsServices.NonRequired(request.dockCheckListId);
+                var docCheckList = await _documentsServices.NonRequired(request.documentCheckListId);
 
                 if (docCheckList.Errors.Any())
                 {

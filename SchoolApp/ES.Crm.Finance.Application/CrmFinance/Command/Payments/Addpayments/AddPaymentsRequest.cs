@@ -12,7 +12,7 @@ namespace ES.Crm.Finance.Application.CrmFinance.Command.Payments.Addpayments
     (
         string invoiceId,
             decimal amount,
-            DateTime paymentDate,
+            string paymentDate,
             PaymentMethods paymentMethod
         );
 }

@@ -11,7 +11,8 @@ namespace ES.AcademicPrograms.Application.Documents.Command.AddDocuments
     public record AddDocumentsRequest
     (
         string applicantId,
-            string documentTypeId,
-            IFormFile docFile
+        List<DocumentsDTOs> documentsDTOs
         );
+
+    
 }

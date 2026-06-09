@@ -6,6 +6,7 @@ using ES.Enrolment.Application.Enrolments.Queries.Appointments.AppointmentsId;
 using ES.Enrolment.Application.Enrolments.Queries.Appointments.FilterAppointment;
 using ES.Enrolment.Application.Enrolments.Queries.Appointments.ScheduleAppointment;
 using ES.Enrolment.Application.Enrolments.Queries.Appointments.ShowLeadEnquiry;
+using ES.Enrolment.Application.Enrolments.Queries.ConsultancyClasses.FilterConsultancyClass;
 using ES.Enrolment.Application.ServiceInterface;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -61,15 +62,11 @@ namespace ES.Enrolment.Infrastructure.ServiceImpl
                     var schoolId = _tokenService.SchoolId().FirstOrDefault() ?? "";
                     var userId = _tokenService.GetUserId();
 
-                    var startTime = addAppointmentCommand.startTime;
-                    var endTime = addAppointmentCommand.endTime;
 
 
                     var add = new Appointment(
                         newId,
                         addAppointmentCommand.leadId,
-                        startTime,
-                        endTime,
                         addAppointmentCommand.appointmentDate,
                         addAppointmentCommand.counselorId,
                         addAppointmentCommand.notes,
@@ -142,33 +139,42 @@ namespace ES.Enrolment.Infrastructure.ServiceImpl
                     appointments
                     .Include(x => x.Counselor)
                     .Include(x => x.CrmLead)
+                    .ThenInclude(x => x.Profile)
                     : appointments
                     .Include(x => x.Counselor)
                     .Include(x => x.CrmLead)
+                    .ThenInclude(x => x.Profile)
                     .Where(x => x.SchoolId == schoolId || x.SchoolId == "");
 
+                IQueryable<Appointment> query = filter.AsQueryable();
 
-                var (startUtc, endUtc) = await _dateConverter.GetDateRangeUtc(filterAppointmentDTOs.startDate, filterAppointmentDTOs.endDate);
+                if (!string.IsNullOrEmpty(filterAppointmentDTOs.counselorId))
+                {
+                    query = query.Where(x => x.CounselorId == filterAppointmentDTOs.counselorId);
+                }
 
-                var filteredResult = filter
-                 .Where(x =>
-                       (string.IsNullOrEmpty(filterAppointmentDTOs.counselorId) || x.CounselorId == filterAppointmentDTOs.counselorId) &&
-                     x.CreatedAt >= startUtc &&
-                         x.CreatedAt <= endUtc &&
-                         x.IsActive
-                 )
-                 .OrderByDescending(x => x.CreatedAt) // newest first
-                 .ToList();
+                if (filterAppointmentDTOs.startDate != null && filterAppointmentDTOs.endDate != null)
+                {
+                    var (startUtc, endUtc) = await _dateConverter.GetDateRangeUtc(
+                        filterAppointmentDTOs.startDate,
+                        filterAppointmentDTOs.endDate
+                    );
+
+                    query = query.Where(x => x.CreatedAt >= startUtc && x.CreatedAt <= endUtc);
+                }
+                query = query.Where(x => x.IsActive)
+               .OrderByDescending(x => x.CreatedAt);
 
 
 
 
-                var responseList = filteredResult
+
+                var responseList = query
                 .Select(i => new FilterAppointmentResponse(
                     i.Id,
                     i.LeadId,
-                    i.StartTime,
-                    i.EndTime,
+                    i.CrmLead.Profile.FullName,
+                    i.Counselor.FullName,
                     i.AppointmentDate,
                     i.CounselorId,
                     i.Notes,
@@ -231,15 +237,19 @@ namespace ES.Enrolment.Infrastructure.ServiceImpl
             try
             {
                 var appointmentDetails = await _unitOfWork.BaseRepository<Appointment>().
-                    GetConditionalAsync(x => x.Id == appointmentId
+                    GetConditionalAsync(x => x.Id == appointmentId,
+                    query=>query
+                    .Include(x=>x.Counselor)
+                    .Include(x=>x.CrmLead)
+                    .ThenInclude(x=>x.Profile)
                     );
 
                 var appointment = appointmentDetails.FirstOrDefault();
                 var appointmentDetailsResponse = new AppointmentsIdResponse(
                     appointment.Id,
                     appointment.LeadId,
-                    appointment.StartTime,
-                    appointment.EndTime,
+                    appointment.CrmLead.Profile.FullName,
+                    appointment.Counselor.FullName,
                     appointment.AppointmentDate,
                     appointment.CounselorId,
                     appointment.Notes,
@@ -293,19 +303,21 @@ namespace ES.Enrolment.Infrastructure.ServiceImpl
                 var leadDetails = filteredResult
                     .GroupBy(x => x.LeadId)
                     .Select(group => new InquiryLeadDetail( 
-                        AppointmentSchedule: group.GroupBy(d => d.AppointmentDate.ToString("yyyy-MM-dd")) 
+                        AppointmentSchedule: group.GroupBy(d => d.AppointmentDate) 
                                          .ToDictionary(
-                                             dateGroup => dateGroup.Key,
+                                             dateGroup => dateGroup.Key,    
                                              dateGroup => {
                                                  var latest = dateGroup.First();
                                                  var fullStartDateTime = latest.AppointmentDate;
-                                                 var visibilityStatus = fullStartDateTime < DateTime.UtcNow ? "Hide" : "Show";
+                                                 var visibilityStatus =
+                                                    DateTime.TryParse(fullStartDateTime, out var appointmentDate) &&
+                                                    appointmentDate.Date < DateTime.UtcNow.Date
+                                                        ? "Hide"
+                                                        : "Show";
 
                                                  return new AppointmentDetails(
                                                     counselorName: latest.Counselor.FullName,
                                                     leadName: latest.CrmLead.Profile.FullName,
-                                                    startTime: latest.StartTime,
-                                                    endTime: latest.EndTime,
                                                     notes: latest.Notes,
                                                     status: visibilityStatus
                                                  );
@@ -405,8 +417,6 @@ namespace ES.Enrolment.Infrastructure.ServiceImpl
                     }
 
                     appointments.LeadId = updateAppointmentCommand.leadId;
-                    appointments.StartTime = updateAppointmentCommand.startTime;
-                    appointments.EndTime = updateAppointmentCommand.endTime;
                     appointments.AppointmentDate = updateAppointmentCommand.appointmentDate;
                     appointments.CounselorId = updateAppointmentCommand.counselorId;
                     appointments.Notes = updateAppointmentCommand.notes;
@@ -414,7 +424,7 @@ namespace ES.Enrolment.Infrastructure.ServiceImpl
                     appointments.ModifiedBy = userId;
                     appointments.ModifiedAt = DateTime.UtcNow;
 
-
+                    _unitOfWork.BaseRepository<Appointment>().Update(appointments);
                     await _unitOfWork.SaveChangesAsync();
                     scope.Complete();
 

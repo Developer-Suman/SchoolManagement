@@ -1,22 +1,30 @@
-﻿using System;
+﻿using AutoMapper;
+using Azure.Core;
+using ES.Academics.Application.Academics.Command.AddExamResult;
+using ES.Certificate.Application.ServiceInterface.IHelperMethod;
+using ES.Crm.Finance.Application.CrmFinance.Command.Invoice.AddInvoice;
+using ES.Crm.Finance.Application.CrmFinance.Command.Invoice.UpdateInvoice;
+using ES.Crm.Finance.Application.CrmFinance.Queries.InstallmentsPlan.FilterInstallmentPlan;
+using ES.Crm.Finance.Application.CrmFinance.Queries.InstallmentsPlan.InstallmentPlan;
+using ES.Crm.Finance.Application.CrmFinance.Queries.Invoice.FilterInstallmentInvoice;
+using ES.Crm.Finance.Application.CrmFinance.Queries.Invoice.FilterInvoice;
+using ES.Crm.Finance.Application.CrmFinance.Queries.Invoice.InvoiceId;
+using ES.Crm.Finance.Application.ServiceInterface;
+using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.NetworkInformation;
 using System.Text;
 using System.Threading.Tasks;
 using System.Transactions;
-using AutoMapper;
-using Azure.Core;
-using ES.Academics.Application.Academics.Command.AddExamResult;
-using ES.Certificate.Application.ServiceInterface.IHelperMethod;
-using ES.Crm.Finance.Application.CrmFinance.Command.Invoice.AddInvoice;
-using ES.Crm.Finance.Application.CrmFinance.Command.Invoice.UpdateInvoice;
-using ES.Crm.Finance.Application.ServiceInterface;
+using TN.Authentication.Domain.Entities;
 using TN.Shared.Application.ServiceInterface;
 using TN.Shared.Domain.Abstractions;
 using TN.Shared.Domain.Entities.Academics;
 using TN.Shared.Domain.Entities.Crm.Finance;
 using TN.Shared.Domain.Entities.OrganizationSetUp;
+using TN.Shared.Domain.ExtensionMethod.Pagination;
 using TN.Shared.Domain.IRepository;
 using static TN.Shared.Domain.Enum.CrmEnum;
 
@@ -62,33 +70,34 @@ namespace ES.Crm.Finance.Infrastructure.ServiceImpl
 
                     var invoiceNumber = await _billNumberGenerator.GenerateSchoolInvoiceNumber(schoolId);
 
-                    var items = addInvoiceCommand.addInvoiceItemDTOs.Select(i => new InvoiceItem(
+                    var items = addInvoiceCommand?.addInvoiceItemDTOs?.Select(i => new InvoiceItem(
                         Guid.NewGuid().ToString(),
                         newId,
                         i.description,
                         i.amount,
-                        i.quantity
+                        i.quantity,
+                        true
                     )).ToList();
 
-                    var totalAmount = items.Sum(x => x.Amount * x.Quantity);
-                    var dueAmount = totalAmount - addInvoiceCommand.paidAmount;
-
-                    InvoiceStatus invoiceStatus =
-                    addInvoiceCommand.paidAmount == 0 ? InvoiceStatus.Issued :
-                    addInvoiceCommand.paidAmount < totalAmount ? InvoiceStatus.PartiallyPaid :
-                    InvoiceStatus.Paid;
-
+                    var totalAmount = items?.Sum(x => x.Amount * x.Quantity) ?? 0;
 
                     var addInvoice = new Invoice(
                         newId,
                         invoiceNumber,
                         addInvoiceCommand.applicantId,
                         totalAmount,
-                        addInvoiceCommand.paidAmount,
-                        dueAmount,
-                        invoiceStatus,
+                        InvoiceStatus.Issued,
                         addInvoiceCommand.issueDate,
-                        addInvoiceCommand.dueDate
+                        addInvoiceCommand.dueDate,
+                        addInvoiceCommand.isInstallments,
+                        items,
+                        true,
+                        schoolId,
+                        userId,
+                        DateTime.UtcNow,
+                        "",
+                        default
+
                     );
 
                     await _unitOfWork.BaseRepository<Invoice>().AddAsync(addInvoice);
@@ -102,8 +111,306 @@ namespace ES.Crm.Finance.Infrastructure.ServiceImpl
                 catch (Exception ex)
                 {
                     scope.Dispose();
-                    throw new Exception("Error occurred while creating invoice", ex);
+                    throw;
                 }
+            }
+        }
+
+        public async Task<Result<bool>> Delete(string id, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var invoice = await _unitOfWork.BaseRepository<Invoice>().GetByGuIdAsync(id);
+                if (invoice is null)
+                {
+                    return Result<bool>.Failure("NotFound", "Data not Found");
+                }
+
+                invoice.IsActive = false;
+                _unitOfWork.BaseRepository<Invoice>().Update(invoice);
+                await _unitOfWork.SaveChangesAsync();
+
+
+                return Result<bool>.Success(true);
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
+        public async Task<Result<PagedResult<FilterInvoiceResponse>>> Filter(PaginationRequest paginationRequest, FilterInvoiceDTOs filterInvoiceDTOs)
+        {
+            try
+            {
+                var fyId = _fiscalContext.CurrentFiscalYearId;
+                var academicYearId = _fiscalContext.CurrentAcademicYearId;
+                var userId = _tokenService.GetUserId();
+
+                var (invoice, schoolId, institutionId, userRole, isSuperAdmin) = await _getUserScopedData.GetUserScopedData<Invoice>();
+
+                var schoolIds = await _unitOfWork.BaseRepository<School>()
+                    .GetConditionalFilterType(
+                        x => x.InstitutionId == institutionId,
+                        query => query.Select(c => c.Id)
+                    );
+
+                var filter = isSuperAdmin
+    ? invoice.Where(x => x.IsInstallments == false)
+    : invoice.Where(x =>
+        (x.SchoolId == _tokenService.SchoolId().FirstOrDefault() || x.SchoolId == "")
+        && x.IsInstallments == false
+    );
+
+                IQueryable<Invoice> query = filter.AsQueryable();
+
+                if (!string.IsNullOrEmpty(filterInvoiceDTOs.invoiceNumber))
+                {
+                    query = query.Where(x => x.InvoiceNumber == filterInvoiceDTOs.invoiceNumber);
+                }
+
+                if (!string.IsNullOrEmpty(filterInvoiceDTOs.applicantId))
+                {
+                    query = query.Where(x => x.ApplicantId == filterInvoiceDTOs.applicantId);
+                }
+
+                if (filterInvoiceDTOs.startDate != null && filterInvoiceDTOs.endDate != null)
+                {
+                    var (startUtc, endUtc) = await _dateConverter.GetDateRangeUtc(
+                        filterInvoiceDTOs.startDate,
+                        filterInvoiceDTOs.endDate
+                    );
+
+                    query = query.Where(x => x.CreatedAt >= startUtc && x.CreatedAt <= endUtc);
+                }
+
+                query = query.Where(x => x.IsActive)
+               .OrderByDescending(x => x.CreatedAt);
+
+
+
+
+                var responseList = query
+                .Select(i => new FilterInvoiceResponse(
+                    i.Id,
+                    i.InvoiceNumber,
+                    i.Applicant.Profile.FullName,
+                    i.ApplicantId,
+                    i.TotalAmount,
+                    i.InvoiceStatus,
+                    i.IssueDate,
+                    i.DueDate,
+                    i.IsActive,
+                    i.SchoolId,
+                    i.CreatedBy,
+                    i.CreatedAt,
+                    i.ModifiedBy,
+                    i.ModifiedAt
+                ))
+                .ToList();
+
+                PagedResult<FilterInvoiceResponse> finalResponseList;
+
+                if (paginationRequest.IsPagination)
+                {
+
+                    int pageIndex = paginationRequest.pageIndex <= 0 ? 1 : paginationRequest.pageIndex;
+                    int pageSize = paginationRequest.pageSize <= 0 ? 10 : paginationRequest.pageSize;
+
+                    int totalItems = responseList.Count();
+
+                    var pagedItems = responseList
+                        .Skip((pageIndex - 1) * pageSize)
+                        .Take(pageSize)
+                        .ToList();
+
+                    finalResponseList = new PagedResult<FilterInvoiceResponse>
+                    {
+                        Items = pagedItems,
+                        TotalItems = totalItems,
+                        PageIndex = pageIndex,
+                        pageSize = pageSize
+                    };
+                }
+                else
+                {
+                    finalResponseList = new PagedResult<FilterInvoiceResponse>
+                    {
+                        Items = responseList.ToList(),
+                        TotalItems = responseList.Count(),
+                        PageIndex = 1,
+                        pageSize = responseList.Count()
+                    };
+                }
+                return Result<PagedResult<FilterInvoiceResponse>>.Success(finalResponseList);
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"An error occurred while fetching {ex.Message}", ex);
+            }
+        }
+
+        public async Task<Result<PagedResult<FilterInstallmentInvoiceResponse>>> FilterInstallmentInvoice(PaginationRequest paginationRequest, FilterInstallmentInvoiceDTOs filterInstallmentInvoiceDTOs)
+        {
+            try
+            {
+                var fyId = _fiscalContext.CurrentFiscalYearId;
+                var academicYearId = _fiscalContext.CurrentAcademicYearId;
+                var userId = _tokenService.GetUserId();
+
+                var (invoice, schoolId, institutionId, userRole, isSuperAdmin) = await _getUserScopedData.GetUserScopedData<Invoice>();
+
+                var schoolIds = await _unitOfWork.BaseRepository<School>()
+                    .GetConditionalFilterType(
+                        x => x.InstitutionId == institutionId,
+                        query => query.Select(c => c.Id)
+                    );
+
+                var filter = isSuperAdmin
+                    ? invoice.Where(x => x.IsInstallments == true)
+                    : invoice.Where(x =>
+                        (x.SchoolId == _tokenService.SchoolId().FirstOrDefault() || x.SchoolId == "")
+                        && x.IsInstallments == true
+                    );
+
+                IQueryable<Invoice> query = filter.AsQueryable();
+
+                if (!string.IsNullOrEmpty(filterInstallmentInvoiceDTOs.invoiceNumber))
+                {
+                    query = query.Where(x => x.InvoiceNumber == filterInstallmentInvoiceDTOs.invoiceNumber);
+                }
+
+                if (!string.IsNullOrEmpty(filterInstallmentInvoiceDTOs.applicantId))
+                {
+                    query = query.Where(x => x.ApplicantId == filterInstallmentInvoiceDTOs.applicantId);
+                }
+
+                if (filterInstallmentInvoiceDTOs.startDate != null && filterInstallmentInvoiceDTOs.endDate != null)
+                {
+                    var (startUtc, endUtc) = await _dateConverter.GetDateRangeUtc(
+                        filterInstallmentInvoiceDTOs.startDate,
+                        filterInstallmentInvoiceDTOs.endDate
+                    );
+
+                    query = query.Where(x => x.CreatedAt >= startUtc && x.CreatedAt <= endUtc);
+                }
+
+                query = query.Where(x => x.IsActive)
+               .OrderByDescending(x => x.CreatedAt);
+
+
+
+
+                var responseList = query
+                .Select(i => new FilterInstallmentInvoiceResponse(
+                    i.Id,
+                    i.InvoiceNumber,
+                    i.Applicant.Profile.FullName,
+                    i.ApplicantId,
+                    i.TotalAmount,
+                    i.InvoiceStatus,
+                    i.IssueDate,
+                    i.DueDate,
+                    i.IsActive,
+                    i.SchoolId,
+                    i.CreatedBy,
+                    i.CreatedAt,
+                    i.ModifiedBy,
+                    i.ModifiedAt
+                ))
+                .ToList();
+
+                PagedResult<FilterInstallmentInvoiceResponse> finalResponseList;
+
+                if (paginationRequest.IsPagination)
+                {
+
+                    int pageIndex = paginationRequest.pageIndex <= 0 ? 1 : paginationRequest.pageIndex;
+                    int pageSize = paginationRequest.pageSize <= 0 ? 10 : paginationRequest.pageSize;
+
+                    int totalItems = responseList.Count();
+
+                    var pagedItems = responseList
+                        .Skip((pageIndex - 1) * pageSize)
+                        .Take(pageSize)
+                        .ToList();
+
+                    finalResponseList = new PagedResult<FilterInstallmentInvoiceResponse>
+                    {
+                        Items = pagedItems,
+                        TotalItems = totalItems,
+                        PageIndex = pageIndex,
+                        pageSize = pageSize
+                    };
+                }
+                else
+                {
+                    finalResponseList = new PagedResult<FilterInstallmentInvoiceResponse>
+                    {
+                        Items = responseList.ToList(),
+                        TotalItems = responseList.Count(),
+                        PageIndex = 1,
+                        pageSize = responseList.Count()
+                    };
+                }
+                return Result<PagedResult<FilterInstallmentInvoiceResponse>>.Success(finalResponseList);
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"An error occurred while fetching {ex.Message}", ex);
+            }
+        }
+
+        public async Task<Result<InvoiceIdResponse>> Get(string invoiceId, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                var invoiceDetails = await _unitOfWork.BaseRepository<Invoice>()
+                     .GetConditionalAsync(
+                         x => x.Id == invoiceId,
+                         query => query
+                             .Include(x => x.InvoiceItems)
+                             .Include(x => x.Applicant)
+                                 .ThenInclude(x => x.Profile)
+                                     .ThenInclude(x => x.CrmLeadDetails)
+                     );
+
+                var paidAmount = _unitOfWork.BaseRepository<CrmPayment>()
+                    .GetQueryable().Where(x => x.InvoiceId == invoiceId) .Sum(x=>x.Amount);
+
+                var invoice = invoiceDetails.FirstOrDefault();
+                var installmentPlanDetails = new InvoiceIdResponse(
+                    invoice.Id,
+                    invoice.InvoiceNumber,
+                    invoice.ApplicantId,
+                    invoice.Applicant?.Profile?.FullName,
+                    paidAmount,
+                    invoice.Applicant?.Profile?.CrmLeadDetails?.ContactNumber,
+                    invoice.TotalAmount,
+                    invoice.InvoiceStatus,
+                    invoice.IssueDate,
+                    invoice.DueDate,
+                    invoice.InvoiceItems?
+                     .Where(detail => detail.IsActive == true)
+                    .Select(detail => new InvoiceItemsDTOs(
+                        detail.Id,
+                        detail.Description,
+                        detail.Amount,
+                        detail.Quantity
+                    )).ToList() ?? new List<InvoiceItemsDTOs>()
+                );
+
+
+                var invoiceResponse = _mapper.Map<InvoiceIdResponse>(installmentPlanDetails);
+
+                return Result<InvoiceIdResponse>.Success(invoiceResponse);
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while fetching", ex);
             }
         }
 
@@ -122,27 +429,82 @@ namespace ES.Crm.Finance.Infrastructure.ServiceImpl
                             .Failure("Invoice not found");
                     }
 
-                    var allItems = await _unitOfWork.BaseRepository<InvoiceItem>()
-                        .GetAllAsync();
-
-                    var existingItems = allItems
+                    var existingItems = (await _unitOfWork.BaseRepository<InvoiceItem>()
+                        .GetAllAsync())
                         .Where(x => x.InvoiceId == id)
                         .ToList();
 
-                    invoice.InvoiceNumber = request.invoiceNumber;
                     invoice.ApplicantId = request.applicantId;
-                    invoice.PaidAmount = request.paidAmount;
                     invoice.IssueDate = request.issueDate;
                     invoice.DueDate = request.dueDate;
-                    var totalAmount = existingItems.Sum(x => x.Amount * x.Quantity);
-                    invoice.TotalAmount = totalAmount;
-                    invoice.DueAmount = totalAmount - request.paidAmount;
 
-                  
-                    invoice.InvoiceStatus =
-                        invoice.PaidAmount == 0 ? InvoiceStatus.Issued :
-                        invoice.PaidAmount < totalAmount ? InvoiceStatus.PartiallyPaid :
-                        InvoiceStatus.Paid;
+                    var totalAmount = request.updateInvoiceItemDTOs
+                        .Sum(x => x.amount * x.quantity);
+
+                    invoice.TotalAmount = totalAmount;
+
+                    _unitOfWork.BaseRepository<Invoice>().Update(invoice);
+
+
+                    foreach (var itemDto in request.updateInvoiceItemDTOs)
+                    {
+                        // Existing Item Update
+                        if (!string.IsNullOrEmpty(itemDto.id))
+                        {
+                            var existingItem = existingItems
+                                .FirstOrDefault(x => x.Id == itemDto.id);
+
+                            if (existingItem != null)
+                            {
+                                existingItem.Description = itemDto.description;
+                                existingItem.Amount = itemDto.amount;
+                                existingItem.Quantity = itemDto.quantity;
+                                existingItem.IsActive = true;
+
+                                _unitOfWork.BaseRepository<InvoiceItem>()
+                                    .Update(existingItem);
+                            }
+                        }
+                        else
+                        {
+                            // New Item Add
+                            var newItem = new InvoiceItem(
+                                Guid.NewGuid().ToString(),
+                                invoice.Id,
+                                itemDto.description,
+                                itemDto.amount,
+                                itemDto.quantity,
+                                true
+                            );
+
+                            await _unitOfWork.BaseRepository<InvoiceItem>()
+                                .AddAsync(newItem);
+                        }
+                    }
+
+
+                    var requestItemIds = request.updateInvoiceItemDTOs
+                         .Where(x => !string.IsNullOrEmpty(x.id))
+                         .Select(x => x.id)
+                         .ToList();
+
+                    var deletedItems = existingItems
+                        .Where(x => !requestItemIds.Contains(x.Id))
+                        .ToList();
+
+
+                    foreach (var item in deletedItems)
+                    {
+                        // Soft Delete
+                        item.IsActive = false;
+
+                        _unitOfWork.BaseRepository<InvoiceItem>()
+                            .Update(item);
+
+                        // OR Hard Delete
+                        // _unitOfWork.BaseRepository<InvoiceItem>().Delete(item);
+                    }
+
 
                     await _unitOfWork.SaveChangesAsync();
 

@@ -162,12 +162,14 @@ namespace ES.Enrolment.Infrastructure.ServiceImpl
                 .Select(i => new FilterFollowUpResponse(
                     i.Id,
                     i.UserId,
+                    i.UserProfile.FullName,
                     i.StartTime,
                     i.EndTime,
                     i.FollowUpDate,
                     i.Notes,
                     i.FollowUpStatus,
                     i.Appointmentid,
+                    i.Appointment.Counselor.FullName + " - " + i.FollowUpDate,
                     i.IsActive,
                     i.SchoolId,
                     i.CreatedBy,
@@ -220,6 +222,7 @@ namespace ES.Enrolment.Infrastructure.ServiceImpl
                 throw new Exception($"An error occurred while fetching result: {ex.Message}", ex);
             }
         }
+
 
         public async Task<Result<FollowUpIdResponse>> Get(string followUpId, CancellationToken cancellationToken = default)
         {

@@ -22,7 +22,7 @@ namespace TN.Shared.Domain.Entities.Crm.Visa
             string applicantId,
             string documentTypeId,
             DocumentStatus documentStatus,
-            string docLink,
+            string? docLink,
             bool isActive,
             string schoolId,
             string createdBy,
@@ -44,7 +44,7 @@ namespace TN.Shared.Domain.Entities.Crm.Visa
             
         }
 
-        public string DocLink { get; set; }
+        public string? DocLink { get; set; }
         public string SchoolId { get; set; }
         public bool IsActive { get; set; }
         public string CreatedBy { get; set; }

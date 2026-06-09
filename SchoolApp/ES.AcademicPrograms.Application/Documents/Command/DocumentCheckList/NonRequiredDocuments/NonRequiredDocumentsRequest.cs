@@ -8,6 +8,6 @@ namespace ES.AcademicPrograms.Application.Documents.Command.DocumentCheckList.No
 {
     public record NonRequiredDocumentsRequest
     (
-         string dockCheckListId
+         string documentCheckListId
         );
 }

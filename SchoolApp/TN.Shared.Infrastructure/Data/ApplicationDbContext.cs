@@ -68,7 +68,7 @@ namespace TN.Shared.Infrastructure.Data
         public DbSet<VisaApplication> VisaApplications { get; set; }
         public DbSet<VisaStatus> VisaStatuses { get; set; }
         public DbSet<VisaApplicationStatusHistory> VisaApplicationStatusHistories { get; set; }
-        public DbSet<VisaApplicationDocument> VisaApplicationDocuments { get; set; }
+        //public DbSet<VisaApplicationDocument> VisaApplicationDocuments { get; set; }
         #endregion
 
         #region Documents
@@ -418,33 +418,33 @@ namespace TN.Shared.Infrastructure.Data
 
             #region Visa
 
-            #region VisaStatus and VisaApplicationDocuments(1:m)
-            builder.Entity<VisaApplicationDocument>()
-            .HasOne(x => x.VisaStatuses)
-            .WithMany(x => x.VisaApplicationDocuments)
-            .HasForeignKey(x => x.VisaStatusId)
-            .OnDelete(DeleteBehavior.Restrict);
+            //#region VisaStatus and VisaApplicationDocuments(1:m)
+            //builder.Entity<VisaApplicationDocument>()
+            //.HasOne(x => x.VisaStatuses)
+            //.WithMany(x => x.VisaApplicationDocuments)
+            //.HasForeignKey(x => x.VisaStatusId)
+            //.OnDelete(DeleteBehavior.Restrict);
 
-            #endregion
+            //#endregion
 
-            #region DocumentTypes and VisaApplicationDocuments(1:m)
-            builder.Entity<VisaApplicationDocument>()
-            .HasOne(x => x.DocumentTypes)
-            .WithMany(x => x.VisaApplicationDocuments)
-            .HasForeignKey(x => x.DocumentTypeId)
-            .OnDelete(DeleteBehavior.Restrict);
+            //#region DocumentTypes and VisaApplicationDocuments(1:m)
+            //builder.Entity<VisaApplicationDocument>()
+            //.HasOne(x => x.DocumentTypes)
+            //.WithMany(x => x.VisaApplicationDocuments)
+            //.HasForeignKey(x => x.DocumentTypeId)
+            //.OnDelete(DeleteBehavior.Restrict);
 
-            #endregion
+            //#endregion
 
 
-            #region VisaApplication and VisaApplicationDocuments(1:m)
-            builder.Entity<VisaApplicationDocument>()
-            .HasOne(x => x.VisaApplications)
-            .WithMany(x => x.VisaApplicationDocuments)
-            .HasForeignKey(x => x.VisaApplicationId)
-            .OnDelete(DeleteBehavior.Restrict);
+            //#region VisaApplication and VisaApplicationDocuments(1:m)
+            //builder.Entity<VisaApplicationDocument>()
+            //.HasOne(x => x.VisaApplications)
+            //.WithMany(x => x.VisaApplicationDocuments)
+            //.HasForeignKey(x => x.VisaApplicationId)
+            //.OnDelete(DeleteBehavior.Restrict);
 
-            #endregion
+            //#endregion
 
 
 
@@ -642,32 +642,32 @@ namespace TN.Shared.Infrastructure.Data
             #endregion
 
             #region Lead and LeadCountry(1:m)
-            builder.Entity<LeadCountry>()
-              .HasOne(p => p.CrmLead)
-              .WithMany(p => p.AppliedCountries)
-              .HasForeignKey(p => p.LeadId)
-              .OnDelete(DeleteBehavior.Restrict);
+            //builder.Entity<LeadCountry>()
+            //  .HasOne(p => p.CrmLead)
+            //  .WithMany(p => p.AppliedCountries)
+            //  .HasForeignKey(p => p.LeadId)
+            //  .OnDelete(DeleteBehavior.Restrict);
 
             #endregion
 
 
 
             #region LeadCountry and LeadUniversity(1:m)
-            builder.Entity<LeadUniversity>()
-              .HasOne(p => p.LeadCountry)
-              .WithMany(p => p.SelectedUniversities)
-              .HasForeignKey(p => p.LeadCountryId)
-              .OnDelete(DeleteBehavior.Cascade);
+            //builder.Entity<LeadUniversity>()
+            //  .HasOne(p => p.LeadCountry)
+            //  .WithMany(p => p.SelectedUniversities)
+            //  .HasForeignKey(p => p.LeadCountryId)
+            //  .OnDelete(DeleteBehavior.Cascade);
 
             #endregion
 
 
             #region LeadUniversity and LeadCourse(1:m)
-            builder.Entity<LeadCourse>()
-              .HasOne(p => p.LeadUniversity)
-              .WithMany(p => p.SelectedCourses)
-              .HasForeignKey(p => p.LeadUniversityId)
-              .OnDelete(DeleteBehavior.Cascade);
+            //builder.Entity<LeadCourse>()
+            //  .HasOne(p => p.LeadUniversity)
+            //  .WithMany(p => p.SelectedCourses)
+            //  .HasForeignKey(p => p.LeadUniversityId)
+            //  .OnDelete(DeleteBehavior.Cascade);
 
             #endregion
 
@@ -678,6 +678,14 @@ namespace TN.Shared.Infrastructure.Data
 
 
             #region AcademicPrograms
+
+            #region University and Requirements(1:m)
+            builder.Entity<Requirement>()
+               .HasOne(p => p.University)
+               .WithMany(p => p.Requirements)
+               .HasForeignKey(p => p.UniversityId)
+               .OnDelete(DeleteBehavior.Restrict);
+            #endregion
 
             #region Country and Requirements(1:m)
             builder.Entity<Requirement>()
@@ -718,6 +726,27 @@ namespace TN.Shared.Infrastructure.Data
             #endregion
 
 
+
+            #region Country and Intake(1:m)
+            builder.Entity<Intake>()
+               .HasOne(p => p.Country)
+               .WithMany(p => p.Intakes)
+               .HasForeignKey(p => p.CountryId)
+               .OnDelete(DeleteBehavior.Restrict);
+            #endregion
+
+
+            #region Univerity and Intake(1:m)
+            builder.Entity<Intake>()
+               .HasOne(p => p.University)
+               .WithMany(p => p.Intakes)
+               .HasForeignKey(p => p.UniversityId)
+               .OnDelete(DeleteBehavior.Restrict);
+            #endregion
+
+
+
+
             #region Course and Intake(1:m)
             builder.Entity<Intake>()
                .HasOne(p => p.Course)
@@ -725,6 +754,10 @@ namespace TN.Shared.Infrastructure.Data
                .HasForeignKey(p => p.CourseId)
                .OnDelete(DeleteBehavior.Restrict);
             #endregion
+
+
+
+
             #endregion
 
             #region Country and Applicant(1:m)

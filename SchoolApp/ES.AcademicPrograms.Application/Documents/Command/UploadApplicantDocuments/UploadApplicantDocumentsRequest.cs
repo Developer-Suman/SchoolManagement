@@ -9,7 +9,7 @@ namespace ES.AcademicPrograms.Application.Documents.Command.UploadApplicantDocum
     public record UploadApplicantDocumentsRequest
     (
         string applicantId,
-        List<UploadApplicantDocumentsDTOs> UploadApplicantDocumentsDTOs
+        List<UploadApplicantDocumentsDTOs> documentsByIdDTOs
         );
 
    

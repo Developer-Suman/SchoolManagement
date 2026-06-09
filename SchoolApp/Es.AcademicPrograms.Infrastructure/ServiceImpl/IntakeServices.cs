@@ -4,6 +4,7 @@ using ES.AcademicPrograms.Application.AcademicPrograms.Command.AddIntake;
 using ES.AcademicPrograms.Application.AcademicPrograms.Queries.FilterCourse;
 using ES.AcademicPrograms.Application.AcademicPrograms.Queries.FilterIntake;
 using ES.AcademicPrograms.Application.ServiceInterface;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -59,6 +60,8 @@ namespace ES.AcademicPrograms.Infrastructure.ServiceImpl
                         addIntakeCommand.month,
                         addIntakeCommand.deadline,
                         addIntakeCommand.isOpen,
+                        addIntakeCommand.countryId,
+                        addIntakeCommand.universityId,
                         addIntakeCommand.courseId,
                         true,
                         schoolId ?? "",
@@ -101,14 +104,19 @@ namespace ES.AcademicPrograms.Infrastructure.ServiceImpl
                     );
 
                 var filter = isSuperAdmin
-                    ? intake
-                    : intake
+                    ? intake.Include(x=>x.Country)
+                    .ThenInclude(x=>x.Universities)
+                    .ThenInclude(x=>x.Courses)
+                 
+                    : intake.Include(x => x.Country)
+                    .ThenInclude(x => x.Universities)
+                    .ThenInclude(x => x.Courses)
                .Where(x => x.SchoolId == _tokenService.SchoolId().FirstOrDefault() || x.SchoolId == "");
 
 
                 IQueryable<Intake> query = filter.AsQueryable();
 
-                if (filterIntakeDTOs.month ==  null)
+                if (filterIntakeDTOs.month is not null)
                 {
                     query = query.Where(x => x.Months == filterIntakeDTOs.month);
                 }
@@ -137,7 +145,12 @@ namespace ES.AcademicPrograms.Infrastructure.ServiceImpl
                     i.Months,
                     i.Deadline,
                     i.IsOpen,
+                    i.CountryId,
+                    i.Country != null ? i.Country.Name : "",
+                    i.UniversityId,
+                    i.University != null ? i.University.Name : "",
                     i.CourseId,
+                    i.Course != null ? i.Course.Title : "",
                     i.IsActive,
                     i.SchoolId,
                     i.CreatedBy,

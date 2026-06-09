@@ -11,9 +11,9 @@ namespace ES.Enrolment.Application.Enrolments.Queries.Appointments.AppointmentsI
    (
         string id = "",
             string leadId = "",
-            TimeOnly startTime = default,
-            TimeOnly endTime = default,
-            DateTime appointmentDate = default,
+                    string leadName = "",
+            string counselorName = "",
+            string appointmentDate = "",
             string counselorId = "",
             string notes = "",
             AppointmentStatus appointmentStatus = default,

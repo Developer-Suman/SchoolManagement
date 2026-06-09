@@ -10,6 +10,7 @@ namespace ES.AcademicPrograms.Application.AcademicPrograms.Command.AddRequiremen
     (
         string descriptions="",
         string countryId="",
+         string universityId="",
             string courseId="",
             List<DocumentsCheckListDTOs> documentsCheckListDTOs=default
         );

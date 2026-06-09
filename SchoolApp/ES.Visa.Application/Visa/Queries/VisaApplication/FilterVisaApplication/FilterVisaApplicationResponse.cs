@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static TN.Shared.Domain.Enum.HelperEnum;
 
 namespace ES.Visa.Application.Visa.Queries.VisaApplication.FilterVisaApplication
 {
@@ -10,12 +11,18 @@ namespace ES.Visa.Application.Visa.Queries.VisaApplication.FilterVisaApplication
     (
         string id="",
             string applicantId="",
+            string applicantName="",
             string countryId="",
+            string countryName="",
             string universityId="",
+            string universityName="",
             string courseId="",
+            string courseTitle="",
             string intakeId="",
+            NameOfEnglishMonths intakeMonth =default,
             DateTime appliedDate=default,
             string visaStatusId="",
+            string visaStatusName="",
             bool isActive=false,
             string schoolId="",
             string createdBy="",

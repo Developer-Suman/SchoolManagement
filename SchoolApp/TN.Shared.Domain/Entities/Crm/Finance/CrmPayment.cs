@@ -22,10 +22,11 @@ namespace TN.Shared.Domain.Entities.Crm.Finance
             string id,
             string invoiceId,
             decimal amount,
-            DateTime paymentDate,
+            string paymentDate,
             PaymentMethods paymentMethod,
             string referenceNumber,
             PaymentStatus paymentStatus,
+            bool? isInstallments,
             bool isActive,
             string schoolId,
             string createdBy,
@@ -35,6 +36,7 @@ namespace TN.Shared.Domain.Entities.Crm.Finance
             ) : base(id)
         {
             InvoiceId = invoiceId;
+            IsInstallments = isInstallments;
             Amount = amount;
             PaymentDate = paymentDate;
             PaymentMethod = paymentMethod;
@@ -49,6 +51,7 @@ namespace TN.Shared.Domain.Entities.Crm.Finance
             PaymentAllocations = new List<PaymentAllocation>();
         }
 
+        public bool? IsInstallments { get; set; }
         public string SchoolId { get; set; }
         public bool IsActive { get; set; }
         public string CreatedBy { get; set; }
@@ -58,7 +61,7 @@ namespace TN.Shared.Domain.Entities.Crm.Finance
         public string InvoiceId { get;set; }
         public Invoice Invoice { get;set; }
         public decimal Amount { get;set; }
-        public DateTime PaymentDate { get;set; }
+        public string PaymentDate { get;set; }
         public PaymentMethods PaymentMethod { get;set; }
         public string ReferenceNumber { get;set; }
         public PaymentStatus PaymentStatus { get; set; }

@@ -9,7 +9,7 @@ namespace ES.AcademicPrograms.Application.Documents.Command.DocumentCheckList.Re
 {
     public record RequiredDocumentsResponse
     (
-        string dockCheckListId,
+        string documentCheckListId,
         bool requiredStatus
         );
 }

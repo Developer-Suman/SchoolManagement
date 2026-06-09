@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ES.Crm.Finance.Application.CrmFinance.Queries.Invoice.InvoiceId;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,10 +14,14 @@ namespace ES.Crm.Finance.Application.CrmFinance.Queries.Payments.PaymentsId
         string id = "",
             string invoiceId = "",
             decimal amount = 0,
-            DateTime paymentDate = default,
+            decimal totalAmount=0,
+            string applicantName="",
+            string invoiceNumber="",
+            string paymentDate = default,
             PaymentMethods paymentMethod = default,
             string referenceNumber = "",
             PaymentStatus paymentStatus = default,
+            List<InvoiceItemsDTOs> InvoiceItemsDTOs = default,
             bool isActive = false,
             string schoolId = "",
             string createdBy = "",

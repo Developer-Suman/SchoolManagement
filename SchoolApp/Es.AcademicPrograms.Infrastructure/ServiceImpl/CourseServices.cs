@@ -1,7 +1,10 @@
 ﻿using AutoMapper;
 using ES.AcademicPrograms.Application.AcademicPrograms.Command.AddCourse;
 using ES.AcademicPrograms.Application.AcademicPrograms.Command.AddUniversity;
+using ES.AcademicPrograms.Application.AcademicPrograms.Queries.CountryId;
 using ES.AcademicPrograms.Application.AcademicPrograms.Queries.Course;
+using ES.AcademicPrograms.Application.AcademicPrograms.Queries.CourseId;
+using ES.AcademicPrograms.Application.AcademicPrograms.Queries.FilterCountry;
 using ES.AcademicPrograms.Application.AcademicPrograms.Queries.FilterCourse;
 using ES.AcademicPrograms.Application.ServiceInterface;
 using Microsoft.EntityFrameworkCore;
@@ -86,9 +89,103 @@ namespace ES.AcademicPrograms.Infrastructure.ServiceImpl
                 catch (Exception ex)
                 {
                     scope.Dispose();
-                    throw new Exception("An error occurred while adding ", ex);
+                    throw;
 
                 }
+            }
+        }
+
+        public async Task<Result<PagedResult<FilterCountryResponse>>> FilterCountry(PaginationRequest paginationRequest, FilterCountryDTOs filterCountryDTOs)
+        {
+            try
+            {
+                var fyId = _fiscalContext.CurrentFiscalYearId;
+                var userId = _tokenService.GetUserId();
+
+                var (country, schoolId, institutionId, userRole, isSuperAdmin) = await _getUserScopedData.GetUserScopedData<Country>();
+
+                var schoolIds = await _unitOfWork.BaseRepository<School>()
+                    .GetConditionalFilterType(
+                        x => x.InstitutionId == institutionId,
+                        query => query.Select(c => c.Id)
+                    );
+
+                var filter = isSuperAdmin
+                    ? country.Include(x => x.Universities)
+                    : country.Include(x => x.Universities)
+               .Where(x => x.SchoolId == _tokenService.SchoolId().FirstOrDefault() || x.SchoolId == "");
+
+                IQueryable<Country> query = filter.AsQueryable();
+
+                if (!string.IsNullOrEmpty(filterCountryDTOs.name))
+                {
+                    query = query.Where(x => x.Name == filterCountryDTOs.name);
+                }
+
+                if (filterCountryDTOs.startDate != null && filterCountryDTOs.endDate != null)
+                {
+                    var (startUtc, endUtc) = await _dateConverter.GetDateRangeUtc(
+                        filterCountryDTOs.startDate,
+                        filterCountryDTOs.endDate
+                    );
+
+                    query = query.Where(x => x.CreatedAt >= startUtc && x.CreatedAt <= endUtc);
+                }
+
+                query = query.Where(x => x.IsActive)
+               .OrderByDescending(x => x.CreatedAt);
+
+
+
+
+                var responseList = query
+                .OrderByDescending(x => x.CreatedAt)
+                .Select(i => new FilterCountryResponse(
+                    i.Id,
+                    i.Name,
+                    i.Universities.Select(u => u.Name).ToList()
+                ))
+                .ToList();
+
+                PagedResult<FilterCountryResponse> finalResponseList;
+
+                if (paginationRequest.IsPagination)
+                {
+
+                    int pageIndex = paginationRequest.pageIndex <= 0 ? 1 : paginationRequest.pageIndex;
+                    int pageSize = paginationRequest.pageSize <= 0 ? 10 : paginationRequest.pageSize;
+
+                    int totalItems = responseList.Count();
+
+                    var pagedItems = responseList
+                        .Skip((pageIndex - 1) * pageSize)
+                        .Take(pageSize)
+                        .ToList();
+
+                    finalResponseList = new PagedResult<FilterCountryResponse>
+                    {
+                        Items = pagedItems,
+                        TotalItems = totalItems,
+                        PageIndex = pageIndex,
+                        pageSize = pageSize
+                    };
+                }
+                else
+                {
+                    finalResponseList = new PagedResult<FilterCountryResponse>
+                    {
+                        Items = responseList.ToList(),
+                        TotalItems = responseList.Count(),
+                        PageIndex = 1,
+                        pageSize = responseList.Count()
+                    };
+                }
+                return Result<PagedResult<FilterCountryResponse>>.Success(finalResponseList);
+
+            }
+            catch (Exception ex)
+            {
+                throw;
             }
         }
 
@@ -108,8 +205,8 @@ namespace ES.AcademicPrograms.Infrastructure.ServiceImpl
                     );
 
                 var filter = isSuperAdmin
-                    ? course
-                    : course
+                    ? course.Include(x=>x.University)
+                    : course.Include(x => x.University)
                .Where(x => x.SchoolId == _tokenService.SchoolId().FirstOrDefault() || x.SchoolId == "");
 
                 IQueryable<Course> query = filter.AsQueryable();
@@ -144,6 +241,7 @@ namespace ES.AcademicPrograms.Infrastructure.ServiceImpl
                     i.TuationFee,
                     i.Currency,
                     i.UniversityId,
+                    i.University.Name,
                     i.IsActive,
                     i.SchoolId,
                     i.CreatedBy,
@@ -193,7 +291,40 @@ namespace ES.AcademicPrograms.Infrastructure.ServiceImpl
             }
             catch (Exception ex)
             {
-                throw new Exception($"An error occurred while fetching result: {ex.Message}", ex);
+                throw;
+            }
+        }
+
+        public async Task<Result<CourseIdResponse>> Get(string courseId, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                var course = await _unitOfWork.BaseRepository<Course>()
+                     .GetByGuIdAsync(courseId
+                     );
+
+
+                var result = new CourseIdResponse(
+                    course.Id,
+                    course.Title,
+                    course.StudyLevel,
+                    course.TuationFee,
+                    course.Currency,
+                    course.UniversityId,
+                    course.IsActive,
+                    course.SchoolId,
+                    course.CreatedBy,
+                    course.CreatedAt,
+                    course.ModifiedBy,
+                    course.ModifiedAt
+                );
+
+                return Result<CourseIdResponse>.Success(result);
+
+            }
+            catch (Exception ex)
+            {
+                throw;
             }
         }
 

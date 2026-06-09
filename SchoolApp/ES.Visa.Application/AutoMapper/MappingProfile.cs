@@ -55,7 +55,6 @@ namespace ES.Visa.Application.AutoMapper
             CreateMap<PagedResult<VisaApplication>, PagedResult<FilterVisaApplicationResponse>>().ReverseMap();
 
             CreateMap<VisaApplication, UpdateVisaApplicationCommand>().ReverseMap();
-            CreateMap<UpdateVisaApplicationResponseDTOs, VisaApplicationDocument>().ReverseMap();
 
             CreateMap<VisaApplicationResponse, VisaApplication>().ReverseMap();
 
