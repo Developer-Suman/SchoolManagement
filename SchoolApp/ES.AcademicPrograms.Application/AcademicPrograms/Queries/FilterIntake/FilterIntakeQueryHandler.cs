@@ -2,6 +2,7 @@
 using ES.AcademicPrograms.Application.AcademicPrograms.Queries.FilterCourse;
 using ES.AcademicPrograms.Application.ServiceInterface;
 using MediatR;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,14 +28,17 @@ namespace ES.AcademicPrograms.Application.AcademicPrograms.Queries.FilterIntake
 
         public async Task<Result<PagedResult<FilterIntakeResponse>>> Handle(FilterIntakeQuery request, CancellationToken cancellationToken)
         {
+            var entityName = typeof(FilterIntakeQuery).Name
+                 .Replace("Filter", "")
+                 .Replace("Query", "");
             try
             {
 
                 var result = await _intakeServices.FilterIntake(request.PaginationRequest, request.FilterIntakeDTOs);
 
-                var resultDisplay = _mapper.Map<PagedResult<FilterIntakeResponse>>(result.Data);
+                var filterResult = _mapper.Map<PagedResult<FilterIntakeResponse>>(result.Data);
 
-                return Result<PagedResult<FilterIntakeResponse>>.Success(resultDisplay);
+                return Result<PagedResult<FilterIntakeResponse>>.Success(filterResult, $"{entityName} return successfully");
             }
             catch (Exception ex)
             {

@@ -11,6 +11,7 @@ namespace ES.Enrolment.Application.Enrolments.Command.Enquiry.AddInquiry
 {
     public record AddInquiryRequest
     (
+
          string fullName,
         string email,
          DateTime dateOfBirth,
@@ -39,12 +40,12 @@ namespace ES.Enrolment.Application.Enrolments.Command.Enquiry.AddInquiry
         );
 
             public record LeadCountryDto(
-            string countryId, // CountryId
+            string countryId, 
             List<LeadUniversityDto> Universities
         );
 
             public record LeadUniversityDto(
-                string universityId, // UniversityId
+                string universityId, 
                 List<string> CourseIds
                 );
 

@@ -18,6 +18,7 @@ namespace ES.Crm.Finance.Infrastructure
             services.AddScoped<IInstallmentServices, InstallmentServices>();
             services.AddScoped<IInvoiceServices, InvoiceServices>();
             services.AddScoped<IPaymentServices, PaymentServices>();
+            services.AddScoped<ICalculationServices, CalculationServices>();
             #endregion
             return services;
         }

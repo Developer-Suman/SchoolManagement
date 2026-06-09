@@ -11,13 +11,6 @@ namespace ES.AcademicPrograms.Application.Documents.Queries.Documents.DocumentsB
     (
         string id="",
             string applicantId="",
-            string documentTypeId = "",
-            DocumentStatus documentStatus=default,
-            bool isActive=true,
-            string schoolId = "",
-            string createdBy = "",
-            DateTime createdAt=default,
-            string modifiedBy = "",
-            DateTime modifiedAt = default
+            DocumentsByIdDTOs documentsByIdDTOs= default
         );
 }

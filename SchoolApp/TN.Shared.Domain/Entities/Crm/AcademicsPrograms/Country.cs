@@ -33,6 +33,7 @@ namespace TN.Shared.Domain.Entities.Crm.AcademicsPrograms
             Requirements = new List<Requirement>();
             CrmApplicants = new List<CrmApplicant>();
             VisaApplications = new List<VisaApplication>();
+            Intakes = new List<Intake>();
 
         }
 
@@ -48,5 +49,6 @@ namespace TN.Shared.Domain.Entities.Crm.AcademicsPrograms
         public ICollection<Requirement> Requirements { get; set; }
         public ICollection<CrmApplicant> CrmApplicants { get; set; }
         public ICollection<VisaApplication> VisaApplications { get; set; }
+        public ICollection<Intake> Intakes { get; set; }
     }
 }

@@ -29,7 +29,7 @@ namespace ES.Enrolment.Application.Enrolments.Queries.Applicants.FilterApplicant
 
                 var resultDisplay = _mapper.Map<PagedResult<FilterApplicantResponse>>(result.Data);
 
-                return Result<PagedResult<FilterApplicantResponse>>.Success(resultDisplay, $"{entityName} Added Successfully");
+                return Result<PagedResult<FilterApplicantResponse>>.Success(resultDisplay, $"{entityName} returned Successfully");
             }
             catch (Exception ex)
             {

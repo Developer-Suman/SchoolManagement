@@ -18,8 +18,10 @@ namespace TN.Shared.Domain.Entities.Crm.AcademicsPrograms
 
         public Requirement(
             string id,
+            string title,
             string descriptions,
             string? countryId,
+            string? universityId,
             string courseId,
             List<DocumentChecklist> documentChecklists,
             bool isActive,
@@ -30,7 +32,9 @@ namespace TN.Shared.Domain.Entities.Crm.AcademicsPrograms
             DateTime modifiedAt
             ) : base(id)
         {
+            Title = title;
             Descriptions = descriptions;
+            UniversityId = universityId;
             CourseId = courseId;
             CountryId = countryId;
             SchoolId = schoolId;
@@ -45,6 +49,10 @@ namespace TN.Shared.Domain.Entities.Crm.AcademicsPrograms
 
         }
 
+        public string Title { get; set; }
+
+        public string? UniversityId { get; set; }
+        public University? University { get; set; }
         public string? CountryId { get; set; }
         public Country? Country { get; set; }
         public string SchoolId { get; set; }

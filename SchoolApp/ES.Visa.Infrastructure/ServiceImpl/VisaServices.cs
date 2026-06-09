@@ -61,34 +61,6 @@ namespace ES.Visa.Infrastructure.ServiceImpl
                     var academicYearId = _fiscalContext.CurrentAcademicYearId;
 
 
-                    var documents = new List<VisaApplicationDocument>();
-
-                    foreach (var x in addVisaApplicationCommand.visaApplicationDocumentsDTOs)
-                    {
-                        var imageURL = await _imageServices.AddSingle(x.docFile);
-
-                        if (imageURL is null)
-                        {
-                            return Result<AddVisaApplicationResponse>.Failure("Image Url are not Created");
-                        }
-
-                        var document = new VisaApplicationDocument(
-                            Guid.NewGuid().ToString(),
-                            newId,
-                            x.documentTypeId,
-                            imageURL,
-                            x.visaStatusId,
-                            true,
-                            DateTime.UtcNow,
-                            DateTime.UtcNow,
-                            userId
-                        );
-
-                        documents.Add(document);
-                    }
-
-
-
                     var add = new VisaApplication(
                         newId,
                         addVisaApplicationCommand.applicantId,
@@ -101,8 +73,6 @@ namespace ES.Visa.Infrastructure.ServiceImpl
                         addVisaApplicationCommand.visaDetails,
                         addVisaApplicationCommand.emailSent,
                         addVisaApplicationCommand.emailContent,
-
-                        documents,
                         fyId,
                         true,
                         schoolId,
@@ -269,12 +239,18 @@ namespace ES.Visa.Infrastructure.ServiceImpl
                 .Select(i => new FilterVisaApplicationResponse(
                     i.Id,
                     i.ApplicantId,
+                    i.CrmApplicant.Profile.FullName ?? "",
                     i.CountryId,
+                    i.Countries.Name,
                     i.UniversityId,
+                    i.Universities.Name,
                     i.CourseId,
+                    i.Courses.Title,
                     i.Intakeid,
+                    i.Intakes.Months,
                     i.AppliedDate,
                     i.VisaStatusId,
+                    i.VisaStatus.Name,
                     i.IsActive,
                     i.SchoolId,
                     i.CreatedBy,
@@ -534,8 +510,7 @@ namespace ES.Visa.Infrastructure.ServiceImpl
             try
             {
                 var visaApplication = await _unitOfWork.BaseRepository<VisaApplication>().
-                    GetConditionalAsync(x => x.Id == visaApplicationId,
-                    query => query.Include(rm => rm.VisaApplicationDocuments)
+                    GetConditionalAsync(x => x.Id == visaApplicationId
                     );
 
                 var visa = visaApplication.FirstOrDefault();
@@ -547,15 +522,7 @@ namespace ES.Visa.Infrastructure.ServiceImpl
                     visa.CourseId,
                     visa.Intakeid,
                     visa.AppliedDate,
-                    visa.VisaStatusId,
-                    visa.VisaApplicationDocuments?
-                     .Where(detail => detail.IsActive == true)
-                    .Select(detail => new VisaApplicationDocumentsResponseDTOs(
-                        detail.DocumentTypeId,
-                        detail.FilePath,
-                        detail.VisaStatusId
-
-                    )).ToList() ?? new List<VisaApplicationDocumentsResponseDTOs>()
+                    visa.VisaStatusId
                 );
 
                 var visaApplicationResponse = _mapper.Map<VisaApplicationResponse>(visaApplicationDetails);
@@ -616,8 +583,7 @@ namespace ES.Visa.Infrastructure.ServiceImpl
 
 
                     var visaApplicationDetails = await _unitOfWork.BaseRepository<VisaApplication>().
-                                 GetConditionalAsync(x => x.Id == visaApplicationId,
-                                 query => query.Include(rm => rm.VisaApplicationDocuments)
+                                 GetConditionalAsync(x => x.Id == visaApplicationId
                                  );
 
                     var visaApplication = visaApplicationDetails.FirstOrDefault();
@@ -639,87 +605,6 @@ namespace ES.Visa.Infrastructure.ServiceImpl
                     visaApplication.VisaStatusId = updateVisaApplicationCommand.visaStatusId;
                     visaApplication.ModifiedBy = userId;
                     visaApplication.ModifiedAt = DateTime.UtcNow;
-
-
-
-                    if (updateVisaApplicationCommand.updateVisaApplicationRequestDTOs != null && updateVisaApplicationCommand.updateVisaApplicationRequestDTOs.Any())
-                    {
-                        var incomingDocumentsTypeIds = updateVisaApplicationCommand.updateVisaApplicationRequestDTOs
-                            .Select(x => x.documentTypeId)
-                            .ToList();
-
-                        var existingVisaApplicationDoc = visaApplication.VisaApplicationDocuments
-                            .Where(x => x.IsActive == true)
-                            .ToList();
-
-                        var existingDict = existingVisaApplicationDoc
-                            .ToDictionary(x => x.DocumentTypeId, x => x);
-
-                        foreach (var detail in updateVisaApplicationCommand.updateVisaApplicationRequestDTOs)
-                        {
-                            string? imageURL = null;
-
-                            if (detail.docFile != null)
-                            {
-                                imageURL = await _imageServices.AddSingle(detail.docFile);
-
-                                if (imageURL is null)
-                                {
-                                    return Result<UpdateVisaApplicationResponse>.Failure("Image Url not created");
-                                }
-                            }
-
-                            if (existingDict.TryGetValue(detail.documentTypeId, out var existing))
-                            {
-
-                                if (imageURL != null && !string.IsNullOrEmpty(existing.FilePath))
-                                {
-                                    _imageServices.DeleteSingle(existing.FilePath); // assuming Delete method exists
-                                }
-                                existing.DocumentTypeId = detail.documentTypeId;
-                                existing.FilePath = imageURL ?? existing.FilePath; // keep old if no new file
-                                existing.VisaStatusId = detail.visaStatusId;
-                                existing.UploadedAt = DateTime.UtcNow;
-                                existing.IsActive = true;
-                                _unitOfWork.BaseRepository<VisaApplicationDocument>().Update(existing);
-                            }
-                            else
-                            {
-                                if (imageURL is null)
-                                {
-                                    return Result<UpdateVisaApplicationResponse>.Failure("Image is required for new document");
-                                }
-
-                                var visaApplicationDoc = new VisaApplicationDocument(
-                                    Guid.NewGuid().ToString(),
-                                    visaApplicationId,
-                                    detail.documentTypeId,
-                                    imageURL,
-                                    detail.visaStatusId,
-                                    true,
-                                    DateTime.UtcNow,
-                                    DateTime.UtcNow,
-                                    userId
-                                );
-
-                                visaApplication.VisaApplicationDocuments.Add(visaApplicationDoc);
-
-                                visaApplication.VisaApplicationDocuments.Add(visaApplicationDoc);
-                            }
-                        }
-
-                        var toSoftDelete = existingVisaApplicationDoc
-                            .Where(x => !incomingDocumentsTypeIds.Contains(x.DocumentTypeId))
-                            .ToList();
-
-                        foreach (var item in toSoftDelete)
-                        {
-                            item.IsActive = false;
-                            item.VerifiedAt = DateTime.UtcNow;
-                            item.VerifiedBy = userId;
-                        }
-                    }
-
                     await _unitOfWork.SaveChangesAsync();
                     scope.Complete();
 
@@ -744,19 +629,8 @@ namespace ES.Visa.Infrastructure.ServiceImpl
                             visaApplication.ModifiedAt,
                             visaApplication.VisaDetails,
                             visaApplication.EmailSent,
-                            visaApplication.EmailContent,
-                            visaApplication.VisaApplicationDocuments?
-                             .Where(detail => detail.IsActive == true)
-                            .Select(details => new UpdateVisaApplicationResponseDTOs
-                            (
-                                details.DocumentTypeId,
-                                details.FilePath,
-                                details.VisaStatusId
-
-                            )).ToList() ?? new List<UpdateVisaApplicationResponseDTOs>()
-
-
-
+                            visaApplication.EmailContent
+                         
                         );
 
                     return Result<UpdateVisaApplicationResponse>.Success(resultResponse);

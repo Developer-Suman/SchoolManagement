@@ -2,6 +2,7 @@
 using ES.Crm.Finance.Application.CrmFinance.Command.InstallmentsPlan.UpdateInstallmentsPlan;
 using ES.Crm.Finance.Application.CrmFinance.Queries.InstallmentsPlan.FilterInstallmentPlan;
 using ES.Crm.Finance.Application.CrmFinance.Queries.InstallmentsPlan.InstallmentPlan;
+using ES.Crm.Finance.Application.CrmFinance.Queries.Payments.InstallmentPaymentDetails;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,5 +22,6 @@ namespace ES.Crm.Finance.Application.ServiceInterface
         Task<Result<bool>> Delete(string id, CancellationToken cancellationToken);
        
         Task<Result<PagedResult<FilterInstallmentPlanResponse>>> Filter(PaginationRequest paginationRequest, FilterInstallmentPlanDTOs filterInstallmentPlanDTOs);
+        Task<Result<PagedResult<InstallmentPaymentDetailsResponse>>> InstallmentPaymentDetails(PaginationRequest paginationRequest, InstallmentPaymentDetailsDTOs installmentPaymentDetailsDTOs);
     }
 }

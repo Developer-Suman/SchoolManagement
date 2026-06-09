@@ -14,6 +14,7 @@ namespace ES.AcademicPrograms.Application.AcademicPrograms.Command.AddUniversity
                 (
                     request.name,
                     request.countryId,
+                    request.universityAddress,
                     request.descriptions,
                     request.website,
                     request.globalRanking

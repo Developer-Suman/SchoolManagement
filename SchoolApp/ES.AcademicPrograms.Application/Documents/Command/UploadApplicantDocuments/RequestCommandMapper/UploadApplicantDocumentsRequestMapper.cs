@@ -8,12 +8,13 @@ namespace ES.AcademicPrograms.Application.Documents.Command.UploadApplicantDocum
 {
     public static class UploadApplicantDocumentsRequestMapper
     {
-        public static UploadApplicantDocumentsCommand ToCommand(this UploadApplicantDocumentsRequest request)
+        public static UploadApplicantDocumentsCommand ToCommand(this UploadApplicantDocumentsRequest request, string id)
         {
             return new UploadApplicantDocumentsCommand
                 (
+                id,
                 request.applicantId,
-                request.UploadApplicantDocumentsDTOs
+                request.documentsByIdDTOs
                 );
         }
     }

@@ -2,8 +2,12 @@
 using ES.Academics.Application.Academics.Command.UpdateExamResult;
 using ES.Crm.Finance.Application.CrmFinance.Command.InstallmentsPlan.AddInstallmentsPlan;
 using ES.Crm.Finance.Application.CrmFinance.Command.InstallmentsPlan.AddInstallmentsPlan.RequestCommandMapper;
+using ES.Crm.Finance.Application.CrmFinance.Command.InstallmentsPlan.DeleteInstallmentsPlan;
+using ES.Crm.Finance.Application.CrmFinance.Command.InstallmentsPlan.UpdateInstallmentsPlan;
+using ES.Crm.Finance.Application.CrmFinance.Command.InstallmentsPlan.UpdateInstallmentsPlan.RequestCommandMapper;
 using ES.Crm.Finance.Application.CrmFinance.Command.Invoice.AddInvoice;
 using ES.Crm.Finance.Application.CrmFinance.Command.Invoice.AddInvoice.RequestCommandMapper;
+using ES.Crm.Finance.Application.CrmFinance.Command.Invoice.DeleteInvoice;
 using ES.Crm.Finance.Application.CrmFinance.Command.Invoice.UpdateInvoice;
 using ES.Crm.Finance.Application.CrmFinance.Command.Invoice.UpdateInvoice.RequestCommandMapper;
 using ES.Crm.Finance.Application.CrmFinance.Command.Payments.Addpayments;
@@ -13,7 +17,12 @@ using ES.Crm.Finance.Application.CrmFinance.Command.Payments.UpdatePayments;
 using ES.Crm.Finance.Application.CrmFinance.Command.Payments.UpdatePayments.RequestCommandMapper;
 using ES.Crm.Finance.Application.CrmFinance.Queries.InstallmentsPlan.FilterInstallmentPlan;
 using ES.Crm.Finance.Application.CrmFinance.Queries.InstallmentsPlan.InstallmentPlan;
+using ES.Crm.Finance.Application.CrmFinance.Queries.Invoice.FilterInstallmentInvoice;
+using ES.Crm.Finance.Application.CrmFinance.Queries.Invoice.FilterInvoice;
+using ES.Crm.Finance.Application.CrmFinance.Queries.Invoice.InvoiceId;
+using ES.Crm.Finance.Application.CrmFinance.Queries.Payments.FilterInstallmentPayments;
 using ES.Crm.Finance.Application.CrmFinance.Queries.Payments.FilterPayments;
+using ES.Crm.Finance.Application.CrmFinance.Queries.Payments.InstallmentPaymentDetails;
 using ES.Crm.Finance.Application.CrmFinance.Queries.Payments.PaymentsId;
 using ES.Visa.Application.Visa.Command.VisaApplication.DeleteVisaApplication;
 using ES.Visa.Application.Visa.Command.VisaApplication.UpdateVisaApplication;
@@ -70,6 +79,31 @@ namespace TN.Web.Controllers.CrmFinance.v1
         }
         #endregion
 
+        #region DeleteInvoice
+        [HttpDelete("DeleteInvoice/{id}")]
+
+        public async Task<IActionResult> DeleteInvoice([FromRoute] string id, CancellationToken cancellationToken)
+        {
+            var command = new DeleteInvoiceCommand(id);
+            var result = await _mediator.Send(command);
+            #region Switch Statement
+            return result switch
+            {
+
+                { IsSuccess: true } => Ok(new
+                {
+                    StatusCode = StatusCodes.Status204NoContent,
+                    Message = result.Message
+                }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(result.Errors),
+                _ => BadRequest("Invalid Fields")
+            };
+
+            #endregion
+        }
+
+        #endregion
+
         #region AddInvoice
         [HttpPost("AddInvoice")]
 
@@ -101,6 +135,90 @@ namespace TN.Web.Controllers.CrmFinance.v1
 
             #endregion
         }
+        #endregion
+
+        #region InvoiceById
+        [HttpGet("Invoice/{invoiceId}")]
+        public async Task<IActionResult> InvoiceById([FromRoute] string invoiceId)
+        {
+            var query = new InvoiceIdQuery(invoiceId);
+            var queryResult = await _mediator.Send(query);
+            #region Switch Statement
+            return queryResult switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(queryResult.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = queryResult.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(queryResult.Errors),
+                _ => BadRequest("Invalid page and pageSize Fields")
+            };
+            #endregion
+
+        }
+        #endregion
+
+        #region FilterInvoice
+        [HttpGet("FilterInvoice")]
+        public async Task<IActionResult> FilterInvoice([FromQuery] FilterInvoiceDTOs filterInvoiceDTOs, [FromQuery] PaginationRequest paginationRequest)
+        {
+
+            var query = new FilterInvoiceQuery(paginationRequest, filterInvoiceDTOs);
+            var filteredResult = await _mediator.Send(query);
+            #region Switch Statement
+            return filteredResult switch
+            {
+                { IsSuccess: true, Data: not null } => Ok(new
+                {
+                    Data = filteredResult.Data,
+                    Message = filteredResult.Message,
+                    StatusCode = StatusCodes.Status200OK
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = filteredResult.Message,
+                    Data = (object?)null
+                }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(filteredResult.Errors),
+                _ => BadRequest("Invalid page and pageSize Fields")
+            };
+            #endregion
+
+        }
+
+        #endregion
+
+        #region FilterInstallmentInvoice
+        [HttpGet("FilterInstallmentInvoice")]
+        public async Task<IActionResult> FilterInstallmentInvoice([FromQuery] FilterInstallmentInvoiceDTOs filterInstallmentInvoiceDTOs, [FromQuery] PaginationRequest paginationRequest)
+        {
+
+            var query = new FilterInstallmentInvoiceQuery(paginationRequest, filterInstallmentInvoiceDTOs);
+            var filteredResult = await _mediator.Send(query);
+            #region Switch Statement
+            return filteredResult switch
+            {
+                { IsSuccess: true, Data: not null } => Ok(new
+                {
+                    Data = filteredResult.Data,
+                    Message = filteredResult.Message,
+                    StatusCode = StatusCodes.Status200OK
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = filteredResult.Message,
+                    Data = (object?)null
+                }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(filteredResult.Errors),
+                _ => BadRequest("Invalid page and pageSize Fields")
+            };
+            #endregion
+
+        }
+
         #endregion
 
 
@@ -145,7 +263,7 @@ namespace TN.Web.Controllers.CrmFinance.v1
         #region UpdateInstallmentsPlan
         [HttpPatch("UpdateInstallmentsPlan/{Id}")]
 
-        public async Task<IActionResult> UpdateInstallmentsPlan(string Id, [FromForm] UpdateInstallmentsPlanRequest request)
+        public async Task<IActionResult> UpdateInstallmentsPlan(string Id, [FromBody] UpdateInstallmentsPlanRequest request)
         {
             //Mapping command and request
             var command = request.ToCommand(Id);
@@ -256,6 +374,40 @@ namespace TN.Web.Controllers.CrmFinance.v1
         #endregion
 
         #region Payment
+
+        #region InstallmentPaymentDetails
+        [HttpGet("InstallmentPaymentDetails")]
+        public async Task<IActionResult> InstallmentPaymentDetails([FromQuery] InstallmentPaymentDetailsDTOs installmentPaymentDetailsDTOs, [FromQuery] PaginationRequest paginationRequest)
+        {
+
+            var query = new InstallmentPaymentDetailsQuery(paginationRequest, installmentPaymentDetailsDTOs);
+            var filteredResult = await _mediator.Send(query);
+            #region Switch Statement
+            return filteredResult switch
+            {
+                { IsSuccess: true, Data: not null } => Ok(new
+                {
+                    Data = filteredResult.Data,
+                    Message = filteredResult.Message,
+                    StatusCode = StatusCodes.Status200OK
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = filteredResult.Message,
+                    Data = (object?)null
+                }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(filteredResult.Errors),
+                _ => BadRequest("Invalid page and pageSize Fields")
+            };
+            #endregion
+
+        }
+
+        #endregion
+
+
+
         #region AddPayments
         [HttpPost("AddPayments")]
 
@@ -292,7 +444,7 @@ namespace TN.Web.Controllers.CrmFinance.v1
         #region UpdatePayments
         [HttpPatch("UpdatePayments/{Id}")]
 
-        public async Task<IActionResult> UpdatePayments(string Id, [FromForm] UpdatePaymentsRequest request)
+        public async Task<IActionResult> UpdatePayments([FromRoute] string Id, [FromBody] UpdatePaymentsRequest request)
         {
             //Mapping command and request
             var command = request.ToCommand(Id);
@@ -374,6 +526,36 @@ namespace TN.Web.Controllers.CrmFinance.v1
         public async Task<IActionResult> FilterPayments([FromQuery] FilterPaymentsDTOs filterPaymentsDTOs, [FromQuery] PaginationRequest paginationRequest)
         {
             var query = new FilterPaymentsQuery(paginationRequest, filterPaymentsDTOs);
+            var filteredResult = await _mediator.Send(query);
+            #region Switch Statement
+            return filteredResult switch
+            {
+                { IsSuccess: true, Data: not null } => Ok(new
+                {
+                    Data = filteredResult.Data,
+                    Message = filteredResult.Message,
+                    StatusCode = StatusCodes.Status200OK
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = filteredResult.Message,
+                    Data = (object?)null
+                }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(filteredResult.Errors),
+                _ => BadRequest("Invalid page and pageSize Fields")
+            };
+            #endregion
+
+        }
+
+        #endregion
+
+        #region FilterInstallmentPayments
+        [HttpGet("FilterInstallmentPayments")]
+        public async Task<IActionResult> FilterInstallmentPayments([FromQuery] FilterInstallmentPaymentsDTOs filterInstallmentPaymentsDTOs, [FromQuery] PaginationRequest paginationRequest)
+        {
+            var query = new FilterInstallmentPaymentsQuery(paginationRequest, filterInstallmentPaymentsDTOs);
             var filteredResult = await _mediator.Send(query);
             #region Switch Statement
             return filteredResult switch

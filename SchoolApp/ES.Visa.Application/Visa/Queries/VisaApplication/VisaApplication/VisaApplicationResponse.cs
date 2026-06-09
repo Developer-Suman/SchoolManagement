@@ -16,7 +16,6 @@ namespace ES.Visa.Application.Visa.Queries.VisaApplication.VisaApplication
             string courseId = "",
             string intakeId = "",
             DateTime appliedDate = default,
-            string visaStatusId = "",
-            List<VisaApplicationDocumentsResponseDTOs> visaApplicationDocumentsDTOs = default
+            string visaStatusId = ""
         );
 }

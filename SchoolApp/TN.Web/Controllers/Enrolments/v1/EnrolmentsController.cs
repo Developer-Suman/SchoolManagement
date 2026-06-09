@@ -775,16 +775,23 @@ namespace TN.Web.Controllers.Enrolments.v1
         public async Task<IActionResult> AlAllApplicantlInquiry([FromQuery] PaginationRequest paginationRequest)
         {
             var query = new ApplicantQuery(paginationRequest);
-            var result = await _mediator.Send(query);
+            var filteredResult = await _mediator.Send(query);
             #region Switch Statement
-            return result switch
+            return filteredResult switch
             {
-                { IsSuccess: true, Data: not null } => new JsonResult(result.Data, new JsonSerializerOptions
+                { IsSuccess: true, Data: not null } => Ok(new
                 {
-                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                    Data = filteredResult.Data,
+                    Message = filteredResult.Message,
+                    StatusCode = StatusCodes.Status200OK
                 }),
-                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { result.Message }),
-                { IsSuccess: false, Errors: not null } => HandleFailureResult(result.Errors),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = filteredResult.Message,
+                    Data = (object?)null
+                }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(filteredResult.Errors),
                 _ => BadRequest("Invalid page and pageSize Fields")
             };
             #endregion
@@ -1018,11 +1025,18 @@ namespace TN.Web.Controllers.Enrolments.v1
             #region Switch Statement
             return result switch
             {
-                { IsSuccess: true, Data: not null } => new JsonResult(result.Data, new JsonSerializerOptions
+                { IsSuccess: true, Data: not null } => Ok(new
                 {
-                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                    Data = result.Data,
+                    Message = result.Message,
+                    StatusCode = StatusCodes.Status200OK
                 }),
-                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { result.Message }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = result.Message,
+                    Data = (object?)null
+                }),
                 { IsSuccess: false, Errors: not null } => HandleFailureResult(result.Errors),
                 _ => BadRequest("Invalid page and pageSize Fields")
             };

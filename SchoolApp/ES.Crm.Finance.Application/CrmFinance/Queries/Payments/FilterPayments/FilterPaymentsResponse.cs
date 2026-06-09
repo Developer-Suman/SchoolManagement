@@ -11,9 +11,11 @@ namespace ES.Crm.Finance.Application.CrmFinance.Queries.Payments.FilterPayments
     public record FilterPaymentsResponse
     (
         string id="",
+           string invoiceNumber = "",
+        string applicantName = "",
             string invoiceId="",
             decimal amount=0,
-            DateTime paymentDate=default,
+            string paymentDate=default,
             PaymentMethods paymentMethod=default,
             string referenceNumber="",
             PaymentStatus paymentStatus=default,

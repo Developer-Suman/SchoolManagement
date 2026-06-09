@@ -39,7 +39,6 @@ namespace TN.Shared.Domain.Entities.Crm.Visa
 
             Documents = new List<Document>();
             DocumentChecklists = new List<DocumentChecklist>();
-            VisaApplicationDocuments = new List<VisaApplicationDocument>();
 
         }
 
@@ -52,6 +51,5 @@ namespace TN.Shared.Domain.Entities.Crm.Visa
         public string Name { get; set;  }
         public ICollection<Document> Documents { get; set; }
         public ICollection<DocumentChecklist> DocumentChecklists { get; set; }
-        public ICollection<VisaApplicationDocument> VisaApplicationDocuments { get; set; }
     }
 }

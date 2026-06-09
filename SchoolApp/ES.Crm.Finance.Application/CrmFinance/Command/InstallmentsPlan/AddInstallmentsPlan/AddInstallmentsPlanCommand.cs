@@ -11,7 +11,7 @@ namespace ES.Crm.Finance.Application.CrmFinance.Command.InstallmentsPlan.AddInst
 {
     public record AddInstallmentsPlanCommand
     (
-        string applicantId,
+        string invoiceId,
             int numberOfInstallments
             //List<AddInstallmentsDTOs> installmentsDTOs
         ) : IRequest<Result<AddInstallmentsPlanResponse>>;

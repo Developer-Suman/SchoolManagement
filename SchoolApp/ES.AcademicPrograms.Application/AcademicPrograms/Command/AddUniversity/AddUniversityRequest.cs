@@ -10,6 +10,7 @@ namespace ES.AcademicPrograms.Application.AcademicPrograms.Command.AddUniversity
     (
         string name,
             string countryId,
+            string universityAddress,
             string? descriptions,
             string? website,
             int globalRanking

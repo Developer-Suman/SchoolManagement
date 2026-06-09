@@ -24,7 +24,7 @@ namespace TN.Shared.Domain.Entities.Crm.Lead
 
         public string? UniversityId { get; set; }
         public string? LeadCountryId { get;set; }
-        public LeadCountry LeadCountry { get; set; }
+        //public LeadCountry LeadCountry { get; set; }
         public List<LeadCourse> SelectedCourses { get; set; }
     }
 }

@@ -17,8 +17,6 @@ namespace ES.Enrolment.Application.Enrolments.Queries.Appointments.ScheduleAppoi
     public record AppointmentDetails(
         string counselorName,
         string leadName,
-        TimeOnly startTime,
-        TimeOnly endTime,
         string? notes,
         string status
     );

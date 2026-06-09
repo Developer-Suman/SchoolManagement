@@ -29,7 +29,6 @@ namespace TN.Shared.Domain.Entities.Crm.Visa
             string visaDetails,
             bool emailSent,
             string emailContent,
-            List<VisaApplicationDocument> visaApplicationDocuments,
             string fyId,
             bool isActive,
             string schoolId,
@@ -57,7 +56,6 @@ namespace TN.Shared.Domain.Entities.Crm.Visa
             CreatedAt = createdAt;
             ModifiedAt = modifiedAt;
             ModifiedBy = modifiedBy;
-            VisaApplicationDocuments = visaApplicationDocuments;
             VisaApplicationStatusHistories = new List<VisaApplicationStatusHistory>();
            
 
@@ -92,6 +90,5 @@ namespace TN.Shared.Domain.Entities.Crm.Visa
         public string ModifiedBy { get; set; }
         public DateTime ModifiedAt { get; set; } = DateTime.UtcNow;
         public ICollection<VisaApplicationStatusHistory> VisaApplicationStatusHistories { get; set; }
-        public ICollection<VisaApplicationDocument> VisaApplicationDocuments { get; set; }
     }
 }

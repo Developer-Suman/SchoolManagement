@@ -23,18 +23,22 @@ namespace ES.AcademicPrograms.Application.Documents.Queries.Documents.FilterDocu
         }
         public async Task<Result<PagedResult<FilterDocumentsResponse>>> Handle(FilterDocumentsQuery request, CancellationToken cancellationToken)
         {
+            var entityName = typeof(FilterDocumentsQuery).Name
+                    .Replace("Filter", "")
+                    .Replace("Query", "");
+
             try
             {
 
                 var result = await _documentsServices.FilterDocuments(request.FilterDocumentsDTOs, request.PaginationRequest);
 
-                var resultDetails = _mapper.Map<PagedResult<FilterDocumentsResponse>>(result.Data);
+                var resultDisplay = _mapper.Map<PagedResult<FilterDocumentsResponse>>(result.Data);
 
-                return Result<PagedResult<FilterDocumentsResponse>>.Success(resultDetails);
+                return Result<PagedResult<FilterDocumentsResponse>>.Success(resultDisplay, $"{entityName} returned Successfully");
             }
             catch (Exception ex)
             {
-                return Result<PagedResult<FilterDocumentsResponse>>.Failure($"An error occurred: {ex.Message}");
+                throw;
             }
         }
     }

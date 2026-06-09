@@ -20,15 +20,18 @@ namespace TN.Shared.Domain.Entities.Crm.Finance
             string invoiceId,
             string description,
             decimal amount,
-            int quantity
+            int quantity,
+            bool isActive
             ) : base(id)
         {
             InvoiceId = invoiceId;
             Description = description;
             Amount = amount;
             Quantity = quantity;
+            IsActive = isActive;
         }
 
+        public bool IsActive { get; set;  }
         public string InvoiceId { get; set; }
         public Invoice Invoice { get; set; }
         public string Description { get; set; }

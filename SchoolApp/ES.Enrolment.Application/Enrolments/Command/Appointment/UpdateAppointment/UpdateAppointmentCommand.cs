@@ -13,9 +13,7 @@ namespace ES.Enrolment.Application.Enrolments.Command.Appointment.UpdateAppointm
     (
         string id,
          string leadId,
-         TimeOnly startTime,
-         TimeOnly endTime,
-            DateTime appointmentDate,
+            string appointmentDate,
             string counselorId,
             string notes,
             AppointmentStatus appointmentStatus

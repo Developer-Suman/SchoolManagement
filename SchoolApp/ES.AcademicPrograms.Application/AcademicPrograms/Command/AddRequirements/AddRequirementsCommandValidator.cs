@@ -15,6 +15,18 @@ namespace ES.AcademicPrograms.Application.AcademicPrograms.Command.AddRequiremen
             .NotEmpty()
             .WithMessage("Descriptions is required.");
 
+            RuleFor(x => x.countryId)
+           .NotEmpty()
+           .WithMessage("Country is required.");
+
+            RuleFor(x => x.universityId)
+          .NotEmpty()
+          .WithMessage("University is required.");
+
+            RuleFor(x => x.courseId)
+         .NotEmpty()
+         .WithMessage("Courses is required.");
+
         }
     }
 }

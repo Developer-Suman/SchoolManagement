@@ -43,7 +43,7 @@ namespace TN.Shared.Domain.Entities.Crm.Visa
             VisaStatusType = visaStatusType;
             VisaApplications = new List<VisaApplication>();
             VisaApplicationStatusHistories = new List<VisaApplicationStatusHistory>();
-            VisaApplicationDocuments = new List<VisaApplicationDocument>();
+   
 
 
         }
@@ -59,6 +59,5 @@ namespace TN.Shared.Domain.Entities.Crm.Visa
         public VisaStatusType VisaStatusType { get; set; }
         public ICollection<VisaApplication> VisaApplications { get; set; }
         public ICollection<VisaApplicationStatusHistory> VisaApplicationStatusHistories { get; set; }
-        public ICollection<VisaApplicationDocument> VisaApplicationDocuments { get; set; }
     }
 }

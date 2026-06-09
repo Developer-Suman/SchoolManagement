@@ -22,6 +22,8 @@ namespace TN.Shared.Domain.Entities.Crm.AcademicsPrograms
             NameOfEnglishMonths month,
             DateTime? deadline,
             bool? isOpen,
+            string countryId,
+            string universityId,
             string courseId,
             bool isActive,
             string schoolId,
@@ -32,6 +34,9 @@ namespace TN.Shared.Domain.Entities.Crm.AcademicsPrograms
 
             ) : base(id)
         {
+            CountryId = countryId;
+            UniversityId = universityId;
+            CreatedBy = createdBy;
             Months = month;
             Deadline = deadline;
             IsOpen = isOpen;
@@ -57,6 +62,12 @@ namespace TN.Shared.Domain.Entities.Crm.AcademicsPrograms
         public NameOfEnglishMonths Months { get; set;  }
         public DateTime? Deadline { get; set; }
         public bool? IsOpen { get; set; }
+
+        public string CountryId { get; set; }
+        public Country Country { get; set; }
+
+        public string UniversityId { get; set; }
+        public University University { get; set; }
         public string CourseId { get; set; }
         public Course Course { get; set; }
         public ICollection<VisaApplication> VisaApplications { get; set; }

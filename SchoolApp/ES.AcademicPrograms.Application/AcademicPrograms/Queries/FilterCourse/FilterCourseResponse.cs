@@ -15,6 +15,7 @@ namespace ES.AcademicPrograms.Application.AcademicPrograms.Queries.FilterCourse
             decimal tuationFee=0,
             string currency="",
             string universityId="",
+            string universityName="",
             bool isActive=true,
             string schoolId = "",
             string createdBy = "",

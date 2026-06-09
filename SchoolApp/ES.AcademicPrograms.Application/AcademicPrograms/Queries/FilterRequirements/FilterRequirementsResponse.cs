@@ -10,8 +10,13 @@ namespace ES.AcademicPrograms.Application.AcademicPrograms.Queries.FilterRequire
     public record FilterRequirementsResponse
     (
         string id = "",
+        string title = "",
             string descriptions = "",
             string courseId = "",
+            string universityName="",
+            string universityAddress="",
+            string courseName="",
+            string countryName="",
             string? countryId="",
             List<DocCheckListDTOs> DocumentsCheckListDTOs = default,
             bool isActive= true,

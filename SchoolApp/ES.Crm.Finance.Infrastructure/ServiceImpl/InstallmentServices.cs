@@ -5,6 +5,7 @@ using ES.Crm.Finance.Application.CrmFinance.Command.InstallmentsPlan.AddInstallm
 using ES.Crm.Finance.Application.CrmFinance.Command.InstallmentsPlan.UpdateInstallmentsPlan;
 using ES.Crm.Finance.Application.CrmFinance.Queries.InstallmentsPlan.FilterInstallmentPlan;
 using ES.Crm.Finance.Application.CrmFinance.Queries.InstallmentsPlan.InstallmentPlan;
+using ES.Crm.Finance.Application.CrmFinance.Queries.Payments.InstallmentPaymentDetails;
 using ES.Crm.Finance.Application.ServiceInterface;
 using Microsoft.EntityFrameworkCore;
 using System.Transactions;
@@ -17,6 +18,7 @@ using TN.Shared.Domain.Entities.Crm.Visa;
 using TN.Shared.Domain.Entities.OrganizationSetUp;
 using TN.Shared.Domain.ExtensionMethod.Pagination;
 using TN.Shared.Domain.IRepository;
+using Unity;
 
 namespace ES.Crm.Finance.Infrastructure.ServiceImpl
 {
@@ -59,10 +61,9 @@ namespace ES.Crm.Finance.Infrastructure.ServiceImpl
                     var academicYearId = _fiscalContext.CurrentAcademicYearId;
 
 
-                    var invoiceDetails = await _unitOfWork.BaseRepository<Invoice>()
-                        .GetConditionalAsync(x=>x.ApplicantId == addInstallmentsPlanCommand.applicantId);
+                    var invoice = await _unitOfWork.BaseRepository<Invoice>()
+                        .GetByGuIdAsync(addInstallmentsPlanCommand.invoiceId);
 
-                    var invoice = invoiceDetails.FirstOrDefault();
                     if (addInstallmentsPlanCommand.numberOfInstallments <= 0)
                         throw new Exception("Invalid number of installments");
 
@@ -104,6 +105,7 @@ namespace ES.Crm.Finance.Infrastructure.ServiceImpl
                         newId,
                         invoice.Id,
                         addInstallmentsPlanCommand.numberOfInstallments,
+                        baseAmount,
                         invoice.TotalAmount,
                         installments,
                         true,
@@ -293,6 +295,150 @@ namespace ES.Crm.Finance.Infrastructure.ServiceImpl
             }
         }
 
+        public async Task<Result<PagedResult<InstallmentPaymentDetailsResponse>>> InstallmentPaymentDetails(PaginationRequest paginationRequest, InstallmentPaymentDetailsDTOs installmentPaymentDetailsDTOs)
+        {
+            try
+            {
+                var fyId = _fiscalContext.CurrentFiscalYearId;
+                var academicYearId = _fiscalContext.CurrentAcademicYearId;
+                var userId = _tokenService.GetUserId();
+
+                var (crmPayments, schoolId, institutionId, userRole, isSuperAdmin) = await _getUserScopedData.GetUserScopedData<CrmPayment>();
+
+                var schoolIds = await _unitOfWork.BaseRepository<School>()
+                    .GetConditionalFilterType(
+                        x => x.InstitutionId == institutionId,
+                        query => query.Select(c => c.Id)
+                    );
+
+                var filter = isSuperAdmin
+                    ? crmPayments
+                    : crmPayments.Where(x => x.SchoolId == _tokenService.SchoolId().FirstOrDefault() || x.SchoolId == "");
+
+                IQueryable<CrmPayment> query = filter.AsQueryable();
+
+
+
+                var invoiceDetails = await _unitOfWork.BaseRepository<Invoice>()
+                    .GetByGuIdAsync(installmentPaymentDetailsDTOs.invoiceid);
+
+                var numberOfInstallments = await _unitOfWork
+                        .BaseRepository<InstallmentPlan>()
+                        .GetQueryable()
+                        .Where(x => x.InvoiceId == installmentPaymentDetailsDTOs.invoiceid && x.IsActive)
+                        .Select(x => x.NumberOfInstallments)
+                        .FirstOrDefaultAsync();
+
+
+
+                if (!string.IsNullOrEmpty(installmentPaymentDetailsDTOs.invoiceid))
+                {
+                    query = query.Where(x => x.InvoiceId == installmentPaymentDetailsDTOs.invoiceid);
+                }
+
+                if (installmentPaymentDetailsDTOs.startDate != null && installmentPaymentDetailsDTOs.endDate != null)
+                {
+                    var (startUtc, endUtc) = await _dateConverter.GetDateRangeUtc(
+                        installmentPaymentDetailsDTOs.startDate,
+                        installmentPaymentDetailsDTOs.endDate
+                    );
+
+                    query = query.Where(x => x.CreatedAt >= startUtc && x.CreatedAt <= endUtc);
+                }
+
+                query = query.Where(x => x.IsActive)
+               .OrderByDescending(x => x.CreatedAt);
+
+
+                var installmentPlan = await _unitOfWork.BaseRepository<InstallmentPlan>().GetQueryable()
+                .FirstOrDefaultAsync(x => x.InvoiceId == installmentPaymentDetailsDTOs.invoiceid);
+
+                var payments = await query
+                    .OrderBy(x => x.PaymentDate)
+                    .ToListAsync();
+
+                decimal remainingAmount = invoiceDetails.TotalAmount;
+
+                var mappedPayments = payments.Select(i =>
+                {
+                    remainingAmount -= i.Amount;
+
+                    return new InstallmentPayments(
+                        i.Amount,
+                        i.PaymentDate,
+                        i.PaymentMethod,
+                        i.ReferenceNumber,
+                        remainingAmount
+                    );
+                }).ToList();
+
+                var response = new InstallmentPaymentDetailsResponse(
+                    invoiceDetails.TotalAmount,
+                    numberOfInstallments,
+                    installmentPlan.BaseAmount,
+                    mappedPayments
+                );
+
+                PagedResult<InstallmentPaymentDetailsResponse> finalResponseList;
+
+                if (paginationRequest.IsPagination)
+                {
+                    int pageIndex = paginationRequest.pageIndex <= 0
+                        ? 1
+                        : paginationRequest.pageIndex;
+
+                    int pageSize = paginationRequest.pageSize <= 0
+                        ? 10
+                        : paginationRequest.pageSize;
+
+                    int totalItems = mappedPayments.Count;
+
+                    var pagedItems = mappedPayments
+                        .Skip((pageIndex - 1) * pageSize)
+                        .Take(pageSize)
+                        .ToList();
+
+                    finalResponseList = new PagedResult<InstallmentPaymentDetailsResponse>
+                    {
+                        Items = new List<InstallmentPaymentDetailsResponse>
+                        {
+                            new InstallmentPaymentDetailsResponse(
+                                invoiceDetails.TotalAmount,
+                                numberOfInstallments,
+                                 installmentPlan.BaseAmount,
+                                pagedItems
+                            )
+                        },
+                                        TotalItems = totalItems,
+                                        PageIndex = pageIndex,
+                                        pageSize = pageSize
+                                    };
+                                }
+                                else
+                                {
+                                    finalResponseList = new PagedResult<InstallmentPaymentDetailsResponse>
+                                    {
+                                        Items = new List<InstallmentPaymentDetailsResponse>
+                        {
+                            response
+                        },
+                        TotalItems = mappedPayments.Count,
+                        PageIndex = 1,
+                        pageSize = mappedPayments.Count
+                    };
+                }
+
+                return Result<PagedResult<InstallmentPaymentDetailsResponse>>
+                    .Success(finalResponseList);
+
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"An error occurred while fetching {ex.Message}", ex);
+            }
+        }
+
         public async Task<Result<UpdateInstallmentsPlanResponse>> Update(string installmentPlanId, UpdateInstallmentsPlanCommand updateInstallmentsPlanCommand)
         {
             using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
@@ -323,12 +469,15 @@ namespace ES.Crm.Finance.Infrastructure.ServiceImpl
                     var invoice = await _unitOfWork.BaseRepository<Invoice>()
                        .GetByGuIdAsync(updateInstallmentsPlanCommand.invoiceId);
 
+                    decimal baseAmount = Math.Floor(invoice.TotalAmount / updateInstallmentsPlanCommand.numberOfInstallments);
+
 
                     installmentsPlan.InvoiceId = invoice.Id;
                     installmentsPlan.NumberOfInstallments = updateInstallmentsPlanCommand.numberOfInstallments;
                     installmentsPlan.TotalAmount = invoice.TotalAmount;
                     installmentsPlan.ModifiedBy = userId;
                     installmentsPlan.ModifiedAt = DateTime.UtcNow;
+                    installmentsPlan.BaseAmount = baseAmount;
 
                     _unitOfWork.BaseRepository<InstallmentPlan>().Update(installmentsPlan);
 
@@ -352,7 +501,6 @@ namespace ES.Crm.Finance.Infrastructure.ServiceImpl
                     }
 
 
-                    decimal baseAmount = Math.Floor(invoice.TotalAmount / updateInstallmentsPlanCommand.numberOfInstallments);
                     decimal remainder = invoice.TotalAmount % updateInstallmentsPlanCommand.numberOfInstallments;
 
                     var newInstallments = new List<Installment>();

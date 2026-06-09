@@ -9,18 +9,23 @@ using ES.AcademicPrograms.Application.AcademicPrograms.Command.AddRequirements.R
 using ES.AcademicPrograms.Application.AcademicPrograms.Command.AddUniversity;
 using ES.AcademicPrograms.Application.AcademicPrograms.Command.AddUniversity.RequestCommandMapper;
 using ES.AcademicPrograms.Application.AcademicPrograms.Queries.Country;
+using ES.AcademicPrograms.Application.AcademicPrograms.Queries.CountryId;
 using ES.AcademicPrograms.Application.AcademicPrograms.Queries.Course;
 using ES.AcademicPrograms.Application.AcademicPrograms.Queries.CourseByUniversity;
+using ES.AcademicPrograms.Application.AcademicPrograms.Queries.CourseId;
+using ES.AcademicPrograms.Application.AcademicPrograms.Queries.FilterCountry;
 using ES.AcademicPrograms.Application.AcademicPrograms.Queries.FilterCourse;
 using ES.AcademicPrograms.Application.AcademicPrograms.Queries.FilterIntake;
 using ES.AcademicPrograms.Application.AcademicPrograms.Queries.FilterRequirements;
 using ES.AcademicPrograms.Application.AcademicPrograms.Queries.FilterUniversity;
 using ES.AcademicPrograms.Application.AcademicPrograms.Queries.University;
 using ES.AcademicPrograms.Application.AcademicPrograms.Queries.UniversityByCountry;
+using ES.AcademicPrograms.Application.AcademicPrograms.Queries.UniversityId;
 using ES.AcademicPrograms.Application.Documents.Command.AddDocuments;
 using ES.AcademicPrograms.Application.Documents.Command.AddDocuments.RequestCommandMapper;
 using ES.AcademicPrograms.Application.Documents.Command.AddDocumentsType;
 using ES.AcademicPrograms.Application.Documents.Command.AddDocumentsType.RequestCommandMapper;
+using ES.AcademicPrograms.Application.Documents.Command.DeleteDocuments;
 using ES.AcademicPrograms.Application.Documents.Command.DocumentCheckList.NonRequiredDocuments;
 using ES.AcademicPrograms.Application.Documents.Command.DocumentCheckList.NonRequiredDocuments.RequestCommandMapper;
 using ES.AcademicPrograms.Application.Documents.Command.DocumentCheckList.RequiredDocument;
@@ -31,8 +36,6 @@ using ES.AcademicPrograms.Application.Documents.Queries.Documents.DocumentsById;
 using ES.AcademicPrograms.Application.Documents.Queries.Documents.FilterDocuments;
 using ES.AcademicPrograms.Application.Documents.Queries.DocumentsType.DocumentsTypes;
 using ES.AcademicPrograms.Application.Documents.Queries.DocumentsType.FilterDocumentsType;
-using ES.Certificate.Application.Certificates.Queries.SchoolAwards.AwardsById;
-using ES.Communication.Application.Communication.Command.PublishNotice;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
@@ -67,12 +70,11 @@ namespace TN.Web.Controllers.AcademicPrograms.v1
 
         #region Documents
         #region UploadApplicantDocuments
-        [HttpPost("UploadApplicantDocuments")]
-
-        public async Task<IActionResult> UploadApplicantDocuments([FromForm] UploadApplicantDocumentsRequest request)
+        [HttpPatch("UploadApplicantDocuments/{Id}")]
+        public async Task<IActionResult> UploadApplicantDocuments(string Id, [FromForm] UploadApplicantDocumentsRequest request)
         {
             //Mapping command and request
-            var command = request.ToCommand();
+            var command = request.ToCommand(Id);
             var commandResult = await _mediator.Send(command);
             #region Switch Statement
             return commandResult switch
@@ -87,7 +89,6 @@ namespace TN.Web.Controllers.AcademicPrograms.v1
             #endregion
         }
         #endregion
-
 
         #region AddDocuments
         [HttpPost("AddDocuments")]
@@ -133,21 +134,53 @@ namespace TN.Web.Controllers.AcademicPrograms.v1
         }
         #endregion
 
+        #region DeleteDocuments
+        [HttpDelete("DeleteDocuments/{id}")]
+
+        public async Task<IActionResult> DeleteDocuments([FromRoute] string id, CancellationToken cancellationToken)
+        {
+            var command = new DeleteDocumentsCommand(id);
+            var result = await _mediator.Send(command);
+            #region Switch Statement
+            return result switch
+            {
+
+                { IsSuccess: true } => Ok(new
+                {
+                    StatusCode = StatusCodes.Status204NoContent,
+                    Message = result.Message
+                }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(result.Errors),
+                _ => BadRequest("Invalid Fields")
+            };
+
+            #endregion
+        }
+
+        #endregion
+
         #region FilterDocuments
         [HttpGet("FilterDocuments")]
         public async Task<IActionResult> FilterDocuments([FromQuery] FilterDocumentsDTOs filterDocumentsDTOs, [FromQuery] PaginationRequest paginationRequest)
         {
             var query = new FilterDocumentsQuery(paginationRequest, filterDocumentsDTOs);
-            var queryResult = await _mediator.Send(query);
+            var filteredResult = await _mediator.Send(query);
             #region Switch Statement
-            return queryResult switch
+            return filteredResult switch
             {
-                { IsSuccess: true, Data: not null } => new JsonResult(queryResult.Data, new JsonSerializerOptions
+                { IsSuccess: true, Data: not null } => Ok(new
                 {
-                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                    Data = filteredResult.Data,
+                    Message = filteredResult.Message,
+                    StatusCode = StatusCodes.Status200OK
                 }),
-                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = queryResult.Message }),
-                { IsSuccess: false, Errors: not null } => HandleFailureResult(queryResult.Errors),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = filteredResult.Message,
+                    Data = (object?)null
+                }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(filteredResult.Errors),
                 _ => BadRequest("Invalid page and pageSize Fields")
             };
             #endregion
@@ -155,7 +188,6 @@ namespace TN.Web.Controllers.AcademicPrograms.v1
         }
 
         #endregion
-
 
         #endregion
 
@@ -258,16 +290,23 @@ namespace TN.Web.Controllers.AcademicPrograms.v1
         public async Task<IActionResult> FilterDocumentsType([FromQuery] FilterDocumentsTypeDTOs filterDocumentsTypeDTOs, [FromQuery] PaginationRequest paginationRequest)
         {
             var query = new FilterDocumentsTypeQuery(paginationRequest, filterDocumentsTypeDTOs);
-            var queryResult = await _mediator.Send(query);
+            var result = await _mediator.Send(query);
             #region Switch Statement
-            return queryResult switch
+            return result switch
             {
-                { IsSuccess: true, Data: not null } => new JsonResult(queryResult.Data, new JsonSerializerOptions
+                { IsSuccess: true, Data: not null } => Ok(new
                 {
-                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                    Data = result.Data,
+                    Message = result.Message,
+                    StatusCode = StatusCodes.Status200OK
                 }),
-                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = queryResult.Message }),
-                { IsSuccess: false, Errors: not null } => HandleFailureResult(queryResult.Errors),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = result.Message,
+                    Data = (object?)null
+                }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(result.Errors),
                 _ => BadRequest("Invalid page and pageSize Fields")
             };
             #endregion
@@ -311,11 +350,18 @@ namespace TN.Web.Controllers.AcademicPrograms.v1
             #region Switch Statement
             return result switch
             {
-                { IsSuccess: true, Data: not null } => new JsonResult(result.Data, new JsonSerializerOptions
+                { IsSuccess: true, Data: not null } => Ok(new
                 {
-                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                    Data = result.Data,
+                    Message = result.Message,
+                    StatusCode = StatusCodes.Status200OK
                 }),
-                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { result.Message }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = result.Message,
+                    Data = (object?)null
+                }),
                 { IsSuccess: false, Errors: not null } => HandleFailureResult(result.Errors),
                 _ => BadRequest("Invalid page and pageSize Fields")
             };
@@ -326,18 +372,46 @@ namespace TN.Web.Controllers.AcademicPrograms.v1
 
         #endregion
 
+
+        #region FilterCountry
+        [HttpGet("FilterCountry")]
+        public async Task<IActionResult> FilterCountry([FromQuery] FilterCountryDTOs filterCountryDTOs, [FromQuery] PaginationRequest paginationRequest)
+        {
+            var query = new FilterCountryQuery(paginationRequest, filterCountryDTOs);
+            var filteredResult = await _mediator.Send(query);
+            #region Switch Statement
+            return filteredResult switch
+            {
+                { IsSuccess: true, Data: not null } => Ok(new
+                {
+                    Data = filteredResult.Data,
+                    Message = filteredResult.Message,
+                    StatusCode = StatusCodes.Status200OK
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = filteredResult.Message,
+                    Data = (object?)null
+                }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(filteredResult.Errors),
+                _ => BadRequest("Invalid page and pageSize Fields")
+            };
+            #endregion
+
+        }
+
         #endregion
 
-
+        #endregion
 
         #region Course
 
-
-        #region CourseByUniversity
-        [HttpGet("CourseByUniversity/{universityId}")]
-        public async Task<IActionResult> CourseByUniversity([FromRoute] string universityId, [FromQuery] PaginationRequest paginationRequest)
+        #region CourseById
+        [HttpGet("CourseById/{courseId}")]
+        public async Task<IActionResult> CourseById([FromRoute] string courseId)
         {
-            var query = new CourseByUniversityQuery(universityId, paginationRequest);
+            var query = new CourseIdQuery(courseId);
             var queryResult = await _mediator.Send(query);
             #region Switch Statement
             return queryResult switch
@@ -354,6 +428,36 @@ namespace TN.Web.Controllers.AcademicPrograms.v1
 
         }
         #endregion
+
+
+        #region CourseByUniversity
+        [HttpGet("CourseByUniversity/{universityId}")]
+        public async Task<IActionResult> CourseByUniversity([FromRoute] string universityId, [FromQuery] PaginationRequest paginationRequest)
+        {
+            var query = new CourseByUniversityQuery(universityId, paginationRequest);
+            var result = await _mediator.Send(query);
+            #region Switch Statement
+            return result switch
+            {
+                { IsSuccess: true, Data: not null } => Ok(new
+                {
+                    Data = result.Data,
+                    Message = result.Message,
+                    StatusCode = StatusCodes.Status200OK
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = result.Message,
+                    Data = (object?)null
+                }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(result.Errors),
+                _ => BadRequest("Invalid page and pageSize Fields")
+            };
+            #endregion
+
+        }
+        #endregion
         #region GetAllCourse
         [HttpGet("GetAllCourse")]
         public async Task<IActionResult> Course([FromQuery] PaginationRequest paginationRequest)
@@ -363,11 +467,18 @@ namespace TN.Web.Controllers.AcademicPrograms.v1
             #region Switch Statement
             return result switch
             {
-                { IsSuccess: true, Data: not null } => new JsonResult(result.Data, new JsonSerializerOptions
+                { IsSuccess: true, Data: not null } => Ok(new
                 {
-                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                    Data = result.Data,
+                    Message = result.Message,
+                    StatusCode = StatusCodes.Status200OK
                 }),
-                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { result.Message }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = result.Message,
+                    Data = (object?)null
+                }),
                 { IsSuccess: false, Errors: not null } => HandleFailureResult(result.Errors),
                 _ => BadRequest("Invalid page and pageSize Fields")
             };
@@ -379,8 +490,6 @@ namespace TN.Web.Controllers.AcademicPrograms.v1
         #endregion
 
         #endregion
-
-
 
         #region AddIntake
         [HttpPost("AddIntake")]
@@ -482,6 +591,59 @@ namespace TN.Web.Controllers.AcademicPrograms.v1
         public async Task<IActionResult> UniversityByCountry([FromRoute] string countryId, [FromQuery] PaginationRequest paginationRequest)
         {
             var query = new UniversityByCountryQuery(countryId, paginationRequest);
+            var result = await _mediator.Send(query);
+            #region Switch Statement
+            return result switch
+            {
+                { IsSuccess: true, Data: not null } => Ok(new
+                {
+                    Data = result.Data,
+                    Message = result.Message,
+                    StatusCode = StatusCodes.Status200OK
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = result.Message,
+                    Data = (object?)null
+                }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(result.Errors),
+                _ => BadRequest("Invalid page and pageSize Fields")
+            };
+            #endregion
+
+        }
+        #endregion
+
+
+        #region CountryById
+        [HttpGet("CountryById/{countryId}")]
+        public async Task<IActionResult> CountryById([FromRoute] string countryId)
+        {
+            var query = new CountryIdQuery(countryId);
+            var queryResult = await _mediator.Send(query);
+            #region Switch Statement
+            return queryResult switch
+            {
+                { IsSuccess: true, Data: not null } => new JsonResult(queryResult.Data, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                }),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = queryResult.Message }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(queryResult.Errors),
+                _ => BadRequest("Invalid page and pageSize Fields")
+            };
+            #endregion
+
+        }
+        #endregion
+
+
+        #region UniversityById
+        [HttpGet("UniversityById/{universityId}")]
+        public async Task<IActionResult> UniversityById([FromRoute] string universityId)
+        {
+            var query = new UniversityIdQuery(universityId);
             var queryResult = await _mediator.Send(query);
             #region Switch Statement
             return queryResult switch
@@ -531,16 +693,23 @@ namespace TN.Web.Controllers.AcademicPrograms.v1
         public async Task<IActionResult> GetFilterUniversity([FromQuery] FilterUniversityDTOs filterUniversityDTOs, [FromQuery] PaginationRequest paginationRequest)
         {
             var query = new FilterUniversityQuery(paginationRequest, filterUniversityDTOs);
-            var filterUniversity = await _mediator.Send(query);
+            var filteredResult = await _mediator.Send(query);
             #region Switch Statement
-            return filterUniversity switch
+            return filteredResult switch
             {
-                { IsSuccess: true, Data: not null } => new JsonResult(filterUniversity.Data, new JsonSerializerOptions
+                { IsSuccess: true, Data: not null } => Ok(new
                 {
-                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                    Data = filteredResult.Data,
+                    Message = filteredResult.Message,
+                    StatusCode = StatusCodes.Status200OK
                 }),
-                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = filterUniversity.Message }),
-                { IsSuccess: false, Errors: not null } => HandleFailureResult(filterUniversity.Errors),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = filteredResult.Message,
+                    Data = (object?)null
+                }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(filteredResult.Errors),
                 _ => BadRequest("Invalid page and pageSize Fields")
             };
             #endregion
@@ -556,16 +725,23 @@ namespace TN.Web.Controllers.AcademicPrograms.v1
         public async Task<IActionResult> GetFilterIntake([FromQuery] FilterIntakeDTOs filterIntakeDTOs, [FromQuery] PaginationRequest paginationRequest)
         {
             var query = new FilterIntakeQuery(paginationRequest, filterIntakeDTOs);
-            var filterIntake = await _mediator.Send(query);
+            var filteredResult = await _mediator.Send(query);
             #region Switch Statement
-            return filterIntake switch
+            return filteredResult switch
             {
-                { IsSuccess: true, Data: not null } => new JsonResult(filterIntake.Data, new JsonSerializerOptions
+                { IsSuccess: true, Data: not null } => Ok(new
                 {
-                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                    Data = filteredResult.Data,
+                    Message = filteredResult.Message,
+                    StatusCode = StatusCodes.Status200OK
                 }),
-                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = filterIntake.Message }),
-                { IsSuccess: false, Errors: not null } => HandleFailureResult(filterIntake.Errors),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = filteredResult.Message,
+                    Data = (object?)null
+                }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(filteredResult.Errors),
                 _ => BadRequest("Invalid page and pageSize Fields")
             };
             #endregion
@@ -581,16 +757,23 @@ namespace TN.Web.Controllers.AcademicPrograms.v1
         public async Task<IActionResult> GetFilterRequirements([FromQuery] FilterRequirementsDTOs filterRequirementsDTOs, [FromQuery] PaginationRequest paginationRequest)
         {
             var query = new FilterRequirementsQuery(paginationRequest, filterRequirementsDTOs);
-            var filterRequirements = await _mediator.Send(query);
+            var filteredResult = await _mediator.Send(query);
             #region Switch Statement
-            return filterRequirements switch
+            return filteredResult switch
             {
-                { IsSuccess: true, Data: not null } => new JsonResult(filterRequirements.Data, new JsonSerializerOptions
+                { IsSuccess: true, Data: not null } => Ok(new
                 {
-                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                    Data = filteredResult.Data,
+                    Message = filteredResult.Message,
+                    StatusCode = StatusCodes.Status200OK
                 }),
-                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = filterRequirements.Message }),
-                { IsSuccess: false, Errors: not null } => HandleFailureResult(filterRequirements.Errors),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = filteredResult.Message,
+                    Data = (object?)null
+                }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(filteredResult.Errors),
                 _ => BadRequest("Invalid page and pageSize Fields")
             };
             #endregion
@@ -607,16 +790,23 @@ namespace TN.Web.Controllers.AcademicPrograms.v1
         public async Task<IActionResult> GetFilterCourse([FromQuery] FilterCourseDTOs filterCourseDTOs, [FromQuery] PaginationRequest paginationRequest)
         {
             var query = new FilterCourseQuery(paginationRequest, filterCourseDTOs);
-            var filterCourse = await _mediator.Send(query);
+            var filteredResult = await _mediator.Send(query);
             #region Switch Statement
-            return filterCourse switch
+            return filteredResult switch
             {
-                { IsSuccess: true, Data: not null } => new JsonResult(filterCourse.Data, new JsonSerializerOptions
+                { IsSuccess: true, Data: not null } => Ok(new
                 {
-                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                    Data = filteredResult.Data,
+                    Message = filteredResult.Message,
+                    StatusCode = StatusCodes.Status200OK
                 }),
-                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new { Message = filterCourse.Message }),
-                { IsSuccess: false, Errors: not null } => HandleFailureResult(filterCourse.Errors),
+                { IsSuccess: true, Data: null, Message: not null } => new JsonResult(new
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = filteredResult.Message,
+                    Data = (object?)null
+                }),
+                { IsSuccess: false, Errors: not null } => HandleFailureResult(filteredResult.Errors),
                 _ => BadRequest("Invalid page and pageSize Fields")
             };
             #endregion

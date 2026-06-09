@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
+using ES.AcademicPrograms.Application.AcademicPrograms.Queries.FilterCourse;
 using ES.AcademicPrograms.Application.AcademicPrograms.Queries.FilterIntake;
 using ES.AcademicPrograms.Application.ServiceInterface;
 using MediatR;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,14 +27,18 @@ namespace ES.AcademicPrograms.Application.AcademicPrograms.Queries.FilterRequire
         }
         public async Task<Result<PagedResult<FilterRequirementsResponse>>> Handle(FilterRequirementsQuery request, CancellationToken cancellationToken)
         {
+
             try
             {
+                var entityName = typeof(FilterRequirementsQuery).Name
+               .Replace("Filter", "")
+               .Replace("Query", "");
 
                 var result = await _requirementsServices.FilterRequirements(request.PaginationRequest, request.FilterRequirementsDTOs);
 
-                var resultDisplay = _mapper.Map<PagedResult<FilterRequirementsResponse>>(result.Data);
+                var filterResult = _mapper.Map<PagedResult<FilterRequirementsResponse>>(result.Data);
 
-                return Result<PagedResult<FilterRequirementsResponse>>.Success(resultDisplay);
+                return Result<PagedResult<FilterRequirementsResponse>>.Success(filterResult, $"{entityName} return successfully");
             }
             catch (Exception ex)
             {

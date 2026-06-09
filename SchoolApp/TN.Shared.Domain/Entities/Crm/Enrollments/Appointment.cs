@@ -25,9 +25,7 @@ namespace TN.Shared.Domain.Entities.Crm.Enrollments
         public Appointment(
             string id,
             string leadId,
-            TimeOnly startTime,
-            TimeOnly endTime,
-            DateTime appointmentDate,
+            string appointmentDate,
             string counselorId,
             string notes,
             AppointmentStatus appointmentStatus,
@@ -40,8 +38,6 @@ namespace TN.Shared.Domain.Entities.Crm.Enrollments
             ) : base(id)
         {
             LeadId = leadId;
-            StartTime = startTime;
-            EndTime = endTime;
             AppointmentDate = appointmentDate;
             CounselorId = counselorId;
             Notes = notes;
@@ -68,12 +64,9 @@ namespace TN.Shared.Domain.Entities.Crm.Enrollments
             AppointmentStatus = AppointmentStatus.Cancelled;
             Notes = notes;
         }
-
-        public TimeOnly StartTime { get; set; }
-        public TimeOnly EndTime { get; set; }
         public string LeadId { get; set; }
         public CrmLead CrmLead { get; set; }
-        public DateTime AppointmentDate { get; set; }
+        public string AppointmentDate { get; set; }
         public string CounselorId { get; set; }
         public Counselor Counselor { get; set; }
         public string Notes { get; set; }

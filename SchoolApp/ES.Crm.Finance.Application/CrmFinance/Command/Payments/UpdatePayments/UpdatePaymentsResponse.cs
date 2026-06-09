@@ -13,7 +13,7 @@ namespace ES.Crm.Finance.Application.CrmFinance.Command.Payments.UpdatePayments
         string id = "",
             string invoiceId = "",
             decimal amount = 0,
-            DateTime paymentDate = default,
+            string paymentDate = default,
             PaymentMethods paymentMethod = default,
             string referenceNumber = "",
             PaymentStatus paymentStatus = default

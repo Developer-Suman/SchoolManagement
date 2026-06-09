@@ -12,6 +12,8 @@ namespace ES.AcademicPrograms.Application.AcademicPrograms.Command.AddIntake
         NameOfEnglishMonths month,
         DateTime? deadline,
         bool? isOpen,
+        string countryId,
+        string universityId,
         string courseId
         );
 }

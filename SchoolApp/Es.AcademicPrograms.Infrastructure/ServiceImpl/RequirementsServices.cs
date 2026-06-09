@@ -53,6 +53,7 @@ namespace ES.AcademicPrograms.Infrastructure.ServiceImpl
                 try
                 {
 
+
                     string newId = Guid.NewGuid().ToString();
                     var FyId = _fiscalContext.CurrentFiscalYearId;
                     var schoolId = _tokenService.SchoolId().FirstOrDefault() ?? "";
@@ -61,8 +62,10 @@ namespace ES.AcademicPrograms.Infrastructure.ServiceImpl
 
                     var add = new Requirement(
                             newId,
+                            addRequirementsCommand.title,
                         addRequirementsCommand.descriptions,
                         addRequirementsCommand.countryId,
+                        addRequirementsCommand.universityId,
                         addRequirementsCommand.courseId,
                              addRequirementsCommand.documentsCheckListDTOs?.Select(e => new DocumentChecklist(
                             Guid.NewGuid().ToString(),
@@ -96,7 +99,7 @@ namespace ES.AcademicPrograms.Infrastructure.ServiceImpl
                 catch (Exception ex)
                 {
                     scope.Dispose();
-                    throw new Exception("An error occurred while adding ", ex);
+                    throw;
 
                 }
             }
@@ -150,15 +153,22 @@ namespace ES.AcademicPrograms.Infrastructure.ServiceImpl
                     .OrderByDescending(x => x.CreatedAt)
                     .Select(i => new FilterRequirementsResponse(
                         i.Id,
+                        i.Title,
                         i.Descriptions,
                         i.CourseId,
+                        i.University.Name,
+                        i.University.Address,
+                        i.Course.Title,
+                        i.Country.Name,
                         i.CountryId,
                         i.DocumentChecklists
                             .Select(x => new DocCheckListDTOs(
+                                x.Id,
                                 x.DocumentTypeId,
+                                x.DocumentType.Name,
                                 x.IsRequired
                             ))
-                            .ToList(), // <-- moved outside
+                            .ToList(), 
                         i.IsActive,
                         i.SchoolId,
                         i.CreatedBy,

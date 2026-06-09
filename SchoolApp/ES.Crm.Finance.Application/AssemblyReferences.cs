@@ -1,4 +1,5 @@
 ﻿using ES.Crm.Finance.Application.CrmFinance.Command.InstallmentsPlan.AddInstallmentsPlan;
+using ES.Crm.Finance.Application.CrmFinance.Command.InstallmentsPlan.UpdateInstallmentsPlan;
 using ES.Crm.Finance.Application.CrmFinance.Command.Invoice.AddInvoice;
 using ES.Crm.Finance.Application.CrmFinance.Command.Invoice.UpdateInvoice;
 using ES.Crm.Finance.Application.CrmFinance.Command.Payments.Addpayments;
@@ -20,9 +21,11 @@ namespace ES.Crm.Finance.Application
         {
             services.AddMediatR(x => x.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
             services.AddScoped<IValidator<AddInstallmentsPlanCommand>, AddInstallmentsPlanCommandValidator>();
+            services.AddScoped<IValidator<UpdateInstallmentsPlanCommand>, UpdateInstallmentsPlanCommandValidator>();
             services.AddScoped<IValidator<AddPaymentsCommand>, AddPaymentsCommandValidator>();
             services.AddScoped<IValidator<AddInvoiceCommand>, AddInvoiceCommandValidator>();
             services.AddScoped<IValidator<UpdateInvoiceCommand>, UpdateInvoiceCommandValidator>();
+            services.AddScoped<IValidator<UpdatePaymentsCommand>, UpdatePaymentsCommandValidator>();
             return services;
         }
     }

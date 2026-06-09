@@ -10,7 +10,8 @@ namespace ES.AcademicPrograms.Application.Documents.Command.UploadApplicantDocum
 {
     public record UploadApplicantDocumentsCommand
     (
+        string id,
         string applicantId,
-        List<UploadApplicantDocumentsDTOs> UploadApplicantDocumentsDTOs
+        List<UploadApplicantDocumentsDTOs> documentsByIdDTOs
         ) : IRequest<Result<UploadApplicantDocumentsResponse>>;
 }

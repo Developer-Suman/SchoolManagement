@@ -111,7 +111,12 @@ namespace TN.Web.BaseControllers
             }
             else
             {
-                return BadRequest(errors);
+                return BadRequest(new
+                {
+                    Success = false,
+                    Message = errors.FirstOrDefault(),
+                    Errors = errors
+                });
             }
         }
 

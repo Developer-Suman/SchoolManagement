@@ -11,9 +11,9 @@ namespace ES.Crm.Finance.Application.CrmFinance.Command.Invoice.AddInvoice
     public record AddInvoiceCommand
     (
          string applicantId,
-        decimal paidAmount,
         DateTime issueDate,
         DateTime? dueDate,
+        bool isInstallments,
         List<AddInvoiceItemDTOs> addInvoiceItemDTOs
         ) : IRequest<Result<AddInvoiceResponse>>;
 }

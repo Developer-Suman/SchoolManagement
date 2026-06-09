@@ -13,7 +13,7 @@ namespace ES.Enrolment.Application.Enrolments.Queries.FollowUp.FollowUpId
             string userId = "",
             TimeOnly startTime = default,
             TimeOnly endTime = default,
-            DateTime followUpDate = default,
+            string followUpDate = "",
             string notes = "",
             FollowUpStatus followUpStatus = default,
             string appointmentId = "",

@@ -26,8 +26,8 @@ namespace ES.Enrolment.Application.Enrolments.Command.Appointment.AddAppointment
         public async Task<Result<AddAppointmentResponse>> Handle(AddAppointmentCommand request, CancellationToken cancellationToken)
         {
             var entityName = typeof(AddAppointmentCommand).Name
-         .Replace("Add", "")
-         .Replace("Command", "");
+                 .Replace("Add", "")
+                 .Replace("Command", "");
 
             try
             {
